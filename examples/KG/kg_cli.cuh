@@ -123,7 +123,7 @@ inline void printHelpAndExit(const SimParams& dflt) {
       << "      --init-velocities\n"
       << "                      Ignore input velocities and initialize a Maxwell distribution at the requested temperature\n"
       << "      --remove-com-velocity\n"
-      << "                      Subtract the center-of-mass velocity from the system before step 0 and after each integration step\n\n"
+      << "                      Subtract the center-of-mass velocity before step 0 and then every thermo interval\n\n"
       << "Nonbonded (WCA):\n"
       << "  -s, --sigma S       LJ sigma (default: " << dflt.sigma << ")\n"
       << "  -e, --epsilon E     LJ epsilon (default: " << dflt.epsilon

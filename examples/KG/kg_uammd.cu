@@ -171,11 +171,11 @@ int main(int argc, char** argv){
   for(int step=1; step<=par.steps; ++step){
     // Advance positions/velocities by one integrator step, including all forces.
     integrator->forwardTime();
-    if(par.removeCOMVelocity){
-      kg::removeCenterOfMassVelocity(pd, false);
-    }
 
     if(par.thermoEvery>0 && step % par.thermoEvery == 0){
+      if(par.removeCOMVelocity){
+        kg::removeCenterOfMassVelocity(pd, false);
+      }
       const auto thermoNow =
           kg::computeThermoSnapshot(integrator, pd, wca, fene, ld, simulationBox,
                                     par.epsilon, par.sigma,
