@@ -25,8 +25,7 @@ inline std::shared_ptr<uammd::Interactor> createWCAInteractor_CellList(
     int atomTypes,
     double epsilon,
     double sigma,
-    double skin,
-    bool forceNBody = false) {
+    double skin) {
   using namespace uammd;
 
   using PairForce = PairForces<Potential::LJ, VerletList>;
@@ -48,16 +47,8 @@ inline std::shared_ptr<uammd::Interactor> createWCAInteractor_CellList(
 
   PairForce::Parameters params;
   params.box = box;
-  if (forceNBody) {
-    // PairForces switches to NBody when every box dimension is <= 3*rcut.
-    // This is only a debugging mode to isolate neighbour-list failures.
-    const real debugBoxLength = static_cast<real>(2.9 * cutoff);
-    params.box = Box(make_real3(debugBoxLength));
-    params.box.setPeriodicity(true, true, true);
-  } else {
-    // The default production path uses an explicit Verlet neighbour list.
-    params.nl = std::make_shared<VerletList>(particleData);
-  }
+  // The standard KG setup uses an explicit Verlet neighbour list.
+  params.nl = std::make_shared<VerletList>(particleData);
   if (params.nl && skin > 0.0) {
     // UAMMD stores the neighbour-list radius as a multiple of the force cutoff.
     const real multiplier = static_cast<real>((cutoff + skin) / cutoff);

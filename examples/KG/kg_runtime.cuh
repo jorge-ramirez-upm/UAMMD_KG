@@ -184,18 +184,48 @@ inline void validateInputConfiguration(const LammpsData& ld,
     }
   }
 
-  if (par.enableWCA) {
-    const auto pairInfo = analyzeClosestPairWCA(ld, simulationBox);
-    uammd::System::log<uammd::System::MESSAGE>(
-        "[KG] Closest initial pair for WCA: atoms %d and %d, distance %.12g",
-        pairInfo.i + 1, pairInfo.j + 1, pairInfo.distance);
-    if (pairInfo.overlapsBelow1e6 > 0) {
-      std::ostringstream out;
-      out << "Input validation error: found " << pairInfo.overlapsBelow1e6
-          << " particle pairs with separation < 1e-6 under PBC.\n"
-          << "Closest pair is atoms " << (pairInfo.i + 1) << " and "
-          << (pairInfo.j + 1) << " with distance " << pairInfo.distance << ".";
-      throw std::runtime_error(out.str());
+  const auto pairInfo = analyzeClosestPairWCA(ld, simulationBox);
+  uammd::System::log<uammd::System::MESSAGE>(
+      "[KG] Closest initial pair for WCA: atoms %d and %d, distance %.12g",
+      pairInfo.i + 1, pairInfo.j + 1, pairInfo.distance);
+  if (pairInfo.overlapsBelow1e6 > 0) {
+    std::ostringstream out;
+    out << "Input validation error: found " << pairInfo.overlapsBelow1e6
+        << " particle pairs with separation < 1e-6 under PBC.\n"
+        << "Closest pair is atoms " << (pairInfo.i + 1) << " and "
+        << (pairInfo.j + 1) << " with distance " << pairInfo.distance << ".";
+    throw std::runtime_error(out.str());
+  }
+}
+
+inline void removeCenterOfMassVelocity(
+    std::shared_ptr<uammd::ParticleData> particles,
+    bool is2D = false) {
+  using namespace uammd;
+
+  const int numberParticles = particles->getNumParticles();
+  if (numberParticles <= 0) {
+    return;
+  }
+
+  auto vel = particles->getVel(access::cpu, access::write);
+  auto mass = particles->getMass(access::cpu, access::read);
+
+  real3 vcm = make_real3(real(0.0));
+  real totalMass = real(0.0);
+  for (int i = 0; i < numberParticles; ++i) {
+    vcm += mass[i] * vel[i];
+    totalMass += mass[i];
+  }
+
+  if (totalMass > real(0.0)) {
+    vcm /= totalMass;
+  }
+
+  for (int i = 0; i < numberParticles; ++i) {
+    vel[i] -= vcm;
+    if (is2D) {
+      vel[i].z = real(0.0);
     }
   }
 }
@@ -217,26 +247,19 @@ inline void initializeVelocitiesAtTemperature(
   std::mt19937 gen(particles->getSystem()->rng().next32());
   std::normal_distribution<real> gaussian(real(0.0), real(1.0));
 
-  real3 vcm = make_real3(real(0.0));
-  real totalMass = real(0.0);
   for (int i = 0; i < numberParticles; ++i) {
     const real mi = mass[i];
     const real sigma = std::sqrt(real(temperature) / mi);
     vel[i] = make_real3(sigma * gaussian(gen),
                         sigma * gaussian(gen),
                         is2D ? real(0.0) : sigma * gaussian(gen));
-    vcm += mi * vel[i];
-    totalMass += mi;
   }
 
-  if (totalMass > real(0.0)) {
-    vcm /= totalMass;
-  }
+  removeCenterOfMassVelocity(particles, is2D);
 
   double kinetic = 0.0;
   const double dof = is2D ? 2.0 * numberParticles : 3.0 * numberParticles;
   for (int i = 0; i < numberParticles; ++i) {
-    vel[i] -= vcm;
     kinetic += 0.5 * static_cast<double>(mass[i]) *
                static_cast<double>(dot(vel[i], vel[i]));
   }
@@ -376,7 +399,6 @@ inline ThermoSnapshot computeThermoSnapshot(
     const SimulationBox& simulationBox,
     double epsilon,
     double sigma,
-    bool repartitionBondedWCA,
     double volume,
     int numberParticles) {
   ThermoSnapshot thermo;
@@ -384,12 +406,10 @@ inline ThermoSnapshot computeThermoSnapshot(
   thermo.kineticEnergy = detail::sumKineticEnergy(integrator, particles);
   thermo.nonBondedEnergy = detail::sumInteractorEnergy(nonBondedInteractor, particles);
   thermo.bondedEnergy = detail::sumInteractorEnergy(bondedInteractor, particles);
-  if (repartitionBondedWCA) {
-    const auto correction =
-        computeBondedWCACorrection(ld, particles, simulationBox, epsilon, sigma);
-    thermo.bondedEnergy += correction.energy;
-    thermo.nonBondedEnergy -= correction.energy;
-  }
+  const auto correction =
+      computeBondedWCACorrection(ld, particles, simulationBox, epsilon, sigma);
+  thermo.bondedEnergy += correction.energy;
+  thermo.nonBondedEnergy -= correction.energy;
   thermo.totalEnergy =
       thermo.kineticEnergy + thermo.nonBondedEnergy + thermo.bondedEnergy;
 
@@ -487,9 +507,7 @@ inline void logRunConfiguration(const SimParams& par,
                                (ld.xhi - ld.xlo), (ld.yhi - ld.ylo), (ld.zhi - ld.zlo));
   System::log<System::MESSAGE>("[KG] dt %g T %g xi %g skin %g",
                                par.dt, par.temperature, par.friction, par.skin);
-  System::log<System::MESSAGE>("[KG] WCA %s FENE %s",
-                               par.enableWCA ? "on" : "off",
-                               par.enableFENE ? "on" : "off");
+  System::log<System::MESSAGE>("[KG] Model KG (WCA + FENE)");
   System::log<System::MESSAGE>("[KG] Dump output %s",
                                par.gzipDump ? "gzip-compressed" : "plain text");
   System::log<System::MESSAGE>("[KG] Velocities %s",
@@ -497,9 +515,8 @@ inline void logRunConfiguration(const SimParams& par,
                                    ? "initialized from requested temperature"
                                    : (ld.hasVelocities ? "read from input file"
                                                        : "not present in input; using zeros"));
-  if (par.forceWCANBody) {
-    System::log<System::MESSAGE>("[KG] WCA debugging mode: forcing PairForces NBody path");
-  }
+  System::log<System::MESSAGE>("[KG] COM velocity removal %s",
+                               par.removeCOMVelocity ? "on" : "off");
   System::log<System::MESSAGE>("[KG] %s", thermoHeader.c_str());
 }
 

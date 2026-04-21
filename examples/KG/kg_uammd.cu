@@ -90,25 +90,17 @@ int main(int argc, char** argv){
   }
 
   // 4. Translate the LAMMPS bond topology into the auxiliary format expected
-  // by UAMMD's bonded-force module, if FENE is enabled.
-  std::string bondData;
-  if(par.enableFENE){
-    bondData = kg::buildUammdBondDataFromLammps(ld, par.feneK, par.feneR0);
-  }
+  // by UAMMD's bonded-force module.
+  const std::string bondData =
+      kg::buildUammdBondDataFromLammps(ld, par.feneK, par.feneR0);
 
-  // 5. Create the two interaction terms that define the KG model:
+  // 5. Build the fixed Kremer-Grest force field:
   //   - WCA repulsion between all particles
   //   - FENE springs along each chain bond
-  std::shared_ptr<Interactor> wca;
-  std::shared_ptr<Interactor> fene;
-  if(par.enableWCA){
-    wca = kg::createWCAInteractor_CellList(pd, simulationBox.box, ld.atomTypes, par.epsilon,
-                                           par.sigma, par.skin,
-                                           par.forceWCANBody);
-  }
-  if(par.enableFENE){
-    fene = kg::createFENEInteractor(pd, simulationBox.box, bondData);
-  }
+  const auto wca =
+      kg::createWCAInteractor_CellList(pd, simulationBox.box, ld.atomTypes,
+                                       par.epsilon, par.sigma, par.skin);
+  const auto fene = kg::createFENEInteractor(pd, simulationBox.box, bondData);
 
   // 6. Configure the time integrator.
   // `GronbechJensen` is UAMMD's Langevin-style NVT integrator.
@@ -121,16 +113,15 @@ int main(int argc, char** argv){
   if(par.initializeVelocities){
     kg::initializeVelocitiesAtTemperature(pd, par.temperature, false);
   }
+  if(par.removeCOMVelocity){
+    kg::removeCenterOfMassVelocity(pd, false);
+  }
   auto integrator = std::make_shared<NVT>(pd, ip);
 
   // Register both force contributions with the integrator so each time step
   // includes nonbonded and bonded forces.
-  if(wca){
-    integrator->addInteractor(wca);
-  }
-  if(fene){
-    integrator->addInteractor(fene);
-  }
+  integrator->addInteractor(wca);
+  integrator->addInteractor(fene);
 
   // 7. Open the trajectory and thermo outputs before the run starts so later
   // writes can stream directly from the time loop.
@@ -156,8 +147,7 @@ int main(int argc, char** argv){
 
   const auto thermo0 =
       kg::computeThermoSnapshot(integrator, pd, wca, fene, ld, simulationBox,
-                                par.epsilon,
-                                par.sigma, par.enableWCA && par.enableFENE,
+                                par.epsilon, par.sigma,
                                 simulationBox.box.getVolume(), ld.natoms);
   const std::string thermoRow0 = kg::formatThermoRow(0, thermo0);
   System::log<System::MESSAGE>("[KG] %s", thermoRow0.c_str());
@@ -181,12 +171,14 @@ int main(int argc, char** argv){
   for(int step=1; step<=par.steps; ++step){
     // Advance positions/velocities by one integrator step, including all forces.
     integrator->forwardTime();
+    if(par.removeCOMVelocity){
+      kg::removeCenterOfMassVelocity(pd, false);
+    }
 
     if(par.thermoEvery>0 && step % par.thermoEvery == 0){
       const auto thermoNow =
           kg::computeThermoSnapshot(integrator, pd, wca, fene, ld, simulationBox,
                                     par.epsilon, par.sigma,
-                                    par.enableWCA && par.enableFENE,
                                     simulationBox.box.getVolume(), ld.natoms);
       const std::string thermoRow = kg::formatThermoRow(step, thermoNow);
       System::log<System::MESSAGE>("[KG] %s", thermoRow.c_str());

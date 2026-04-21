@@ -15,8 +15,8 @@
 
 namespace kg {
 
-// User-facing run configuration. Defaults are chosen so the example can be
-// launched with only an input data file.
+// User-facing run configuration. The KG example always runs with both WCA and
+// FENE enabled, so only physical parameters and output cadence remain exposed.
 struct SimParams {
   std::string dataFile = "input.lammpsdat";
 
@@ -37,10 +37,8 @@ struct SimParams {
 
   double skin = 0.3;
 
-  bool enableWCA = true;
-  bool enableFENE = true;
-  bool forceWCANBody = false;
   bool initializeVelocities = false;
+  bool removeCOMVelocity = false;
   bool gzipDump = false;
 };
 
@@ -123,7 +121,9 @@ inline void printHelpAndExit(const SimParams& dflt) {
       << "  -x, --friction XI   Friction (default: " << dflt.friction
       << ")\n"
       << "      --init-velocities\n"
-      << "                      Ignore input velocities and initialize a Maxwell distribution at the requested temperature\n\n"
+      << "                      Ignore input velocities and initialize a Maxwell distribution at the requested temperature\n"
+      << "      --remove-com-velocity\n"
+      << "                      Subtract the center-of-mass velocity from the system before step 0 and after each integration step\n\n"
       << "Nonbonded (WCA):\n"
       << "  -s, --sigma S       LJ sigma (default: " << dflt.sigma << ")\n"
       << "  -e, --epsilon E     LJ epsilon (default: " << dflt.epsilon
@@ -134,11 +134,7 @@ inline void printHelpAndExit(const SimParams& dflt) {
       << ")\n\n"
       << "Neighbor list:\n"
       << "  -w, --skin SKIN     Neighbor-list skin (default: " << dflt.skin
-      << ")\n\n"
-      << "Debug toggles:\n"
-      << "      --no-wca        Disable the WCA interactor\n"
-      << "      --no-fene       Disable the FENE interactor\n"
-      << "      --wca-nbody     Force WCA through PairForces' NBody path for debugging\n\n";
+      << ")\n\n";
   std::exit(0);
 }
 
@@ -174,16 +170,12 @@ inline SimParams parseArgs(int argc, char** argv) {
       p.feneR0 = std::stod(detail::getArg(i, argc, argv));
     else if (a == "-w" || a == "--skin")
       p.skin = std::stod(detail::getArg(i, argc, argv));
-    else if (a == "--no-wca")
-      p.enableWCA = false;
-    else if (a == "--no-fene")
-      p.enableFENE = false;
-    else if (a == "--wca-nbody")
-      p.forceWCANBody = true;
     else if (a == "-z" || a == "--dump-gz")
       p.gzipDump = true;
     else if (a == "--init-velocities")
       p.initializeVelocities = true;
+    else if (a == "--remove-com-velocity")
+      p.removeCOMVelocity = true;
     else if (a == "-h" || a == "--help")
       printHelpAndExit(SimParams{});
     else
