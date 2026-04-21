@@ -2,6 +2,7 @@
 
 #Default log level is 5, which prints up to MESSAGE, 0 will only print critical errors and 14 will print everything up to the most low level debug information
 LOG_LEVEL=5
+DEBUG_LOG_LEVEL=14
 
 NVCC=nvcc
 CXX=/usr/local/gcc-11.2.0/bin/g++
@@ -10,22 +11,28 @@ CUDA_ROOT=$(shell dirname `which nvcc`)/..
 UAMMD_ROOT=../../
 #Uncomment to compile in double precision mode
 #DOUBLE_PRECISION=-DDOUBLE_PRECISION
-INCLUDEFLAGS=-I$(CUDA_ROOT)/include -I$(UAMMD_ROOT)/src -I$(UAMMD_ROOT)/src/third_party
-NVCCFLAGS=-ccbin=$(CXX) -std=c++14 -O3 $(INCLUDEFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) $(DOUBLE_PRECISION) --extended-lambda
+INCLUDEFLAGS=-I. -I$(CUDA_ROOT)/include -I$(UAMMD_ROOT)/src -I$(UAMMD_ROOT)/src/third_party
+COMMON_NVCCFLAGS=-ccbin=$(CXX) -std=c++14 $(INCLUDEFLAGS) $(DOUBLE_PRECISION) --extended-lambda
+RELEASE_NVCCFLAGS=-O3
+DEBUG_NVCCFLAGS=-O0 -g -G
 
-all: $(patsubst %.cu, %, $(wildcard *.cu))
+PROGRAMS=kg_uammd
+DEBUG_PROGRAMS=$(addsuffix _debug,$(PROGRAMS))
+UTILITY_HEADERS=kg_cli.cuh kg_lammps_io.cuh kg_interactors.cuh
+
+all: $(PROGRAMS)
+debug: $(DEBUG_PROGRAMS)
+
+kg_uammd: kg_uammd.cu $(UTILITY_HEADERS) Makefile
+	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) $(RELEASE_NVCCFLAGS) $< -o $@
+
+kg_uammd_debug: kg_uammd.cu $(UTILITY_HEADERS) Makefile
+	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(DEBUG_LOG_LEVEL) $(DEBUG_NVCCFLAGS) $< -o $@
 
 %: %.cu Makefile
-	$(NVCC) $(NVCCFLAGS) $< -o $(@:.out=)
+	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) $(RELEASE_NVCCFLAGS) $< -o $(@:.out=)
 
-
-12-%: 12-%.cu Makefile
-	$(NVCC) $(NVCCFLAGS) $< -o $(@:.out=) -lcufft
-
-13-%: 13-%.cu Makefile
-	$(NVCC) $(NVCCFLAGS) $< -o $(@:.out=) -lcufft
-
-clean: $(patsubst %.cu, %.clean, $(wildcard *.cu))
+clean: $(patsubst %, %.clean, $(PROGRAMS) $(DEBUG_PROGRAMS))
 
 %.clean:
 	rm -f $(@:.clean=)

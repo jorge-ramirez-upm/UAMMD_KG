@@ -1,471 +1,346 @@
 // kg_uammd.cu
 //
-// Minimal Kremer–Grest (KG) polymer melt using UAMMD (core, header-only).
+// Main orchestration file for the Kremer-Grest UAMMD example.
 //
-// Adds requested features:
-//   - LAMMPS-style dump file (lammpstrj) with x,y,z,vx,vy,vz
-//   - Alternating restart files in LAMMPS data format:
-//       restart1.lammpsdat, restart2.lammpsdat
-//   - Explicit neighbor list: CellList (good for dense/high-density GPU systems)
-//   - --help shows default values
+// Utility tasks are split into small modules:
+//   - kg_cli.*        command-line parsing and defaults
+//   - kg_lammps_io.*  LAMMPS readers/writers and restart helpers
+//   - kg_interactors.* force/interactor construction
 //
-// Physics:
-//   - Nonbonded: WCA (repulsive LJ) via Potential::LJ with cutOff=2^(1/6)*sigma and shift=true
-//   - Bonds:     FENE via BondedForces<BondedType::FENE,2> reading a generated bond file
-//   - Dynamics:  Langevin using VerletNVT::GronbechJensen
-//
-// Notes:
-//   - LAMMPS atom IDs are 1-based; UAMMD is 0-based internally. We convert when building bond file.
-//   - This reader targets a common LAMMPS "data" format with:
-//       Atoms: id mol type x y z
-//       Bonds: id bond_type ai aj
-//     (It ignores extra trailing columns in Atoms/Bonds lines.)
-//   - We store mol IDs so we can write restarts back in the same atom_style bond layout.
+// Important conventions to keep in mind while reading:
+//   - LAMMPS atom IDs in the input file are 1-based.
+//   - UAMMD particle indexing is 0-based.
 
 #include <uammd.cuh>
 
 #include "Integrator/VerletNVT.cuh"
-#include "Interactor/PairForces.cuh"
-#include "Interactor/Potential/Potential.cuh"
-#include "Interactor/BondedForces.cuh"
+#include "kg_cli.cuh"
+#include "kg_interactors.cuh"
+#include "kg_lammps_io.cuh"
 
-#include "Interactor/NeighbourList/CellList.cuh"
-
-
-// Neighbor list (linked-cell). UAMMD provides several NL options; CellList is typically best for dense systems.
-#include "Interactor/NeighbourList/CellList.cuh"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <cmath>
-#include <string>
-#include <vector>
+#include <chrono>
+#include <limits>
 #include <fstream>
-#include <sstream>
+#include <iomanip>
 #include <iostream>
-#include <algorithm>
-#include <stdexcept>
+#include <random>
+#include <sstream>
+#include <thrust/fill.h>
+#include <thrust/reduce.h>
 
-// --------------------------
-// CLI parsing (minimal)
-// --------------------------
-static std::string getArg(int& i, int argc, char** argv){
-  if(i+1 >= argc){
-    throw std::runtime_error(std::string("Missing value after ") + argv[i]);
-  }
-  return std::string(argv[++i]);
+static void resetParticleEnergy(std::shared_ptr<uammd::ParticleData> particles) {
+  using namespace uammd;
+
+  auto energy = particles->getEnergy(access::location::gpu, access::mode::write);
+  thrust::fill(thrust::cuda::par, energy.begin(), energy.end(), real(0.0));
 }
 
-struct SimParams{
-  // I/O
-  std::string dataFile      = "system.data";
-  std::string dumpFile      = "traj.lammpstrj";
-  std::string restartBase   = "restart"; // will produce restart1.lammpsdat/restart2.lammpsdat
+static void resetParticleVirial(std::shared_ptr<uammd::ParticleData> particles) {
+  using namespace uammd;
 
-  // Run control
-  int steps                 = 10000;
-  int dumpEvery             = 1000;
-  int thermoEvery           = 1000;
-  int restartEvery          = 5000; // write alternating restarts
+  auto virial = particles->getVirial(access::location::gpu, access::mode::write);
+  thrust::fill(thrust::cuda::par, virial.begin(), virial.end(), real(0.0));
+}
 
-  // Dynamics
-  double dt                 = 0.01;
-  double temperature        = 1.0;
-  double friction           = 0.5;  // xi
+static double reduceParticleEnergy(std::shared_ptr<uammd::ParticleData> particles) {
+  using namespace uammd;
 
-  // KG parameters
-  double sigma              = 1.0;
-  double epsilon            = 1.0;
+  auto energy = particles->getEnergy(access::location::gpu, access::mode::read);
+  return thrust::reduce(thrust::cuda::par, energy.begin(), energy.end(), 0.0);
+}
 
-  // FENE
-  double feneK              = 30.0;
-  double feneR0             = 1.5;
+static double reduceParticleVirial(std::shared_ptr<uammd::ParticleData> particles) {
+  using namespace uammd;
 
-  // Neighbor list tuning (WCA cutoff fixed by sigma; skin is adjustable)
-  double skin               = 0.3;   // typical NL skin in reduced units; tune for performance
+  auto virial = particles->getVirial(access::location::gpu, access::mode::read);
+  return thrust::reduce(thrust::cuda::par, virial.begin(), virial.end(), 0.0);
+}
+
+static double sumKineticEnergy(std::shared_ptr<uammd::Integrator> integrator,
+                               std::shared_ptr<uammd::ParticleData> particles) {
+  resetParticleEnergy(particles);
+  integrator->sumEnergy();
+  return reduceParticleEnergy(particles);
+}
+
+static double sumInteractorEnergy(std::shared_ptr<uammd::Interactor> interactor,
+                                  std::shared_ptr<uammd::ParticleData> particles) {
+  if (!interactor) {
+    return 0.0;
+  }
+
+  resetParticleEnergy(particles);
+  interactor->sum({.force = false, .energy = true, .virial = false}, 0);
+  return reduceParticleEnergy(particles);
+}
+
+static double sumInteractorVirial(std::shared_ptr<uammd::Interactor> interactor,
+                                  std::shared_ptr<uammd::ParticleData> particles) {
+  if (!interactor) {
+    return 0.0;
+  }
+
+  resetParticleVirial(particles);
+  interactor->sum({.force = false, .energy = false, .virial = true}, 0);
+  return reduceParticleVirial(particles);
+}
+
+struct ThermoSnapshot {
+  double bondedEnergy = 0.0;
+  double nonBondedEnergy = 0.0;
+  double kineticEnergy = 0.0;
+  double totalEnergy = 0.0;
+  double temperature = 0.0;
+  double pressure = 0.0;
 };
 
-static void printHelpAndExit(const SimParams& dflt){
-  std::cout <<
-    "Usage:\n"
-    "  ./kg_uammd --data system.data [options]\n\n"
-    "I/O:\n"
-    "  --data FILE           LAMMPS data file input (default: " << dflt.dataFile << ")\n"
-    "  --dumpfile FILE       LAMMPS dump trajectory (default: " << dflt.dumpFile << ")\n"
-    "  --restartbase STR     Restart base name -> STR1.lammpsdat/STR2.lammpsdat (default: " << dflt.restartBase << ")\n\n"
-    "Run control:\n"
-    "  --steps N             Number of steps (default: " << dflt.steps << ")\n"
-    "  --dump N              Dump interval (default: " << dflt.dumpEvery << ")\n"
-    "  --thermo N            Thermo interval (default: " << dflt.thermoEvery << ")\n"
-    "  --restart N           Restart interval (default: " << dflt.restartEvery << ")\n\n"
-    "Dynamics:\n"
-    "  --dt DT               Time step (default: " << dflt.dt << ")\n"
-    "  --T  kT               Temperature (default: " << dflt.temperature << ")\n"
-    "  --xi XI               Friction (default: " << dflt.friction << ")\n\n"
-    "Nonbonded (WCA):\n"
-    "  --sigma S             LJ sigma (default: " << dflt.sigma << ")\n"
-    "  --eps E               LJ epsilon (default: " << dflt.epsilon << ")\n\n"
-    "Bonds (FENE):\n"
-    "  --feneK K             FENE K (default: " << dflt.feneK << ")\n"
-    "  --feneR0 R0           FENE R0 (default: " << dflt.feneR0 << ")\n\n"
-    "Neighbor list:\n"
-    "  --skin SKIN           Neighbor-list skin (default: " << dflt.skin << ")\n\n";
-  std::exit(0);
-}
-
-static SimParams parseArgs(int argc, char** argv){
-  SimParams p; // defaults
-  for(int i=1;i<argc;i++){
-    std::string a = argv[i];
-    if(a=="--data")         p.dataFile     = getArg(i,argc,argv);
-    else if(a=="--dumpfile")p.dumpFile     = getArg(i,argc,argv);
-    else if(a=="--restartbase") p.restartBase = getArg(i,argc,argv);
-
-    else if(a=="--steps")   p.steps        = std::stoi(getArg(i,argc,argv));
-    else if(a=="--dt")      p.dt           = std::stod(getArg(i,argc,argv));
-    else if(a=="--T")       p.temperature  = std::stod(getArg(i,argc,argv));
-    else if(a=="--xi")      p.friction     = std::stod(getArg(i,argc,argv));
-    else if(a=="--dump")    p.dumpEvery    = std::stoi(getArg(i,argc,argv));
-    else if(a=="--thermo")  p.thermoEvery  = std::stoi(getArg(i,argc,argv));
-    else if(a=="--restart") p.restartEvery = std::stoi(getArg(i,argc,argv));
-
-    else if(a=="--sigma")   p.sigma        = std::stod(getArg(i,argc,argv));
-    else if(a=="--eps")     p.epsilon      = std::stod(getArg(i,argc,argv));
-
-    else if(a=="--feneK")   p.feneK        = std::stod(getArg(i,argc,argv));
-    else if(a=="--feneR0")  p.feneR0       = std::stod(getArg(i,argc,argv));
-
-    else if(a=="--skin")    p.skin         = std::stod(getArg(i,argc,argv));
-
-    else if(a=="--help"){
-      printHelpAndExit(SimParams{});
-    } else {
-      throw std::runtime_error("Unknown arg: " + a);
-    }
-  }
-  return p;
-}
-
-// ---------------------------------------
-// LAMMPS data reader (minimal, pragmatic)
-// ---------------------------------------
-struct LammpsData{
-  int natoms = 0;
-  int nbonds = 0;
-  int atomTypes = 1;
-
-  // Box bounds
-  double xlo=0, xhi=0, ylo=0, yhi=0, zlo=0, zhi=0;
-
-  // Atom data (stored by ID order, 0..natoms-1)
-  std::vector<double> x, y, z;
-  std::vector<int> type; // 1..atomTypes
-  std::vector<int> mol;  // molecule ID (from data file)
-
-  // Bonds stored as 1-based IDs from file
-  std::vector<std::pair<int,int>> bonds;
+struct BondedWCACorrection {
+  double energy = 0.0;
 };
 
-static bool isSectionHeader(const std::string& line, const std::string& name){
-  std::string s = line;
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char c){return !std::isspace(c);} ));
-  s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char c){return !std::isspace(c);} ).base(), s.end());
-  if(s.size() < name.size()) return false;
-  if(s.substr(0, name.size()) != name) return false;
-  if(s.size()==name.size()) return true;
-  char c = s[name.size()];
-  return std::isspace((unsigned char)c) || c=='#';
+static BondedWCACorrection computeBondedWCACorrection(
+    const kg::LammpsData& ld,
+    std::shared_ptr<uammd::ParticleData> particles,
+    const uammd::Box& box,
+    double epsilon,
+    double sigma) {
+  using namespace uammd;
+
+  BondedWCACorrection correction;
+  if (ld.bonds.empty()) {
+    return correction;
+  }
+
+  const double cutOff = std::pow(2.0, 1.0 / 6.0) * sigma;
+  const double cutOff2 = cutOff * cutOff;
+  const double sigma2 = sigma * sigma;
+
+  auto pos = particles->getPos(access::cpu, access::read);
+  for (const auto& bond : ld.bonds) {
+    const int ai = bond.first - 1;
+    const int aj = bond.second - 1;
+    if (ai < 0 || aj < 0 || ai >= ld.natoms || aj >= ld.natoms) {
+      continue;
+    }
+
+    const real3 ri = make_real3(pos[ai]);
+    const real3 rj = make_real3(pos[aj]);
+    const real3 rij = box.apply_pbc(rj - ri);
+    const double r2 = static_cast<double>(dot(rij, rij));
+    if (r2 <= 0.0 || r2 >= cutOff2) {
+      continue;
+    }
+
+    const double invr2 = sigma2 / r2;
+    const double invr6 = invr2 * invr2 * invr2;
+    correction.energy += 4.0 * epsilon * invr6 * (invr6 - 1.0) + epsilon;
+  }
+
+  return correction;
 }
 
-static void readHeaderLineCounts(const std::string& line, LammpsData& d){
-  std::istringstream iss(line);
-  int n; std::string what;
-  if(!(iss >> n >> what)) return;
-  if(what=="atoms") d.natoms = n;
-  else if(what=="bonds") d.nbonds = n;
-  else if(what=="atom"){
-    std::string maybeTypes;
-    if(iss >> maybeTypes){
-      if(maybeTypes=="types") d.atomTypes = n;
+static ThermoSnapshot computeThermoSnapshot(
+    std::shared_ptr<uammd::Integrator> integrator,
+    std::shared_ptr<uammd::ParticleData> particles,
+    std::shared_ptr<uammd::Interactor> nonBondedInteractor,
+    std::shared_ptr<uammd::Interactor> bondedInteractor,
+    const kg::LammpsData& ld,
+    const uammd::Box& box,
+    double epsilon,
+    double sigma,
+    bool repartitionBondedWCA,
+    double volume,
+    int numberParticles) {
+  ThermoSnapshot thermo;
+
+  thermo.kineticEnergy = sumKineticEnergy(integrator, particles);
+  thermo.nonBondedEnergy = sumInteractorEnergy(nonBondedInteractor, particles);
+  thermo.bondedEnergy = sumInteractorEnergy(bondedInteractor, particles);
+  if (repartitionBondedWCA) {
+    const auto correction =
+        computeBondedWCACorrection(ld, particles, box, epsilon, sigma);
+    thermo.bondedEnergy += correction.energy;
+    thermo.nonBondedEnergy -= correction.energy;
+  }
+  thermo.totalEnergy =
+      thermo.kineticEnergy + thermo.nonBondedEnergy + thermo.bondedEnergy;
+
+  if (numberParticles > 0) {
+    thermo.temperature =
+        (2.0 * thermo.kineticEnergy) / (3.0 * static_cast<double>(numberParticles));
+  }
+
+  if (volume > 0.0) {
+    const double nonBondedVirial =
+        sumInteractorVirial(nonBondedInteractor, particles);
+    const double bondedVirial = sumInteractorVirial(bondedInteractor, particles);
+    // The WCA PairForces and FENE BondedForces implementations use opposite
+    // position-vector conventions when storing per-particle virial:
+    //   - Radial pair forces use rj-ri, so the reduced virial has opposite sign.
+    //   - Bonded forces orient the vector from the current particle to its
+    //     partner, so the reduced virial already matches the standard sign.
+    // Both are double-counted over the two particles in the interaction.
+    thermo.pressure =
+        (2.0 * thermo.kineticEnergy) / (3.0 * volume) -
+        nonBondedVirial / (6.0 * volume) +
+        bondedVirial / (6.0 * volume);
+  }
+
+  return thermo;
+}
+
+static std::string formatThermoHeader() {
+  std::ostringstream out;
+  out << std::right
+      << std::setw(9) << "step"
+      << std::setw(14) << "e_bonded"
+      << std::setw(14) << "e_nonbonded"
+      << std::setw(14) << "e_kinetic"
+      << std::setw(14) << "e_total"
+      << std::setw(14) << "temperature"
+      << std::setw(14) << "pressure";
+  return out.str();
+}
+
+static std::string formatThermoRow(int step, const ThermoSnapshot& thermo) {
+  std::ostringstream out;
+  out << std::defaultfloat << std::setprecision(8) << std::right
+      << std::setw(9) << step
+      << std::setw(14) << thermo.bondedEnergy
+      << std::setw(14) << thermo.nonBondedEnergy
+      << std::setw(14) << thermo.kineticEnergy
+      << std::setw(14) << thermo.totalEnergy
+      << std::setw(14) << thermo.temperature
+      << std::setw(14) << thermo.pressure;
+  return out.str();
+}
+
+static std::string formatPerformanceSummary(double elapsedSeconds,
+                                            int steps,
+                                            int numberParticles,
+                                            double dt) {
+  std::ostringstream out;
+  const double tauPerDay =
+      elapsedSeconds > 0.0 ? (static_cast<double>(steps) * dt * 86400.0) / elapsedSeconds
+                           : 0.0;
+  const double stepsPerSecond =
+      elapsedSeconds > 0.0 ? static_cast<double>(steps) / elapsedSeconds : 0.0;
+  const double megaAtomStepsPerSecond =
+      elapsedSeconds > 0.0
+          ? (static_cast<double>(steps) * static_cast<double>(numberParticles)) /
+                (1.0e6 * elapsedSeconds)
+          : 0.0;
+  const double nanosecondsPerParticleStep =
+      (steps > 0 && numberParticles > 0)
+          ? (elapsedSeconds * 1.0e9) /
+                (static_cast<double>(steps) * static_cast<double>(numberParticles))
+          : 0.0;
+
+  out << std::fixed << std::setprecision(2)
+      << "Loop time of " << elapsedSeconds
+      << " for " << steps << " steps with " << numberParticles << " particles";
+  out << "\n";
+  out << std::setprecision(3)
+      << "Performance: " << tauPerDay << " tau/day, "
+      << stepsPerSecond << " timesteps/s, "
+      << megaAtomStepsPerSecond << " Matom-step/s, "
+      << nanosecondsPerParticleStep << " ns/particle/timestep";
+  return out.str();
+}
+
+static void initializeVelocitiesAtTemperature(
+    std::shared_ptr<uammd::ParticleData> particles,
+    double temperature,
+    bool is2D = false) {
+  using namespace uammd;
+
+  const int numberParticles = particles->getNumParticles();
+  if (numberParticles <= 0) {
+    return;
+  }
+
+  auto vel = particles->getVel(access::cpu, access::write);
+  auto mass = particles->getMass(access::cpu, access::read);
+
+  std::mt19937 gen(particles->getSystem()->rng().next32());
+  std::normal_distribution<real> gaussian(real(0.0), real(1.0));
+
+  real3 vcm = make_real3(real(0.0));
+  real totalMass = real(0.0);
+  for (int i = 0; i < numberParticles; ++i) {
+    const real mi = mass[i];
+    const real sigma = std::sqrt(real(temperature) / mi);
+    vel[i] = make_real3(sigma * gaussian(gen),
+                        sigma * gaussian(gen),
+                        is2D ? real(0.0) : sigma * gaussian(gen));
+    vcm += mi * vel[i];
+    totalMass += mi;
+  }
+
+  if (totalMass > real(0.0)) {
+    vcm /= totalMass;
+  }
+
+  double kinetic = 0.0;
+  const double dof = is2D ? 2.0 * numberParticles : 3.0 * numberParticles;
+  for (int i = 0; i < numberParticles; ++i) {
+    vel[i] -= vcm;
+    kinetic += 0.5 * static_cast<double>(mass[i]) *
+               static_cast<double>(dot(vel[i], vel[i]));
+  }
+
+  if (kinetic > 0.0 && dof > 0.0 && temperature > 0.0) {
+    const double currentTemperature = (2.0 * kinetic) / dof;
+    const real scale = real(std::sqrt(temperature / currentTemperature));
+    for (int i = 0; i < numberParticles; ++i) {
+      vel[i] *= scale;
     }
   }
 }
 
-static bool readBoxBounds(const std::string& line, double& lo, double& hi, const std::string& key){
-  std::istringstream iss(line);
-  std::string a,b,c,d;
-  if(!(iss >> a >> b >> c >> d)) return false;
-  if(c==key+"lo" && d==key+"hi"){
-    lo = std::stod(a);
-    hi = std::stod(b);
-    return true;
-  }
-  return false;
-}
+struct ClosestPairInfo {
+  int i = -1;
+  int j = -1;
+  double distance = std::numeric_limits<double>::infinity();
+  int overlapsBelow1e6 = 0;
+  int overlapsBelow1e3 = 0;
+};
 
-static void readAtomsSection(std::ifstream& in, LammpsData& d){
-  d.x.assign(d.natoms, 0.0);
-  d.y.assign(d.natoms, 0.0);
-  d.z.assign(d.natoms, 0.0);
-  d.type.assign(d.natoms, 1);
-  d.mol.assign(d.natoms, 1);
+static ClosestPairInfo analyzeClosestPairWCA(const kg::LammpsData& ld,
+                                             uammd::Box box,
+                                             uammd::real3 boxCenter) {
+  using namespace uammd;
 
-  std::string line;
-  while(std::getline(in, line)){
-    bool allspace = std::all_of(line.begin(), line.end(), [](unsigned char c){return std::isspace(c);});
-    if(allspace || line.empty()) break;
-    if(line[0]=='#') continue;
+  ClosestPairInfo info;
+  double minR2 = std::numeric_limits<double>::infinity();
 
-    // Expect: id mol type x y z ...
-    std::istringstream iss(line);
-    int id=0, mol=1, typ=1;
-    double x=0,y=0,z=0;
-    if(!(iss >> id >> mol >> typ >> x >> y >> z)) continue;
-    if(id < 1 || id > d.natoms) continue;
-    int idx = id - 1;
-    d.mol[idx]  = mol;
-    d.type[idx] = typ;
-    d.x[idx]    = x;
-    d.y[idx]    = y;
-    d.z[idx]    = z;
-  }
-}
-
-static void readBondsSection(std::ifstream& in, LammpsData& d){
-  d.bonds.clear();
-  d.bonds.reserve(d.nbonds);
-
-  std::string line;
-  while(std::getline(in, line)){
-    bool allspace = std::all_of(line.begin(), line.end(), [](unsigned char c){return std::isspace(c);});
-    if(allspace || line.empty()) break;
-    if(line[0]=='#') continue;
-
-    // Expect: id bond_type ai aj ...
-    std::istringstream iss(line);
-    int id=0, btype=1, ai=0, aj=0;
-    if(!(iss >> id >> btype >> ai >> aj)) continue;
-    d.bonds.push_back({ai, aj});
-  }
-}
-
-static LammpsData readLammpsDataFile(const std::string& path){
-  std::ifstream in(path);
-  if(!in) throw std::runtime_error("Cannot open LAMMPS data file: " + path);
-
-  LammpsData d;
-  std::string line;
-
-  // single pass: parse header and sections when encountered
-  while(std::getline(in, line)){
-    readHeaderLineCounts(line, d);
-    (void)readBoxBounds(line, d.xlo, d.xhi, "x");
-    (void)readBoxBounds(line, d.ylo, d.yhi, "y");
-    (void)readBoxBounds(line, d.zlo, d.zhi, "z");
-
-    if(isSectionHeader(line, "Atoms")){
-      std::getline(in, line); // skip blank/comment
-      if(d.natoms<=0) throw std::runtime_error("Header did not set 'atoms' count.");
-      readAtomsSection(in, d);
-    }
-    if(isSectionHeader(line, "Bonds")){
-      std::getline(in, line);
-      if(d.nbonds>0) readBondsSection(in, d);
+  for (int i = 0; i < ld.natoms; ++i) {
+    const real3 ri = box.apply_pbc(make_real3((real)ld.x[i] - boxCenter.x,
+                                              (real)ld.y[i] - boxCenter.y,
+                                              (real)ld.z[i] - boxCenter.z));
+    for (int j = i + 1; j < ld.natoms; ++j) {
+      const real3 rj = box.apply_pbc(make_real3((real)ld.x[j] - boxCenter.x,
+                                                (real)ld.y[j] - boxCenter.y,
+                                                (real)ld.z[j] - boxCenter.z));
+      const real3 rij = box.apply_pbc(rj - ri);
+      const double r2 = static_cast<double>(dot(rij, rij));
+      if (r2 < minR2) {
+        minR2 = r2;
+        info.i = i;
+        info.j = j;
+      }
+      if (r2 < 1e-12) {
+        info.overlapsBelow1e6++;
+      }
+      if (r2 < 1e-6) {
+        info.overlapsBelow1e3++;
+      }
     }
   }
 
-  if(d.natoms<=0) throw std::runtime_error("Failed to read natoms from header.");
-  if(d.xhi==d.xlo || d.yhi==d.ylo || d.zhi==d.zlo){
-    throw std::runtime_error("Failed to read box bounds (xlo/xhi etc.)");
-  }
-  if((int)d.x.size()!=d.natoms) throw std::runtime_error("Atoms section missing or failed to parse.");
-  return d;
-}
-
-// ---------------------------------------
-// Write UAMMD bond file (for BondedForces)
-// ---------------------------------------
-static std::string writeUammdBondFileFromLammps(
-  const std::string& outPath,
-  const LammpsData& d,
-  double feneK,
-  double feneR0
-){
-  std::ofstream out(outPath);
-  if(!out) throw std::runtime_error("Cannot write bond file: " + outPath);
-
-  out << d.bonds.size() << "\n";
-  for(const auto& b : d.bonds){
-    int ai = b.first  - 1;
-    int aj = b.second - 1;
-    if(ai<0 || aj<0 || ai>=d.natoms || aj>=d.natoms) continue;
-    out << ai << " " << aj << " " << feneK << " " << feneR0 << "\n";
-  }
-  return outPath;
-}
-
-// ---------------------------------------
-// LAMMPS dump writer (lammpstrj style)
-// ---------------------------------------
-static void appendLAMMPSDumpFrame(
-  std::ofstream& out,
-  int step,
-  const LammpsData& ld,
-  std::shared_ptr<uammd::ParticleData> pd,
-  double xlo, double xhi, double ylo, double yhi, double zlo, double zhi
-){
-  using namespace uammd;
-  auto pos = pd->getPos(access::cpu, access::read);
-  auto vel = pd->getVel(access::cpu, access::read);
-
-  out << "ITEM: TIMESTEP\n" << step << "\n";
-  out << "ITEM: NUMBER OF ATOMS\n" << ld.natoms << "\n";
-  out << "ITEM: BOX BOUNDS pp pp pp\n";
-  out << xlo << " " << xhi << "\n";
-  out << ylo << " " << yhi << "\n";
-  out << zlo << " " << zhi << "\n";
-  out << "ITEM: ATOMS id type x y z vx vy vz\n";
-
-  // Write atoms in ID order (1..N)
-  for(int i=0;i<ld.natoms;i++){
-    int id  = i+1;
-    int typ = (i<(int)ld.type.size()) ? ld.type[i] : 1;
-    auto r  = pos[i];
-    auto v  = vel[i];
-    out << id << " " << typ << " "
-        << r.x << " " << r.y << " " << r.z << " "
-        << v.x << " " << v.y << " " << v.z << "\n";
-  }
-}
-
-// ---------------------------------------
-// LAMMPS data restart writer
-// ---------------------------------------
-static void writeLAMMPSDataRestart(
-  const std::string& filename,
-  int step,
-  const LammpsData& ld,
-  std::shared_ptr<uammd::ParticleData> pd
-){
-  using namespace uammd;
-  auto pos = pd->getPos(access::cpu, access::read);
-  auto vel = pd->getVel(access::cpu, access::read);
-
-  std::ofstream out(filename);
-  if(!out) throw std::runtime_error("Cannot write restart file: " + filename);
-
-  // Header
-  out << "LAMMPS data file written by kg_uammd, step " << step << "\n\n";
-  out << ld.natoms << " atoms\n";
-  out << ld.bonds.size() << " bonds\n\n";
-  out << ld.atomTypes << " atom types\n";
-  out << 1 << " bond types\n\n";
-
-  out << ld.xlo << " " << ld.xhi << " xlo xhi\n";
-  out << ld.ylo << " " << ld.yhi << " ylo yhi\n";
-  out << ld.zlo << " " << ld.zhi << " zlo zhi\n\n";
-
-  // Masses (reduced units: m=1)
-  out << "Masses\n\n";
-  for(int t=1; t<=ld.atomTypes; ++t){
-    out << t << " 1.0\n";
-  }
-  out << "\n";
-
-  // Atoms: id mol type x y z
-  out << "Atoms # bond\n\n";
-  for(int i=0;i<ld.natoms;i++){
-    int id  = i+1;
-    int mol = (i<(int)ld.mol.size())  ? ld.mol[i]  : 1;
-    int typ = (i<(int)ld.type.size()) ? ld.type[i] : 1;
-    auto r  = pos[i];
-    out << id << " " << mol << " " << typ << " "
-        << r.x << " " << r.y << " " << r.z << "\n";
-  }
-  out << "\n";
-
-  // Velocities: id vx vy vz
-  out << "Velocities\n\n";
-  for(int i=0;i<ld.natoms;i++){
-    int id = i+1;
-    auto v = vel[i];
-    out << id << " " << v.x << " " << v.y << " " << v.z << "\n";
-  }
-  out << "\n";
-
-  // Bonds: id bond_type ai aj  (we write bond_type=1 for all; KG uses one bond type)
-  out << "Bonds\n\n";
-  for(size_t b=0;b<ld.bonds.size();++b){
-    int id = (int)b + 1;
-    int ai = ld.bonds[b].first;
-    int aj = ld.bonds[b].second;
-    out << id << " 1 " << ai << " " << aj << "\n";
-  }
-  out << "\n";
-}
-
-// ---------------------------------------
-// Create UAMMD interactors (WCA + FENE)
-// ---------------------------------------
-static std::shared_ptr<uammd::Interactor> createWCAInteractor_CellList(
-  std::shared_ptr<uammd::ParticleData> pd,
-  const uammd::Box& box,
-  int atomTypes,
-  double epsilon,
-  double sigma,
-  double skin
-){
-  using namespace uammd;
-
-  using PF = PairForces<Potential::LJ>;
-  auto pot = std::make_shared<Potential::LJ>();
-
-  const double rc = std::pow(2.0, 1.0/6.0) * sigma; // WCA cutoff
-
-  // Set same LJ for all type pairs (0-based types in UAMMD parameters)
-  for(int ti=0; ti<atomTypes; ++ti){
-    for(int tj=0; tj<atomTypes; ++tj){
-      Potential::LJ::InputPairParameters par;
-      par.epsilon = (real)epsilon;
-      par.sigma   = (real)sigma;
-      par.cutOff  = (real)rc;
-      par.shift   = true;
-      pot->setPotParameters(ti, tj, par);
-    }
-  }
-
-  typename PF::Parameters params;
-  params.box = box;
-
-  // Explicit GPU-friendly neighbor list for dense systems:
-  // CellList builds a linked-cell structure and is typically very efficient at high density.
-  {
-    using NL = CellList;
-    typename NL::Parameters nlp;
-    // Many UAMMD NLs accept a cutoff+skin or a "rcut" here; to keep this robust, we set the rcut
-    // to rc+skin in the parameters (common pattern).
-    nlp.cutOff = (real)(rc + skin);
-    nlp.box = box;
-    auto nl = std::make_shared<NL>(pd, nlp);
-    params.nl = nl;
-  }
-
-  return std::make_shared<PF>(pd, params, pot);
-}
-
-static std::shared_ptr<uammd::Interactor> createFENEInteractor(
-  std::shared_ptr<uammd::ParticleData> pd,
-  const uammd::Box& box,
-  const std::string& bondFile
-){
-  using namespace uammd;
-  using Bond = BondedType::FENE;
-  using BF   = BondedForces<Bond,2>;
-
-  typename BF::Parameters params;
-  params.file = bondFile;
-  return std::make_shared<BF>(pd, params);
+  info.distance = std::sqrt(minR2);
+  return info;
 }
 
 // --------------------------
@@ -473,117 +348,305 @@ static std::shared_ptr<uammd::Interactor> createFENEInteractor(
 // --------------------------
 int main(int argc, char** argv){
   using namespace uammd;
+  using kg::LammpsData;
+  using kg::SimParams;
+  using kg::deriveDumpFilename;
+  using kg::deriveRestartFilename;
+  using kg::deriveThermoFilename;
 
+  auto sys = std::make_shared<System>(argc, argv);
+
+  // 1. Read user options or fall back to defaults.
   SimParams par;
   try{
-    par = parseArgs(argc, argv);
+    par = kg::parseArgs(argc, argv);
   } catch(const std::exception& e){
     std::cerr << "Argument error: " << e.what() << "\nUse --help\n";
     return 1;
   }
 
-  // Read initial configuration from LAMMPS
+  // 2. Load the initial configuration from a LAMMPS data file.
+  // This provides:
+  //   - the atom coordinates
+  //   - atom types and molecule IDs
+  //   - bond connectivity
+  //   - simulation box dimensions
   LammpsData ld;
   try{
-    ld = readLammpsDataFile(par.dataFile);
+    ld = kg::readLammpsDataFile(par.dataFile);
   } catch(const std::exception& e){
     std::cerr << "LAMMPS data read error: " << e.what() << "\n";
     return 1;
   }
 
-  // Build UAMMD particle data
-  auto pd = std::make_shared<ParticleData>(ld.natoms);
-
-  // Periodic box
-  real3 L = make_real3((real)(ld.xhi-ld.xlo), (real)(ld.yhi-ld.ylo), (real)(ld.zhi-ld.zlo));
-  Box box(L);
-  box.setPeriodicity(true,true,true);
-
-  // Initialize positions
-  {
-    auto pos = pd->getPos(access::cpu, access::write);
-    for(int i=0;i<ld.natoms;i++){
-      pos[i] = make_real4((real)ld.x[i], (real)ld.y[i], (real)ld.z[i], 0.0);
-    }
-  }
-
-  // Convert bonds to UAMMD file for BondedForces
-  std::string bondFile = "bonds_fene.dat";
+  // 2b. Derive output filenames directly from the input data filename.
+  // Example:
+  //   input.lammpsdat -> input.lammpstrj
+  //   input.lammpsdat -> input.restart1.lammpsdat / input.restart2.lammpsdat
+  //   path/input.lammpsdat -> input.thermo
+  std::string dumpFile;
+  std::string thermoFile;
   try{
-    writeUammdBondFileFromLammps(bondFile, ld, par.feneK, par.feneR0);
+    dumpFile = deriveDumpFilename(par.dataFile);
+    thermoFile = deriveThermoFilename(par.dataFile);
   } catch(const std::exception& e){
-    std::cerr << "Bond file write error: " << e.what() << "\n";
+    std::cerr << "Output filename error: " << e.what() << "\n";
     return 1;
   }
 
-  // Interactors: WCA + FENE
-  auto wca  = createWCAInteractor_CellList(pd, box, ld.atomTypes, par.epsilon, par.sigma, par.skin);
-  auto fene = createFENEInteractor(pd, bondFile);
+  // 3. Create the UAMMD particle container with one entry per atom.
+  auto pd = std::make_shared<ParticleData>(ld.natoms, sys);
 
-  // Langevin integrator
+  // 4. Build a periodic UAMMD box from the LAMMPS bounds.
+  // The LAMMPS file stores low/high limits, while UAMMD's `Box` stores lengths.
+  real3 L = make_real3((real)(ld.xhi-ld.xlo), (real)(ld.yhi-ld.ylo), (real)(ld.zhi-ld.zlo));
+  Box box(L);
+  box.setPeriodicity(true,true,true);
+  const real3 boxCenter = make_real3((real)(0.5 * (ld.xlo + ld.xhi)),
+                                     (real)(0.5 * (ld.ylo + ld.yhi)),
+                                     (real)(0.5 * (ld.zlo + ld.zhi)));
+
+  // 5. Copy the initial coordinates into UAMMD.
+  // The fourth component of `real4` stores the particle type in UAMMD.
+  // LAMMPS types are 1-based, while UAMMD expects 0-based type ids.
+  // UAMMD's periodic box utilities expect positions centered around the origin,
+  // so we shift LAMMPS coordinates from [xlo,xhi] to [-L/2,L/2).
+  {
+    auto pos = pd->getPos(access::cpu, access::write);
+    for(int i=0;i<ld.natoms;i++){
+      const real3 centered = make_real3((real)ld.x[i] - boxCenter.x,
+                                        (real)ld.y[i] - boxCenter.y,
+                                        (real)ld.z[i] - boxCenter.z);
+      const real3 folded = box.apply_pbc(centered);
+      pos[i] = make_real4(folded, (real)(ld.type[i] - 1));
+    }
+  }
+
+  // Explicitly initialize basic per-particle properties used on the first step.
+  {
+    auto mass = pd->getMass(access::cpu, access::write);
+    auto vel = pd->getVel(access::cpu, access::write);
+    auto force = pd->getForce(access::cpu, access::write);
+    for(int i=0;i<ld.natoms;i++){
+      mass[i] = real(1.0);
+      if(ld.hasVelocities){
+        vel[i] = make_real3((real)ld.vx[i], (real)ld.vy[i], (real)ld.vz[i]);
+      } else {
+        vel[i] = make_real3(real(0.0));
+      }
+      force[i] = make_real4(real(0.0));
+    }
+  }
+
+  // Preflight validation on the CPU to catch malformed input before the first
+  // GPU force/integration kernel runs.
+  {
+    for(int i=0;i<ld.natoms;i++){
+      if(ld.type[i] < 1 || ld.type[i] > ld.atomTypes){
+        std::cerr << "Input validation error: atom " << (i + 1)
+                  << " has type " << ld.type[i]
+                  << ", but atomTypes = " << ld.atomTypes << "\n";
+        return 1;
+      }
+    }
+
+    const real maxBondLength = (real)par.feneR0;
+    const real maxBondLength2 = maxBondLength * maxBondLength;
+    for(size_t b=0; b<ld.bonds.size(); ++b){
+      const int ai = ld.bonds[b].first - 1;
+      const int aj = ld.bonds[b].second - 1;
+      if(ai < 0 || aj < 0 || ai >= ld.natoms || aj >= ld.natoms){
+        std::cerr << "Input validation error: bond " << (b + 1)
+                  << " references atoms " << ld.bonds[b].first
+                  << " and " << ld.bonds[b].second
+                  << ", outside valid range 1.." << ld.natoms << "\n";
+        return 1;
+      }
+
+      const real3 ri = box.apply_pbc(make_real3((real)ld.x[ai] - boxCenter.x,
+                                                (real)ld.y[ai] - boxCenter.y,
+                                                (real)ld.z[ai] - boxCenter.z));
+      const real3 rj = box.apply_pbc(make_real3((real)ld.x[aj] - boxCenter.x,
+                                                (real)ld.y[aj] - boxCenter.y,
+                                                (real)ld.z[aj] - boxCenter.z));
+      const real3 rij = box.apply_pbc(rj - ri);
+      const real r2 = dot(rij, rij);
+      if(r2 >= maxBondLength2){
+        std::cerr << "Input validation error: bond " << (b + 1)
+                  << " has length " << std::sqrt((double)r2)
+                  << " which is >= feneR0 = " << par.feneR0
+                  << " under minimum-image convention.\n";
+        return 1;
+      }
+    }
+  }
+
+  if (par.enableWCA) {
+    const auto pairInfo = analyzeClosestPairWCA(ld, box, boxCenter);
+    System::log<System::MESSAGE>(
+        "[KG] Closest initial pair for WCA: atoms %d and %d, distance %.12g",
+        pairInfo.i + 1, pairInfo.j + 1, pairInfo.distance);
+    if (pairInfo.overlapsBelow1e6 > 0) {
+      std::cerr << "Input validation error: found "
+                << pairInfo.overlapsBelow1e6
+                << " particle pairs with separation < 1e-6 under PBC.\n"
+                << "Closest pair is atoms " << (pairInfo.i + 1) << " and "
+                << (pairInfo.j + 1) << " with distance "
+                << pairInfo.distance << ".\n";
+      return 1;
+    }
+  }
+
+  // 6. Translate the LAMMPS bond topology into the auxiliary format expected
+  // by UAMMD's bonded-force module, if FENE is enabled.
+  std::string bondFile = "bonds_fene.dat";
+  if(par.enableFENE){
+    try{
+      kg::writeUammdBondFileFromLammps(bondFile, ld, par.feneK, par.feneR0);
+    } catch(const std::exception& e){
+      std::cerr << "Bond file write error: " << e.what() << "\n";
+      return 1;
+    }
+  }
+
+  // 7. Create the two interaction terms that define the KG model:
+  //   - WCA repulsion between all particles
+  //   - FENE springs along each chain bond
+  std::shared_ptr<Interactor> wca;
+  std::shared_ptr<Interactor> fene;
+  if(par.enableWCA){
+    wca = kg::createWCAInteractor_CellList(pd, box, ld.atomTypes, par.epsilon,
+                                           par.sigma, par.skin,
+                                           par.forceWCANBody);
+  }
+  if(par.enableFENE){
+    fene = kg::createFENEInteractor(pd, box, bondFile);
+  }
+
+  // 8. Configure the time integrator.
+  // `GronbechJensen` is UAMMD's Langevin-style NVT integrator.
   using NVT = VerletNVT::GronbechJensen;
   NVT::Parameters ip;
   ip.temperature = (real)par.temperature;
   ip.friction    = (real)par.friction;
   ip.dt          = (real)par.dt;
-  ip.initVelocities = true; // Maxwell at t=0
+  ip.initVelocities = false; // we handle optional startup initialization explicitly
+  if(par.initializeVelocities){
+    initializeVelocitiesAtTemperature(pd, par.temperature, false);
+  }
   auto integrator = std::make_shared<NVT>(pd, ip);
 
-  integrator->addInteractor(wca);
-  integrator->addInteractor(fene);
+  // Register both force contributions with the integrator so each time step
+  // includes nonbonded and bonded forces.
+  if(wca){
+    integrator->addInteractor(wca);
+  }
+  if(fene){
+    integrator->addInteractor(fene);
+  }
 
-  // Open dump file
-  std::ofstream dump(par.dumpFile);
+  // 9. Open the trajectory output file now so we can append frames as we go.
+  std::ofstream dump(dumpFile);
   if(!dump){
-    std::cerr << "Cannot open dump file: " << par.dumpFile << "\n";
+    std::cerr << "Cannot open dump file: " << dumpFile << "\n";
     return 1;
   }
 
-  std::cout << "# KG-UAMMD starting\n";
-  std::cout << "# atoms " << ld.natoms << " bonds " << ld.bonds.size() << " box "
-            << (ld.xhi-ld.xlo) << " " << (ld.yhi-ld.ylo) << " " << (ld.zhi-ld.zlo) << "\n";
-  std::cout << "# dt " << par.dt << " T " << par.temperature << " xi " << par.friction
-            << " skin " << par.skin << "\n";
+  std::ofstream thermo(thermoFile);
+  if(!thermo){
+    std::cerr << "Cannot open thermo file: " << thermoFile << "\n";
+    return 1;
+  }
+  const std::string thermoHeader = formatThermoHeader();
+  thermo << thermoHeader << "\n";
 
-  // Dump step 0
-  appendLAMMPSDumpFrame(dump, 0, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
+  // Print a short run summary through UAMMD's message system.
+  System::log<System::MESSAGE>("[KG] Starting");
+  System::log<System::MESSAGE>("[KG] atoms %d bonds %zu box %g %g %g",
+                               ld.natoms, ld.bonds.size(),
+                               (ld.xhi - ld.xlo), (ld.yhi - ld.ylo), (ld.zhi - ld.zlo));
+  System::log<System::MESSAGE>("[KG] dt %g T %g xi %g skin %g",
+                               par.dt, par.temperature, par.friction, par.skin);
+  System::log<System::MESSAGE>("[KG] WCA %s FENE %s",
+                               par.enableWCA ? "on" : "off",
+                               par.enableFENE ? "on" : "off");
+  System::log<System::MESSAGE>("[KG] Velocities %s",
+                               par.initializeVelocities
+                                   ? "initialized from requested temperature"
+                                   : (ld.hasVelocities ? "read from input file"
+                                                       : "not present in input; using zeros"));
+  if(par.forceWCANBody){
+    System::log<System::MESSAGE>("[KG] WCA debugging mode: forcing PairForces NBody path");
+  }
+  System::log<System::MESSAGE>("[KG] %s", thermoHeader.c_str());
 
-  // Restart at step 0 if requested interval divides 0? (Usually you want an initial restart anyway.)
+  // 10. Write the initial state before any integration step has happened.
+  kg::appendLAMMPSDumpFrame(dump, 0, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
+
+  const auto thermo0 =
+      computeThermoSnapshot(integrator, pd, wca, fene, ld, box, par.epsilon,
+                            par.sigma, par.enableWCA && par.enableFENE,
+                            box.getVolume(), ld.natoms);
+  const std::string thermoRow0 = formatThermoRow(0, thermo0);
+  System::log<System::MESSAGE>("[KG] %s", thermoRow0.c_str());
+  thermo << thermoRow0 << "\n";
+
+  // Optionally write an initial restart as well. This gives us a clean snapshot
+  // of the starting configuration using the same machinery as later restarts.
   if(par.restartEvery > 0){
     try{
-      writeLAMMPSDataRestart(par.restartBase + "1.lammpsdat", 0, ld, pd);
+      kg::writeLAMMPSDataRestart(deriveRestartFilename(par.dataFile, 1), 0, ld, pd);
     } catch(const std::exception& e){
       std::cerr << "Restart write error: " << e.what() << "\n";
       return 1;
     }
   }
 
-  // Time loop
+  // 11. Main simulation loop.
+  // Each iteration advances the system by one time step and then performs any
+  // scheduled outputs for energy, trajectory, and restart data.
+  const auto loopStart = std::chrono::steady_clock::now();
   for(int step=1; step<=par.steps; ++step){
+    // Advance positions/velocities by one integrator step, including all forces.
     integrator->forwardTime();
 
     if(par.thermoEvery>0 && step % par.thermoEvery == 0){
-      auto E = integrator->sumEnergy();
-      std::cout << "Step " << step << " E " << E << "\n";
+      const auto thermoNow =
+          computeThermoSnapshot(integrator, pd, wca, fene, ld, box,
+                                par.epsilon, par.sigma,
+                                par.enableWCA && par.enableFENE,
+                                box.getVolume(), ld.natoms);
+      const std::string thermoRow = formatThermoRow(step, thermoNow);
+      System::log<System::MESSAGE>("[KG] %s", thermoRow.c_str());
+      thermo << thermoRow << "\n";
     }
 
     if(par.dumpEvery>0 && step % par.dumpEvery == 0){
-      appendLAMMPSDumpFrame(dump, step, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
+      // Append one trajectory frame for visualization or post-processing.
+      kg::appendLAMMPSDumpFrame(dump, step, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
     }
 
     if(par.restartEvery>0 && step % par.restartEvery == 0){
-      // Alternate between restart1 and restart2
+      // Alternate between two filenames.
+      // This is a common restart strategy because there is always at least one
+      // previously completed restart file if a write is interrupted.
       int which = ((step / par.restartEvery) % 2) ? 2 : 1;
-      std::string fn = par.restartBase + std::to_string(which) + ".lammpsdat";
+      std::string fn;
       try{
-        writeLAMMPSDataRestart(fn, step, ld, pd);
+        fn = deriveRestartFilename(par.dataFile, which);
+        kg::writeLAMMPSDataRestart(fn, step, ld, pd);
       } catch(const std::exception& e){
         std::cerr << "Restart write error: " << e.what() << "\n";
         return 1;
       }
     }
   }
+  const auto loopEnd = std::chrono::steady_clock::now();
+  const double loopSeconds =
+      std::chrono::duration<double>(loopEnd - loopStart).count();
 
-  std::cout << "# Done\n";
+  System::log<System::MESSAGE>("%s",
+      formatPerformanceSummary(loopSeconds, par.steps, ld.natoms, par.dt).c_str());
+  System::log<System::MESSAGE>("[KG] Done");
   return 0;
 }
