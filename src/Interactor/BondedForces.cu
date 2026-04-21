@@ -12,6 +12,7 @@ TODO:
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
+#include <sstream>
 #include <set>
 #include <stdexcept>
 #include <third_party/uammd_cub.cuh>
@@ -31,7 +32,12 @@ BondedForces<BondType, particlesPerBond>::BondedForces(
   System::log<System::MESSAGE>("[BondedForces] Initialized");
   System::log<System::MESSAGE>("[BondedForces] Using: %s",
                                type_name<BondType>().c_str());
-  readBonds(par.file);
+  if (!par.data.empty()) {
+    std::istringstream in(par.data);
+    readBonds(in);
+  } else {
+    readBonds(par.file);
+  }
 }
 
 namespace bondedforces_ns {
@@ -75,7 +81,7 @@ public:
 };
 
 template <class Bond, class BondType>
-Bond readNextBond(std::ifstream &in, int currentBonds, int nbonds,
+Bond readNextBond(std::istream &in, int currentBonds, int nbonds,
                   int particlesPerBond) {
   Bond bond;
   for (int i = 0; i < particlesPerBond; i++) {
@@ -91,7 +97,7 @@ Bond readNextBond(std::ifstream &in, int currentBonds, int nbonds,
 }
 
 template <class Bond, class BondType>
-Bond readNextBondFixedPoint(std::ifstream &in, int currentBonds, int nbonds,
+Bond readNextBondFixedPoint(std::istream &in, int currentBonds, int nbonds,
                             real3 &pos) {
   Bond bond;
   if (!(in >> bond.ids[0])) {
@@ -137,13 +143,18 @@ auto buildBondList(const BondProcessor<Bond> &processor, int particlesPerBond,
 
 template <class BondType, int particlesPerBond>
 void BondedForces<BondType, particlesPerBond>::readBonds(std::string fileName) {
-  const int numberParticles = pg->getNumberParticles();
-  using namespace bondedforces_ns;
   std::ifstream in(fileName);
   if (not in) {
     throw std::runtime_error("[BondedForces] File " + fileName +
                              " cannot be opened.");
   }
+  readBonds(in);
+}
+
+template <class BondType, int particlesPerBond>
+void BondedForces<BondType, particlesPerBond>::readBonds(std::istream &in) {
+  const int numberParticles = pg->getNumberParticles();
+  using namespace bondedforces_ns;
   in >> this->nbonds;
   BondProcessor<Bond> processor;
   if (nbonds > 0) {

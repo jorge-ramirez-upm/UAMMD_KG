@@ -499,14 +499,9 @@ int main(int argc, char** argv){
 
   // 6. Translate the LAMMPS bond topology into the auxiliary format expected
   // by UAMMD's bonded-force module, if FENE is enabled.
-  std::string bondFile = "bonds_fene.dat";
+  std::string bondData;
   if(par.enableFENE){
-    try{
-      kg::writeUammdBondFileFromLammps(bondFile, ld, par.feneK, par.feneR0);
-    } catch(const std::exception& e){
-      std::cerr << "Bond file write error: " << e.what() << "\n";
-      return 1;
-    }
+    bondData = kg::buildUammdBondDataFromLammps(ld, par.feneK, par.feneR0);
   }
 
   // 7. Create the two interaction terms that define the KG model:
@@ -520,7 +515,7 @@ int main(int argc, char** argv){
                                            par.forceWCANBody);
   }
   if(par.enableFENE){
-    fene = kg::createFENEInteractor(pd, box, bondFile);
+    fene = kg::createFENEInteractor(pd, box, bondData);
   }
 
   // 8. Configure the time integrator.

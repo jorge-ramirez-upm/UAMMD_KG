@@ -179,6 +179,7 @@ class BondedForces : public Interactor,
 public:
   struct Parameters {
     std::string file; // File containing the bonds
+    std::string data; // Optional in-memory bond contents
   };
   // Aligning these really improves performance
   struct __align__(16) Bond {
@@ -199,6 +200,7 @@ public:
 
 private:
   void readBonds(std::string);
+  void readBonds(std::istream &);
   int nbonds;
   thrust::device_vector<Bond>
       bondList; //[All bonds involving the first particle with bonds, involving
