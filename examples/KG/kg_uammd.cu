@@ -393,6 +393,9 @@ int main(int argc, char** argv){
     std::cerr << "Output filename error: " << e.what() << "\n";
     return 1;
   }
+  if(par.gzipDump){
+    dumpFile += ".gz";
+  }
 
   // 3. Create the UAMMD particle container with one entry per atom.
   auto pd = std::make_shared<ParticleData>(ld.natoms, sys);
@@ -541,8 +544,8 @@ int main(int argc, char** argv){
   }
 
   // 9. Open the trajectory output file now so we can append frames as we go.
-  std::ofstream dump(dumpFile);
-  if(!dump){
+  kg::DumpWriter dump(dumpFile, par.gzipDump);
+  if(!dump.good()){
     std::cerr << "Cannot open dump file: " << dumpFile << "\n";
     return 1;
   }
@@ -565,6 +568,8 @@ int main(int argc, char** argv){
   System::log<System::MESSAGE>("[KG] WCA %s FENE %s",
                                par.enableWCA ? "on" : "off",
                                par.enableFENE ? "on" : "off");
+  System::log<System::MESSAGE>("[KG] Dump output %s",
+                               par.gzipDump ? "gzip-compressed" : "plain text");
   System::log<System::MESSAGE>("[KG] Velocities %s",
                                par.initializeVelocities
                                    ? "initialized from requested temperature"
