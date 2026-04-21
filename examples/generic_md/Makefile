@@ -4,7 +4,7 @@
 ARCH=
 #C++ compiler, I tested up to clang++-9.0
 #CXX=clang++-9.0
-CXX=g++
+CXX=/usr/local/gcc-11.2.0/bin/g++
 
 UAMMD_ROOT=../../
 CUDA_ROOT=$(shell dirname `which nvcc`)/..

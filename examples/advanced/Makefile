@@ -2,7 +2,7 @@
 LOG_LEVEL=5
 
 NVCC=nvcc
-CXX=g++
+CXX=/usr/local/gcc-11.2.0/bin/g++
 CUDA_ROOT=$(shell dirname `which nvcc`)/..
 UAMMD_ROOT=../../
 #Uncomment to compile in double precision mode
