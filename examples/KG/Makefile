@@ -19,7 +19,7 @@ DEBUG_NVCCFLAGS=-O0 -g -G
 
 PROGRAMS=kg_uammd
 DEBUG_PROGRAMS=$(addsuffix _debug,$(PROGRAMS))
-UTILITY_HEADERS=kg_cli.cuh kg_lammps_io.cuh kg_interactors.cuh
+UTILITY_HEADERS=kg_cli.cuh kg_lammps_io.cuh kg_interactors.cuh kg_runtime.cuh
 
 all: $(PROGRAMS)
 debug: $(DEBUG_PROGRAMS)
