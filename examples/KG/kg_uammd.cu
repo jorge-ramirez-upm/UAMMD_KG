@@ -15,6 +15,7 @@
 #include <uammd.cuh>
 
 #include "Integrator/VerletNVT.cuh"
+#include "correlator.h"
 #include "kg_cli.cuh"
 #include "kg_interactors.cuh"
 #include "kg_lammps_io.cuh"
@@ -31,6 +32,7 @@ int main(int argc, char** argv){
   using namespace uammd;
   using kg::SimParams;
   using kg::deriveDumpFilename;
+  using kg::deriveGtFilename;
   using kg::deriveRestartFilename;
   using kg::deriveThermoFilename;
 
@@ -62,12 +64,15 @@ int main(int argc, char** argv){
   // 2b. Derive output filenames directly from the input data filename.
   // Example:
   //   input.lammpsdat -> input.lammpstrj
+  //   input.lammpsdat -> input.gt
   //   input.lammpsdat -> input.restart1.lammpsdat / input.restart2.lammpsdat
   //   path/input.lammpsdat -> input.thermo
   std::string dumpFile;
+  std::string gtFile;
   std::string thermoFile;
   try{
     dumpFile = deriveDumpFilename(par.dataFile);
+    gtFile = deriveGtFilename(par.dataFile);
     thermoFile = deriveThermoFilename(par.dataFile);
   } catch(const std::exception& e){
     std::cerr << "Output filename error: " << e.what() << "\n";
@@ -98,9 +103,16 @@ int main(int argc, char** argv){
   //   - WCA repulsion between all particles
   //   - FENE springs along each chain bond
   const auto wca =
+      kg::createWCAStressInteractor_CellList(pd, simulationBox.box, ld.atomTypes,
+                                             par.epsilon, par.sigma, par.skin);
+  const auto fene =
+      kg::createFENEStressInteractor(pd, simulationBox.box, ld.bonds,
+                                     par.feneK, par.feneR0);
+  const auto wcaThermo =
       kg::createWCAInteractor_CellList(pd, simulationBox.box, ld.atomTypes,
                                        par.epsilon, par.sigma, par.skin);
-  const auto fene = kg::createFENEInteractor(pd, simulationBox.box, bondData);
+  const auto feneThermo =
+      kg::createFENEInteractor(pd, simulationBox.box, bondData);
 
   // 6. Configure the time integrator.
   // `GronbechJensen` is UAMMD's Langevin-style NVT integrator.
@@ -139,14 +151,42 @@ int main(int argc, char** argv){
   const std::string thermoHeader = kg::formatThermoHeader();
   thermo << thermoHeader << "\n";
 
+  std::ofstream gt(gtFile);
+  if(!gt){
+    std::cerr << "Cannot open shear correlator file: " << gtFile << "\n";
+    return 1;
+  }
+
   // Print a short run summary through UAMMD's message system.
   kg::logRunConfiguration(par, ld, thermoHeader);
 
+  Correlator Gxy;
+  Correlator Gxz;
+  Correlator Gyz;
+  Correlator Nxy;
+  Correlator Nxz;
+  Correlator Nyz;
+  for(Correlator* corr : {&Gxy, &Gxz, &Gyz, &Nxy, &Nxz, &Nyz}){
+    corr->setsize(40, 16, 2);
+    corr->initialize();
+  }
+
   // 8. Write the initial state before any integration step has happened.
   kg::appendLAMMPSDumpFrame(dump, 0, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
+  kg::detail::resetParticleForce(pd);
+  wca->sum({.force = true, .energy = false, .virial = false}, 0);
+  fene->sum({.force = true, .energy = false, .virial = false}, 0);
+  CudaSafeCall(cudaDeviceSynchronize());
+  const auto stress0 = kg::sampleStressTensor(pd, simulationBox, wca, fene);
+  Gxy.add(stress0.xy);
+  Gxz.add(stress0.xz);
+  Gyz.add(stress0.yz);
+  Nxy.add(stress0.xx - stress0.yy);
+  Nxz.add(stress0.xx - stress0.zz);
+  Nyz.add(stress0.yy - stress0.zz);
 
   const auto thermo0 =
-      kg::computeThermoSnapshot(integrator, pd, wca, fene, ld, simulationBox,
+      kg::computeThermoSnapshot(integrator, pd, wcaThermo, feneThermo, ld, simulationBox,
                                 par.epsilon, par.sigma,
                                 simulationBox.box.getVolume(), ld.natoms);
   const std::string thermoRow0 = kg::formatThermoRow(0, thermo0);
@@ -171,13 +211,23 @@ int main(int argc, char** argv){
   for(int step=1; step<=par.steps; ++step){
     // Advance positions/velocities by one integrator step, including all forces.
     integrator->forwardTime();
+    if(step % par.ncorr == 0){
+      CudaSafeCall(cudaDeviceSynchronize());
+      const auto stressNow = kg::sampleStressTensor(pd, simulationBox, wca, fene);
+      Gxy.add(stressNow.xy);
+      Gxz.add(stressNow.xz);
+      Gyz.add(stressNow.yz);
+      Nxy.add(stressNow.xx - stressNow.yy);
+      Nxz.add(stressNow.xx - stressNow.zz);
+      Nyz.add(stressNow.yy - stressNow.zz);
+    }
 
     if(par.thermoEvery>0 && step % par.thermoEvery == 0){
       if(par.removeCOMVelocity){
         kg::removeCenterOfMassVelocity(pd, false);
       }
       const auto thermoNow =
-          kg::computeThermoSnapshot(integrator, pd, wca, fene, ld, simulationBox,
+          kg::computeThermoSnapshot(integrator, pd, wcaThermo, feneThermo, ld, simulationBox,
                                     par.epsilon, par.sigma,
                                     simulationBox.box.getVolume(), ld.natoms);
       const std::string thermoRow = kg::formatThermoRow(step, thermoNow);
@@ -208,6 +258,23 @@ int main(int argc, char** argv){
   const auto loopEnd = std::chrono::steady_clock::now();
   const double loopSeconds =
       std::chrono::duration<double>(loopEnd - loopStart).count();
+
+  Gxy.evaluate();
+  Gxz.evaluate();
+  Gyz.evaluate();
+  Nxy.evaluate();
+  Nxz.evaluate();
+  Nyz.evaluate();
+  gt << "# t Gxy Gxz Gyz Nxy Nxz Nyz\n";
+  for(unsigned int i = 0; i < Gxy.npcorr; ++i){
+    gt << Gxy.gett(i) * (par.ncorr * par.dt)
+       << " " << Gxy.getf(i)
+       << " " << Gxz.getf(i)
+       << " " << Gyz.getf(i)
+       << " " << Nxy.getf(i)
+       << " " << Nxz.getf(i)
+       << " " << Nyz.getf(i) << "\n";
+  }
 
   System::log<System::MESSAGE>("%s",
       kg::formatPerformanceSummary(loopSeconds, par.steps, ld.natoms, par.dt).c_str());

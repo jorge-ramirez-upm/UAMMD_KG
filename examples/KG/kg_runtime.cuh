@@ -20,9 +20,12 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include <thrust/fill.h>
+#include <thrust/iterator/zip_iterator.h>
 #include <thrust/reduce.h>
+#include <thrust/transform_reduce.h>
 
 namespace kg {
 
@@ -68,12 +71,14 @@ inline std::shared_ptr<uammd::ParticleData> createParticleDataFromLammps(
   }
 
   {
+    auto id = particles->getId(access::cpu, access::write);
     auto mass = particles->getMass(access::cpu, access::write);
     auto vel = particles->getVel(access::cpu, access::write);
     auto force = particles->getForce(access::cpu, access::write);
     // The KG example uses unit mass throughout, and the force array is seeded
     // explicitly so the first thermo/force operations start from clean values.
     for (int i = 0; i < ld.natoms; ++i) {
+      id[i] = i;
       mass[i] = real(1.0);
       if (ld.hasVelocities) {
         vel[i] = make_real3((real)ld.vx[i], (real)ld.vy[i], (real)ld.vz[i]);
@@ -288,6 +293,97 @@ inline void initializeVelocitiesAtTemperature(
 
 namespace detail {
 
+inline void resetParticleForce(std::shared_ptr<uammd::ParticleData> particles) {
+  using namespace uammd;
+
+  auto force = particles->getForce(access::location::gpu, access::mode::write);
+  thrust::fill(thrust::cuda::par, force.begin(), force.end(),
+               make_real4(real(0.0)));
+}
+
+struct StressTensorSample {
+  double xx = 0.0;
+  double yy = 0.0;
+  double zz = 0.0;
+  double xy = 0.0;
+  double xz = 0.0;
+  double yz = 0.0;
+};
+
+inline __host__ __device__ StressTensorSample operator+(
+    const StressTensorSample& a,
+    const StressTensorSample& b) {
+  return {a.xx + b.xx, a.yy + b.yy, a.zz + b.zz,
+          a.xy + b.xy, a.xz + b.xz, a.yz + b.yz};
+}
+
+inline __host__ __device__ StressTensorSample& operator+=(
+    StressTensorSample& a,
+    const StressTensorSample& b) {
+  a.xx += b.xx;
+  a.yy += b.yy;
+  a.zz += b.zz;
+  a.xy += b.xy;
+  a.xz += b.xz;
+  a.yz += b.yz;
+  return a;
+}
+
+inline __host__ __device__ StressTensorSample operator*(
+    double factor,
+    const StressTensorSample& a) {
+  return {factor * a.xx, factor * a.yy, factor * a.zz,
+          factor * a.xy, factor * a.xz, factor * a.yz};
+}
+
+struct StressTensorPlus {
+  __host__ __device__ StressTensorSample operator()(
+      const StressTensorSample& a,
+      const StressTensorSample& b) const {
+    return a + b;
+  }
+};
+
+struct VelocityXYFunctor {
+  template <class Tuple>
+  __host__ __device__ StressTensorSample operator()(const Tuple& tuple) const {
+    const auto vel = thrust::get<0>(tuple);
+    const double mass = static_cast<double>(thrust::get<1>(tuple));
+    return {
+        mass * static_cast<double>(vel.x) * static_cast<double>(vel.x),
+        mass * static_cast<double>(vel.y) * static_cast<double>(vel.y),
+        mass * static_cast<double>(vel.z) * static_cast<double>(vel.z),
+        mass * static_cast<double>(vel.x) * static_cast<double>(vel.y),
+        mass * static_cast<double>(vel.x) * static_cast<double>(vel.z),
+        mass * static_cast<double>(vel.y) * static_cast<double>(vel.z),
+    };
+  }
+};
+
+struct ParticleStressFunctor {
+  template <class Tuple>
+  __host__ __device__ StressTensorSample operator()(const Tuple& tuple) const {
+    const uammd::real4 diag = thrust::get<0>(tuple);
+    const uammd::real4 off = thrust::get<1>(tuple);
+    return {static_cast<double>(diag.x), static_cast<double>(diag.y),
+            static_cast<double>(diag.z), static_cast<double>(off.x),
+            static_cast<double>(off.y), static_cast<double>(off.z)};
+  }
+};
+
+template <class InteractorType>
+inline StressTensorSample reduceInteractorStress(const InteractorType& interactor) {
+  const auto zipBegin = thrust::make_zip_iterator(
+      thrust::make_tuple(interactor.getStressDiag().begin(),
+                         interactor.getStressOff().begin()));
+  const auto zipEnd = thrust::make_zip_iterator(
+      thrust::make_tuple(interactor.getStressDiag().end(),
+                         interactor.getStressOff().end()));
+  return thrust::transform_reduce(thrust::cuda::par, zipBegin, zipEnd,
+                                  ParticleStressFunctor(), StressTensorSample{},
+                                  StressTensorPlus());
+}
+
 inline void resetParticleEnergy(std::shared_ptr<uammd::ParticleData> particles) {
   using namespace uammd;
 
@@ -346,6 +442,45 @@ inline double sumInteractorVirial(std::shared_ptr<uammd::Interactor> interactor,
 }
 
 } // namespace detail
+
+template <class WCAInteractor, class FENEInteractor>
+inline detail::StressTensorSample sampleStressTensor(
+    std::shared_ptr<uammd::ParticleData> particles,
+    const SimulationBox& simulationBox,
+    const WCAInteractor& wca,
+    const FENEInteractor& fene) {
+  using namespace uammd;
+
+  auto vel = particles->getVel(access::location::gpu, access::mode::read);
+  auto mass = particles->getMass(access::location::gpu, access::mode::read);
+  const auto zipBegin =
+      thrust::make_zip_iterator(thrust::make_tuple(vel.begin(), mass.begin()));
+  const auto zipEnd =
+      thrust::make_zip_iterator(thrust::make_tuple(vel.end(), mass.end()));
+  detail::StressTensorSample total = thrust::transform_reduce(
+      thrust::cuda::par, zipBegin, zipEnd, detail::VelocityXYFunctor(),
+      detail::StressTensorSample{}, detail::StressTensorPlus());
+
+  // Match the sign convention already used in computeThermoSnapshot():
+  // the WCA pair virial enters with the opposite sign, while the bonded FENE
+  // contribution already matches the thermodynamic convention. Both cached
+  // configurational tensors are doubled over the two particles, so we also
+  // divide by two here.
+  total += (-0.5) * detail::reduceInteractorStress(*wca);
+  total += ( 0.5) * detail::reduceInteractorStress(*fene);
+
+  const double volume = static_cast<double>(simulationBox.box.getVolume());
+  if (volume > 0.0) {
+    total.xx /= volume;
+    total.yy /= volume;
+    total.zz /= volume;
+    total.xy /= volume;
+    total.xz /= volume;
+    total.yz /= volume;
+  }
+
+  return total;
+}
 
 struct ThermoSnapshot {
   double bondedEnergy = 0.0;
@@ -518,6 +653,8 @@ inline void logRunConfiguration(const SimParams& par,
                                (ld.xhi - ld.xlo), (ld.yhi - ld.ylo), (ld.zhi - ld.zlo));
   System::log<System::MESSAGE>("[KG] dt %g T %g xi %g skin %g",
                                par.dt, par.temperature, par.friction, par.skin);
+  System::log<System::MESSAGE>("[KG] Correlator sampling every %d step(s)",
+                               par.ncorr);
   System::log<System::MESSAGE>("[KG] Model KG (WCA + FENE)");
   System::log<System::MESSAGE>("[KG] Dump output %s",
                                par.gzipDump ? "gzip-compressed" : "plain text");

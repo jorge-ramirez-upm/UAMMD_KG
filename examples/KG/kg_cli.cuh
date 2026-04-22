@@ -24,6 +24,7 @@ struct SimParams {
   int dumpEvery = 10000;
   int thermoEvery = 1000;
   int restartEvery = 10000;
+  int ncorr = 1;
 
   double dt = 0.01;
   double temperature = 1.0;
@@ -99,6 +100,10 @@ inline std::string deriveThermoFilename(const std::string& dataFile) {
   return detail::stripLammpsDatExtension(dataFile) + ".thermo";
 }
 
+inline std::string deriveGtFilename(const std::string& dataFile) {
+  return detail::stripLammpsDatExtension(dataFile) + ".gt";
+}
+
 inline std::string deriveTaggedThermoFilename(const std::string& dataFile,
                                               const std::string& tag) {
   return detail::stripLammpsDatExtension(dataFile) + tag + ".thermo";
@@ -127,7 +132,9 @@ inline void printHelpAndExit(const SimParams& dflt) {
       << "  -o, --thermo N      Thermo interval (default: "
       << dflt.thermoEvery << ")\n"
       << "  -r, --restart N     Restart interval (default: "
-      << dflt.restartEvery << ")\n\n"
+      << dflt.restartEvery << ")\n"
+      << "  -c, --ncorr N       Correlator sampling interval in MD steps"
+      << " (default: " << dflt.ncorr << ")\n\n"
       << "Dynamics:\n"
       << "  -t, --dt DT         Time step (default: " << dflt.dt << ")\n"
       << "  -T, --temperature kT\n"
@@ -175,6 +182,8 @@ inline SimParams parseArgs(int argc, char** argv) {
       p.thermoEvery = std::stoi(detail::getArg(i, argc, argv));
     else if (a == "-r" || a == "--restart")
       p.restartEvery = std::stoi(detail::getArg(i, argc, argv));
+    else if (a == "-c" || a == "--ncorr")
+      p.ncorr = std::stoi(detail::getArg(i, argc, argv));
     else if (a == "-s" || a == "--sigma")
       p.sigma = std::stod(detail::getArg(i, argc, argv));
     else if (a == "-e" || a == "--epsilon" || a == "--eps")
@@ -195,6 +204,9 @@ inline SimParams parseArgs(int argc, char** argv) {
       printHelpAndExit(SimParams{});
     else
       throw std::runtime_error("Unknown arg: " + a);
+  }
+  if (p.ncorr <= 0) {
+    throw std::runtime_error("--ncorr must be a positive integer");
   }
   return p;
 }

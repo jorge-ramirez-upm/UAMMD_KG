@@ -19,16 +19,17 @@ DEBUG_NVCCFLAGS=-O0 -g -G
 
 PROGRAMS=kg_uammd kg_uammd_equilibrate
 DEBUG_PROGRAMS=$(addsuffix _debug,$(PROGRAMS))
-UTILITY_HEADERS=kg_cli.cuh kg_lammps_io.cuh kg_interactors.cuh kg_runtime.cuh
+UTILITY_HEADERS=kg_cli.cuh kg_lammps_io.cuh kg_interactors.cuh kg_runtime.cuh correlator.h
+KG_UAMMD_SOURCES=kg_uammd.cu correlator.cpp
 
 all: $(PROGRAMS)
 debug: $(DEBUG_PROGRAMS)
 
-kg_uammd: kg_uammd.cu $(UTILITY_HEADERS) Makefile
-	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) $(RELEASE_NVCCFLAGS) $< -o $@ $(LDLIBS)
+kg_uammd: $(KG_UAMMD_SOURCES) $(UTILITY_HEADERS) Makefile
+	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) $(RELEASE_NVCCFLAGS) $(KG_UAMMD_SOURCES) -o $@ $(LDLIBS)
 
-kg_uammd_debug: kg_uammd.cu $(UTILITY_HEADERS) Makefile
-	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(DEBUG_LOG_LEVEL) $(DEBUG_NVCCFLAGS) $< -o $@ $(LDLIBS)
+kg_uammd_debug: $(KG_UAMMD_SOURCES) $(UTILITY_HEADERS) Makefile
+	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(DEBUG_LOG_LEVEL) $(DEBUG_NVCCFLAGS) $(KG_UAMMD_SOURCES) -o $@ $(LDLIBS)
 
 %: %.cu Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) $(RELEASE_NVCCFLAGS) $< -o $(@:.out=) $(LDLIBS)
