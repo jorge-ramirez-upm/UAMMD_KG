@@ -17,7 +17,7 @@ LDLIBS=-lz
 RELEASE_NVCCFLAGS=-O3
 DEBUG_NVCCFLAGS=-O0 -g -G
 
-PROGRAMS=kg_uammd
+PROGRAMS=kg_uammd kg_uammd_equilibrate
 DEBUG_PROGRAMS=$(addsuffix _debug,$(PROGRAMS))
 UTILITY_HEADERS=kg_cli.cuh kg_lammps_io.cuh kg_interactors.cuh kg_runtime.cuh
 

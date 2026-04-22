@@ -139,9 +139,9 @@ inline ClosestPairInfo analyzeClosestPairWCA(const LammpsData& ld,
   return info;
 }
 
-inline void validateInputConfiguration(const LammpsData& ld,
-                                       const SimParams& par,
-                                       const SimulationBox& simulationBox) {
+inline void validateAtomTypesAndBondTopology(const LammpsData& ld,
+                                             const SimParams& par,
+                                             const SimulationBox& simulationBox) {
   using namespace uammd;
 
   // These checks intentionally run on the CPU before the first GPU launch so
@@ -183,11 +183,22 @@ inline void validateInputConfiguration(const LammpsData& ld,
       throw std::runtime_error(out.str());
     }
   }
+}
 
+inline ClosestPairInfo logClosestPairWCA(const LammpsData& ld,
+                                         const SimulationBox& simulationBox) {
   const auto pairInfo = analyzeClosestPairWCA(ld, simulationBox);
   uammd::System::log<uammd::System::MESSAGE>(
       "[KG] Closest initial pair for WCA: atoms %d and %d, distance %.12g",
       pairInfo.i + 1, pairInfo.j + 1, pairInfo.distance);
+  return pairInfo;
+}
+
+inline void validateInputConfiguration(const LammpsData& ld,
+                                       const SimParams& par,
+                                       const SimulationBox& simulationBox) {
+  validateAtomTypesAndBondTopology(ld, par, simulationBox);
+  const auto pairInfo = logClosestPairWCA(ld, simulationBox);
   if (pairInfo.overlapsBelow1e6 > 0) {
     std::ostringstream out;
     out << "Input validation error: found " << pairInfo.overlapsBelow1e6

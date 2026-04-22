@@ -406,11 +406,12 @@ inline void appendLAMMPSDumpFrame(
   out.write(buildLAMMPSDumpFrame(step, ld, pd, xlo, xhi, ylo, yhi, zlo, zhi));
 }
 
-inline void writeLAMMPSDataRestart(
+inline void writeLAMMPSDataSnapshot(
     const std::string& filename,
     int step,
     const LammpsData& ld,
-    std::shared_ptr<uammd::ParticleData> pd) {
+    std::shared_ptr<uammd::ParticleData> pd,
+    const std::string& producerTag) {
   using namespace uammd;
 
   // Restart files preserve the original LAMMPS-style box bounds and 1-based
@@ -426,7 +427,8 @@ inline void writeLAMMPSDataRestart(
   if (!out)
     throw std::runtime_error("Cannot write restart file: " + filename);
 
-  out << "LAMMPS data file written by kg_uammd, step " << step << "\n\n";
+  out << "LAMMPS data file written by " << producerTag << ", step " << step
+      << "\n\n";
   out << ld.natoms << " atoms\n";
   out << ld.bonds.size() << " bonds\n\n";
   out << ld.atomTypes << " atom types\n";
@@ -469,6 +471,14 @@ inline void writeLAMMPSDataRestart(
     out << id << " 1 " << ai << " " << aj << "\n";
   }
   out << "\n";
+}
+
+inline void writeLAMMPSDataRestart(
+    const std::string& filename,
+    int step,
+    const LammpsData& ld,
+    std::shared_ptr<uammd::ParticleData> pd) {
+  writeLAMMPSDataSnapshot(filename, step, ld, pd, "kg_uammd");
 }
 
 } // namespace kg

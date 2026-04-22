@@ -83,6 +83,11 @@ inline std::string deriveDumpFilename(const std::string& dataFile) {
   return detail::stripLammpsDatExtension(dataFile) + ".lammpstrj";
 }
 
+inline std::string deriveTaggedDumpFilename(const std::string& dataFile,
+                                            const std::string& tag) {
+  return detail::stripLammpsDatExtension(dataFile) + tag + ".lammpstrj";
+}
+
 inline std::string deriveRestartFilename(const std::string& dataFile, int which) {
   // `which` is typically 1 or 2 because the run alternates between two restart
   // files to avoid losing the last good snapshot on an interrupted write.
@@ -92,6 +97,16 @@ inline std::string deriveRestartFilename(const std::string& dataFile, int which)
 
 inline std::string deriveThermoFilename(const std::string& dataFile) {
   return detail::stripLammpsDatExtension(dataFile) + ".thermo";
+}
+
+inline std::string deriveTaggedThermoFilename(const std::string& dataFile,
+                                              const std::string& tag) {
+  return detail::stripLammpsDatExtension(dataFile) + tag + ".thermo";
+}
+
+inline std::string deriveTaggedDataFilename(const std::string& dataFile,
+                                            const std::string& tag) {
+  return detail::stripLammpsDatExtension(dataFile) + tag + ".lammpsdat";
 }
 
 inline void printHelpAndExit(const SimParams& dflt) {
