@@ -40,6 +40,7 @@ struct SimParams {
 
   bool initializeVelocities = false;
   bool removeCOMVelocity = false;
+  bool checkPressureStress = false;
   bool gzipDump = false;
 };
 
@@ -146,6 +147,8 @@ inline void printHelpAndExit(const SimParams& dflt) {
       << "                      Ignore input velocities and initialize a Maxwell distribution at the requested temperature\n"
       << "      --remove-com-velocity\n"
       << "                      Subtract the center-of-mass velocity before step 0 and then every thermo interval\n\n"
+      << "      --check-pressure-stress\n"
+      << "                      Compare thermo pressure against Tr(sigma)/3 from the sampled stress tensor at thermo output times\n\n"
       << "Nonbonded (WCA):\n"
       << "  -s, --sigma S       LJ sigma (default: " << dflt.sigma << ")\n"
       << "  -e, --epsilon E     LJ epsilon (default: " << dflt.epsilon
@@ -200,6 +203,8 @@ inline SimParams parseArgs(int argc, char** argv) {
       p.initializeVelocities = true;
     else if (a == "--remove-com-velocity")
       p.removeCOMVelocity = true;
+    else if (a == "--check-pressure-stress")
+      p.checkPressureStress = true;
     else if (a == "-h" || a == "--help")
       printHelpAndExit(SimParams{});
     else

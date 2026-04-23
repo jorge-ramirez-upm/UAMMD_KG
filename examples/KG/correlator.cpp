@@ -473,6 +473,248 @@ void VectorCorrelator::read(FILE *fin) {
 }
 
 /////////////////////////////////////////
+// Correlator6 class
+/////////////////////////////////////////
+Correlator6::Correlator6(const unsigned int numcorrin, const unsigned int pin, const unsigned int min) {
+	setsize(numcorrin, pin, min);
+}
+
+void Correlator6::setsize(const unsigned int numcorrin, const unsigned int pin, const unsigned int min) {
+	Correlator::setsize(numcorrin, pin, min);
+
+	shift2 = new double*[numcorrelators];
+	shift3 = new double*[numcorrelators];
+	shift4 = new double*[numcorrelators];
+	shift5 = new double*[numcorrelators];
+	shift6 = new double*[numcorrelators];
+
+	correlation2 = new double*[numcorrelators];
+	correlation3 = new double*[numcorrelators];
+	correlation4 = new double*[numcorrelators];
+	correlation5 = new double*[numcorrelators];
+	correlation6 = new double*[numcorrelators];
+
+	accumulator2 = new double[numcorrelators];
+	accumulator3 = new double[numcorrelators];
+	accumulator4 = new double[numcorrelators];
+	accumulator5 = new double[numcorrelators];
+	accumulator6 = new double[numcorrelators];
+
+	for (unsigned int j = 0; j < numcorrelators; ++j) {
+		shift2[j] = new double[p];
+		shift3[j] = new double[p];
+		shift4[j] = new double[p];
+		shift5[j] = new double[p];
+		shift6[j] = new double[p];
+
+		correlation2[j] = new double[p];
+		correlation3[j] = new double[p];
+		correlation4[j] = new double[p];
+		correlation5[j] = new double[p];
+		correlation6[j] = new double[p];
+	}
+
+	f2 = new double[length];
+	f3 = new double[length];
+	f4 = new double[length];
+	f5 = new double[length];
+	f6 = new double[length];
+}
+
+Correlator6::~Correlator6() {
+	if (numcorrelators == 0) return;
+	delete[] shift2;
+	delete[] shift3;
+	delete[] shift4;
+	delete[] shift5;
+	delete[] shift6;
+	delete[] correlation2;
+	delete[] correlation3;
+	delete[] correlation4;
+	delete[] correlation5;
+	delete[] correlation6;
+	delete[] accumulator2;
+	delete[] accumulator3;
+	delete[] accumulator4;
+	delete[] accumulator5;
+	delete[] accumulator6;
+	delete[] f2;
+	delete[] f3;
+	delete[] f4;
+	delete[] f5;
+	delete[] f6;
+}
+
+void Correlator6::initialize() {
+	Correlator::initialize();
+
+	for (unsigned int j = 0; j < numcorrelators; ++j) {
+		for (unsigned int i = 0; i < p; ++i) {
+			shift2[j][i] = kUnusedCorrelatorSample;
+			shift3[j][i] = kUnusedCorrelatorSample;
+			shift4[j][i] = kUnusedCorrelatorSample;
+			shift5[j][i] = kUnusedCorrelatorSample;
+			shift6[j][i] = kUnusedCorrelatorSample;
+			correlation2[j][i] = 0;
+			correlation3[j][i] = 0;
+			correlation4[j][i] = 0;
+			correlation5[j][i] = 0;
+			correlation6[j][i] = 0;
+		}
+		accumulator2[j] = 0.0;
+		accumulator3[j] = 0.0;
+		accumulator4[j] = 0.0;
+		accumulator5[j] = 0.0;
+		accumulator6[j] = 0.0;
+	}
+
+	for (unsigned int i = 0; i < length; ++i) {
+		f2[i] = 0;
+		f3[i] = 0;
+		f4[i] = 0;
+		f5[i] = 0;
+		f6[i] = 0;
+	}
+}
+
+void Correlator6::add(const double w1, const double w2, const double w3,
+                      const double w4, const double w5, const double w6,
+                      const unsigned int k) {
+	if (k == numcorrelators) return;
+	if (k > kmax) kmax = k;
+
+	shift[k][insertindex[k]] = w1;
+	shift2[k][insertindex[k]] = w2;
+	shift3[k][insertindex[k]] = w3;
+	shift4[k][insertindex[k]] = w4;
+	shift5[k][insertindex[k]] = w5;
+	shift6[k][insertindex[k]] = w6;
+
+	accumulator[k] += w1;
+	accumulator2[k] += w2;
+	accumulator3[k] += w3;
+	accumulator4[k] += w4;
+	accumulator5[k] += w5;
+	accumulator6[k] += w6;
+	++naccumulator[k];
+	if (naccumulator[k] == m) {
+		add(accumulator[k] / m, accumulator2[k] / m, accumulator3[k] / m,
+		    accumulator4[k] / m, accumulator5[k] / m, accumulator6[k] / m,
+		    k + 1);
+		accumulator[k] = 0;
+		accumulator2[k] = 0;
+		accumulator3[k] = 0;
+		accumulator4[k] = 0;
+		accumulator5[k] = 0;
+		accumulator6[k] = 0;
+		naccumulator[k] = 0;
+	}
+
+	unsigned int ind1 = insertindex[k];
+	if (k == 0) {
+		int ind2 = ind1;
+		for (unsigned int j = 0; j < p; ++j) {
+			if (hasStoredSample(shift[k][ind2])) {
+				correlation[k][j] += shift[k][ind1] * shift[k][ind2];
+				correlation2[k][j] += shift2[k][ind1] * shift2[k][ind2];
+				correlation3[k][j] += shift3[k][ind1] * shift3[k][ind2];
+				correlation4[k][j] += shift4[k][ind1] * shift4[k][ind2];
+				correlation5[k][j] += shift5[k][ind1] * shift5[k][ind2];
+				correlation6[k][j] += shift6[k][ind1] * shift6[k][ind2];
+				++ncorrelation[k][j];
+			}
+			--ind2;
+			if (ind2 < 0) ind2 += p;
+		}
+	}
+	else {
+		int ind2 = ind1 - dmin;
+		for (unsigned int j = dmin; j < p; ++j) {
+			if (ind2 < 0) ind2 += p;
+			if (hasStoredSample(shift[k][ind2])) {
+				correlation[k][j] += shift[k][ind1] * shift[k][ind2];
+				correlation2[k][j] += shift2[k][ind1] * shift2[k][ind2];
+				correlation3[k][j] += shift3[k][ind1] * shift3[k][ind2];
+				correlation4[k][j] += shift4[k][ind1] * shift4[k][ind2];
+				correlation5[k][j] += shift5[k][ind1] * shift5[k][ind2];
+				correlation6[k][j] += shift6[k][ind1] * shift6[k][ind2];
+				++ncorrelation[k][j];
+			}
+			--ind2;
+		}
+	}
+
+	++insertindex[k];
+	if (insertindex[k] == p) insertindex[k] = 0;
+}
+
+void Correlator6::evaluate() {
+	unsigned int im = 0;
+
+	for (unsigned int i = 0; i < p; ++i) {
+		if (ncorrelation[0][i] > 0) {
+			t[im] = i;
+			f[im] = correlation[0][i] / ncorrelation[0][i];
+			f2[im] = correlation2[0][i] / ncorrelation[0][i];
+			f3[im] = correlation3[0][i] / ncorrelation[0][i];
+			f4[im] = correlation4[0][i] / ncorrelation[0][i];
+			f5[im] = correlation5[0][i] / ncorrelation[0][i];
+			f6[im] = correlation6[0][i] / ncorrelation[0][i];
+			++im;
+		}
+	}
+
+	for (unsigned int k = 1; k < kmax; ++k) {
+		for (unsigned int i = dmin; i < p; ++i) {
+			if (ncorrelation[k][i] > 0) {
+				t[im] = i * pow((double)m, k);
+				f[im] = correlation[k][i] / ncorrelation[k][i];
+				f2[im] = correlation2[k][i] / ncorrelation[k][i];
+				f3[im] = correlation3[k][i] / ncorrelation[k][i];
+				f4[im] = correlation4[k][i] / ncorrelation[k][i];
+				f5[im] = correlation5[k][i] / ncorrelation[k][i];
+				f6[im] = correlation6[k][i] / ncorrelation[k][i];
+				++im;
+			}
+		}
+	}
+
+	npcorr = im;
+}
+
+void Correlator6::clear() {
+	Correlator::clear();
+
+	for (unsigned int j = 0; j < numcorrelators; ++j) {
+		for (unsigned int i = 0; i < p; ++i) {
+			shift2[j][i] = kUnusedCorrelatorSample;
+			shift3[j][i] = kUnusedCorrelatorSample;
+			shift4[j][i] = kUnusedCorrelatorSample;
+			shift5[j][i] = kUnusedCorrelatorSample;
+			shift6[j][i] = kUnusedCorrelatorSample;
+			correlation2[j][i] = 0;
+			correlation3[j][i] = 0;
+			correlation4[j][i] = 0;
+			correlation5[j][i] = 0;
+			correlation6[j][i] = 0;
+		}
+		accumulator2[j] = 0.0;
+		accumulator3[j] = 0.0;
+		accumulator4[j] = 0.0;
+		accumulator5[j] = 0.0;
+		accumulator6[j] = 0.0;
+	}
+
+	for (unsigned int i = 0; i < length; ++i) {
+		f2[i] = 0;
+		f3[i] = 0;
+		f4[i] = 0;
+		f5[i] = 0;
+		f6[i] = 0;
+	}
+}
+
+/////////////////////////////////////////
 // CrossVectorCorrelator class
 /////////////////////////////////////////
 CrossVectorCorrelator::CrossVectorCorrelator(const unsigned int numcorrin, const unsigned int pin, const unsigned int min) {

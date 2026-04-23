@@ -183,6 +183,54 @@ public:
 	};
 
 //////////////////////////////////////////////////////////////////////////////////
+/// Six-channel scalar auto-correlator sharing one multi-tau time grid.
+class Correlator6 : public Correlator {
+
+protected:
+	double **shift2;
+	double **shift3;
+	double **shift4;
+	double **shift5;
+	double **shift6;
+
+	double **correlation2;
+	double **correlation3;
+	double **correlation4;
+	double **correlation5;
+	double **correlation6;
+
+	double *accumulator2;
+	double *accumulator3;
+	double *accumulator4;
+	double *accumulator5;
+	double *accumulator6;
+
+public:
+	double *f2, *f3, *f4, *f5, *f6;
+
+	Correlator6() { numcorrelators = 0; };
+	Correlator6(const unsigned int numcorrin, const unsigned int pin, const unsigned int min);
+	~Correlator6();
+
+	void setsize(const unsigned int numcorrin = 32, const unsigned int pin = 16, const unsigned int min = 2);
+	void add(const double w1, const double w2, const double w3,
+	         const double w4, const double w5, const double w6,
+	         const unsigned int k = 0);
+	void evaluate();
+	void initialize();
+	void clear();
+
+	double getf(int i, int j) {
+		if (j == 0) return f[i];
+		if (j == 1) return f2[i];
+		if (j == 2) return f3[i];
+		if (j == 3) return f4[i];
+		if (j == 4) return f5[i];
+		return f6[i];
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////////////
 /// Class for Mean Square displacement (diffusion, modified from VectorCorrelator)
 class DiffusionCorrelator : public VectorCorrelator {
 

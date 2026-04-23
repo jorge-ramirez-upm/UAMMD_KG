@@ -89,6 +89,7 @@ int main(int argc, char** argv){
   // representation expected by UAMMD, then run CPU-side validation before
   // any force or integration kernels are launched.
   const auto simulationBox = kg::makeSimulationBox(ld);
+  const double volume = static_cast<double>(simulationBox.box.getVolume());
   const auto pd = kg::createParticleDataFromLammps(ld, sys, simulationBox);
   try{
     kg::validateInputConfiguration(ld, par, simulationBox);
@@ -164,16 +165,9 @@ int main(int argc, char** argv){
   // Print a short run summary through UAMMD's message system.
   kg::logRunConfiguration(par, ld, thermoHeader);
 
-  Correlator Gxy;
-  Correlator Gxz;
-  Correlator Gyz;
-  Correlator Nxy;
-  Correlator Nxz;
-  Correlator Nyz;
-  for(Correlator* corr : {&Gxy, &Gxz, &Gyz, &Nxy, &Nxz, &Nyz}){
-    corr->setsize(40, 16, 2);
-    corr->initialize();
-  }
+  Correlator6 G;
+  G.setsize(40, 16, 2);
+  G.initialize();
 
   // Buffer several GPU-side stress reductions before copying them back. The
   // correlators themselves stay on the host and consume one stress tensor
@@ -204,12 +198,10 @@ int main(int argc, char** argv){
                             cudaMemcpyDeviceToHost));
     for(int i = 0; i < bufferedStressSamples; ++i){
       const auto& sample = sampledStressHost[i];
-      Gxy.add(sample.xy);
-      Gxz.add(sample.xz);
-      Gyz.add(sample.yz);
-      Nxy.add(sample.xx - sample.yy);
-      Nxz.add(sample.xx - sample.zz);
-      Nyz.add(sample.yy - sample.zz);
+      G.add(sample.xy, sample.xz, sample.yz,
+            sample.xx - sample.yy,
+            sample.xx - sample.zz,
+            sample.yy - sample.zz);
     }
     bufferedStressSamples = 0;
   };
@@ -227,6 +219,19 @@ int main(int argc, char** argv){
     ++bufferedStressSamples;
   };
 
+  auto logPressureConsistency = [&](int step, const kg::ThermoSnapshot& thermo) {
+    if(!par.checkPressureStress){
+      return;
+    }
+    const auto stress = kg::sampleStressTensor(pd, simulationBox, wca, fene);
+    const double pressureFromStress =
+        (stress.xx + stress.yy + stress.zz) / 3.0;
+    const double delta = pressureFromStress - thermo.pressure;
+    System::log<System::MESSAGE>(
+        "[KG][check] step %d pressure(thermo)=%.10g pressure(stress)=%.10g delta=%.3e",
+        step, thermo.pressure, pressureFromStress, delta);
+  };
+
   // 8. Write the initial state and seed the stress correlators with the
   // step-0 sample before the first integration step happens.
   kg::appendLAMMPSDumpFrame(dump, 0, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
@@ -238,8 +243,8 @@ int main(int argc, char** argv){
 
   const auto thermo0 =
       kg::computeThermoSnapshot(integrator, pd, wcaThermo, feneThermo, ld, simulationBox,
-                                par.epsilon, par.sigma,
-                                simulationBox.box.getVolume(), ld.natoms);
+                                par.epsilon, par.sigma, volume, ld.natoms);
+  logPressureConsistency(0, thermo0);
   const std::string thermoRow0 = kg::formatThermoRow(0, thermo0);
   System::log<System::MESSAGE>("[KG] %s", thermoRow0.c_str());
   thermo << thermoRow0 << "\n";
@@ -273,8 +278,8 @@ int main(int argc, char** argv){
       }
       const auto thermoNow =
           kg::computeThermoSnapshot(integrator, pd, wcaThermo, feneThermo, ld, simulationBox,
-                                    par.epsilon, par.sigma,
-                                    simulationBox.box.getVolume(), ld.natoms);
+                                    par.epsilon, par.sigma, volume, ld.natoms);
+      logPressureConsistency(step, thermoNow);
       const std::string thermoRow = kg::formatThermoRow(step, thermoNow);
       System::log<System::MESSAGE>("[KG] %s", thermoRow.c_str());
       thermo << thermoRow << "\n";
@@ -308,21 +313,16 @@ int main(int argc, char** argv){
       std::chrono::duration<double>(loopEnd - loopStart).count();
 
   flushBufferedStressSamples();
-  Gxy.evaluate();
-  Gxz.evaluate();
-  Gyz.evaluate();
-  Nxy.evaluate();
-  Nxz.evaluate();
-  Nyz.evaluate();
+  G.evaluate();
   gt << "# t Gxy Gxz Gyz Nxy Nxz Nyz\n";
-  for(unsigned int i = 0; i < Gxy.npcorr; ++i){
-    gt << Gxy.gett(i) * (par.ncorr * par.dt)
-       << " " << Gxy.getf(i)
-       << " " << Gxz.getf(i)
-       << " " << Gyz.getf(i)
-       << " " << Nxy.getf(i)
-       << " " << Nxz.getf(i)
-       << " " << Nyz.getf(i) << "\n";
+  for(unsigned int i = 0; i < G.npcorr; ++i){
+    gt << G.gett(i) * (par.ncorr * par.dt)
+       << " " << volume * G.getf(i, 0)
+       << " " << volume * G.getf(i, 1)
+       << " " << volume * G.getf(i, 2)
+       << " " << volume * G.getf(i, 3)
+       << " " << volume * G.getf(i, 4)
+       << " " << volume * G.getf(i, 5) << "\n";
   }
 
   System::log<System::MESSAGE>("%s",
