@@ -133,7 +133,7 @@ inline void printHelpAndExit(const SimParams& dflt) {
       << dflt.thermoEvery << ")\n"
       << "  -r, --restart N     Restart interval (default: "
       << dflt.restartEvery << ")\n"
-      << "  -c, --ncorr N       Correlator sampling interval in MD steps"
+      << "  -c, --ncorr N       Stress-correlator sampling interval in MD steps"
       << " (default: " << dflt.ncorr << ")\n\n"
       << "Dynamics:\n"
       << "  -t, --dt DT         Time step (default: " << dflt.dt << ")\n"

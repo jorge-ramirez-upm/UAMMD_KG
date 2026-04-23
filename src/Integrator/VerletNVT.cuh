@@ -99,6 +99,7 @@ public:
 
   virtual void forwardTime() override;
   virtual real sumEnergy() override { return sumKineticEnergy(); };
+  cudaStream_t getStream() const { return stream; }
 };
 
 class GronbechJensen final : public Basic {

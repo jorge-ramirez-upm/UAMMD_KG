@@ -1,7 +1,15 @@
 #include "correlator.h"
 #include <math.h>
 
-///** It is not possible right now to resize the correlator */
+namespace {
+
+constexpr double kUnusedCorrelatorSample = -2.0e10;
+
+inline bool hasStoredSample(const double value) {
+	return value > -1.0e10;
+}
+
+} // namespace
 
 /////////////////////////////////////////
 // Correlator class
@@ -63,10 +71,14 @@ void Correlator::setsize(const unsigned int numcorrin, const unsigned int pin, c
 
 
 void Correlator::initialize() {
+	resetCurrentState();
+	resetAverageState();
+}
 
+void Correlator::resetCurrentState() {
 	for (unsigned int j = 0; j < numcorrelators; ++j) {
 		for (unsigned int i = 0; i < p; ++i) {
-			shift[j][i] = -2E10;
+			shift[j][i] = kUnusedCorrelatorSample;
 			correlation[j][i] = 0;
 			ncorrelation[j][i] = 0;
 		}
@@ -78,26 +90,32 @@ void Correlator::initialize() {
 	for (unsigned int i = 0; i < length; ++i) {
 		t[i] = 0;
 		f[i] = 0;
+	}
+
+	npcorr = 0;
+	kmax = 0;
+}
+
+void Correlator::resetAverageState() {
+	for (unsigned int i = 0; i < length; ++i) {
 		tav[i] = 0;
 		fav[i] = 0;
 	}
 
-	npcorr = 0;
 	npcorrmax = 0;
 	nexp = 0;
-	kmax = 0;
 }
 
 void Correlator::add(const double w, const unsigned int k) {
 
-	/// If we exceed the correlator side, the value is discarded
+	/// Samples that would fall beyond the last multi-tau level are dropped.
 	if (k == numcorrelators) return;
 	if (k > kmax) kmax = k;
 
-	/// Insert new value in shift array
+	/// Insert the new sample at the current ring-buffer cursor.
 	shift[k][insertindex[k]] = w;
 
-	/// Add to accumulator and, if needed, add to next correlator
+	/// Every m samples we forward the block average to the next coarser level.
 	accumulator[k] += w;
 	++naccumulator[k];
 	if (naccumulator[k] == m) {
@@ -106,12 +124,13 @@ void Correlator::add(const double w, const unsigned int k) {
 		naccumulator[k] = 0;
 	}
 
-	/// Calculate correlation function
+	/// The finest level stores every lag. Coarser levels skip the overlapping
+	/// short-time region already covered by finer levels.
 	unsigned int ind1 = insertindex[k];
-	if (k == 0) { /// First correlator is different
+	if (k == 0) {
 		int ind2 = ind1;
 		for (unsigned int j = 0; j < p; ++j) {
-			if (shift[k][ind2] > -1e10) {
+			if (hasStoredSample(shift[k][ind2])) {
 				correlation[k][j] += shift[k][ind1] * shift[k][ind2];
 				++ncorrelation[k][j];
 			}
@@ -123,7 +142,7 @@ void Correlator::add(const double w, const unsigned int k) {
 		int ind2 = ind1 - dmin;
 		for (unsigned int j = dmin; j < p; ++j) {
 			if (ind2 < 0) ind2 += p;
-			if (shift[k][ind2] > -1e10) {
+			if (hasStoredSample(shift[k][ind2])) {
 				correlation[k][j] += shift[k][ind1] * shift[k][ind2];
 				++ncorrelation[k][j];
 			}
@@ -173,23 +192,7 @@ void Correlator::toaverage() {
 
 
 void Correlator::clear() {
-	for (unsigned int j = 0; j < numcorrelators; ++j) {
-		for (unsigned int i = 0; i < p; ++i) {
-			shift[j][i] = -2E10;
-			correlation[j][i] = 0;
-			ncorrelation[j][i] = 0;
-		}
-		accumulator[j] = 0.0;
-		naccumulator[j] = 0;
-		insertindex[j] = 0;
-	}
-
-	for (unsigned int i = 0; i < length; ++i) {
-		t[i] = 0;
-		f[i] = 0;
-	}
-	npcorr = 0;
-	kmax = 0;
+	resetCurrentState();
 }
 
 void Correlator::save(FILE *fout) {
@@ -254,15 +257,15 @@ void CrossCorrelator::initialize() {
 }
 
 void CrossCorrelator::add(const double wA, const double wB, const unsigned int k) {
-	/// If we exceed the correlator side, the value is discarded
+	/// Samples that would fall beyond the last multi-tau level are dropped.
 	if (k == numcorrelators) return;
 	if (k > kmax) kmax = k;
 
-	/// Insert new value in shift array
+	/// Insert the new sample pair at the current ring-buffer cursor.
 	shift[k][insertindex[k]] = wA;
 	shift2[k][insertindex[k]] = wB;
 
-	/// Add to accumulator and, if needed, add to next correlator
+	/// Every m samples we forward the block average to the next coarser level.
 	accumulator[k] += wA;
 	accumulator2[k] += wB;
 	++naccumulator[k];
@@ -273,12 +276,13 @@ void CrossCorrelator::add(const double wA, const double wB, const unsigned int k
 		naccumulator[k] = 0;
 	}
 
-	/// Calculate correlation function
+	/// The finest level stores every lag. Coarser levels start at dmin so the
+	/// short-time window is not duplicated across levels.
 	unsigned int ind1 = insertindex[k];
-	if (k == 0) { /// First correlator is different
+	if (k == 0) {
 		int ind2 = ind1;
 		for (unsigned int j = 0; j < p; ++j) {
-			if (shift[k][ind2] > -1e10) {
+			if (hasStoredSample(shift[k][ind2])) {
 				correlation[k][j] += shift[k][ind1] * shift2[k][ind2];
 				++ncorrelation[k][j];
 			}
@@ -290,7 +294,7 @@ void CrossCorrelator::add(const double wA, const double wB, const unsigned int k
 		int ind2 = ind1 - dmin;
 		for (unsigned int j = dmin; j < p; ++j) {
 			if (ind2 < 0) ind2 += p;
-			if (shift[k][ind2] > -1e10) {
+			if (hasStoredSample(shift[k][ind2])) {
 				correlation[k][j] += shift[k][ind1] * shift2[k][ind2];
 				++ncorrelation[k][j];
 			}
@@ -374,16 +378,16 @@ void VectorCorrelator::initialize() {
 }
 
 void VectorCorrelator::add(const double w0, const double w1, const double w2, const unsigned int k) {
-	/// If we exceed the correlator side, the value is discarded
+	/// Samples that would fall beyond the last multi-tau level are dropped.
 	if (k == numcorrelators) return;
 	if (k > kmax) kmax = k;
 
-	/// Insert new value in shift array
+	/// Insert the vector sample at the current ring-buffer cursor.
 	shift[k][insertindex[k]] = w0;
 	shift2[k][insertindex[k]] = w1;
 	shift3[k][insertindex[k]] = w2;
 
-	/// Add to accumulator and, if needed, add to next correlator
+	/// Every m samples we forward the block average to the next coarser level.
 	accumulator[k] += w0;
 	accumulator2[k] += w1;
 	accumulator3[k] += w2;
@@ -396,12 +400,13 @@ void VectorCorrelator::add(const double w0, const double w1, const double w2, co
 		naccumulator[k] = 0;
 	}
 
-	/// Calculate correlation function
+	/// The finest level stores every lag. Coarser levels start at dmin so the
+	/// short-time window is not duplicated across levels.
 	unsigned int ind1 = insertindex[k];
-	if (k == 0) { /// First correlator is different
+	if (k == 0) {
 		int ind2 = ind1;
 		for (unsigned int j = 0; j < p; ++j) {
-			if (shift[k][ind2] > -1e10) {
+			if (hasStoredSample(shift[k][ind2])) {
 				correlation[k][j] += (shift[k][ind1] * shift[k][ind2] +
 					shift2[k][ind1] * shift2[k][ind2] +
 					shift3[k][ind1] * shift3[k][ind2]);
@@ -415,7 +420,7 @@ void VectorCorrelator::add(const double w0, const double w1, const double w2, co
 		int ind2 = ind1 - dmin;
 		for (unsigned int j = dmin; j < p; ++j) {
 			if (ind2 < 0) ind2 += p;
-			if (shift[k][ind2] > -1e10) {
+			if (hasStoredSample(shift[k][ind2])) {
 				correlation[k][j] += (shift[k][ind1] * shift[k][ind2] +
 					shift2[k][ind1] * shift2[k][ind2] +
 					shift3[k][ind1] * shift3[k][ind2]);

@@ -1,36 +1,36 @@
-/// Definition of correlator classes
+/// Multi-tau correlator utilities used by the KG example.
 #ifndef __correlator_h
 #define __correlator_h
 
 #include <stdio.h>
 
 ////////////////////////////////////////////////////
-/// Standard Scalar Correlator f(tau)=<A(t)A(t+tau)>
+/// Standard scalar multi-tau correlator, f(tau)=<A(t)A(t+tau)>
 class Correlator {
 
 protected:
-	/** Where the coming values are stored */
+	/** Ring buffers that store the samples kept at each level. */
 	double **shift;
-	/** Array containing the actual calculated correlation function */
+	/** Accumulated numerator of the correlation estimate at each level/lag. */
 	double **correlation;
-	/** Number of values accumulated in cor */
+	/** Number of contributions accumulated in each correlation bin. */
 	unsigned long int **ncorrelation;
 
-	/** Accumulator in each correlator */
+	/** Running average used to feed the next coarser level every m samples. */
 	double *accumulator;
-	/** Index that controls accumulation in each correlator */
+	/** Number of fine samples accumulated into the current block average. */
 	unsigned int *naccumulator;
-	/** Index pointing at the position at which the current value is inserted */
+	/** Write cursor for the ring buffer of each level. */
 	unsigned int *insertindex;
 
-	/** Number of Correlators */
+	/** Number of multi-tau levels. */
 	unsigned int numcorrelators;
 
-	/** Points per correlator */
+	/** Number of slots stored per level. */
 	unsigned int p;
-	/** Number of points over which to average; RECOMMENDED: p mod m = 0 */
+	/** Number of samples collapsed into one sample of the next level. */
 	unsigned int m; 
-	/** Minimum distance between points for correlators k>0; dmin = p/m */
+	/** First valid lag on levels k>0; equal to p/m for the current layout. */
 	unsigned int dmin;
 
 	/*  SCHEMATIC VIEW OF EACH CORRELATOR
@@ -41,10 +41,13 @@ protected:
 		-------------------------------------------------
 		*/
 
-	/** Lenght of result arrays */
+	/** Storage capacity of the flattened output arrays. */
 	unsigned int length;
-	/** Maximum correlator attained during simulation */
+	/** Deepest level that has received data so far. */
 	unsigned int kmax;
+
+	void resetCurrentState();
+	void resetAverageState();
 
 public:
 	double *t, *f, *tav, *fav;
@@ -55,22 +58,22 @@ public:
 	Correlator (const unsigned int numcorrin, const unsigned int pin, const unsigned int min);
 	~Correlator();
 
-	/** Set size of correlator */
+	/** Allocate storage for the multi-tau ladder. */
 	void setsize (const unsigned int numcorrin = 32, const unsigned int pin = 16, const unsigned int min = 2);
 
-	/** Add a scalar to the correlator number k */
+	/** Push one scalar sample into level k (level 0 for external callers). */
 	void add(const double w, const unsigned int k = 0);
 
-	/** Evaluate the current state of the correlator */
+	/** Flatten the populated levels into the public t/f arrays. */
 	void evaluate();
 
-	/** Initialize all values (current and average) to zero */
+	/** Reset both the current run state and the running experiment averages. */
 	void initialize();
 
-	/** Send current experiment values to the average arrays */
+	/** Accumulate the current evaluated curve into tav/fav. */
 	void toaverage();
 
-	/** Clear current arrays to zero */
+	/** Clear the current run state while preserving tav/fav averages. */
 	void clear();
 
 	/** Save contents of correlator to file */

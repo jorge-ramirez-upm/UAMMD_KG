@@ -24,6 +24,9 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <vector>
+
+#include <thrust/device_vector.h>
 
 // --------------------------
 // main
@@ -129,6 +132,7 @@ int main(int argc, char** argv){
     kg::removeCenterOfMassVelocity(pd, false);
   }
   auto integrator = std::make_shared<NVT>(pd, ip);
+  const cudaStream_t samplingStream = integrator->getStream();
 
   // Register both force contributions with the integrator so each time step
   // includes nonbonded and bonded forces.
@@ -153,7 +157,7 @@ int main(int argc, char** argv){
 
   std::ofstream gt(gtFile);
   if(!gt){
-    std::cerr << "Cannot open shear correlator file: " << gtFile << "\n";
+    std::cerr << "Cannot open stress-correlator file: " << gtFile << "\n";
     return 1;
   }
 
@@ -171,19 +175,66 @@ int main(int argc, char** argv){
     corr->initialize();
   }
 
-  // 8. Write the initial state before any integration step has happened.
+  // Buffer several GPU-side stress reductions before copying them back. The
+  // correlators themselves stay on the host and consume one stress tensor
+  // sample every `ncorr` MD steps.
+  const int samplesPerRestart =
+      (par.restartEvery > 0)
+          ? ((par.restartEvery + par.ncorr - 1) / par.ncorr + 2)
+          : 65536;
+  constexpr int stressReductionThreads = 256;
+  const int stressReductionBlocks =
+      (ld.natoms + stressReductionThreads - 1) / stressReductionThreads;
+  thrust::device_vector<kg::detail::StressTensorSample> sampledStressDevice(
+      samplesPerRestart);
+  thrust::device_vector<kg::detail::StressTensorSample> stressPartialSumsDevice(
+      stressReductionBlocks);
+  std::vector<kg::detail::StressTensorSample> sampledStressHost(samplesPerRestart);
+  int bufferedStressSamples = 0;
+
+  auto flushBufferedStressSamples = [&]() {
+    if(bufferedStressSamples <= 0){
+      return;
+    }
+    CudaSafeCall(cudaStreamSynchronize(samplingStream));
+    CudaSafeCall(cudaMemcpy(sampledStressHost.data(),
+                            thrust::raw_pointer_cast(sampledStressDevice.data()),
+                            sizeof(kg::detail::StressTensorSample) *
+                                static_cast<size_t>(bufferedStressSamples),
+                            cudaMemcpyDeviceToHost));
+    for(int i = 0; i < bufferedStressSamples; ++i){
+      const auto& sample = sampledStressHost[i];
+      Gxy.add(sample.xy);
+      Gxz.add(sample.xz);
+      Gyz.add(sample.yz);
+      Nxy.add(sample.xx - sample.yy);
+      Nxz.add(sample.xx - sample.zz);
+      Nyz.add(sample.yy - sample.zz);
+    }
+    bufferedStressSamples = 0;
+  };
+
+  auto queueStressSample = [&]() {
+    if(bufferedStressSamples >= static_cast<int>(sampledStressDevice.size())){
+      flushBufferedStressSamples();
+    }
+    auto* samplePtr = thrust::raw_pointer_cast(sampledStressDevice.data()) +
+                      bufferedStressSamples;
+    kg::appendStressTensorSampleAsync(
+        pd, simulationBox, wca, fene,
+        thrust::raw_pointer_cast(stressPartialSumsDevice.data()), samplePtr,
+        samplingStream);
+    ++bufferedStressSamples;
+  };
+
+  // 8. Write the initial state and seed the stress correlators with the
+  // step-0 sample before the first integration step happens.
   kg::appendLAMMPSDumpFrame(dump, 0, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
   kg::detail::resetParticleForce(pd);
-  wca->sum({.force = true, .energy = false, .virial = false}, 0);
-  fene->sum({.force = true, .energy = false, .virial = false}, 0);
-  CudaSafeCall(cudaDeviceSynchronize());
-  const auto stress0 = kg::sampleStressTensor(pd, simulationBox, wca, fene);
-  Gxy.add(stress0.xy);
-  Gxz.add(stress0.xz);
-  Gyz.add(stress0.yz);
-  Nxy.add(stress0.xx - stress0.yy);
-  Nxz.add(stress0.xx - stress0.zz);
-  Nyz.add(stress0.yy - stress0.zz);
+  wca->sum({.force = true, .energy = false, .virial = false}, samplingStream);
+  fene->sum({.force = true, .energy = false, .virial = false}, samplingStream);
+  queueStressSample();
+  CudaSafeCall(cudaStreamSynchronize(samplingStream));
 
   const auto thermo0 =
       kg::computeThermoSnapshot(integrator, pd, wcaThermo, feneThermo, ld, simulationBox,
@@ -212,17 +263,11 @@ int main(int argc, char** argv){
     // Advance positions/velocities by one integrator step, including all forces.
     integrator->forwardTime();
     if(step % par.ncorr == 0){
-      CudaSafeCall(cudaDeviceSynchronize());
-      const auto stressNow = kg::sampleStressTensor(pd, simulationBox, wca, fene);
-      Gxy.add(stressNow.xy);
-      Gxz.add(stressNow.xz);
-      Gyz.add(stressNow.yz);
-      Nxy.add(stressNow.xx - stressNow.yy);
-      Nxz.add(stressNow.xx - stressNow.zz);
-      Nyz.add(stressNow.yy - stressNow.zz);
+      queueStressSample();
     }
 
     if(par.thermoEvery>0 && step % par.thermoEvery == 0){
+      CudaSafeCall(cudaStreamSynchronize(samplingStream));
       if(par.removeCOMVelocity){
         kg::removeCenterOfMassVelocity(pd, false);
       }
@@ -236,11 +281,13 @@ int main(int argc, char** argv){
     }
 
     if(par.dumpEvery>0 && step % par.dumpEvery == 0){
+      CudaSafeCall(cudaStreamSynchronize(samplingStream));
       // Append one trajectory frame for visualization or post-processing.
       kg::appendLAMMPSDumpFrame(dump, step, ld, pd, ld.xlo, ld.xhi, ld.ylo, ld.yhi, ld.zlo, ld.zhi);
     }
 
     if(par.restartEvery>0 && step % par.restartEvery == 0){
+      CudaSafeCall(cudaStreamSynchronize(samplingStream));
       // Alternate between two filenames.
       // This is a common restart strategy because there is always at least one
       // previously completed restart file if a write is interrupted.
@@ -253,12 +300,14 @@ int main(int argc, char** argv){
         std::cerr << "Restart write error: " << e.what() << "\n";
         return 1;
       }
+      flushBufferedStressSamples();
     }
   }
   const auto loopEnd = std::chrono::steady_clock::now();
   const double loopSeconds =
       std::chrono::duration<double>(loopEnd - loopStart).count();
 
+  flushBufferedStressSamples();
   Gxy.evaluate();
   Gxz.evaluate();
   Gyz.evaluate();
