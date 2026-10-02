@@ -4,7 +4,7 @@
 LOG_LEVEL=5
 DEBUG_LOG_LEVEL=14
 
-NVCC=nvcc
+NVCC=/usr/local/cuda-12.8/bin/nvcc
 CXX=/usr/local/gcc-11.2.0/bin/g++
 
 CUDA_ROOT=$(shell dirname `which nvcc`)/..
