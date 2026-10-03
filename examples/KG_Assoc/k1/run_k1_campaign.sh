@@ -2,7 +2,31 @@
 # GPU host: ./run_k1_campaign.sh ../../kg_assoc_k1 pilot|baseline|full
 set -euo pipefail
 exe=${1:?executable}; mode=${2:-pilot}; root=$(cd "$(dirname "$0")" && pwd); out=$root/results; mkdir -p "$out"
-run(){ local ea=$1 ee=$2 every=$3 rep=$4 steps=${5:-100000} tag="Ea${ea}_Ee${ee}_N${every}_r${rep}"; [[ $steps != 100000 ]]&&tag="pilot_${tag}"; [[ -s $out/$tag.state ]]&&return; "$exe" --rho .05 --Ea "$ea" --Ee "$ee" --Nevery "$every" --steps "$steps" --seed $((410000+rep*1000+ea*100+ee*10+every)) --output "$out/$tag"; }
+#run(){ local ea=$1 ee=$2 every=$3 rep=$4 steps=${5:-100000} tag="Ea${ea}_Ee${ee}_N${every}_r${rep}"; [[ $steps != 100000 ]]&&tag="pilot_${tag}"; [[ -s $out/$tag.state ]]&&return; "$exe" --rho .05 --Ea "$ea" --Ee "$ee" --Nevery "$every" --steps "$steps" --seed $((410000+rep*1000+ea*100+ee*10+every)) --output "$out/$tag"; }
+run() {
+    local ea=$1
+    local ee=$2
+    local every=$3
+    local rep=$4
+    local steps=${5:-100000}
+
+    local tag="Ea${ea}_Ee${ee}_N${every}_r${rep}"
+
+    if [[ $steps != 100000 ]]; then
+        tag="pilot_${tag}"
+    fi
+
+    [[ -s "$out/$tag.state" ]] && return
+
+    "$exe" \
+        --rho .05 \
+        --Ea "$ea" \
+        --Ee "$ee" \
+        --Nevery "$every" \
+        --steps "$steps" \
+        --seed $((410000 + rep*1000 + ea*100 + ee*10 + every)) \
+        --output "$out/$tag"
+}
 case $mode in
  pilot) run 4 4 100 1 10000;;
  baseline) for r in 1 2 3 4;do run 4 4 100 $r;done;;
