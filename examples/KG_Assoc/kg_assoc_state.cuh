@@ -12,15 +12,19 @@ namespace kg_assoc {
 // one-partner state on host and device without making topology part of I/O.
 class StickerState {
  public:
-  StickerState(int particleCount, std::vector<int> stickers)
+  StickerState(int particleCount, std::vector<int> stickers,
+               bool allocateDeviceState = true)
       : isSticker_(particleCount, false), partner_(particleCount, -1),
-        stickers_(std::move(stickers)), devicePartner_(particleCount, -1) {
+        stickers_(std::move(stickers)) {
     for (int i : stickers_) {
       if (i < 0 || i >= particleCount || isSticker_[i])
         throw std::runtime_error("invalid or duplicate sticker index");
       isSticker_[i] = true;
     }
-    syncDevice();
+    if (allocateDeviceState) {
+      devicePartner_.assign(particleCount, -1);
+      syncDevice();
+    }
   }
 
   bool isSticker(int i) const { return i >= 0 && i < int(isSticker_.size()) && isSticker_[i]; }
@@ -39,7 +43,11 @@ class StickerState {
     if (!bonded(i, j)) throw std::runtime_error("invalid associating break");
     partner_[i] = -1; partner_[j] = -1;
   }
-  void syncDevice() { devicePartner_ = partner_; }
+  void syncDevice() {
+    if (!devicePartner_.empty()) {
+      devicePartner_ = partner_;
+    }
+  }
   void validate() const {
     for (int i : stickers_) {
       int j = partner_[i];

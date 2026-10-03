@@ -1,11 +1,105 @@
 #ifndef EXAMPLES_KG_ASSOC_CLI_CUH
 #define EXAMPLES_KG_ASSOC_CLI_CUH
+
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+
 namespace kg_assoc {
-struct Params { int steps=10000, every=100; double dt=.005, temperature=1., ee=4., ea=1., nu0=10., rAssoc=1.3, k=30., r0=1.5, friction=.5, box=8.; unsigned long long seed=12345; std::string prefix="kg_assoc_dimer"; bool selfTest=false; };
-inline std::string arg(int& i,int n,char**v){if(++i>=n)throw std::runtime_error("missing option value");return v[i];}
-inline Params parseArgs(int n,char**v){ Params p; for(int i=1;i<n;++i){std::string a=v[i]; if(a=="--steps"||a=="-n")p.steps=std::stoi(arg(i,n,v)); else if(a=="--dt")p.dt=std::stod(arg(i,n,v)); else if(a=="--temperature"||a=="-T")p.temperature=std::stod(arg(i,n,v)); else if(a=="--Ee")p.ee=std::stod(arg(i,n,v)); else if(a=="--Ea")p.ea=std::stod(arg(i,n,v)); else if(a=="--nu0")p.nu0=std::stod(arg(i,n,v)); else if(a=="--Nevery")p.every=std::stoi(arg(i,n,v)); else if(a=="--r-assoc")p.rAssoc=std::stod(arg(i,n,v)); else if(a=="--K")p.k=std::stod(arg(i,n,v)); else if(a=="--R0")p.r0=std::stod(arg(i,n,v)); else if(a=="--seed")p.seed=std::stoull(arg(i,n,v)); else if(a=="--output"||a=="--prefix")p.prefix=arg(i,n,v); else if(a=="--self-test")p.selfTest=true; else if(a=="--help"){std::cout<<"kg_assoc_dimer --steps N --dt DT --temperature T --Ee E --Ea E --nu0 X --Nevery N --r-assoc R --K K --R0 R --seed S --output PREFIX [--self-test]\n";std::exit(0);} else throw std::runtime_error("unknown argument: "+a); } if(p.steps<0||p.every<=0||p.dt<=0||p.temperature<=0||p.k<=0||p.r0<=0||p.rAssoc<=0||p.rAssoc>=p.r0||p.box<=2*p.r0)throw std::runtime_error("invalid physical parameters (require 0 < r_assoc < R0)"); return p; }
+
+struct Params {
+  int steps = 10000;
+  int every = 100;
+  double dt = .005;
+  double temperature = 1.;
+  double ee = 4.;
+  double ea = 1.;
+  double nu0 = 10.;
+  double rAssoc = 1.3;
+  double k = 30.;
+  double r0 = 1.5;
+  double friction = .5;
+  double box = 8.;
+  double distance = 1.0;
+  unsigned long long seed = 12345;
+  std::string prefix = "kg_assoc_dimer";
+  bool selfTest = false;
+  bool staticMode = false;
+  bool initialBound = false;
+};
+
+inline std::string nextArgument(int& index, int argc, char** argv) {
+  if (++index >= argc) {
+    throw std::runtime_error("missing option value");
+  }
+  return argv[index];
 }
+
+inline void printHelp() {
+  std::cout
+      << "kg_assoc_dimer [--static --distance R --initial-bound] "
+      << "--steps N --dt DT --temperature T --Ee E --Ea E --nu0 X "
+      << "--Nevery N --r-assoc R --K K --R0 R --box L --seed S "
+      << "--output PREFIX [--self-test]\n";
+}
+
+inline Params parseArgs(int argc, char** argv) {
+  Params params;
+
+  for (int index = 1; index < argc; ++index) {
+    const std::string option = argv[index];
+    if (option == "--steps" || option == "-n") {
+      params.steps = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--dt") {
+      params.dt = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--temperature" || option == "-T") {
+      params.temperature = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--Ee") {
+      params.ee = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--Ea") {
+      params.ea = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--nu0") {
+      params.nu0 = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--Nevery") {
+      params.every = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--r-assoc") {
+      params.rAssoc = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--K") {
+      params.k = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--R0") {
+      params.r0 = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--box") {
+      params.box = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--distance") {
+      params.distance = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--seed") {
+      params.seed = std::stoull(nextArgument(index, argc, argv));
+    } else if (option == "--output" || option == "--prefix") {
+      params.prefix = nextArgument(index, argc, argv);
+    } else if (option == "--static") {
+      params.staticMode = true;
+    } else if (option == "--initial-bound") {
+      params.initialBound = true;
+    } else if (option == "--self-test") {
+      params.selfTest = true;
+    } else if (option == "--help") {
+      printHelp();
+      std::exit(0);
+    } else {
+      throw std::runtime_error("unknown argument: " + option);
+    }
+  }
+
+  if (params.steps < 0 || params.every <= 0 || params.dt <= 0.0 ||
+      params.temperature <= 0.0 || params.k <= 0.0 || params.r0 <= 0.0 ||
+      params.rAssoc <= 0.0 || params.rAssoc >= params.r0 ||
+      params.box <= 2.0 * params.r0 || params.distance < 0.0) {
+    throw std::runtime_error("invalid physical parameters");
+  }
+  return params;
+}
+
+}  // namespace kg_assoc
+
 #endif
