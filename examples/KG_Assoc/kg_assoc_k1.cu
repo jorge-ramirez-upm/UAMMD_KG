@@ -284,7 +284,8 @@ int main(int argc, char** argv) {
               << parameters.steps / productionWallSeconds
               << " ns_per_particle_timestep "
               << 1e9 * productionWallSeconds /
-                     (parameters.n * parameters.steps)
+                     (static_cast<double>(parameters.n) *
+                      static_cast<double>(parameters.steps))
               << " chemistry_sweeps " << chemistrySweeps
               << " mean_candidate_edges "
               << (chemistrySweeps

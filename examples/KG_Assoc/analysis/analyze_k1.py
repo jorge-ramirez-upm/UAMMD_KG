@@ -1,48 +1,327 @@
 #!/usr/bin/env python3
-"""K1 event/exposure analysis; input is kg_assoc_k1's compact .state file."""
-import argparse,csv,glob,math,os,re,statistics,sys
+"""K1 event/exposure analysis for kg_assoc_k1 compact .state files."""
+import argparse
+import csv
+import glob
+import math
+import os
+import re
+import statistics
+import sys
+import tempfile
+
+LEGACY_PATTERN = re.compile(
+    r'Ea([0-9.]+)_Ee([0-9.]+)_N([0-9]+)_r([0-9]+)')
+
+
 def read(path):
- r=[];meta={}
- for line in open(path):
-  if line.startswith('#'):
-   for x in line[1:].split():
-    if '=' in x:
-     k,v=x.split('=',1);meta[k]=v
-   continue
-  x=line.split()
-  if len(x)==6:r.append(tuple(map(float,x)))
- if len(r)<2:raise ValueError(path+' has too few samples')
- n=r[0][2]+2*r[0][3]
- for z in r:
-  if z[2]+2*z[3]!=n or z[3]!=z[4]-z[5]:raise ValueError(path+' invariant failure')
- return r,n,meta
-def integ(r,fn,kind='trap'):
- return sum((r[i+1][1]-r[i][1])*((fn(r[i])+fn(r[i+1]))/2 if kind=='trap' else fn(r[i+(kind=='right')])) for i in range(len(r)-1))
-def meanse(x):return statistics.mean(x),statistics.stdev(x)/math.sqrt(len(x)) if len(x)>1 else float('nan')
+    rows = []
+    metadata = {}
+    with open(path) as state_file:
+        for line in state_file:
+            if line.startswith('#'):
+                for token in line[1:].split():
+                    if '=' in token:
+                        key, value = token.split('=', 1)
+                        metadata[key] = value
+                continue
+            fields = line.split()
+            if len(fields) == 6:
+                rows.append(tuple(map(float, fields)))
+
+    if len(rows) < 2:
+        raise ValueError(path + ' has too few samples')
+
+    number_particles = rows[0][2] + 2 * rows[0][3]
+    for row in rows:
+        if (row[2] + 2 * row[3] != number_particles or
+                row[3] != row[4] - row[5]):
+            raise ValueError(path + ' invariant failure')
+    return rows, int(number_particles), metadata
+
+
+def integrate(rows, function, kind='trap'):
+    return sum(
+        (rows[index + 1][1] - rows[index][1]) *
+        ((function(rows[index]) + function(rows[index + 1])) / 2
+         if kind == 'trap'
+         else function(rows[index + (kind == 'right')]))
+        for index in range(len(rows) - 1))
+
+
+def meanse(values):
+    mean = statistics.mean(values)
+    standard_error = (statistics.stdev(values) / math.sqrt(len(values))
+                      if len(values) > 1 else float('nan'))
+    return mean, standard_error
+
+
 def slope(points):
- x,y=zip(*points);xm=statistics.mean(x);ym=statistics.mean(y);return sum((a-xm)*(b-ym)for a,b in points)/sum((a-xm)**2 for a in x)
+    x_values, y_values = zip(*points)
+    x_mean = statistics.mean(x_values)
+    y_mean = statistics.mean(y_values)
+    return (sum((x - x_mean) * (y - y_mean)
+                for x, y in points) /
+            sum((x - x_mean) ** 2 for x in x_values))
+
+
+def legacy_parameters(path):
+    match = LEGACY_PATTERN.search(os.path.basename(path))
+    if not match:
+        return {}
+    return {
+        'Ea': float(match[1]),
+        'Ee': float(match[2]),
+        'Nevery': int(match[3]),
+        'replica': int(match[4]),
+    }
+
+
+def values_agree(left, right):
+    if isinstance(left, float) or isinstance(right, float):
+        return math.isclose(left, right, rel_tol=1e-12, abs_tol=0.0)
+    return left == right
+
+
+def resolve_parameter(path, metadata, legacy, name, converter, required=True,
+                      default=None):
+    metadata_value = converter(metadata[name]) if name in metadata else None
+    legacy_value = legacy.get(name)
+
+    if (metadata_value is not None and legacy_value is not None and
+            not values_agree(metadata_value, legacy_value)):
+        raise ValueError(
+            '{}: metadata {}={} disagrees with filename value {}'.format(
+                path, name, metadata_value, legacy_value))
+
+    if metadata_value is not None:
+        return metadata_value
+    if legacy_value is not None:
+        return legacy_value
+    if default is not None:
+        return default
+    if required:
+        raise ValueError(
+            '{}: missing {} in .state metadata; legacy filenames only '
+            'provide Ea, Ee, Nevery, and replica'.format(path, name))
+    return None
+
+
+def analyze_file(path):
+    rows, actual_particles, metadata = read(path)
+    legacy = legacy_parameters(path)
+
+    header_particles = resolve_parameter(
+        path, metadata, legacy, 'N', int, required=False)
+    if (header_particles is not None and
+            header_particles != actual_particles):
+        raise ValueError(
+            '{}: metadata N={} disagrees with sampled particle count {}'.format(
+                path, header_particles, actual_particles))
+
+    rho = resolve_parameter(path, metadata, legacy, 'rho', float)
+    temperature = resolve_parameter(
+        path, metadata, legacy, 'T', float, default=1.0)
+    dt = resolve_parameter(path, metadata, legacy, 'dt', float)
+    nu0 = resolve_parameter(
+        path, metadata, legacy, 'nu0', float, default=20.0)
+    ea = resolve_parameter(path, metadata, legacy, 'Ea', float)
+    ee = resolve_parameter(path, metadata, legacy, 'Ee', float)
+    every = resolve_parameter(path, metadata, legacy, 'Nevery', int)
+
+    replica = resolve_parameter(
+        path, metadata, legacy, 'replica', int, required=False)
+    if replica is None:
+        replica = 'seed_' + metadata['seed'] if 'seed' in metadata else 'metadata'
+
+    volume = actual_particles / rho
+    creations = rows[-1][4] - rows[0][4]
+    breaks = rows[-1][5] - rows[0][5]
+    free_exposure = integrate(
+        rows, lambda row: row[2] * (row[2] - 1) / volume)
+    bound_exposure = integrate(rows, lambda row: row[3])
+    exposure_difference = max(
+        abs(integrate(
+            rows, lambda row: row[2] * (row[2] - 1) / volume, 'left') /
+            free_exposure - 1),
+        abs(integrate(
+            rows, lambda row: row[2] * (row[2] - 1) / volume, 'right') /
+            free_exposure - 1),
+        abs(integrate(rows, lambda row: row[3], 'left') /
+            bound_exposure - 1) if bound_exposure else 0,
+        abs(integrate(rows, lambda row: row[3], 'right') /
+            bound_exposure - 1) if bound_exposure else 0)
+
+    equilibrium_rows = rows[len(rows) // 2:]
+    direct_equilibrium = [
+        (row[3] / volume) / (row[2] / volume) ** 2
+        for row in equilibrium_rows if row[2] > 0]
+    q = -math.expm1(-nu0 * math.exp(-ea / temperature) * every * dt)
+
+    return dict(
+        file=path,
+        Nparticles=actual_particles,
+        rho=rho,
+        Ea=ea,
+        Ee=ee,
+        Nevery=every,
+        replica=replica,
+        run_type=run_type(path),
+        creations=creations,
+        breaks=breaks,
+        kf_event=creations / free_exposure if free_exposure else float('nan'),
+        kb_event=breaks / bound_exposure if bound_exposure else float('nan'),
+        kf_over_q=(creations / free_exposure / q
+                   if free_exposure else float('nan')),
+        kb_over_q=(breaks / bound_exposure / q
+                   if bound_exposure else float('nan')),
+        Keq_event=(creations / free_exposure) / (breaks / bound_exposure)
+        if bound_exposure and breaks else float('nan'),
+        Keq_direct=statistics.mean(direct_equilibrium),
+        exposure_relative_difference=exposure_difference)
+
+
+def condition_key(result):
+    return (result['Nparticles'], result['Ea'], result['Ee'],
+            result['Nevery'])
+
+
+def run_type(path):
+    return 'pilot' if os.path.basename(path).startswith('pilot_') else 'production'
+
+
+def production_results(results):
+    return [result for result in results if result['run_type'] == 'production']
+
+
+def group_conditions(results):
+    groups = {}
+    for result in results:
+        groups.setdefault(condition_key(result), []).append(result)
+    return groups
+
+
+def run_self_test():
+    header = (
+        '# N={n} rho=0.05 T=1 dt=0.005 nu0=20 damp=2 Ea=4 Ee=4 '
+        'Nevery=100 seed={seed} push=5000 warmup=20000 production=100\n')
+    with tempfile.TemporaryDirectory() as directory:
+        paths = []
+        for particle_count in (256, 8192, 32768):
+            path = os.path.join(directory, 'sizecheck_N{}.state'.format(
+                particle_count))
+            with open(path, 'w') as state_file:
+                state_file.write(header.format(
+                    n=particle_count, seed=700000 + particle_count))
+                state_file.write('0 0 {} 0 0 0\n'.format(particle_count))
+                state_file.write('100 0.5 {} 0 0 0\n'.format(particle_count))
+            paths.append(path)
+
+        results = [analyze_file(path) for path in paths]
+        pilot_path = os.path.join(directory, 'pilot_sizecheck_N256.state')
+        with open(pilot_path, 'w') as state_file:
+            state_file.write(header.format(n=256, seed=700256))
+            state_file.write('0 0 256 0 0 0\n')
+            state_file.write('100 0.5 256 0 0 0\n')
+        pilot_result = analyze_file(pilot_path)
+        if pilot_result['run_type'] != 'pilot':
+            raise AssertionError('pilot filename was not identified')
+
+        groups = group_conditions(production_results(results + [pilot_result]))
+        if len(groups) != 3 or set(key[0] for key in groups) != {
+                256, 8192, 32768}:
+            raise AssertionError(
+                'particle counts or pilot results were incorrectly grouped')
+
+    try:
+        resolve_parameter(
+            'Ea4_Ee4_N100_r1.state', {'Ea': '5'},
+            legacy_parameters('Ea4_Ee4_N100_r1.state'), 'Ea', float)
+        raise AssertionError('metadata/filename conflict was not rejected')
+    except ValueError:
+        pass
+
+    print('SELF_TEST PASS metadata conflicts and size-separated grouping')
+
+
+def write_outputs(results, summary_path):
+    with open(summary_path, 'w', newline='') as summary_file:
+        writer = csv.DictWriter(summary_file, fieldnames=results[0])
+        writer.writeheader()
+        writer.writerows(results)
+
+    production = production_results(results)
+    groups = group_conditions(production)
+    fields = (
+        ['Nparticles', 'Ea', 'Ee', 'Nevery', 'replicas'] +
+        [quantity + suffix for quantity in (
+            'creations', 'breaks', 'kf_event', 'kb_event', 'kf_over_q',
+            'kb_over_q', 'Keq_event', 'Keq_direct',
+            'exposure_relative_difference') for suffix in ('', '_se')])
+    condition_path = os.path.splitext(summary_path)[0] + '_conditions.csv'
+    with open(condition_path, 'w', newline='') as condition_file:
+        writer = csv.DictWriter(condition_file, fieldnames=fields)
+        writer.writeheader()
+        for key, group in sorted(groups.items()):
+            result = dict(zip(('Nparticles', 'Ea', 'Ee', 'Nevery'), key))
+            result['replicas'] = len(group)
+            for quantity in (
+                    'creations', 'breaks', 'kf_event', 'kb_event',
+                    'kf_over_q', 'kb_over_q', 'Keq_event', 'Keq_direct',
+                    'exposure_relative_difference'):
+                result[quantity], result[quantity + '_se'] = meanse(
+                    [entry[quantity] for entry in group])
+            writer.writerow(result)
+
+    print('wrote', summary_path,
+          'and condition table; all sampled invariants passed;',
+          len(results) - len(production), 'pilot rows excluded from conditions')
+
+
+def print_equilibrium_slopes(results):
+    production = production_results(results)
+    particle_counts = sorted(set(
+        result['Nparticles'] for result in production))
+    for particle_count in particle_counts:
+        selected = [
+            result for result in production
+            if (result['Nparticles'] == particle_count and
+                result['Ea'] == 4 and result['Nevery'] == 100)]
+        if len({result['Ee'] for result in selected}) < 2:
+            continue
+        prefix = '' if len(particle_counts) == 1 else (
+            'Nparticles {} '.format(particle_count))
+        for quantity in ('Keq_event', 'Keq_direct'):
+            points = [
+                (result['Ee'], math.log(result[quantity]))
+                for result in selected if result[quantity] > 0]
+            if len(points) >= 2:
+                print('{}ln {} vs Ee slope'.format(prefix, quantity),
+                      slope(points))
+
+
 def main():
- p=argparse.ArgumentParser();p.add_argument('files',nargs='+');p.add_argument('--summary',default='k1.csv');a=p.parse_args();out=[]
- pat=re.compile(r'Ea([0-9.]+)_Ee([0-9.]+)_N([0-9]+)_r([0-9]+)')
- for path in sorted(set(sum((glob.glob(q)for q in a.files),[]))):
-  m=pat.search(os.path.basename(path));
-  if not m:continue
-  ea,ee,every,rep=float(m[1]),float(m[2]),int(m[3]),int(m[4]);r,n,meta=read(path);rho=float(meta['rho']);dt=float(meta['dt']);nu0=float(meta.get('nu0',20));temp=float(meta.get('T',1))
-  v=n/rho;made=r[-1][4]-r[0][4];broke=r[-1][5]-r[0][5];hf=integ(r,lambda z:z[2]*(z[2]-1)/v);hb=integ(r,lambda z:z[3]);
-  ex=max(abs(integ(r,lambda z:z[2]*(z[2]-1)/v,'left')/hf-1),abs(integ(r,lambda z:z[2]*(z[2]-1)/v,'right')/hf-1),abs(integ(r,lambda z:z[3],'left')/hb-1)if hb else 0,abs(integ(r,lambda z:z[3],'right')/hb-1)if hb else 0)
-  eq=r[len(r)//2:];ks=[(z[3]/v)/(z[2]/v)**2 for z in eq if z[2]>0];q=-math.expm1(-nu0*math.exp(-ea/temp)*every*dt);out.append(dict(file=path,rho=rho,Ea=ea,Ee=ee,Nevery=every,replica=rep,creations=made,breaks=broke,kf_event=made/hf if hf else float('nan'),kb_event=broke/hb if hb else float('nan'),kf_over_q=(made/hf/q)if hf else float('nan'),kb_over_q=(broke/hb/q)if hb else float('nan'),Keq_event=(made/hf)/(broke/hb)if hb and broke else float('nan'),Keq_direct=statistics.mean(ks),exposure_relative_difference=ex))
- if not out:sys.exit('no K1 files matched')
- with open(a.summary,'w',newline='')as f:w=csv.DictWriter(f,fieldnames=out[0]);w.writeheader();w.writerows(out)
- groups={}
- for z in out:groups.setdefault((z['Ea'],z['Ee'],z['Nevery']),[]).append(z)
- fields=['Ea','Ee','Nevery','replicas']+[q+s for q in ('creations','breaks','kf_event','kb_event','kf_over_q','kb_over_q','Keq_event','Keq_direct','exposure_relative_difference')for s in ('','_se')]
- with open(os.path.splitext(a.summary)[0]+'_conditions.csv','w',newline='')as f:
-  w=csv.DictWriter(f,fieldnames=fields);w.writeheader()
-  for k,g in sorted(groups.items()):
-   z=dict(zip(('Ea','Ee','Nevery'),k));z['replicas']=len(g)
-   for q in ('creations','breaks','kf_event','kb_event','kf_over_q','kb_over_q','Keq_event','Keq_direct','exposure_relative_difference'):z[q],z[q+'_se']=meanse([x[q]for x in g])
-   w.writerow(z)
- print('wrote',a.summary,'and condition table; all sampled invariants passed')
- if len({z['Ee']for z in out if z['Ea']==4 and z['Nevery']==100})>=2:
-  for q in ('Keq_event','Keq_direct'):print('ln %s vs Ee slope'%q,slope([(z['Ee'],math.log(z[q]))for z in out if z['Ea']==4 and z['Nevery']==100 and z[q]>0]))
-if __name__=='__main__':main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('files', nargs='*')
+    parser.add_argument('--summary', default='k1.csv')
+    parser.add_argument('--self-test', action='store_true')
+    arguments = parser.parse_args()
+
+    if arguments.self_test:
+        run_self_test()
+        return
+    if not arguments.files:
+        parser.error('at least one .state file is required')
+
+    paths = sorted(set(
+        path for pattern in arguments.files for path in glob.glob(pattern)))
+    results = [analyze_file(path) for path in paths]
+    if not results:
+        sys.exit('no K1 files matched')
+
+    write_outputs(results, arguments.summary)
+    print_equilibrium_slopes(results)
+
+
+if __name__ == '__main__':
+    main()
