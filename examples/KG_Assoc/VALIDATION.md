@@ -132,3 +132,59 @@ mechanistically consistent explanation, not a mathematical proof.
 
 **Cadence selection: `Nevery=100`.** It lies in the converged plateau while
 being substantially cheaper than more frequent chemistry updates.
+
+## K1 attempt-frequency validation
+
+This sweep used `Nparticles=32768`, `rho=.05`, `T=1`, `dt=.005`, `Ea=4`,
+`Ee=4`, `Nevery=100`, 10,000 push-off steps, and 1,000,000 production steps.
+The tested attempt frequencies were `nu0=1, 5, 10, 20, 40, 80`.
+
+For `delta_t_chem = Nevery * dt`, results are normalized by the finite-step
+attempt rate
+
+```text
+attempt_rate = [1 - exp(-nu0 * exp(-Ea / T) * delta_t_chem)] / delta_t_chem
+```
+
+| nu0 | attempt rate | kf/attempt rate | kb/attempt rate | Keq_event | Keq_direct |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 0.01823203 | 0.28407465 | 0.10883294 | 2.61018991 | 2.62265844 |
+| 5 | 0.08951319 | 0.28712050 | 0.10956651 | 2.62051325 | 2.63077671 |
+| 10 | 0.17502008 | 0.28683658 | 0.10982789 | 2.61169171 | 2.61779028 |
+| 20 | 0.33472414 | 0.28694079 | 0.10990093 | 2.61090418 | 2.61113737 |
+| 40 | 0.61342815 | 0.28617245 | 0.10978480 | 2.60666738 | 2.61409046 |
+| 80 | 1.03870926 | 0.28673440 | 0.10966855 | 2.61455463 | 2.61538826 |
+
+Varying `nu0` by a factor of 80 leaves the equilibrium estimators essentially
+unchanged. Both normalized rates collapse closely, showing that `nu0` changes
+the kinetic timescale without materially changing equilibrium over this range.
+The agreement also validates the finite-step `1-exp(-x)` probability outside
+the strictly linear `q≈x` regime. The `nu0=1` point has fewer events, hence
+somewhat noisier direct-equilibrium statistics, but remains consistent with
+the same behavior.
+
+## K1 density validation
+
+This sweep used `Nparticles=32768`, `nu0=20`, `T=1`, `dt=.005`, `Ea=4`,
+`Ee=4`, `Nevery=100`, 10,000 push-off steps, and 1,000,000 production steps.
+
+| rho | kf_event | kb_event | kf/attempt rate | kb/attempt rate | Keq_event | Keq_direct |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0.025 | 0.09275978 | 0.03695000 | 0.27712306 | 0.11038940 | 2.51041368 | 2.50593768 |
+| 0.05 | 0.09604601 | 0.03678649 | 0.28694079 | 0.10990093 | 2.61090418 | 2.61113737 |
+| 0.10 | 0.10291174 | 0.03647331 | 0.30745239 | 0.10896527 | 2.82156310 | 2.82490854 |
+| 0.20 | 0.11996749 | 0.03590049 | 0.35840704 | 0.10725397 | 3.34166697 | 3.34115629 |
+
+The density dependence is real and systematic: the normalized forward rate
+increases strongly with `rho`, whereas the normalized backward rate decreases
+only weakly. Consequently, the concentration-based equilibrium quotient rises
+from about 2.51 at `rho=.025` to about 3.34 at `rho=.20`. `Keq_event` and
+`Keq_direct` agree closely at every density, so this is not an estimator
+inconsistency. It is consistent with density-dependent spatial correlations
+and encounter statistics from WCA interactions and the finite reaction region
+`r < r_assoc`, not evidence of detailed-balance violation or a derivation of
+activity coefficients.
+
+The two sweeps distinguish the controls: `nu0` changes kinetics while leaving
+equilibrium nearly invariant, whereas `rho` changes the measured
+concentration quotient through local structure and encounter statistics.
