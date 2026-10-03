@@ -57,7 +57,7 @@ cycle/extra permanent bond. It ended with
 
 Files added: `kg_assoc_star_topology.cuh`, `kg_assoc_star_audit.cu`.
 Files changed: `Makefile`, this validation record. Final repository SHA:
-`227893355f30662ff49e6ab09f3f4d4cf12e70fa`. **S0: PASS.**
+`4f9d04d292cbff92daa876fed5af4f06cc88e420`. **S0: PASS.**
 
 ## Analytical/self-test
 
