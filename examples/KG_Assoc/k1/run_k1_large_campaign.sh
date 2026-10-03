@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GPU host: ./run_k1_large_campaign.sh ../../kg_assoc_k1 pilot|central|full|rho|nu0|parametric
+# GPU host: ./run_k1_large_campaign.sh ../../kg_assoc_k1 pilot|central|full|rho|nu0|parametric|rho-ee
 set -euo pipefail
 
 executable=${1:?executable path is required}
@@ -99,13 +99,13 @@ run_condition() {
     fi
 
     local output_prefix="$output_directory/$tag"
-    local existing_central_prefix
-    existing_central_prefix="$output_directory/large_Np${particle_count}_Ea4_Ee4_N100_r${replica}"
     local existing_state="${output_prefix}.state"
-    if [[ "$density" == "0.05" && "$ea" == "4" && "$ee" == "4" &&
+    local legacy_rho05_prefix
+    legacy_rho05_prefix="$output_directory/large_Np${particle_count}_Ea4_Ee${ee}_N100_r${replica}"
+    if [[ "$density" == "0.05" && "$ea" == "4" &&
           "$attempt_frequency" == "20" && "$every" == "100" &&
-          -s "${existing_central_prefix}.state" ]]; then
-        existing_state="${existing_central_prefix}.state"
+          -s "${legacy_rho05_prefix}.state" ]]; then
+        existing_state="${legacy_rho05_prefix}.state"
     fi
 
     if [[ "$mode" == list* ]]; then
@@ -199,6 +199,17 @@ run_parametric_grid() {
     run_nu0_sweep false
 }
 
+run_rho_ee_sweep() {
+    local density
+    local ee
+
+    for density in 0.025 0.05 0.10 0.20; do
+        for ee in 2 4 6 8; do
+            run_replicas "$density" 4 "$ee" 20 100 "$production_steps" rho-ee
+        done
+    done
+}
+
 case "$mode" in
     pilot)
         run_condition "$rho" 4 4 "$nu0" 100 1 "$pilot_steps" pilot
@@ -218,8 +229,11 @@ case "$mode" in
     parametric|list-parametric)
         run_parametric_grid
         ;;
+    rho-ee|list-rho-ee)
+        run_rho_ee_sweep
+        ;;
     *)
-        echo "mode: pilot|central|full|list|rho|nu0|parametric|list-rho|list-nu0|list-parametric" >&2
+        echo "mode: pilot|central|full|list|rho|nu0|parametric|rho-ee|list-rho|list-nu0|list-parametric|list-rho-ee" >&2
         exit 2
         ;;
 esac

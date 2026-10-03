@@ -56,13 +56,14 @@ def meanse(values):
     return mean, standard_error
 
 
-def slope(points):
+def linear_fit(points):
     x_values, y_values = zip(*points)
     x_mean = statistics.mean(x_values)
     y_mean = statistics.mean(y_values)
-    return (sum((x - x_mean) * (y - y_mean)
-                for x, y in points) /
-            sum((x - x_mean) ** 2 for x in x_values))
+    fitted_slope = (sum((x - x_mean) * (y - y_mean)
+                        for x, y in points) /
+                    sum((x - x_mean) ** 2 for x in x_values))
+    return fitted_slope, y_mean - fitted_slope * x_mean
 
 
 def chemistry_attempt_rate(nu0, ea, temperature, every, dt):
@@ -221,6 +222,12 @@ def run_self_test():
                              rel_tol=1e-14)):
         raise AssertionError('attempt-rate normalization regression failed')
 
+    fitted_slope, fitted_intercept = linear_fit(
+        [(2.0, 3.0), (4.0, 5.0), (6.0, 7.0), (8.0, 9.0)])
+    if (not math.isclose(fitted_slope, 1.0, rel_tol=1e-14) or
+            not math.isclose(fitted_intercept, 1.0, rel_tol=1e-14)):
+        raise AssertionError('linear equilibrium-fit regression failed')
+
     header = (
         '# N={n} rho={rho} T=1 dt=0.005 nu0={nu0} damp=2 Ea=4 Ee=4 '
         'Nevery=100 seed={seed} push=5000 warmup=20000 production=100\n')
@@ -332,8 +339,9 @@ def print_equilibrium_slopes(results):
                 (result['Ee'], math.log(result[quantity]))
                 for result in selected if result[quantity] > 0]
             if len(points) >= 2:
-                print('{}ln {} vs Ee slope'.format(prefix, quantity),
-                      slope(points))
+                fitted_slope, fitted_intercept = linear_fit(points)
+                print('{}ln {} vs Ee slope {} intercept {}'.format(
+                    prefix, quantity, fitted_slope, fitted_intercept))
 
 
 def main():

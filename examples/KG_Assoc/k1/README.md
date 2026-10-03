@@ -52,6 +52,28 @@ New prefixes include density and attempt frequency, for example `large_Np32768_r
 
 This encodes `Np`, `rho_code`, `Ea`, `Ee`, `nu0`, `Nevery`, and `replica` without floating-point conversion.
 
+## Large-N rho x Ee validation grid
+
+The `rho-ee` mode tests whether `ln Keq(rho, Ee) = slope * Ee + intercept`
+has a Boltzmann slope near `1/T` at each density, while density changes the
+intercept. It uses `rho = 0.025, 0.05, 0.10, 0.20` and `Ee = 2, 4, 6, 8` at
+`Np=32768`, `T=1`, `dt=.005`, `Ea=4`, `nu0=20`, `Nevery=100`, 10,000
+push-off steps, 20,000 WCA warm-up steps, and 1,000,000 production steps.
+
+The 4 x 4 grid has 16 conditions. Seven existing trajectories are reused:
+the four `rho=.05` Ee points and the `Ee=4` points at `rho=.025`, `.10`, and
+`.20` (with the shared central point counted once). Thus nine trajectories are
+new. `list-rho-ee` enumerates all 16 and labels completed reusable files.
+
+```bash
+examples/KG_Assoc/k1/run_k1_large_campaign.sh \
+  examples/KG_Assoc/kg_assoc_k1 rho-ee
+```
+
+After analysis, the analyzer reports ordinary-least-squares `ln Keq_event` and
+`ln Keq_direct` slopes and intercepts versus `Ee` for each `(Nparticles, rho,
+nu0)` set; it does not assign uncertainty to single-replica fits.
+
 Analyze large-N output with:
 
 ```bash
