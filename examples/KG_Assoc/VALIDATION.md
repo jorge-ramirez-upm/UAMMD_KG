@@ -3,6 +3,62 @@
 This record contains only executed and inspected checks. Generated `.events` and
 `.summary` files are intentionally not versioned.
 
+## S0: star-input import and permanent-topology audit
+
+Starting repository SHA: `227893355f30662ff49e6ab09f3f4d4cf12e70fa`.
+
+The S0 audit is a host-side import and graph-validation tool only; it does not
+create reversible bonds or run MD. It reuses `examples/KG/kg_lammps_io.cuh`.
+That parser retains LAMMPS atom and bond IDs as 1-based values, so the audit
+checks each bond ID before explicitly converting it to its zero-based vector
+index. The audited input uses `Atoms # bond` records with trailing image flags;
+the existing parser reads the required `id molecule type x y z` fields and
+retains molecule/type metadata by atom ID. It assumes contiguous atom IDs from
+1 through the header atom count and orthorhombic `xlo/xhi`, `ylo/yhi`, and
+`zlo/zhi` bounds.
+
+The affected executable was rebuilt from scratch and checked with:
+
+```bash
+rm -f examples/KG_Assoc/kg_assoc_star_audit
+make -C examples/KG_Assoc kg_assoc_star_audit
+./examples/KG_Assoc/kg_assoc_star_audit --self-test
+./examples/KG_Assoc/kg_assoc_star_audit \
+  --input examples/KG/Stars/Stars_NA4N10C1000rho0.85rhopoly0.8.equilibrated.lammpsdat \
+  --arms 4 --narm 10
+```
+
+The real externally generated, equilibrated input remains untracked. Its audit
+reported:
+
+| Quantity | Observed |
+|---|---:|
+| Total atoms | 43563 |
+| Polymer beads | 41000 |
+| Stickers | 4000 |
+| Solvent beads | 2563 |
+| Stars | 1000 |
+| Permanent bonds | 40000 |
+| Box lengths | 37.145, 37.145, 37.145 |
+| Volume | 51250.8518236 |
+| Total bead density | 0.849995628364 |
+| Polymer bead density | 0.799986703462 |
+
+The program ended with `STAR_TOPOLOGY_AUDIT PASS`. It validated one center of
+degree four per molecule, four type-2 terminal stickers, type-1 non-terminals,
+four independent arms of graph distance ten, 41 beads/star, 40 bonds/star,
+and all global type/molecule/bond constraints.
+
+`--self-test` also executed graph-level rejection cases for a wrong terminal
+sticker count, wrong arm length, permanent inter-star bond, bond involving
+solvent, invalid zero 1-based bond ID, non-terminal type-2 bead, and
+cycle/extra permanent bond. It ended with
+`STAR_TOPOLOGY_AUDIT SELF_TEST PASS malformed graph rejections`.
+
+Files added: `kg_assoc_star_topology.cuh`, `kg_assoc_star_audit.cu`.
+Files changed: `Makefile`, this validation record. Final repository SHA:
+`227893355f30662ff49e6ab09f3f4d4cf12e70fa`. **S0: PASS.**
+
 ## Analytical/self-test
 
 ```bash
