@@ -25,9 +25,25 @@ bool diagnostics(const kg_assoc::Params& p) {
   for(double r: {0.8,rs,1.2,1.49}) { if(r>=p.r0) continue; double numeric=-(kg_assoc::deltaU(r+h,p.k,p.r0,p.ee)-kg_assoc::deltaU(r-h,p.k,p.r0,p.ee))/(2*h); double analytic=-p.k*r/(1-r*r/(p.r0*p.r0)); if(!near(numeric,analytic,3e-5)){std::cerr<<"FAIL force derivative at "<<r<<"\n";return false;} }
   if(!near(kg_assoc::deltaU(rs,p.k,p.r0,p.ee),-p.ee)||!near(kg_assoc::deltaU(1.1,p.k,p.r0,p.ee)-kg_assoc::deltaU(1.1,p.k,p.r0,0),-p.ee)||!near(-p.k*1.1/(1-1.1*1.1/(p.r0*p.r0)),-71.39423076923079)){std::cerr<<"FAIL FENE shift/force convention\n";return false;}
   bool guarded=false; try { (void)kg_assoc::deltaU(p.r0,p.k,p.r0,p.ee); } catch(const std::runtime_error&) {guarded=true;} if(!guarded){std::cerr<<"FAIL R0 guard\n";return false;}
+  // Exercise the exact host/device expression used by AssociatingFENEInteractor.
+  const double shift=kg_assoc::associatingFeneShift(p.k,p.r0,p.ee,rs);
+  for(double r: {0.8,rs,1.1,1.2}) {
+    const double e=kg_assoc::checkedAssociatingFeneEnergy(r,p.k,p.r0,shift);
+    const double expected=kg_assoc::fene(r,p.k,p.r0)-kg_assoc::fene(rs,p.k,p.r0)-p.ee;
+    if(!near(e,expected,3e-5)) {std::cerr<<"FAIL interactor energy at "<<r<<"\n";return false;}
+    const double dh=1e-4;
+    const double numeric=-(kg_assoc::checkedAssociatingFeneEnergy(r+dh,p.k,p.r0,shift)-kg_assoc::checkedAssociatingFeneEnergy(r-dh,p.k,p.r0,shift))/(2*dh);
+    const double force=-r*kg_assoc::associatingFeneForceDivR(real(r*r),real(p.k),real(p.r0));
+    if(!near(numeric,force,3e-3)) {std::cerr<<"FAIL interactor force derivative at "<<r<<"\n";return false;}
+  }
+  if(!near(kg_assoc::checkedAssociatingFeneEnergy(rs,p.k,p.r0,shift),-p.ee,3e-5) ||
+     !near(kg_assoc::checkedAssociatingFeneEnergy(1.1,p.k,p.r0,shift+p.ee)-kg_assoc::checkedAssociatingFeneEnergy(1.1,p.k,p.r0,shift),-p.ee,3e-5) ||
+     !near(-1.1*kg_assoc::associatingFeneForceDivR(real(1.1*1.1),real(p.k),real(p.r0)),-71.39423076923079,3e-5)) {std::cerr<<"FAIL interactor Ee shift/force independence\n";return false;}
+  if(!std::isfinite(kg_assoc::checkedAssociatingFeneEnergy(1.49,p.k,p.r0,shift))) {std::cerr<<"FAIL interactor near-R0 behavior\n";return false;}
+  guarded=false; try {(void)kg_assoc::checkedAssociatingFeneEnergy(p.r0,p.k,p.r0,shift);} catch(const std::runtime_error&) {guarded=true;} if(!guarded) {std::cerr<<"FAIL interactor R0 guard\n";return false;}
   // Independent expected values: q=-expm1(-rate*dt), then min(1, Boltzmann).
   for(double rateDt: {1e-12,.7}) for(double du: {-2.,0.,2.}) { double q=-std::expm1(-rateDt), pf=q*(du<=0?1:std::exp(-du/p.temperature)), pb=q*(du>=0?1:std::exp(du/p.temperature)); if(!near(kg_assoc::attemptProbability(rateDt),q)||!near(pf/pb,std::exp(-du/p.temperature),2e-12)){std::cerr<<"FAIL detailed balance\n";return false;} }
-  std::cout<<"SELF_TEST PASS rstar="<<std::setprecision(12)<<rs<<" force/shift/R0/detailed-balance (small and moderate q)\n"; return true;
+  std::cout<<"SELF_TEST PASS rstar="<<std::setprecision(12)<<rs<<" interactor-energy/force/R0/detailed-balance (small and moderate q)\n"; return true;
 }
 }
 int main(int argc,char**argv) {
