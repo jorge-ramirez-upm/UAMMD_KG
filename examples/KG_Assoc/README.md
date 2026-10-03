@@ -7,3 +7,5 @@ For a transient pair, `U_assoc(r)=U_FENE(r)-U_FENE(r*)-Ee`, where `U_FENE=-K R0^
 Build with `make -C examples/KG_Assoc`. Run `./examples/KG_Assoc/kg_assoc_dimer --steps 10000 --seed 17 --output dimer`; it writes `dimer.events` and `dimer.summary`. `--self-test` directly checks the actual interactor energy expression and force, the R0 guard, and detailed balance over signed energy changes with small and moderate finite-step probabilities.
 
 Kinetics use LAMMPS's stateless SplitMix-style hash of seed, timestep, ordered particle ids, and stream; candidate edges are sorted by its order stream and state is re-read before every transition. The host state is synchronized to a device `partner[]` only after accepted kinetic updates. A1 is only a two-sticker dimer validation program: no multi-sticker networks, star polymers, rheology, or production analysis is implemented.
+
+The A2 K1 validation harness is `kg_assoc_k1`; see [`k1/README.md`](k1/README.md). It is a homogeneous many-sticker fluid validation only, not the associating star-polymer model.
