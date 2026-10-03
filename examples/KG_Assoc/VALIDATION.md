@@ -63,6 +63,20 @@ kinetic updates), as recorded by their summaries/event timesteps. The retained
 run names encode the varied parameters; the generated dynamic summaries did
 not retain full argv or seed, so those values are not reconstructed here.
 
+The output-evidenced invocation forms were:
+
+```bash
+./examples/KG_Assoc/kg_assoc_dimer --steps 2000000 --Nevery 10 \
+  --Ee 2 --Ea 2 --output dyn_Ee2_Ea2
+./examples/KG_Assoc/kg_assoc_dimer --steps 2000000 --Nevery 10 \
+  --Ee 4 --Ea 2 --output dyn_Ee4_Ea2
+./examples/KG_Assoc/kg_assoc_dimer --steps 2000000 --Nevery 10 \
+  --Ee 2 --Ea 4 --output dyn_Ee2_Ea4
+```
+
+These record the options evidenced by the output names and counters; they are
+not claimed to be complete historical argv transcripts.
+
 | Output | `Ee` | `Ea` | Creations / breaks | Bound fraction | Mean bond distance |
 |---|---:|---:|---:|---:|---:|
 | `dyn_Ee2_Ea2` | 2 | 2 | 100 / 100 | 0.011070 | 0.9700603 |
