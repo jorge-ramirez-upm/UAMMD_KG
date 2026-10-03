@@ -188,3 +188,59 @@ activity coefficients.
 The two sweeps distinguish the controls: `nu0` changes kinetics while leaving
 equilibrium nearly invariant, whereas `rho` changes the measured
 concentration quotient through local structure and encounter statistics.
+
+## K1 density--bond-energy validation
+
+The completed rho x Ee grid used `Nparticles=32768`, `T=1`, `dt=.005`,
+`Ea=4`, `nu0=20`, `Nevery=100`, 10,000 push-off steps, and 1,000,000
+production steps. It covered `rho = .025, .05, .10, .20` and
+`Ee = 2, 4, 6, 8`. For each density, ordinary least squares was applied to
+the four points in `ln(Keq)` versus `Ee`:
+
+```text
+ln Keq_event  = slope_event  * Ee + intercept_event
+ln Keq_direct = slope_direct * Ee + intercept_direct
+```
+
+| rho | slope_event | intercept_event | slope_direct | intercept_direct |
+|---:|---:|---:|---:|---:|
+| 0.025 | 1.0001594860614984 | -3.0790039325611183 | 1.0025413755490662 | -3.0916112863374394 |
+| 0.05  | 1.0021062802892722 | -3.0493665102625087 | 1.0023667221541834 | -3.050123851983667 |
+| 0.10  | 0.9998182348561215 | -2.9620421016586302 | 0.9994143941773397 | -2.958617426526996 |
+| 0.20  | 1.0012722852267193 | -2.799185039223762 | 1.0022814481914666 | -2.802322363403988 |
+
+At `T=1`, all slopes remain extremely close to the expected Boltzmann slope
+of one. Thus, over this tested range,
+
+```text
+ln Keq(rho, Ee) ~= Ee / T + C(rho)
+Keq(rho, Ee) ~= A(rho) * exp(Ee / T),  A(rho) = exp(C(rho))
+```
+
+`Ee` controls the expected Boltzmann dependence, while density mainly changes
+the intercept/prefactor. Event-based and population-based estimators remain
+mutually consistent across the grid, supporting detailed-balance consistency
+of the algorithm. The density dependence is that of a concentration-based
+quotient in an interacting, non-ideal fluid; it is not evidence against
+microscopic reversibility. The event-fit intercepts give descriptive
+prefactors of approximately `A=.046, .0474, .0518, .0608` at increasing
+density, respectively. These values are not proposed as a universal scaling
+law for the intercept versus density.
+
+The largest `exposure_relative_difference` occurs at the strongly bonded,
+highest-density point, `rho=.20, Ee=8`, at approximately `3.62e-3`, compared
+with typical values near `5e-5` elsewhere. This remains small, does not spoil
+the close `Keq_event`/`Keq_direct` agreement, and is retained as a diagnostic
+of the most extreme state rather than a validity failure.
+
+## K1 validation status
+
+The K1 associating-particle implementation has now been checked through static
+dimer detailed balance; dynamic dimer equilibrium and kinetics; small-N
+historical reference behavior; large-N size convergence; `Ee` dependence;
+separation of `Ea` kinetics from equilibrium; chemistry cadence `Nevery`;
+attempt frequency `nu0`; density `rho`; and combined `rho x Ee` behavior.
+
+K1 is sufficiently validated to proceed to the full associating-star system.
+This status covers the K1 chemistry implementation and its coupling to the
+simple associating fluid, not the full polymer-network or rheology pipeline.
