@@ -169,6 +169,7 @@ def analyze_file(path):
         file=path,
         Nparticles=actual_particles,
         rho=rho,
+        nu0=nu0,
         Ea=ea,
         Ee=ee,
         Nevery=every,
@@ -194,8 +195,8 @@ def analyze_file(path):
 
 
 def condition_key(result):
-    return (result['Nparticles'], result['Ea'], result['Ee'],
-            result['Nevery'])
+    return (result['Nparticles'], result['rho'], result['Ea'], result['Ee'],
+            result['nu0'], result['Nevery'])
 
 
 def run_type(path):
@@ -221,16 +222,24 @@ def run_self_test():
         raise AssertionError('attempt-rate normalization regression failed')
 
     header = (
-        '# N={n} rho=0.05 T=1 dt=0.005 nu0=20 damp=2 Ea=4 Ee=4 '
+        '# N={n} rho={rho} T=1 dt=0.005 nu0={nu0} damp=2 Ea=4 Ee=4 '
         'Nevery=100 seed={seed} push=5000 warmup=20000 production=100\n')
     with tempfile.TemporaryDirectory() as directory:
         paths = []
-        for particle_count in (256, 8192, 32768):
-            path = os.path.join(directory, 'sizecheck_N{}.state'.format(
-                particle_count))
+        for particle_count, density, attempt_frequency in (
+                (256, 0.05, 20),
+                (8192, 0.05, 20),
+                (32768, 0.05, 20),
+                (256, 0.025, 20),
+                (256, 0.05, 5)):
+            path = os.path.join(
+                directory,
+                'sizecheck_N{}_rho{}_nu{}.state'.format(
+                    particle_count, density, attempt_frequency))
             with open(path, 'w') as state_file:
                 state_file.write(header.format(
-                    n=particle_count, seed=700000 + particle_count))
+                    n=particle_count, rho=density, nu0=attempt_frequency,
+                    seed=700000 + particle_count + attempt_frequency))
                 state_file.write('0 0 {} 0 0 0\n'.format(particle_count))
                 state_file.write('100 0.5 {} 0 0 0\n'.format(particle_count))
             paths.append(path)
@@ -238,7 +247,8 @@ def run_self_test():
         results = [analyze_file(path) for path in paths]
         pilot_path = os.path.join(directory, 'pilot_sizecheck_N256.state')
         with open(pilot_path, 'w') as state_file:
-            state_file.write(header.format(n=256, seed=700256))
+            state_file.write(header.format(n=256, rho=0.05, nu0=20,
+                                           seed=700256))
             state_file.write('0 0 256 0 0 0\n')
             state_file.write('100 0.5 256 0 0 0\n')
         pilot_result = analyze_file(pilot_path)
@@ -246,10 +256,10 @@ def run_self_test():
             raise AssertionError('pilot filename was not identified')
 
         groups = group_conditions(production_results(results + [pilot_result]))
-        if len(groups) != 3 or set(key[0] for key in groups) != {
+        if len(groups) != 5 or set(key[0] for key in groups) != {
                 256, 8192, 32768}:
             raise AssertionError(
-                'particle counts or pilot results were incorrectly grouped')
+                'particle counts, parameters, or pilot results were incorrectly grouped')
 
     try:
         resolve_parameter(
@@ -271,7 +281,7 @@ def write_outputs(results, summary_path):
     production = production_results(results)
     groups = group_conditions(production)
     fields = (
-        ['Nparticles', 'Ea', 'Ee', 'Nevery', 'replicas'] +
+        ['Nparticles', 'rho', 'Ea', 'Ee', 'nu0', 'Nevery', 'replicas'] +
         [quantity + suffix for quantity in (
             'creations', 'breaks', 'kf_event', 'kb_event', 'kf_over_q',
             'kb_over_q', 'attempt_rate', 'kf_over_attempt_rate',
@@ -282,7 +292,8 @@ def write_outputs(results, summary_path):
         writer = csv.DictWriter(condition_file, fieldnames=fields)
         writer.writeheader()
         for key, group in sorted(groups.items()):
-            result = dict(zip(('Nparticles', 'Ea', 'Ee', 'Nevery'), key))
+            result = dict(zip(
+                ('Nparticles', 'rho', 'Ea', 'Ee', 'nu0', 'Nevery'), key))
             result['replicas'] = len(group)
             for quantity in (
                     'creations', 'breaks', 'kf_event', 'kb_event',
@@ -301,17 +312,21 @@ def write_outputs(results, summary_path):
 
 def print_equilibrium_slopes(results):
     production = production_results(results)
-    particle_counts = sorted(set(
-        result['Nparticles'] for result in production))
-    for particle_count in particle_counts:
+    parameter_sets = sorted(set(
+        (result['Nparticles'], result['rho'], result['nu0'])
+        for result in production))
+    for particle_count, density, attempt_frequency in parameter_sets:
         selected = [
             result for result in production
             if (result['Nparticles'] == particle_count and
+                result['rho'] == density and
+                result['nu0'] == attempt_frequency and
                 result['Ea'] == 4 and result['Nevery'] == 100)]
         if len({result['Ee'] for result in selected}) < 2:
             continue
-        prefix = '' if len(particle_counts) == 1 else (
-            'Nparticles {} '.format(particle_count))
+        prefix = '' if len(parameter_sets) == 1 else (
+            'Nparticles {} rho {} nu0 {} '.format(
+                particle_count, density, attempt_frequency))
         for quantity in ('Keq_event', 'Keq_direct'):
             points = [
                 (result['Ee'], math.log(result[quantity]))

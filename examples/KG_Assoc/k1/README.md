@@ -28,6 +28,30 @@ examples/KG_Assoc/k1/run_k1_large_campaign.sh \
 
 `pilot` is a 20,000-step central-condition run with a distinct `pilot_` prefix; `central` is the full central run; `full` executes the ten-condition grid. `list` prints the full grid without execution. Completed non-empty `.state` files are skipped. Output prefixes use `large_Np32768_Ea*_Ee*_N*_r*`; metadata in the state header is authoritative. The seed formula is `((((Np*10+Ea)*10+Ee)*1000+Nevery)*10+replica)`, unique for the frozen integer grid.
 
+## Large-N rho and nu0 parameter sweeps
+
+`Nevery=100` is fixed for these sweeps because the completed cadence validation selected it from the converged plateau. The `rho` mode runs `rho = 0.025, 0.05, 0.10, 0.20` at `Ea=4`, `Ee=4`, and `nu0=20`. The `nu0` mode runs `nu0 = 1, 5, 10, 20, 40, 80` at `rho=.05`, `Ea=4`, and `Ee=4`. Both retain `Np=32768`, `T=1`, `dt=.005`, damping 2, 10,000 initial DPD push-off steps, staged DPD ramp, 20,000 WCA warm-up steps, and 1,000,000 production steps.
+
+The shared `rho=.05`, `nu0=20` central condition is the existing `large_Np32768_Ea4_Ee4_N100_r1.state`. The new sweep modes detect and reuse it rather than creating a second trajectory with a new prefix. Thus `rho` lists four conditions, `nu0` lists six conditions, and `parametric` lists nine unique conditions (eight new simulations). Use `list-rho`, `list-nu0`, or `list-parametric` for non-executing checks.
+
+```bash
+examples/KG_Assoc/k1/run_k1_large_campaign.sh \
+  examples/KG_Assoc/kg_assoc_k1 rho
+examples/KG_Assoc/k1/run_k1_large_campaign.sh \
+  examples/KG_Assoc/kg_assoc_k1 nu0
+examples/KG_Assoc/k1/run_k1_large_campaign.sh \
+  examples/KG_Assoc/kg_assoc_k1 parametric
+```
+
+New prefixes include density and attempt frequency, for example `large_Np32768_rho0.025_Ea4_Ee4_nu20_N100_r1`. The deterministic seed uses the exact integer density codes `25`, `50`, `100`, and `200` for `1000*rho`:
+
+```text
+((((((Np * 1000 + rho_code) * 10 + Ea) * 10 + Ee) * 100 + nu0)
+   * 1000 + Nevery) * 10 + replica)
+```
+
+This encodes `Np`, `rho_code`, `Ea`, `Ee`, `nu0`, `Nevery`, and `replica` without floating-point conversion.
+
 Analyze large-N output with:
 
 ```bash
@@ -36,4 +60,4 @@ python3 examples/KG_Assoc/analysis/analyze_k1.py \
   --summary examples/KG_Assoc/k1/results_large/k1_large_summary.csv
 ```
 
-State rows are timestep, physical time, free stickers, active dimers, creations, and breaks. The analyzer uses exact finite-N pair exposure, trapezoidal physical-time integrals, reports rectangle exposure differences, and groups conditions by `Nparticles`, `Ea`, `Ee`, and `Nevery`. `Nevery=50` samples every 100 steps by default, so its exposure diagnostic is intentionally weaker; events remain exact.
+State rows are timestep, physical time, free stickers, active dimers, creations, and breaks. The analyzer uses exact finite-N pair exposure, trapezoidal physical-time integrals, reports rectangle exposure differences, and groups conditions by `Nparticles`, `rho`, `Ea`, `Ee`, `nu0`, and `Nevery`. `Nevery=50` samples every 100 steps by default, so its exposure diagnostic is intentionally weaker; events remain exact.

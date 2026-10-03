@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GPU host: ./run_k1_large_campaign.sh ../../kg_assoc_k1 pilot|central|full|list
+# GPU host: ./run_k1_large_campaign.sh ../../kg_assoc_k1 pilot|central|full|rho|nu0|parametric
 set -euo pipefail
 
 executable=${1:?executable path is required}
@@ -26,50 +26,109 @@ fi
 
 mkdir -p "$output_directory"
 
-seed_for() {
+rho_code_for() {
+    local density=$1
+
+    case "$density" in
+        0.025)
+            echo 25
+            ;;
+        0.05)
+            echo 50
+            ;;
+        0.10)
+            echo 100
+            ;;
+        0.20)
+            echo 200
+            ;;
+        *)
+            echo "unsupported density for deterministic seed: ${density}" >&2
+            exit 2
+            ;;
+    esac
+}
+
+legacy_seed_for() {
     local ea=$1
     local ee=$2
     local every=$3
     local replica=$4
 
-    # Unique while Ea/Ee/replica are single-digit integers and Nevery < 1000.
     echo $(((((particle_count * 10 + ea) * 10 + ee) * 1000 + every) * 10 + replica))
 }
 
-run_condition() {
-    local ea=$1
-    local ee=$2
-    local every=$3
-    local replica=$4
-    local steps=$5
-    local label=$6
+seed_for() {
+    local density=$1
+    local ea=$2
+    local ee=$3
+    local attempt_frequency=$4
+    local every=$5
+    local replica=$6
+    local density_code
+    density_code=$(rho_code_for "$density")
 
-    local tag="large_Np${particle_count}_Ea${ea}_Ee${ee}_N${every}_r${replica}"
+    # Encodes Np, 1000*rho, Ea, Ee, nu0, Nevery, and replica without rounding.
+    echo $(((((((particle_count * 1000 + density_code) * 10 + ea) * 10 + ee) \
+        * 100 + attempt_frequency) * 1000 + every) * 10 + replica))
+}
+
+run_condition() {
+    local density=$1
+    local ea=$2
+    local ee=$3
+    local attempt_frequency=$4
+    local every=$5
+    local replica=$6
+    local steps=$7
+    local label=$8
+    local tag
+    local seed
+
+    if [[ "$label" == "pilot" || "$label" == "central" || "$label" == "full" ]]; then
+        tag="large_Np${particle_count}_Ea${ea}_Ee${ee}_N${every}_r${replica}"
+        seed=$(legacy_seed_for "$ea" "$ee" "$every" "$replica")
+    else
+        tag="large_Np${particle_count}_rho${density}_Ea${ea}_Ee${ee}_nu${attempt_frequency}_N${every}_r${replica}"
+        seed=$(seed_for "$density" "$ea" "$ee" "$attempt_frequency" "$every" \
+            "$replica")
+    fi
+
     if [[ "$label" == "pilot" ]]; then
         tag="pilot_${tag}"
     fi
 
     local output_prefix="$output_directory/$tag"
-    local seed
-    seed=$(seed_for "$ea" "$ee" "$every" "$replica")
+    local existing_central_prefix
+    existing_central_prefix="$output_directory/large_Np${particle_count}_Ea4_Ee4_N100_r${replica}"
+    local existing_state="${output_prefix}.state"
+    if [[ "$density" == "0.05" && "$ea" == "4" && "$ee" == "4" &&
+          "$attempt_frequency" == "20" && "$every" == "100" &&
+          -s "${existing_central_prefix}.state" ]]; then
+        existing_state="${existing_central_prefix}.state"
+    fi
 
-    if [[ -s "${output_prefix}.state" ]]; then
-        echo "SKIP completed condition: ${tag}"
+    if [[ "$mode" == list* ]]; then
+        if [[ -s "$existing_state" ]]; then
+            echo "COMPLETED ${tag} reuses ${existing_state##*/} seed=${seed} steps=${steps}"
+        else
+            echo "PENDING ${tag} seed=${seed} steps=${steps}"
+        fi
         return
     fi
 
-    if [[ "$mode" == "list" ]]; then
-        echo "${tag} seed=${seed} steps=${steps}"
+    if [[ -s "$existing_state" ]]; then
+        echo "SKIP completed condition: ${tag}"
         return
     fi
 
     echo "RUN ${tag} seed=${seed} steps=${steps}"
     "$executable" \
         --n "$particle_count" \
-        --rho "$rho" \
+        --rho "$density" \
         --temperature "$temperature" \
         --dt "$dt" \
-        --nu0 "$nu0" \
+        --nu0 "$attempt_frequency" \
         --damp "$damp" \
         --push-steps "$push_steps" \
         --warmup "$warmup_steps" \
@@ -82,14 +141,17 @@ run_condition() {
 }
 
 run_replicas() {
-    local ea=$1
-    local ee=$2
-    local every=$3
-    local steps=$4
-    local label=$5
+    local density=$1
+    local ea=$2
+    local ee=$3
+    local attempt_frequency=$4
+    local every=$5
+    local steps=$6
+    local label=$7
 
     for ((replica = 1; replica <= replica_count; ++replica)); do
-        run_condition "$ea" "$ee" "$every" "$replica" "$steps" "$label"
+        run_condition "$density" "$ea" "$ee" "$attempt_frequency" "$every" \
+            "$replica" "$steps" "$label"
     done
 }
 
@@ -99,30 +161,65 @@ run_full_grid() {
     local every
 
     for ea in 2 3 4 5 6; do
-        run_replicas "$ea" 4 100 "$production_steps" full
+        run_replicas "$rho" "$ea" 4 "$nu0" 100 "$production_steps" full
     done
 
     for ee in 2 6 8; do
-        run_replicas 4 "$ee" 100 "$production_steps" full
+        run_replicas "$rho" 4 "$ee" "$nu0" 100 "$production_steps" full
     done
 
     for every in 50 200; do
-        run_replicas 4 4 "$every" "$production_steps" full
+        run_replicas "$rho" 4 4 "$nu0" "$every" "$production_steps" full
     done
+}
+
+run_rho_sweep() {
+    local density
+
+    for density in 0.025 0.05 0.10 0.20; do
+        run_replicas "$density" 4 4 20 100 "$production_steps" rho
+    done
+}
+
+run_nu0_sweep() {
+    local include_central=${1:-true}
+    local attempt_frequency
+
+    for attempt_frequency in 1 5 10 20 40 80; do
+        if [[ "$include_central" != true && "$attempt_frequency" == "20" ]]; then
+            continue
+        fi
+        run_replicas 0.05 4 4 "$attempt_frequency" 100 \
+            "$production_steps" nu0
+    done
+}
+
+run_parametric_grid() {
+    run_rho_sweep
+    run_nu0_sweep false
 }
 
 case "$mode" in
     pilot)
-        run_condition 4 4 100 1 "$pilot_steps" pilot
+        run_condition "$rho" 4 4 "$nu0" 100 1 "$pilot_steps" pilot
         ;;
     central)
-        run_condition 4 4 100 1 "$production_steps" central
+        run_condition "$rho" 4 4 "$nu0" 100 1 "$production_steps" central
         ;;
     full|list)
         run_full_grid
         ;;
+    rho|list-rho)
+        run_rho_sweep
+        ;;
+    nu0|list-nu0)
+        run_nu0_sweep
+        ;;
+    parametric|list-parametric)
+        run_parametric_grid
+        ;;
     *)
-        echo "mode: pilot|central|full|list" >&2
+        echo "mode: pilot|central|full|list|rho|nu0|parametric|list-rho|list-nu0|list-parametric" >&2
         exit 2
         ;;
 esac
