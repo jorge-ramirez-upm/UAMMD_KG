@@ -93,3 +93,42 @@ not a precise lifetime comparison. Dynamic trajectories also depend on WCA
 encounters and diffusion, unlike D0; no claim of bitwise identity or a
 production-rate estimate is made. **D1: PASS** for the executed dimer smoke
 and population-ratio checks.
+
+## K1 chemistry-cadence validation
+
+This large-N study used `Nparticles=32768`, `rho=.05`, `T=1`, `dt=.005`,
+`Ea=4`, `Ee=4`, `nu0=20`, and 1,000,000 production steps. The tested cadence
+values were `Nevery=10, 20, 50, 100, 200`.
+
+For a chemistry interval `delta_t_chem = Nevery * dt`, the finite-step attempt
+probability and attempt rate are
+
+```text
+q = 1 - exp(-nu0 * exp(-Ea / T) * delta_t_chem)
+attempt_rate = q / delta_t_chem
+kf_over_attempt_rate = kf_event / attempt_rate
+kb_over_attempt_rate = kb_event / attempt_rate
+```
+
+The analyzer recomputed the following values from the existing state files:
+
+| Nevery | kf_event | kb_event | Keq_event | Keq_direct | attempt_rate | kf/attempt_rate | kb/attempt_rate |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 10 | 0.10412056 | 0.04000258 | 2.60284635 | 2.60724712 | 0.36297854 | 0.28685046 | 0.11020645 |
+| 20 | 0.10316503 | 0.03955188 | 2.60834718 | 2.61157971 | 0.35968470 | 0.28682074 | 0.10996264 |
+| 50 | 0.10025815 | 0.03844315 | 2.60795856 | 2.61308558 | 0.35004015 | 0.28641899 | 0.10982498 |
+| 100 | 0.09604601 | 0.03678649 | 2.61090418 | 2.61113737 | 0.33472414 | 0.28694079 | 0.10990093 |
+| 200 | 0.08795005 | 0.03325300 | 2.64487537 | 2.65200896 | 0.30671408 | 0.28674931 | 0.10841695 |
+
+`Nevery=10, 20, 50, 100` form an essentially converged plateau in both
+equilibrium estimators around `Keq=2.61`. The normalized forward rate is
+essentially cadence-independent over the full range. The normalized backward
+rate is stable through `Nevery=100`, then decreases slightly at 200; the two
+equilibrium estimators rise by about 1.5% at that cadence. This is consistent
+with coarse chemistry sampling missing some short-lived scission-eligible
+visits inside `r_assoc`, because the current LAMMPS-equivalent rule permits a
+bound pair to attempt breaking only while `r < r_assoc`. It is an observed,
+mechanistically consistent explanation, not a mathematical proof.
+
+**Cadence selection: `Nevery=100`.** It lies in the converged plateau while
+being substantially cheaper than more frequent chemistry updates.

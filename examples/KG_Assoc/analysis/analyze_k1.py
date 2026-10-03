@@ -65,6 +65,12 @@ def slope(points):
             sum((x - x_mean) ** 2 for x in x_values))
 
 
+def chemistry_attempt_rate(nu0, ea, temperature, every, dt):
+    chemistry_dt = every * dt
+    q = -math.expm1(-nu0 * math.exp(-ea / temperature) * chemistry_dt)
+    return q, q / chemistry_dt
+
+
 def legacy_parameters(path):
     match = LEGACY_PATTERN.search(os.path.basename(path))
     if not match:
@@ -156,7 +162,8 @@ def analyze_file(path):
     direct_equilibrium = [
         (row[3] / volume) / (row[2] / volume) ** 2
         for row in equilibrium_rows if row[2] > 0]
-    q = -math.expm1(-nu0 * math.exp(-ea / temperature) * every * dt)
+    q, attempt_rate = chemistry_attempt_rate(
+        nu0, ea, temperature, every, dt)
 
     return dict(
         file=path,
@@ -175,6 +182,11 @@ def analyze_file(path):
                    if free_exposure else float('nan')),
         kb_over_q=(breaks / bound_exposure / q
                    if bound_exposure else float('nan')),
+        attempt_rate=attempt_rate,
+        kf_over_attempt_rate=(creations / free_exposure / attempt_rate
+                              if free_exposure else float('nan')),
+        kb_over_attempt_rate=(breaks / bound_exposure / attempt_rate
+                              if bound_exposure else float('nan')),
         Keq_event=(creations / free_exposure) / (breaks / bound_exposure)
         if bound_exposure and breaks else float('nan'),
         Keq_direct=statistics.mean(direct_equilibrium),
@@ -202,6 +214,12 @@ def group_conditions(results):
 
 
 def run_self_test():
+    q, attempt_rate = chemistry_attempt_rate(20.0, 4.0, 1.0, 100, 0.005)
+    if (not math.isclose(q, 0.16736206976502233, rel_tol=1e-14) or
+            not math.isclose(attempt_rate, 0.33472413953004465,
+                             rel_tol=1e-14)):
+        raise AssertionError('attempt-rate normalization regression failed')
+
     header = (
         '# N={n} rho=0.05 T=1 dt=0.005 nu0=20 damp=2 Ea=4 Ee=4 '
         'Nevery=100 seed={seed} push=5000 warmup=20000 production=100\n')
@@ -256,7 +274,8 @@ def write_outputs(results, summary_path):
         ['Nparticles', 'Ea', 'Ee', 'Nevery', 'replicas'] +
         [quantity + suffix for quantity in (
             'creations', 'breaks', 'kf_event', 'kb_event', 'kf_over_q',
-            'kb_over_q', 'Keq_event', 'Keq_direct',
+            'kb_over_q', 'attempt_rate', 'kf_over_attempt_rate',
+            'kb_over_attempt_rate', 'Keq_event', 'Keq_direct',
             'exposure_relative_difference') for suffix in ('', '_se')])
     condition_path = os.path.splitext(summary_path)[0] + '_conditions.csv'
     with open(condition_path, 'w', newline='') as condition_file:
@@ -267,7 +286,9 @@ def write_outputs(results, summary_path):
             result['replicas'] = len(group)
             for quantity in (
                     'creations', 'breaks', 'kf_event', 'kb_event',
-                    'kf_over_q', 'kb_over_q', 'Keq_event', 'Keq_direct',
+                    'kf_over_q', 'kb_over_q', 'attempt_rate',
+                    'kf_over_attempt_rate', 'kb_over_attempt_rate',
+                    'Keq_event', 'Keq_direct',
                     'exposure_relative_difference'):
                 result[quantity], result[quantity + '_se'] = meanse(
                     [entry[quantity] for entry in group])
