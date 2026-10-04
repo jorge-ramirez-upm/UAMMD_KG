@@ -43,7 +43,8 @@ follow the philosophy of `examples/KG/kg_uammd_equilibrate.cu`:
 1. DPD + FENE with displacement limiting;
 2. DPD + FENE without a displacement cap;
 3. progressive DPD push-off;
-4. full WCA + FENE with Langevin NVT.
+4. DPD hold/cooling at the final Stage-3 conservative amplitude;
+5. full WCA + FENE with Langevin NVT.
 
 The current default Stage-4 duration must not be assumed sufficient for every
 arm length. Future E1 validation should inspect energy, pressure, temperature,
@@ -66,11 +67,21 @@ solved.
 P2.1b isolates Stage-4 construction, attachment, first thermo/conformation
 evaluation, and first NVT step with explicit CUDA checkpoints. The reproducible
 C1 seed `12004` failure and passing control seed `12001` are diagnostic cases,
-not a protocol change. `dt=0.002` is only a possible temporary stabilization
-timestep and is not an acceptable final E1 target by itself. Final E1
-acceptance must later demonstrate robust promotion to `dt=0.005` and preferably
-`dt=0.01` from fully relaxed E1 configurations across several independent seeds.
-P2.1b does not implement that promotion.
+not a protocol change. P2.1b establishes that the Stage-3 state is geometrically
+normal and that initial WCA/FENE thermo and the first NVT step are finite, but a
+permanent FENE bond can exceed `R0` within roughly 10--20 WCA steps. This is a
+hot-transition failure, not evidence of a severe Stage-3 overlap.
+
+P2.1c adds a configurable Stage-3b DPD hold/cooling segment at the final
+Stage-3 conservative amplitude (currently 1000), retaining DPD target
+temperature 1 and gamma 4.5 before WCA is enabled. Its initial default is
+5,000 steps with transition diagnostics every 500 steps; the scientific hold
+length remains unvalidated. DPD and WCA timesteps can now be set separately,
+and a short promotion diagnostic can exercise WCA at `dt=0.002`, `0.005`, and
+`0.01` sequentially from the cooled state. `dt=0.002` is still only a temporary
+stabilization timestep. Final E1 acceptance must demonstrate robust `dt=0.005`
+and preferably `dt=0.01` behavior across several independent seeds. P2.1c
+does not itself establish that scientific acceptance.
 
 ## 3. E2 — chemical and topological equilibration
 

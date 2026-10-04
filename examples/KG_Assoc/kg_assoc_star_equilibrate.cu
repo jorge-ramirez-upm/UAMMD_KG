@@ -50,11 +50,17 @@ struct Parameters {
   int stage2Steps = 50000;
   int stage3Loops = 10;
   int stage3Steps = 100;
+  int stage3bSteps = 5000;
+  int stage3bDiagnosticEvery = 500;
   int stage4Steps = 1000000;
+  int promotionSteps = 1000;
   int conformationEvery = 10000;
+  double dtDpd = 0.01;
+  double dtWca = 0.01;
   std::uint64_t seed = 0;
   bool hasSeed = false;
   bool stage4EntryDiagnosticOnly = false;
+  bool stage4PromotionTest = false;
   bool initializeVelocities = false;
   bool selfTest = false;
 };
@@ -116,12 +122,13 @@ std::string nextArgument(int& index, int argc, char** argv) {
 void printHelp() {
   std::cout
       << "kg_assoc_star_equilibrate -i FILE -o FILE --arms A --narm N [options]\n"
-      << "  --diagnostics FILE --conformation-every N --dt DT --temperature T\n"
+      << "  --diagnostics FILE --conformation-every N --dt DT --dt-dpd DT --dt-wca DT\n"
       << "  --friction XI --sigma S --epsilon E --fene-k K --fene-r0 R0 --skin S\n"
       << "  --stage1-loops N --stage1-steps N --stage2-steps N\n"
-      << "  --stage3-loops N --stage3-steps N --stage4-steps N\n"
+      << "  --stage3-loops N --stage3-steps N --stage3b-steps N\n"
+      << "  --stage3b-diagnostic-every N --stage4-steps N\n"
       << "  --conformation-every N --seed INTEGER --stage4-entry-diagnostic-only\n"
-      << "  --init-velocities --self-test\n";
+      << "  --stage4-promotion-test --promotion-steps N --init-velocities --self-test\n";
 }
 
 Parameters parseArguments(int argc, char** argv) {
@@ -140,6 +147,12 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.beadsPerArm = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--dt") {
       parameters.dt = std::stod(nextArgument(index, argc, argv));
+      parameters.dtDpd = parameters.dt;
+      parameters.dtWca = parameters.dt;
+    } else if (option == "--dt-dpd") {
+      parameters.dtDpd = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--dt-wca") {
+      parameters.dtWca = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--temperature") {
       parameters.temperature = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--friction") {
@@ -164,6 +177,10 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.stage3Loops = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--stage3-steps") {
       parameters.stage3Steps = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--stage3b-steps") {
+      parameters.stage3bSteps = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--stage3b-diagnostic-every") {
+      parameters.stage3bDiagnosticEvery = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--stage4-steps") {
       parameters.stage4Steps = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--conformation-every") {
@@ -173,6 +190,10 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.hasSeed = true;
     } else if (option == "--stage4-entry-diagnostic-only") {
       parameters.stage4EntryDiagnosticOnly = true;
+    } else if (option == "--stage4-promotion-test") {
+      parameters.stage4PromotionTest = true;
+    } else if (option == "--promotion-steps") {
+      parameters.promotionSteps = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--init-velocities") {
       parameters.initializeVelocities = true;
     } else if (option == "--self-test") {
@@ -188,13 +209,17 @@ Parameters parseArguments(int argc, char** argv) {
     return parameters;
   }
   if (parameters.input.empty() || parameters.output.empty() || parameters.arms <= 0 ||
-      parameters.beadsPerArm <= 0 || parameters.dt <= 0.0 ||
+      parameters.beadsPerArm <= 0 || parameters.dtDpd <= 0.0 ||
+      parameters.dtWca <= 0.0 ||
       parameters.temperature <= 0.0 || parameters.friction <= 0.0 ||
       parameters.sigma <= 0.0 || parameters.epsilon <= 0.0 || parameters.feneK <= 0.0 ||
       parameters.feneR0 <= 0.0 || parameters.skin < 0.0 || parameters.stage1Loops < 1 ||
       parameters.stage1Steps < 1 || parameters.stage2Steps < 1 ||
       parameters.stage3Loops < 1 || parameters.stage3Steps < 1 ||
-      parameters.stage4Steps < 1 || parameters.conformationEvery < 1) {
+      parameters.stage3bSteps < 0 || parameters.stage3bDiagnosticEvery < 1 ||
+      parameters.stage4Steps < 1 || parameters.promotionSteps < 1 ||
+      parameters.conformationEvery < 1 ||
+      (parameters.stage4EntryDiagnosticOnly && parameters.stage4PromotionTest)) {
     throw std::runtime_error("invalid E1 parameters");
   }
   return parameters;
@@ -207,6 +232,10 @@ double stage1DisplacementLimit(int loop) {
 double stage3Amplitude(int loop) {
   return 25.0 + (1000.0 - 25.0) *
                     std::exp((static_cast<double>(loop) - 10.0) * 0.75);
+}
+
+bool shouldSampleStage3b(int localStep, int totalSteps, int every) {
+  return localStep == totalSteps || localStep % every == 0;
 }
 
 std::vector<std::vector<int>> buildAdjacency(const kg::LammpsData& data) {
@@ -420,6 +449,7 @@ void appendPairDescription(std::ostringstream& output,
 std::string formatTransitionDiagnostics(const std::string& label,
                                         long long step,
                                         int stage3Loop,
+                                        int stage3bLocalStep,
                                         double dpdAmplitude,
                                         const TransitionDiagnostics& diagnostics,
                                         const kg::LammpsData& data) {
@@ -430,6 +460,9 @@ std::string formatTransitionDiagnostics(const std::string& label,
          << " temperature=" << diagnostics.temperature
          << " max_speed=" << diagnostics.maxSpeed
          << " max_permanent_bond=" << diagnostics.maxPermanentBond;
+  if (stage3bLocalStep >= 0) {
+    output << " stage3b_local_step=" << stage3bLocalStep;
+  }
   if (diagnostics.maxBondFirst >= 0) {
     output << " max_permanent_bond_ids=" << diagnostics.maxBondFirst + 1 << ','
            << diagnostics.maxBondSecond + 1;
@@ -451,6 +484,7 @@ void appendTransitionDiagnostics(
     const std::string& label,
     long long step,
     int stage3Loop,
+    int stage3bLocalStep,
     double dpdAmplitude,
     std::ofstream& output,
     std::shared_ptr<uammd::ParticleData> particles,
@@ -473,7 +507,7 @@ void appendTransitionDiagnostics(
   const TransitionDiagnostics diagnostics = analyzeTransition(
       data, permanentBonds, positions, velocities, lengths);
   const std::string message = formatTransitionDiagnostics(
-      label, step, stage3Loop, dpdAmplitude, diagnostics, data);
+      label, step, stage3Loop, stage3bLocalStep, dpdAmplitude, diagnostics, data);
   uammd::System::log<uammd::System::MESSAGE>("%s", message.c_str());
   output << "# " << message << '\n';
   output.flush();
@@ -906,9 +940,73 @@ std::string firstNonFiniteStage4Field(const kg::ThermoSnapshot& thermo,
   return "";
 }
 
+std::string firstNonFiniteThermoField(const kg::ThermoSnapshot& thermo) {
+  if (!std::isfinite(thermo.bondedEnergy)) {
+    return "bondedEnergy";
+  }
+  if (!std::isfinite(thermo.nonBondedEnergy)) {
+    return "nonBondedEnergy";
+  }
+  if (!std::isfinite(thermo.kineticEnergy)) {
+    return "kineticEnergy";
+  }
+  if (!std::isfinite(thermo.totalEnergy)) {
+    return "totalEnergy";
+  }
+  if (!std::isfinite(thermo.temperature)) {
+    return "temperature";
+  }
+  if (!std::isfinite(thermo.pressure)) {
+    return "pressure";
+  }
+  return "";
+}
+
+void validatePromotionState(const std::string& label,
+                            const ParticleStateSnapshot& state,
+                            const std::vector<std::pair<int, int>>& bonds,
+                            const Vec3& lengths,
+                            double feneR0) {
+  for (size_t atom = 0; atom < state.positions.size(); ++atom) {
+    if (!isFinite(state.positions[atom])) {
+      throw std::runtime_error("E1_PROMOTION FAIL after " + label +
+                               ": non-finite position at atom ID " +
+                               std::to_string(atom + 1));
+    }
+    if (!isFinite(state.velocities[atom])) {
+      throw std::runtime_error("E1_PROMOTION FAIL after " + label +
+                               ": non-finite velocity at atom ID " +
+                               std::to_string(atom + 1));
+    }
+  }
+  for (const auto& bond : bonds) {
+    const Vec3 displacement = minimumImage(
+        {state.positions[bond.second].x - state.positions[bond.first].x,
+         state.positions[bond.second].y - state.positions[bond.first].y,
+         state.positions[bond.second].z - state.positions[bond.first].z}, lengths);
+    if (std::sqrt(norm2(displacement)) >= feneR0) {
+      throw std::runtime_error("E1_PROMOTION FAIL after " + label +
+                               ": permanent bond at or above R0, atom IDs " +
+                               std::to_string(bond.first + 1) + "--" +
+                               std::to_string(bond.second + 1));
+    }
+  }
+}
+
+std::vector<double> promotionTimesteps() {
+  return {0.002, 0.005, 0.01};
+}
+
+std::string formatTimestepLabel(double timestep) {
+  std::ostringstream output;
+  output << std::fixed << std::setprecision(3) << timestep;
+  return output.str();
+}
+
 void appendStage4Sample(
     const std::string& label,
     long long step,
+    double time,
     std::ofstream& output,
     std::shared_ptr<uammd::Integrator> integrator,
     std::shared_ptr<uammd::ParticleData> particles,
@@ -941,7 +1039,7 @@ void appendStage4Sample(
     throw std::runtime_error("E1_STAGE4_DIAG FAIL after " + label +
                              " fields: non-finite " + nonFiniteField);
   }
-  output << formatDiagnosticsRow(step, step * parameters.dt, thermo, conformation) << '\n';
+  output << formatDiagnosticsRow(step, time, thermo, conformation) << '\n';
   output.flush();
 }
 
@@ -1093,7 +1191,9 @@ void runSelfTest() {
 
   std::vector<std::string> cliStorage = {
       "kg_assoc_star_equilibrate", "-i", "input.lammpsdat", "-o", "output.lammpsdat",
-      "--arms", "2", "--narm", "1", "--seed", "17", "--stage4-entry-diagnostic-only"};
+      "--arms", "2", "--narm", "1", "--seed", "17", "--dt", "0.002",
+      "--stage3b-steps", "12", "--stage3b-diagnostic-every", "5",
+      "--stage4-entry-diagnostic-only"};
   std::vector<char*> cliArguments;
   cliArguments.reserve(cliStorage.size());
   for (std::string& argument : cliStorage) {
@@ -1101,9 +1201,58 @@ void runSelfTest() {
   }
   const Parameters parsed = parseArguments(
       static_cast<int>(cliArguments.size()), cliArguments.data());
-  if (!parsed.stage4EntryDiagnosticOnly || !parsed.hasSeed || parsed.seed != 17) {
+  if (!parsed.stage4EntryDiagnosticOnly || !parsed.hasSeed || parsed.seed != 17 ||
+      parsed.dtDpd != 0.002 || parsed.dtWca != 0.002 || parsed.stage3bSteps != 12 ||
+      parsed.stage3bDiagnosticEvery != 5 || !shouldSampleStage3b(5, 12, 5) ||
+      shouldSampleStage3b(6, 12, 5) || !shouldSampleStage3b(12, 12, 5)) {
     throw std::runtime_error("Stage-4 entry diagnostic CLI self-test failed");
   }
+  cliStorage.push_back("--dt-wca");
+  cliStorage.push_back("0.005");
+  cliArguments.clear();
+  for (std::string& argument : cliStorage) {
+    cliArguments.push_back(&argument[0]);
+  }
+  const Parameters explicitTimesteps = parseArguments(
+      static_cast<int>(cliArguments.size()), cliArguments.data());
+  expectNear("explicit DPD timestep", explicitTimesteps.dtDpd, 0.002);
+  expectNear("explicit WCA timestep", explicitTimesteps.dtWca, 0.005);
+  if (explicitTimesteps.stage4PromotionTest) {
+    throw std::runtime_error("explicit DPD/WCA timestep CLI self-test failed");
+  }
+  std::vector<std::string> promotionCliStorage = {
+      "kg_assoc_star_equilibrate", "-i", "input.lammpsdat", "-o", "output.lammpsdat",
+      "--arms", "2", "--narm", "1", "--stage4-promotion-test",
+      "--promotion-steps", "7"};
+  std::vector<char*> promotionCliArguments;
+  promotionCliArguments.reserve(promotionCliStorage.size());
+  for (std::string& argument : promotionCliStorage) {
+    promotionCliArguments.push_back(&argument[0]);
+  }
+  const Parameters promotionParsed = parseArguments(
+      static_cast<int>(promotionCliArguments.size()), promotionCliArguments.data());
+  if (!promotionParsed.stage4PromotionTest || promotionParsed.promotionSteps != 7) {
+    throw std::runtime_error("promotion-test CLI self-test failed");
+  }
+  promotionCliStorage.push_back("--stage4-entry-diagnostic-only");
+  promotionCliArguments.clear();
+  for (std::string& argument : promotionCliStorage) {
+    promotionCliArguments.push_back(&argument[0]);
+  }
+  expectReject("incompatible Stage-4 modes", [&]() {
+    (void)parseArguments(
+        static_cast<int>(promotionCliArguments.size()), promotionCliArguments.data());
+  });
+  const std::vector<double> promotion = promotionTimesteps();
+  if (promotion != std::vector<double>({0.002, 0.005, 0.01})) {
+    throw std::runtime_error("promotion timestep scheduling self-test failed");
+  }
+  ParticleStateSnapshot invalidPromotionState;
+  invalidPromotionState.positions = {{0.0, 0.0, 0.0}, {1.5, 0.0, 0.0}};
+  invalidPromotionState.velocities = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+  expectReject("promotion FENE validation", [&]() {
+    validatePromotionState("self_test", invalidPromotionState, {{0, 1}}, lengths, 1.5);
+  });
   kg::ThermoSnapshot thermo;
   const std::string row = formatDiagnosticsRow(10, 0.1, thermo, sample);
   if (diagnosticsHeader().find("mean_rg2") == std::string::npos ||
@@ -1144,11 +1293,13 @@ int main(int argc, char** argv) {
     }
     diagnostics << "# executable=kg_assoc_star_equilibrate input=" << parameters.input
                 << " arms=" << parameters.arms << " narm=" << parameters.beadsPerArm
-                << " dt=" << parameters.dt << " temperature=" << parameters.temperature
+                << " dt_dpd=" << parameters.dtDpd << " dt_wca=" << parameters.dtWca
+                << " temperature=" << parameters.temperature
                 << " friction=" << parameters.friction << " stage1="
                 << parameters.stage1Loops * parameters.stage1Steps << " stage2="
                 << parameters.stage2Steps << " stage3="
-                << parameters.stage3Loops * parameters.stage3Steps << " stage4="
+                << parameters.stage3Loops * parameters.stage3Steps << " stage3b="
+                << parameters.stage3bSteps << " stage4="
                 << parameters.stage4Steps << " seed="
                 << (parameters.hasSeed ? std::to_string(parameters.seed) : "UAMMD_default")
                 << " chemistry=disabled\n";
@@ -1177,17 +1328,19 @@ int main(int argc, char** argv) {
               << (parameters.hasSeed ? std::to_string(parameters.seed) : "UAMMD_default")
               << " chemistry disabled\n";
     long long totalSteps = 0;
+    double simulationTime = 0.0;
     const auto start = std::chrono::steady_clock::now();
 
     for (int loop = 1; loop <= parameters.stage1Loops; ++loop) {
       const DpdBundle bundle = makeDpdSegment(
-          particles, box, bondData, parameters.dt, kDPDInitialAmplitude);
+          particles, box, bondData, parameters.dtDpd, kDPDInitialAmplitude);
       const double limit = stage1DisplacementLimit(loop);
       for (int local = 0; local < parameters.stage1Steps; ++local) {
         const std::vector<uammd::real4> previous = copyPositions(particles);
         bundle.integrator->forwardTime();
-        limitDisplacements(particles, box, previous, limit, parameters.dt);
+        limitDisplacements(particles, box, previous, limit, parameters.dtDpd);
         ++totalSteps;
+        simulationTime += parameters.dtDpd;
         if (totalSteps % 100 == 0) {
           logThermo(totalSteps, bundle.integrator, particles, bundle.nonBonded, bundle.bonded,
                     data, box, parameters, false);
@@ -1198,10 +1351,11 @@ int main(int argc, char** argv) {
 
     {
       const DpdBundle bundle = makeDpdSegment(
-          particles, box, bondData, parameters.dt, kDPDInitialAmplitude);
+          particles, box, bondData, parameters.dtDpd, kDPDInitialAmplitude);
       for (int local = 0; local < parameters.stage2Steps; ++local) {
         bundle.integrator->forwardTime();
         ++totalSteps;
+        simulationTime += parameters.dtDpd;
         if (totalSteps % 1000 == 0) {
           logThermo(totalSteps, bundle.integrator, particles, bundle.nonBonded, bundle.bonded,
                     data, box, parameters, false);
@@ -1213,22 +1367,43 @@ int main(int argc, char** argv) {
     for (int loop = 1; loop <= parameters.stage3Loops; ++loop) {
       const double amplitude = stage3Amplitude(loop);
       const DpdBundle bundle = makeDpdSegment(
-          particles, box, bondData, parameters.dt, amplitude);
+          particles, box, bondData, parameters.dtDpd, amplitude);
       for (int local = 0; local < parameters.stage3Steps; ++local) {
         bundle.integrator->forwardTime();
         ++totalSteps;
+        simulationTime += parameters.dtDpd;
         if (totalSteps % 100 == 0) {
           logThermo(totalSteps, bundle.integrator, particles, bundle.nonBonded, bundle.bonded,
                     data, box, parameters, false);
         }
       }
       CudaSafeCall(cudaDeviceSynchronize());
-      appendTransitionDiagnostics("after_stage3_loop", totalSteps, loop, amplitude,
+      appendTransitionDiagnostics("after_stage3_loop", totalSteps, loop, -1, amplitude,
                                   diagnostics, particles, data, bonds, lengths,
                                   parameters.feneR0);
     }
 
-    appendTransitionDiagnostics("before_stage4", totalSteps, parameters.stage3Loops,
+    if (parameters.stage3bSteps > 0) {
+      const double finalAmplitude = stage3Amplitude(parameters.stage3Loops);
+      const DpdBundle bundle = makeDpdSegment(
+          particles, box, bondData, parameters.dtDpd, finalAmplitude);
+      for (int local = 1; local <= parameters.stage3bSteps; ++local) {
+        bundle.integrator->forwardTime();
+        ++totalSteps;
+        simulationTime += parameters.dtDpd;
+        if (shouldSampleStage3b(local, parameters.stage3bSteps,
+                                parameters.stage3bDiagnosticEvery)) {
+          CudaSafeCall(cudaDeviceSynchronize());
+          appendTransitionDiagnostics("during_stage3b", totalSteps,
+                                      parameters.stage3Loops, local, finalAmplitude,
+                                      diagnostics, particles, data, bonds, lengths,
+                                      parameters.feneR0);
+        }
+      }
+      CudaSafeCall(cudaDeviceSynchronize());
+    }
+
+    appendTransitionDiagnostics("before_stage4", totalSteps, parameters.stage3Loops, -1,
                                 stage3Amplitude(parameters.stage3Loops), diagnostics,
                                 particles, data, bonds, lengths, parameters.feneR0);
 
@@ -1242,20 +1417,23 @@ int main(int argc, char** argv) {
         return kg::createFENEInteractor(particles, box.box, bondData);
       });
       using NVT = uammd::VerletNVT::GronbechJensen;
-      NVT::Parameters integratorParameters;
-      integratorParameters.temperature = static_cast<uammd::real>(parameters.temperature);
-      integratorParameters.friction = static_cast<uammd::real>(parameters.friction);
-      integratorParameters.dt = static_cast<uammd::real>(parameters.dt);
-      integratorParameters.initVelocities = false;
-      const auto integrator = stage4Value("construct NVT integrator", [&]() {
-        return std::make_shared<NVT>(particles, integratorParameters);
-      });
-      stage4Void("attach WCA interactor", [&]() {
-        integrator->addInteractor(wca);
-      });
-      stage4Void("attach permanent FENE interactor", [&]() {
-        integrator->addInteractor(fene);
-      });
+      const auto makeNvtIntegrator = [&](double timestep, const std::string& label) {
+        NVT::Parameters integratorParameters;
+        integratorParameters.temperature = static_cast<uammd::real>(parameters.temperature);
+        integratorParameters.friction = static_cast<uammd::real>(parameters.friction);
+        integratorParameters.dt = static_cast<uammd::real>(timestep);
+        integratorParameters.initVelocities = false;
+        const auto integrator = stage4Value("construct NVT integrator " + label, [&]() {
+          return std::make_shared<NVT>(particles, integratorParameters);
+        });
+        stage4Void("attach WCA interactor " + label, [&]() {
+          integrator->addInteractor(wca);
+        });
+        stage4Void("attach permanent FENE interactor " + label, [&]() {
+          integrator->addInteractor(fene);
+        });
+        return integrator;
+      };
 
       const ParticleStateSnapshot entryState = stage4Value(
           "copy Stage-4 entry particle state", [&]() {
@@ -1265,36 +1443,92 @@ int main(int argc, char** argv) {
           diagnostics,
           computeCpuWcaReference(entryState.positions, lengths, parameters.epsilon,
                                  parameters.sigma));
-      appendStage4Sample("initial_stage4", totalSteps, diagnostics, integrator, particles,
-                         wca, fene, data, box, parameters, stars, adjacency, bonds, lengths);
 
-      stage4Void("first NVT forwardTime", [&]() {
-        integrator->forwardTime();
-      });
-      ++totalSteps;
-      appendStage4Sample("post_first_nvt_step", totalSteps, diagnostics, integrator,
-                         particles, wca, fene, data, box, parameters, stars, adjacency,
-                         bonds, lengths);
+      if (parameters.stage4PromotionTest) {
+        for (double timestep : promotionTimesteps()) {
+          const std::string timestepLabel = "dt=" + formatTimestepLabel(timestep);
+          const auto integrator = makeNvtIntegrator(timestep, timestepLabel);
+          appendTransitionDiagnostics(
+              "promotion_boundary_before_" + timestepLabel, totalSteps,
+              parameters.stage3Loops, -1, stage3Amplitude(parameters.stage3Loops),
+              diagnostics, particles, data, bonds, lengths, parameters.feneR0);
+          appendStage4Sample("promotion_before_" + timestepLabel, totalSteps,
+                             simulationTime, diagnostics, integrator, particles, wca, fene,
+                             data, box, parameters, stars, adjacency, bonds, lengths);
 
-      if (!parameters.stage4EntryDiagnosticOnly) {
-        for (int local = 1; local < parameters.stage4Steps; ++local) {
-          integrator->forwardTime();
-          ++totalSteps;
-          if (totalSteps % 10000 == 0) {
-            logThermo(totalSteps, integrator, particles, wca, fene, data, box,
-                      parameters, true);
+          for (int local = 1; local <= parameters.promotionSteps; ++local) {
+            stage4Void("promotion " + timestepLabel + " forwardTime", [&]() {
+              integrator->forwardTime();
+            });
+            ++totalSteps;
+            simulationTime += timestep;
+            const ParticleStateSnapshot state = stage4Value(
+                "copy promotion " + timestepLabel + " particle state", [&]() {
+                  return copyParticleState(particles, data.natoms);
+                });
+            validatePromotionState(
+                timestepLabel + " step " + std::to_string(local), state, bonds, lengths,
+                parameters.feneR0);
+            const kg::ThermoSnapshot thermo = computeStage4Thermo(
+                "promotion " + timestepLabel + " step " + std::to_string(local),
+                integrator, particles, wca, fene, data, box, parameters);
+            const std::string nonFiniteField = firstNonFiniteThermoField(thermo);
+            if (!nonFiniteField.empty()) {
+              throw std::runtime_error("E1_PROMOTION FAIL after " + timestepLabel +
+                                       " step " + std::to_string(local) +
+                                       ": non-finite " + nonFiniteField);
+            }
           }
-          if (totalSteps % parameters.conformationEvery == 0) {
-            appendStage4Sample("stage4_periodic", totalSteps, diagnostics, integrator,
-                               particles, wca, fene, data, box, parameters, stars,
-                               adjacency, bonds, lengths);
-          }
+
+          appendTransitionDiagnostics(
+              "promotion_boundary_after_" + timestepLabel, totalSteps,
+              parameters.stage3Loops, -1, stage3Amplitude(parameters.stage3Loops),
+              diagnostics, particles, data, bonds, lengths, parameters.feneR0);
+          appendStage4Sample("promotion_after_" + timestepLabel, totalSteps,
+                             simulationTime, diagnostics, integrator, particles, wca, fene,
+                             data, box, parameters, stars, adjacency, bonds, lengths);
         }
-        checkStage4Cuda("complete Stage 4");
+      } else {
+        const auto integrator = makeNvtIntegrator(parameters.dtWca, "normal Stage 4");
+        appendStage4Sample("initial_stage4", totalSteps, simulationTime, diagnostics,
+                           integrator, particles, wca, fene, data, box, parameters, stars,
+                           adjacency, bonds, lengths);
+
+        stage4Void("first NVT forwardTime", [&]() {
+          integrator->forwardTime();
+        });
+        ++totalSteps;
+        simulationTime += parameters.dtWca;
+        appendStage4Sample("post_first_nvt_step", totalSteps, simulationTime, diagnostics,
+                           integrator, particles, wca, fene, data, box, parameters, stars,
+                           adjacency, bonds, lengths);
+
+        if (!parameters.stage4EntryDiagnosticOnly) {
+          for (int local = 1; local < parameters.stage4Steps; ++local) {
+            integrator->forwardTime();
+            ++totalSteps;
+            simulationTime += parameters.dtWca;
+            if (totalSteps % 10000 == 0) {
+              logThermo(totalSteps, integrator, particles, wca, fene, data, box,
+                        parameters, true);
+            }
+            if (totalSteps % parameters.conformationEvery == 0) {
+              appendStage4Sample("stage4_periodic", totalSteps, simulationTime,
+                                 diagnostics, integrator, particles, wca, fene, data, box,
+                                 parameters, stars, adjacency, bonds, lengths);
+            }
+          }
+          checkStage4Cuda("complete Stage 4");
+        }
       }
     }
 
-    if (parameters.stage4EntryDiagnosticOnly) {
+    if (parameters.stage4EntryDiagnosticOnly || parameters.stage4PromotionTest) {
+      if (parameters.stage4PromotionTest) {
+        std::cout << "E1_PROMOTION PASS cooled-state WCA segments completed at dt=0.002, "
+                  << "0.005, and 0.010; no E1 configuration written\n";
+        return 0;
+      }
       std::cout << "E1_STAGE4_DIAG entry-only complete after one NVT step; "
                 << "no E1 configuration written\n";
       return 0;
@@ -1307,7 +1541,7 @@ int main(int argc, char** argv) {
     const double wallSeconds = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - start).count();
     std::cout << kg::formatPerformanceSummary(wallSeconds, static_cast<int>(totalSteps),
-                                               data.natoms, parameters.dt)
+                                               data.natoms, parameters.dtWca)
               << "\nE1_INFRASTRUCTURE RUN COMPLETE chemistry disabled\n";
     return 0;
   } catch (const std::exception& error) {
