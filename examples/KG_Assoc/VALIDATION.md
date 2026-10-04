@@ -144,6 +144,37 @@ intra/inter populations are not equilibrium-validated quantities. In
 particular, `Nevery=100` at `dt=0.01` has not yet been cadence-convergence
 validated for the star system. **S1: PASS.**
 
+## S2: quantitative star-equilibrium and kinetic validation
+
+Starting repository SHA: `f6f7ba29c5dc8ecb41416c4285b0b7faf1e8fa7a`.
+
+S2 infrastructure is prepared, but the CUDA campaign is pending execution on
+the production GPU host. No S2 scientific result is claimed here. The S1 star
+executable now records full provenance in both state and event headers:
+input file, star dimensions, particle/sticker/permanent-bond counts, physical
+and chemistry parameters, seed, requested steps, and original 1-based LAMMPS
+event-ID convention. Its state footer records chemistry sweeps and cumulative
+candidate-sticker pairs.
+
+`analysis/analyze_s2.py` is a CPU-only, fail-closed analyzer. It validates
+required state/event provenance agreement; reconstructs valence-one transient
+bond histories; reproduces state-file bond counts; reports post-burn-in
+populations, event rates, complete lifetimes and censoring, finite-step attempt
+rate, and the prescribed two-half stationarity diagnostic. It rejects missing
+metadata, duplicate creation, invalid breakage, double valence, and state/event
+disagreement. Its focused self-test passed:
+
+```bash
+python3 examples/KG_Assoc/analysis/analyze_s2.py --self-test
+```
+
+The staged CUDA launcher is `s2/run_s2_campaign.sh`. It accepts input and
+output paths as arguments, writes exact per-run command/log files, and refuses
+to overwrite results without `--force`. Gates are deliberately separate:
+baseline (3 runs), cadence (4 runs), Ea (3 runs), and Ee (4 runs), for 14
+planned GPU runs. Execute and analyze each gate before advancing; see
+`s2/README.md` for exact commands. S2 remains **PENDING GPU CAMPAIGN**.
+
 ## Analytical/self-test
 
 ```bash

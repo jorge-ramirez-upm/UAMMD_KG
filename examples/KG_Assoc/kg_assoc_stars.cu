@@ -180,6 +180,55 @@ void writeState(std::ofstream& output,
          << breaks << ' ' << counts.intraStarBonds << ' ' << counts.interStarBonds << '\n';
 }
 
+void writeProvenance(std::ofstream& stateFile,
+                     std::ofstream& eventFile,
+                     const Parameters& parameters,
+                     const kg::LammpsData& data,
+                     int stickers) {
+  const std::streamsize previousPrecision = stateFile.precision();
+  stateFile << std::setprecision(17)
+            << "# input_file=" << parameters.input
+            << " arms=" << parameters.arms
+            << " narm=" << parameters.beadsPerArm
+            << " total_particles=" << data.natoms
+            << " stickers=" << stickers
+            << " permanent_bonds=" << data.nbonds
+            << " T=" << parameters.temperature
+            << " dt=" << parameters.dt
+            << " Ea=" << parameters.ea
+            << " Ee=" << parameters.ee
+            << " nu0=" << parameters.nu0
+            << " Nevery=" << parameters.every
+            << " r_assoc=" << parameters.rAssoc
+            << " damping=" << parameters.damping
+            << " K=" << parameters.feneK
+            << " R0=" << parameters.feneR0
+            << " seed=" << parameters.seed
+            << " total_requested_steps=" << parameters.steps << '\n';
+  stateFile.precision(previousPrecision);
+  eventFile << std::setprecision(17)
+            << "# input_file=" << parameters.input
+            << " arms=" << parameters.arms
+            << " narm=" << parameters.beadsPerArm
+            << " total_particles=" << data.natoms
+            << " stickers=" << stickers
+            << " permanent_bonds=" << data.nbonds
+            << " T=" << parameters.temperature
+            << " dt=" << parameters.dt
+            << " Ea=" << parameters.ea
+            << " Ee=" << parameters.ee
+            << " nu0=" << parameters.nu0
+            << " Nevery=" << parameters.every
+            << " r_assoc=" << parameters.rAssoc
+            << " damping=" << parameters.damping
+            << " K=" << parameters.feneK
+            << " R0=" << parameters.feneR0
+            << " seed=" << parameters.seed
+            << " total_requested_steps=" << parameters.steps
+            << " original_lammps_atom_ids=1_based\n";
+  eventFile.precision(previousPrecision);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -245,10 +294,10 @@ int main(int argc, char** argv) {
          parameters.every, parameters.seed},
         parameters.feneK, parameters.feneR0, parameters.ee);
 
-    stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter\n"
-              << "# atom IDs in events are original 1-based LAMMPS IDs\n";
-    eventFile << "# timestep event_type sticker_i sticker_j molecule_i molecule_j\n"
-              << "# sticker IDs are original 1-based LAMMPS IDs\n";
+    stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter\n";
+    eventFile << "# timestep event_type sticker_i sticker_j molecule_i molecule_j\n";
+    writeProvenance(stateFile, eventFile, parameters, data,
+                    static_cast<int>(stickerIds.size()));
 
     long long creations = 0;
     long long breaks = 0;
@@ -310,6 +359,11 @@ int main(int argc, char** argv) {
     counts = kg_assoc::checkAssociationInvariants(
         particles, data, state, permanentBonds, lengths, parameters.feneR0,
         creations, breaks);
+    stateFile << "# chemistry_sweeps=" << chemistrySweeps
+              << " candidate_sticker_pairs=" << candidatePairs
+              << " mean_candidate_sticker_pairs="
+              << (chemistrySweeps == 0 ? 0.0 :
+                  static_cast<double>(candidatePairs) / chemistrySweeps) << '\n';
     const double wallSeconds = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - start).count();
     std::cout << kg_assoc::formatStarTopologyReport(topology);
