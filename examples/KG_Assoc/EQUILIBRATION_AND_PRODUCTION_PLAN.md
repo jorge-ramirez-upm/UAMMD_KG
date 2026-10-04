@@ -178,8 +178,44 @@ length and run Stage 4 long enough to assess stationarity, not merely numerical
 stability. Use `analyze_e1_stationarity.py` to compare `mean_rg2`,
 `mean_center_terminal_r2`, trends, block means, and autocorrelation times;
 extend if needed. Only after stationarity is established should a second seed
-confirm each chain length. Do not freeze a Stage-4 duration for `Narm=20` or
-`Narm=40` yet.
+confirm each chain length. Do not freeze a Stage-4 duration for `Narm=40` yet.
+
+#### C5 closure: `A=4`, `Narm=20`
+
+C5 uses `Nstars=1000`, `rho_total=0.85`, `rho_poly=0.8`, and chemistry
+disabled. Seeds `12001` and `12002` each used the validated C1 transition
+protocol, 2,000,000 Stage-4 steps at `dt=0.01`, and conformation sampling every
+1,000 steps.
+
+| seed | observable | first-half mean | second-half mean | relative difference | second-half slope | `tau_int` | effective samples |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 12001 | `mean_rg2` | 14.2613032106 | 14.3777463343 | 0.00809884393619 | 3.45392227673e-08 | 706.193851464 | 14.1604178217 |
+| 12001 | `mean_center_terminal_r2` | 32.5487535953 | 32.8527665215 | 0.00925379985913 | 2.97437458605e-07 | 505.007037985 | 19.8017042292 |
+| 12002 | `mean_rg2` | 14.2182914157 | 14.3543360763 | 0.00947760034804 | 1.36606856841e-07 | 523.997165487 | 19.0840726983 |
+| 12002 | `mean_center_terminal_r2` | 32.5165979833 | 32.7764793097 | 0.00792889693703 | 3.65643605274e-06 | 424.028863635 | 23.5833002361 |
+
+The five block means were:
+
+```text
+seed 12001 mean_rg2:                 14.0365885489 14.4095719505 14.3818624071 14.3948195411 14.3747814147
+seed 12001 mean_center_terminal_r2:  32.0814595689 32.8508741005 32.8456992120 32.8928080720 32.8329593386
+seed 12002 mean_rg2:                 14.0666189155 14.3006004453 14.3739951715 14.3349072718 14.3554469258
+seed 12002 mean_center_terminal_r2:  32.1696308543 32.7452689870 32.7629138772 32.7691885319 32.7856909820
+```
+
+Both replicas show an initial conformational transient, most visible in the
+first block, followed by a stationary plateau. The later blocks are
+consistent, second-half slopes are negligible compared with equilibrium
+fluctuations, and the independent replicas agree closely in their late-time
+means. Temperature and pressure are stationary in both runs, and permanent
+bond lengths remain safely below FENE `R0=1.5`. C5 autocorrelation times are
+substantially larger than for C1 `Narm=10`, but 2,000,000 Stage-4 steps is
+sufficient to reach a stationary final state for C5.
+
+**P2.3 status:** C5 / `Narm=20`: **closed**. Adopt 2,000,000 Stage-4 steps at
+`dt=0.01` as the conservative validated E1 duration for `Narm=20`; this is
+not a demonstrated minimum. C6 / `Narm=40`: **pending validation**. C6 must be
+validated independently; the C5 duration is not assumed sufficient.
 
 ## 3. E2 — chemical and topological equilibration
 
