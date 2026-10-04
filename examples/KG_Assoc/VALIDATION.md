@@ -90,7 +90,13 @@ passed with 43,563 total atoms, 41,000 polymer beads, 4,000 stickers, 2,563
 solvent beads, 1,000 stars, 40,000 permanent bonds, total density
 `0.849995628364`, and polymer density `0.799986703462`.
 
-The requested production-like S1 invocation was attempted:
+The complete audited input header/physical record was: total atoms 43,563;
+polymer beads 41,000; stickers 4,000; solvent beads 2,563; stars 1,000;
+permanent bonds 40,000; box lengths `37.145 37.145 37.145`; volume
+`51250.8518236`; total bead density `0.849995628364`; polymer bead density
+`0.799986703462`.
+
+The canonical GPU-host S1 invocation was:
 
 ```bash
 ./examples/KG_Assoc/kg_assoc_stars \
@@ -100,14 +106,43 @@ The requested production-like S1 invocation was attempted:
   --damp 2 --seed 12345 --output /tmp/s1_smoke
 ```
 
-It failed at UAMMD CUDA initialization before the first MD timestep with
-`no CUDA-capable device is detected` (CUDA error 100). The inspected state and
-event outputs both contained zero lines; therefore no chemistry events,
-runtime invariant observations, final intra/inter counts, or performance
-measurements are recorded. This host-side CUDA limitation prevents the S1
-canonical smoke validation. Final repository SHA:
-`02b3f6b34d01673406edfaf73faf421db43650e4`. **S1: FAIL (no CUDA-capable
-device on execution host).**
+It completed the requested 100,000 MD steps and ended with
+`STAR_ASSOCIATION_SMOKE PASS`. The observed integration diagnostics were:
+
+| Quantity | Observed |
+|---|---:|
+| Total timesteps | 100000 |
+| Wall time (s) | 26.7021 |
+| Particle timesteps/s | 1.63144e+08 |
+| Chemistry sweeps | 1000 |
+| Mean candidate sticker pairs/sweep | 1957 |
+| Creations | 3457 |
+| Breaks | 1683 |
+| Final associating bonds | 1774 |
+| Final intra-star bonds | 93 |
+| Final inter-star bonds | 1681 |
+
+The final state record was at timestep 100,000, time 1000, with 452 free
+stickers, 1,774 associating bonds, 3,457 creations, 1,683 breaks, 93 intra-star
+bonds, and 1,681 inter-star bonds. The explicitly verified state invariants
+were:
+
+```text
+N_free + 2*N_assoc = 452 + 2*1774 = 4000
+N_assoc = creations - breaks = 3457 - 1683 = 1774
+N_assoc = N_intra + N_inter = 93 + 1681 = 1774
+```
+
+The inspected event output had 5,142 lines: two header lines and 5,140 events,
+equal to 3,457 creations plus 1,683 breaks. The state output had 1,003 lines:
+two header lines and 1,001 state records. The run reported no invalid
+associating-FENE event; permanent bonds remained at 40,000, transient endpoints
+remained terminal stickers, and all runtime state invariants held.
+
+This is an integration/smoke validation only. The final bonded fraction and
+intra/inter populations are not equilibrium-validated quantities. In
+particular, `Nevery=100` at `dt=0.01` has not yet been cadence-convergence
+validated for the star system. **S1: PASS.**
 
 ## Analytical/self-test
 
