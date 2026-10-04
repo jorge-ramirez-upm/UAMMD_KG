@@ -57,6 +57,12 @@ It writes a permanent-topology-only LAMMPS data file. This is implementation
 infrastructure, not evidence that any C1--C6 condition is scientifically
 equilibrated.
 
+Intermittent failures have been observed on entry to Stage 4 WCA, including at
+reduced timestep. P2.1a adds CPU-side transition diagnostics after each Stage-3
+loop and immediately before Stage 4 to identify the state presented to WCA.
+It does not change the equilibration protocol or claim that the failure is
+solved.
+
 ## 3. E2 — chemical and topological equilibration
 
 E2 starts from E1 output and activates the validated reversible-association

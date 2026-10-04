@@ -325,6 +325,37 @@ Consequently no real-input E1 dynamics, diagnostic file, or final E1 file was
 produced here. The production-CUDA-host smoke test remains required. **E1
 infrastructure: implemented and CPU self-tested; GPU smoke test pending.**
 
+### P2.1a: Stage-3 to Stage-4 transition diagnostics
+
+Intermittent failures have been observed exactly on entry to Stage 4 WCA, even
+with `dt=0.002`. P2.1a adds diagnostics only; it does not alter Stage-3 DPD
+push-off, Stage-4 WCA, their parameters, or their lengths, and does not claim
+the failure is solved.
+
+After every Stage-3 loop and once immediately before Stage 4, the executable
+records a CPU-side, minimum-image report in stdout and as an E1-diagnostics
+comment. It includes step, loop index, DPD amplitude, kinetic temperature,
+maximum speed, maximum permanent-bond length and IDs, global closest-pair
+distance with IDs/types/molecule IDs, counts of all pairs below `0.5`, `0.6`,
+`0.7`, and `0.8`, and finite-state flags. Those pair counts and the global
+closest pair include permanent bonded neighbors; a second closest-pair value
+excludes permanent KG neighbors. The diagnostic fails cleanly for non-finite
+positions or velocities and for a permanent bond at or above FENE `R0`; it has
+no arbitrary pair-distance failure threshold.
+
+`--seed INTEGER` now reseeds UAMMD immediately after system construction and
+before DPD/NVT construction, so their stochastic seeds are reproducible. When
+omitted, the prior UAMMD default seeding remains in use. The selected seed is
+recorded in stdout, E1 diagnostics metadata, and the final LAMMPS producer
+comment. The deterministic self-test covers closest-pair detection, threshold
+counts, maximum speed, maximum-bond identity, finite-state rejection, and
+permanent-neighbor exclusion. GPU transition results remain pending execution
+on a CUDA-capable host.
+
+The P2.1a rebuild and deterministic E1 self-test passed; the independent S0
+audit rebuild and self-test also passed. No real transition diagnostic was run
+because this Codex host has no CUDA-capable device.
+
 ## Analytical/self-test
 
 ```bash

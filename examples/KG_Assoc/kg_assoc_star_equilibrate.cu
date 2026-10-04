@@ -7,7 +7,9 @@
 #include "../KG/kg_runtime.cuh"
 #include "kg_assoc_star_topology.cuh"
 
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -16,6 +18,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -49,6 +52,8 @@ struct Parameters {
   int stage3Steps = 100;
   int stage4Steps = 1000000;
   int conformationEvery = 10000;
+  std::uint64_t seed = 0;
+  bool hasSeed = false;
   bool initializeVelocities = false;
   bool selfTest = false;
 };
@@ -78,6 +83,28 @@ struct Vec3 {
   double z = 0.0;
 };
 
+struct PairDistanceInfo {
+  int first = -1;
+  int second = -1;
+  double distance = std::numeric_limits<double>::infinity();
+};
+
+struct TransitionDiagnostics {
+  double temperature = 0.0;
+  double maxSpeed = 0.0;
+  double maxPermanentBond = 0.0;
+  int maxBondFirst = -1;
+  int maxBondSecond = -1;
+  PairDistanceInfo closestPair;
+  PairDistanceInfo closestNonBondedPair;
+  long long pairsBelow05 = 0;
+  long long pairsBelow06 = 0;
+  long long pairsBelow07 = 0;
+  long long pairsBelow08 = 0;
+  bool positionsFinite = true;
+  bool velocitiesFinite = true;
+};
+
 std::string nextArgument(int& index, int argc, char** argv) {
   if (++index >= argc) {
     throw std::runtime_error("missing option value");
@@ -92,7 +119,7 @@ void printHelp() {
       << "  --friction XI --sigma S --epsilon E --fene-k K --fene-r0 R0 --skin S\n"
       << "  --stage1-loops N --stage1-steps N --stage2-steps N\n"
       << "  --stage3-loops N --stage3-steps N --stage4-steps N\n"
-      << "  --init-velocities --self-test\n";
+      << "  --conformation-every N --seed INTEGER --init-velocities --self-test\n";
 }
 
 Parameters parseArguments(int argc, char** argv) {
@@ -139,6 +166,9 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.stage4Steps = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--conformation-every") {
       parameters.conformationEvery = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--seed") {
+      parameters.seed = std::stoull(nextArgument(index, argc, argv));
+      parameters.hasSeed = true;
     } else if (option == "--init-velocities") {
       parameters.initializeVelocities = true;
     } else if (option == "--self-test") {
@@ -229,6 +259,226 @@ Vec3 minimumImage(Vec3 displacement, const Vec3& lengths) {
 
 double norm2(const Vec3& value) {
   return value.x * value.x + value.y * value.y + value.z * value.z;
+}
+
+bool isFinite(const Vec3& value) {
+  return std::isfinite(value.x) && std::isfinite(value.y) && std::isfinite(value.z);
+}
+
+TransitionDiagnostics analyzeTransition(
+    const kg::LammpsData& data,
+    const std::vector<std::pair<int, int>>& permanentBonds,
+    const std::vector<Vec3>& positions,
+    const std::vector<Vec3>& velocities,
+    const Vec3& lengths) {
+  if (static_cast<int>(positions.size()) != data.natoms ||
+      static_cast<int>(velocities.size()) != data.natoms) {
+    throw std::runtime_error("transition diagnostic particle-state size mismatch");
+  }
+
+  TransitionDiagnostics diagnostics;
+  double velocitySquaredSum = 0.0;
+  for (int atom = 0; atom < data.natoms; ++atom) {
+    if (!isFinite(positions[atom])) {
+      diagnostics.positionsFinite = false;
+      throw std::runtime_error("transition diagnostic found non-finite position at atom ID " +
+                               std::to_string(atom + 1));
+    }
+    if (!isFinite(velocities[atom])) {
+      diagnostics.velocitiesFinite = false;
+      throw std::runtime_error("transition diagnostic found non-finite velocity at atom ID " +
+                               std::to_string(atom + 1));
+    }
+    const double speed2 = norm2(velocities[atom]);
+    velocitySquaredSum += speed2;
+    diagnostics.maxSpeed = std::max(diagnostics.maxSpeed, std::sqrt(speed2));
+  }
+  if (data.natoms > 0) {
+    diagnostics.temperature = velocitySquaredSum / (3.0 * data.natoms);
+  }
+
+  std::set<std::pair<int, int>> bondedPairs;
+  for (const auto& bond : permanentBonds) {
+    const std::pair<int, int> ordered = std::minmax(bond.first, bond.second);
+    bondedPairs.insert(ordered);
+    const Vec3 displacement = minimumImage(
+        {positions[ordered.second].x - positions[ordered.first].x,
+         positions[ordered.second].y - positions[ordered.first].y,
+         positions[ordered.second].z - positions[ordered.first].z}, lengths);
+    const double distance = std::sqrt(norm2(displacement));
+    if (distance > diagnostics.maxPermanentBond) {
+      diagnostics.maxPermanentBond = distance;
+      diagnostics.maxBondFirst = ordered.first;
+      diagnostics.maxBondSecond = ordered.second;
+    }
+  }
+
+  const auto inspectPair = [&](int first, int second) {
+    const Vec3 displacement = minimumImage(
+        {positions[second].x - positions[first].x,
+         positions[second].y - positions[first].y,
+         positions[second].z - positions[first].z}, lengths);
+    const double distance = std::sqrt(norm2(displacement));
+    if (distance < diagnostics.closestPair.distance) {
+      diagnostics.closestPair = {first, second, distance};
+    }
+    if (distance < 0.5) {
+      ++diagnostics.pairsBelow05;
+    }
+    if (distance < 0.6) {
+      ++diagnostics.pairsBelow06;
+    }
+    if (distance < 0.7) {
+      ++diagnostics.pairsBelow07;
+    }
+    if (distance < 0.8) {
+      ++diagnostics.pairsBelow08;
+    }
+    if (bondedPairs.count({first, second}) == 0 &&
+        distance < diagnostics.closestNonBondedPair.distance) {
+      diagnostics.closestNonBondedPair = {first, second, distance};
+    }
+  };
+
+  constexpr double kPairDiagnosticCutoff = 0.8;
+  const int cellsX = std::max(1, static_cast<int>(lengths.x / kPairDiagnosticCutoff));
+  const int cellsY = std::max(1, static_cast<int>(lengths.y / kPairDiagnosticCutoff));
+  const int cellsZ = std::max(1, static_cast<int>(lengths.z / kPairDiagnosticCutoff));
+  const auto cellCoordinate = [](double coordinate, double length, int cells) {
+    const double cellLength = length / cells;
+    const int cell = static_cast<int>(std::floor((coordinate + 0.5 * length) /
+                                                 cellLength));
+    return std::max(0, std::min(cells - 1, cell));
+  };
+  const auto cellKey = [cellsX, cellsY](int x, int y, int z) {
+    return x + cellsX * (y + cellsY * z);
+  };
+  std::vector<std::vector<int>> cells(cellsX * cellsY * cellsZ);
+  std::vector<int> particleCellX(data.natoms);
+  std::vector<int> particleCellY(data.natoms);
+  std::vector<int> particleCellZ(data.natoms);
+  for (int atom = 0; atom < data.natoms; ++atom) {
+    particleCellX[atom] = cellCoordinate(positions[atom].x, lengths.x, cellsX);
+    particleCellY[atom] = cellCoordinate(positions[atom].y, lengths.y, cellsY);
+    particleCellZ[atom] = cellCoordinate(positions[atom].z, lengths.z, cellsZ);
+    cells[cellKey(particleCellX[atom], particleCellY[atom], particleCellZ[atom])]
+        .push_back(atom);
+  }
+  std::set<std::pair<int, int>> inspectedPairs;
+  for (int first = 0; first < data.natoms; ++first) {
+    for (int dx = -1; dx <= 1; ++dx) {
+      for (int dy = -1; dy <= 1; ++dy) {
+        for (int dz = -1; dz <= 1; ++dz) {
+          const int x = (particleCellX[first] + dx + cellsX) % cellsX;
+          const int y = (particleCellY[first] + dy + cellsY) % cellsY;
+          const int z = (particleCellZ[first] + dz + cellsZ) % cellsZ;
+          for (const int second : cells[cellKey(x, y, z)]) {
+            if (first == second) {
+              continue;
+            }
+            const std::pair<int, int> pair = std::minmax(first, second);
+            if (!inspectedPairs.insert(pair).second) {
+              continue;
+            }
+            inspectPair(pair.first, pair.second);
+          }
+        }
+      }
+    }
+  }
+  if (diagnostics.pairsBelow08 == 0) {
+    // ponytail: exact rare fallback; use a hierarchical nearest-neighbor search
+    // only if production conditions routinely have no pair below the cutoff.
+    for (int first = 0; first < data.natoms; ++first) {
+      for (int second = first + 1; second < data.natoms; ++second) {
+        inspectPair(first, second);
+      }
+    }
+  }
+  return diagnostics;
+}
+
+void appendPairDescription(std::ostringstream& output,
+                           const std::string& name,
+                           const PairDistanceInfo& pair,
+                           const kg::LammpsData& data) {
+  output << ' ' << name << "_distance=" << pair.distance;
+  if (pair.first < 0 || pair.second < 0) {
+    output << ' ' << name << "_ids=none";
+    return;
+  }
+  output << ' ' << name << "_ids=" << pair.first + 1 << ',' << pair.second + 1
+         << ' ' << name << "_types=" << data.type[pair.first] << ','
+         << data.type[pair.second] << ' ' << name << "_molecules="
+         << data.mol[pair.first] << ',' << data.mol[pair.second];
+}
+
+std::string formatTransitionDiagnostics(const std::string& label,
+                                        long long step,
+                                        int stage3Loop,
+                                        double dpdAmplitude,
+                                        const TransitionDiagnostics& diagnostics,
+                                        const kg::LammpsData& data) {
+  std::ostringstream output;
+  output << std::setprecision(12) << "[E1 transition] label=" << label
+         << " step=" << step << " stage3_loop=" << stage3Loop
+         << " dpd_amplitude=" << dpdAmplitude
+         << " temperature=" << diagnostics.temperature
+         << " max_speed=" << diagnostics.maxSpeed
+         << " max_permanent_bond=" << diagnostics.maxPermanentBond;
+  if (diagnostics.maxBondFirst >= 0) {
+    output << " max_permanent_bond_ids=" << diagnostics.maxBondFirst + 1 << ','
+           << diagnostics.maxBondSecond + 1;
+  }
+  appendPairDescription(output, "closest_pair", diagnostics.closestPair, data);
+  appendPairDescription(output, "closest_nonbonded_pair",
+                        diagnostics.closestNonBondedPair, data);
+  output << " pairs_below_0.5=" << diagnostics.pairsBelow05
+         << " pairs_below_0.6=" << diagnostics.pairsBelow06
+         << " pairs_below_0.7=" << diagnostics.pairsBelow07
+         << " pairs_below_0.8=" << diagnostics.pairsBelow08
+         << " pair_counts_include_permanent_bonds=true"
+         << " positions_finite=" << (diagnostics.positionsFinite ? "true" : "false")
+         << " velocities_finite=" << (diagnostics.velocitiesFinite ? "true" : "false");
+  return output.str();
+}
+
+void appendTransitionDiagnostics(
+    const std::string& label,
+    long long step,
+    int stage3Loop,
+    double dpdAmplitude,
+    std::ofstream& output,
+    std::shared_ptr<uammd::ParticleData> particles,
+    const kg::LammpsData& data,
+    const std::vector<std::pair<int, int>>& permanentBonds,
+    const Vec3& lengths,
+    double feneR0) {
+  auto positionsByStorage = particles->getPos(uammd::access::cpu, uammd::access::read);
+  auto velocitiesByStorage = particles->getVel(uammd::access::cpu, uammd::access::read);
+  auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
+  std::vector<Vec3> positions(data.natoms);
+  std::vector<Vec3> velocities(data.natoms);
+  for (int id = 0; id < data.natoms; ++id) {
+    const int storage = idToIndex[id];
+    const uammd::real3 position = uammd::make_real3(positionsByStorage[storage]);
+    positions[id] = {position.x, position.y, position.z};
+    const uammd::real3 velocity = velocitiesByStorage[storage];
+    velocities[id] = {velocity.x, velocity.y, velocity.z};
+  }
+  const TransitionDiagnostics diagnostics = analyzeTransition(
+      data, permanentBonds, positions, velocities, lengths);
+  const std::string message = formatTransitionDiagnostics(
+      label, step, stage3Loop, dpdAmplitude, diagnostics, data);
+  uammd::System::log<uammd::System::MESSAGE>("%s", message.c_str());
+  output << "# " << message << '\n';
+  output.flush();
+  if (diagnostics.maxPermanentBond >= feneR0) {
+    throw std::runtime_error("transition diagnostic found permanent FENE bond at or above R0: " +
+                             std::to_string(diagnostics.maxBondFirst + 1) + "--" +
+                             std::to_string(diagnostics.maxBondSecond + 1) + " r=" +
+                             std::to_string(diagnostics.maxPermanentBond));
+  }
 }
 
 std::vector<Vec3> unwrapStar(const StarDefinition& star,
@@ -496,6 +746,16 @@ void expectNear(const std::string& label, double observed, double expected) {
   }
 }
 
+template <class Function>
+void expectReject(const std::string& label, const Function& function) {
+  try {
+    function();
+  } catch (const std::runtime_error&) {
+    return;
+  }
+  throw std::runtime_error(label + " self-test accepted invalid state");
+}
+
 void runSelfTest() {
   kg::LammpsData data;
   data.natoms = 3;
@@ -529,13 +789,51 @@ void runSelfTest() {
       lengths);
   expectNear("PBC-safe Rg2", sample.meanRg2, 2.0 / 3.0);
   expectNear("PBC-safe center-terminal r2", sample.meanCenterTerminalR2, 1.0);
+
+  kg::LammpsData transitionData;
+  transitionData.natoms = 4;
+  transitionData.type = {1, 2, 3, 1};
+  transitionData.mol = {10, 10, 99, 11};
+  const std::vector<std::pair<int, int>> transitionBonds = {{0, 1}};
+  const std::vector<Vec3> transitionPositions = {
+      {4.9, 0.0, 0.0}, {-4.9, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.55, 0.0, 0.0}};
+  const std::vector<Vec3> transitionVelocities = {
+      {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {3.0, 4.0, 0.0}};
+  const TransitionDiagnostics transition = analyzeTransition(
+      transitionData, transitionBonds, transitionPositions, transitionVelocities, lengths);
+  if (transition.closestPair.first != 0 || transition.closestPair.second != 1 ||
+      transition.closestNonBondedPair.first != 2 ||
+      transition.closestNonBondedPair.second != 3 || transition.maxBondFirst != 0 ||
+      transition.maxBondSecond != 1 || transition.pairsBelow05 != 1 ||
+      transition.pairsBelow06 != 2 || transition.pairsBelow07 != 2 ||
+      transition.pairsBelow08 != 2 || !transition.positionsFinite ||
+      !transition.velocitiesFinite) {
+    throw std::runtime_error("transition pair diagnostic self-test failed");
+  }
+  expectNear("transition closest pair", transition.closestPair.distance, 0.2);
+  expectNear("transition closest nonbonded pair",
+             transition.closestNonBondedPair.distance, 0.55);
+  expectNear("transition max speed", transition.maxSpeed, 5.0);
+  expectNear("transition temperature", transition.temperature, 26.0 / 12.0);
+  std::vector<Vec3> invalidPositions = transitionPositions;
+  invalidPositions[0].x = std::numeric_limits<double>::quiet_NaN();
+  expectReject("non-finite position", [&]() {
+    (void)analyzeTransition(transitionData, transitionBonds, invalidPositions,
+                            transitionVelocities, lengths);
+  });
+  std::vector<Vec3> invalidVelocities = transitionVelocities;
+  invalidVelocities[0].x = std::numeric_limits<double>::infinity();
+  expectReject("non-finite velocity", [&]() {
+    (void)analyzeTransition(transitionData, transitionBonds, transitionPositions,
+                            invalidVelocities, lengths);
+  });
   kg::ThermoSnapshot thermo;
   const std::string row = formatDiagnosticsRow(10, 0.1, thermo, sample);
   if (diagnosticsHeader().find("mean_rg2") == std::string::npos ||
       row.find("10 0.1") != 0) {
     throw std::runtime_error("diagnostics formatting self-test failed");
   }
-  std::cout << "E1_SELF_TEST PASS topology, PBC conformation, diagnostics\n";
+  std::cout << "E1_SELF_TEST PASS topology, PBC conformation, transition diagnostics\n";
 }
 
 }  // namespace
@@ -574,10 +872,15 @@ int main(int argc, char** argv) {
                 << parameters.stage1Loops * parameters.stage1Steps << " stage2="
                 << parameters.stage2Steps << " stage3="
                 << parameters.stage3Loops * parameters.stage3Steps << " stage4="
-                << parameters.stage4Steps << " chemistry=disabled\n";
+                << parameters.stage4Steps << " seed="
+                << (parameters.hasSeed ? std::to_string(parameters.seed) : "UAMMD_default")
+                << " chemistry=disabled\n";
     diagnostics << diagnosticsHeader() << '\n';
 
     auto system = std::make_shared<uammd::System>(argc, argv);
+    if (parameters.hasSeed) {
+      system->rng().setSeed(parameters.seed);
+    }
     const kg::SimulationBox box = kg::makeSimulationBox(data);
     kg::SimParams validation;
     validation.feneR0 = parameters.feneR0;
@@ -593,7 +896,9 @@ int main(int argc, char** argv) {
 
     std::cout << kg_assoc::formatStarTopologyReport(topology);
     std::cout << "E1 input " << parameters.input << " output " << parameters.output
-              << " diagnostics " << diagnosticsPath << " chemistry disabled\n";
+              << " diagnostics " << diagnosticsPath << " seed="
+              << (parameters.hasSeed ? std::to_string(parameters.seed) : "UAMMD_default")
+              << " chemistry disabled\n";
     long long totalSteps = 0;
     const auto start = std::chrono::steady_clock::now();
 
@@ -629,8 +934,9 @@ int main(int argc, char** argv) {
     }
 
     for (int loop = 1; loop <= parameters.stage3Loops; ++loop) {
+      const double amplitude = stage3Amplitude(loop);
       const DpdBundle bundle = makeDpdSegment(
-          particles, box, bondData, parameters.dt, stage3Amplitude(loop));
+          particles, box, bondData, parameters.dt, amplitude);
       for (int local = 0; local < parameters.stage3Steps; ++local) {
         bundle.integrator->forwardTime();
         ++totalSteps;
@@ -640,7 +946,14 @@ int main(int argc, char** argv) {
         }
       }
       CudaSafeCall(cudaDeviceSynchronize());
+      appendTransitionDiagnostics("after_stage3_loop", totalSteps, loop, amplitude,
+                                  diagnostics, particles, data, bonds, lengths,
+                                  parameters.feneR0);
     }
+
+    appendTransitionDiagnostics("before_stage4", totalSteps, parameters.stage3Loops,
+                                stage3Amplitude(parameters.stage3Loops), diagnostics,
+                                particles, data, bonds, lengths, parameters.feneR0);
 
     {
       const DpdBundle bundle = makeWcaSegment(particles, box, data, parameters, bondData);
@@ -663,8 +976,10 @@ int main(int argc, char** argv) {
       CudaSafeCall(cudaDeviceSynchronize());
     }
 
+    const std::string producer = "kg_assoc_star_equilibrate E1 chemistry disabled seed=" +
+        (parameters.hasSeed ? std::to_string(parameters.seed) : "UAMMD_default");
     kg::writeLAMMPSDataSnapshot(parameters.output, static_cast<int>(totalSteps), data,
-                                particles, "kg_assoc_star_equilibrate E1 chemistry disabled");
+                                particles, producer);
     const double wallSeconds = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - start).count();
     std::cout << kg::formatPerformanceSummary(wallSeconds, static_cast<int>(totalSteps),
