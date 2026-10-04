@@ -1,8 +1,9 @@
 # Associating-star equilibration and production plan
 
 This document is the planning specification for the next associating-star
-phase. It defines a reusable pipeline, without implementing E1, E2, topology
-analysis, restart support, or new simulations:
+phase. P2 has implemented E1 conformational-equilibration infrastructure only;
+E1 scientific equilibration lengths remain unvalidated. E2, topology analysis,
+restart support, and new production simulations remain unimplemented:
 
 ```text
 external star generator
@@ -49,6 +50,12 @@ arm length. Future E1 validation should inspect energy, pressure, temperature,
 maximum permanent-bond extension, star `Rg^2`, and useful arm/end-to-center
 size measures, especially for `N=20` and `N=40`. E1 output is a chemically
 unassociated, conformationally equilibrated configuration suitable for E2.
+
+P2 provides `kg_assoc_star_equilibrate`, which performs the S0 topology audit,
+the four stages above, and infrequent PBC-safe Stage-4 conformation diagnostics.
+It writes a permanent-topology-only LAMMPS data file. This is implementation
+infrastructure, not evidence that any C1--C6 condition is scientifically
+equilibrated.
 
 ## 3. E2 — chemical and topological equilibration
 

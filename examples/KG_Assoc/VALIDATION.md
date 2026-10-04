@@ -278,6 +278,53 @@ expected qualitative trends subject to censoring and finite-cadence caveats.
 S2 closure is documentation-only after the manually executed GPU campaign.
 The resulting documentation-only commit SHA is reported with this closure.
 
+## P2 / E1: conformational-equilibration infrastructure
+
+P2 adds `kg_assoc_star_equilibrate`, an E1-only star conformational
+equilibrator. Before dynamics it runs the S0 permanent-topology audit using
+explicit `--arms` and `--narm`; it then performs the established four-stage KG
+procedure: limited-displacement DPD + permanent FENE, uncapped DPD + permanent
+FENE, progressive DPD push-off, and WCA + permanent FENE Langevin NVT.
+
+Dynamic sticker association, association kinetics, associative bonds, and
+chemical parameters are absent. Type-2 terminal stickers are ordinary KG beads
+in E1. The final output is a normal LAMMPS data file containing only the input
+permanent topology. Stage-4 diagnostics are machine-readable and contain:
+
+```text
+# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure mean_rg2 mean_center_terminal_r2 max_permanent_bond
+```
+
+The executable self-test covers S0 audit integration, center and terminal
+identification, synthetic-star `Rg^2`, a periodic-boundary-crossing star for
+PBC-safe `Rg^2` and center-terminal distance, permanent-bond maximum distance,
+and diagnostics formatting. E1 diagnostic calculations are CPU-side only at
+the configured Stage-4 cadence (default 10,000 steps), never every MD step.
+
+This is implementation validation, not scientific equilibration validation.
+E1 infrastructure is implemented; E1 scientific equilibration lengths and the
+equilibration of C1--C6 remain unestablished pending executed diagnostics.
+
+Starting P2 SHA: `6e24d4ef349f47622132b71803292d3d50f5c89b`. The focused
+builds and deterministic checks passed:
+
+```bash
+make -B -C examples/KG_Assoc kg_assoc_star_equilibrate
+./examples/KG_Assoc/kg_assoc_star_equilibrate --self-test
+make -B -C examples/KG_Assoc kg_assoc_star_audit
+./examples/KG_Assoc/kg_assoc_star_audit --self-test
+make -B -C examples/KG_Assoc kg_assoc_stars
+./examples/KG_Assoc/kg_assoc_stars --self-test
+```
+
+The local C1 generated input was present and its CPU-only S0 audit passed with
+43,563 atoms, 1,000 stars, 4,000 stickers, and 40,000 permanent bonds. A
+minimal all-four-stage C1 smoke invocation was attempted, but this Codex host
+has no CUDA-capable device (`CUDA error 100` during UAMMD initialization).
+Consequently no real-input E1 dynamics, diagnostic file, or final E1 file was
+produced here. The production-CUDA-host smoke test remains required. **E1
+infrastructure: implemented and CPU self-tested; GPU smoke test pending.**
+
 ## Analytical/self-test
 
 ```bash
