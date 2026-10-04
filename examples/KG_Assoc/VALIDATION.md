@@ -148,13 +148,13 @@ validated for the star system. **S1: PASS.**
 
 Starting repository SHA: `f6f7ba29c5dc8ecb41416c4285b0b7faf1e8fa7a`.
 
-S2 infrastructure is prepared, but the CUDA campaign is pending execution on
-the production GPU host. No S2 scientific result is claimed here. The S1 star
-executable now records full provenance in both state and event headers:
-input file, star dimensions, particle/sticker/permanent-bond counts, physical
-and chemistry parameters, seed, requested steps, and original 1-based LAMMPS
-event-ID convention. Its state footer records chemistry sweeps and cumulative
-candidate-sticker pairs.
+S2 infrastructure was prepared at commit
+`cb3eed7ee613e904f89844ed4d830266dfafdbe2`. The CUDA campaign was executed
+manually on the CUDA host, outside Codex. The S1 star executable records full
+provenance in both state and event headers: input file, star dimensions,
+particle/sticker/permanent-bond counts, physical and chemistry parameters, seed,
+requested steps, and original 1-based LAMMPS event-ID convention. Its state
+footer records chemistry sweeps and cumulative candidate-sticker pairs.
 
 `analysis/analyze_s2.py` is a CPU-only, fail-closed analyzer. It validates
 required state/event provenance agreement; reconstructs valence-one transient
@@ -170,10 +170,113 @@ python3 examples/KG_Assoc/analysis/analyze_s2.py --self-test
 
 The staged CUDA launcher is `s2/run_s2_campaign.sh`. It accepts input and
 output paths as arguments, writes exact per-run command/log files, and refuses
-to overwrite results without `--force`. Gates are deliberately separate:
-baseline (3 runs), cadence (4 runs), Ea (3 runs), and Ee (4 runs), for 14
-planned GPU runs. Execute and analyze each gate before advancing; see
-`s2/README.md` for exact commands. S2 remains **PENDING GPU CAMPAIGN**.
+to overwrite results without `--force`. Gates were analyzed separately. The
+campaign comprised 15 GPU runs: three canonical replicas, five cadence points,
+three `Ea` points, and four `Ee` points.
+
+S2 validates stationary bonded populations, replicate reproducibility,
+chemistry-cadence convergence, `Ea` as primarily kinetic control, `Ee` as
+equilibrium association-strength control, and simple bond-lifetime diagnostics.
+It does not validate detailed loop topology, cluster connectivity, percolation,
+MSD/diffusion, hopping/walking, stress, `G(t)`, or viscosity. Those questions
+remain outside S2 and are not advanced here.
+
+### Gate A: canonical replicate reproducibility
+
+Condition: `Ee=8`, `Ea=4`, `Nevery=100`, `nu0=20`, `T=1`, `dt=0.01`, 500,000
+MD steps, 50% burn-in, and seeds 12001, 12002, and 12003.
+
+| Seed | Mean `N_assoc` | Bonded fraction | Mean `N_intra` | Mean `N_inter` | Creation rate | Break rate | Candidate pairs/sweep | Stationarity difference | Drift slope | Complete lifetimes | Mean lifetime | Median lifetime |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 12001 | 1770.825270 | 0.885412635 | 87.212715 | 1683.612555 | 1.5476 | 1.5484 | 1900.5246 | 0.006597032 | -3.6378e-06 | 8004 | 820.9690 | 586.0 |
+| 12002 | 1762.323471 | 0.881161735 | 82.033587 | 1680.289884 | 1.5780 | 1.5784 | 1895.0286 | 0.003739575 | -2.5101e-06 | 8186 | 808.8473 | 575.0 |
+| 12003 | 1781.361455 | 0.890680728 | 100.954818 | 1680.406637 | 1.5672 | 1.5688 | 1910.8832 | 0.000043838 | -2.3606e-07 | 7988 | 834.0463 | 598.0 |
+
+All three runs passed stationarity. The bonded-fraction span was
+`0.0095189924`, below the predeclared reproducibility criterion of `0.02`.
+Creation and break rates were balanced in every replica. **Gate A: PASS.**
+Stationarity: **PASS**. Replica reproducibility: **PASS**. Creation/break
+balance: **PASS**.
+
+### Gate B: chemistry cadence
+
+Common condition: `Ee=8`, `Ea=4`, `nu0=20`, `T=1`, `dt=0.01`, seed 12100, and
+500,000 MD steps.
+
+| `Nevery` | `delta_t_chem` | Attempt rate | Bonded fraction | Creation rate | Break rate | Mean complete lifetime | Median complete lifetime | Stationarity difference |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 10 | 0.1 | 0.359684703 | 0.885067497 | 1.8336 | 1.8320 | 731.7841 | 523.2 | 0.003217597 |
+| 20 | 0.2 | 0.353216049 | 0.888721542 | 1.7764 | 1.7700 | 736.0038 | 508.1 | 0.004253695 |
+| 50 | 0.5 | 0.334724140 | 0.883755549 | 1.7188 | 1.7268 | 778.6910 | 544.0 | 0.006088280 |
+| 100 | 1.0 | 0.306714077 | 0.887820472 | 1.6164 | 1.6088 | 804.7487 | 559.0 | 0.000470355 |
+| 200 | 2.0 | 0.259677315 | 0.887013989 | 1.3128 | 1.3020 | 937.7381 | 676.0 | 0.003679481 |
+
+For `Nevery=20, 50, 100`, the bonded-fraction range was
+`0.0049659934`, below the predeclared `0.01` criterion. `Nevery=200` also
+remained consistent in equilibrium population. **Gate B equilibrium
+convergence: PASS.**
+
+Complete-bond lifetime statistics retain finite-cadence dependence: relative
+to `Nevery=10--20`, `Nevery=100` gives lifetime measures higher by several
+percent to about 10%. Thus **Gate B kinetic convergence retains finite cadence
+bias**. `Nevery=100` is retained as a deliberate production cost/accuracy
+compromise: it is sufficiently converged for equilibrium and operational
+kinetics, but is not the zero-cadence-limit value and is not exact for fine
+lifetime estimation.
+
+### Gate C: `Ea` control
+
+Common condition: `Ee=8`, `Nevery=100`, `nu0=20`, `T=1`, `dt=0.01`, and seed
+12200.
+
+| `Ea` | Bonded fraction | Creation rate | Break rate | Mean complete lifetime | Median complete lifetime | Stationarity difference |
+|---:|---:|---:|---:|---:|---:|---:|
+| 2 | 0.8891411435 | 4.6192 | 4.6272 | 330.1302 | 222.0 | 0.002998688 |
+| 4 | 0.8837822871 | 1.6080 | 1.6200 | 828.9444 | 585.0 | 0.001445596 |
+| 6 | 0.8851315737 | 0.2528 | 0.2510 | 3194.1472 | 2599.0 | 0.004866574 |
+
+All runs passed stationarity. The bonded-fraction span was `0.0053588565`,
+below the predeclared `0.02` criterion. The stationary association population
+was approximately invariant with `Ea`, while kinetics slowed strongly and
+complete bond lifetimes increased strongly as `Ea` increased. **Gate C: PASS.**
+No precise Arrhenius law is fitted or claimed from these three points.
+
+### Gate D: `Ee` control
+
+Common condition: `Ea=4`, `Nevery=100`, `nu0=20`, `T=1`, `dt=0.01`, and seed
+12300.
+
+| `Ee` | Bonded fraction | Mean `N_assoc` | Intra fraction | Creation rate | Break rate | Mean complete lifetime | Median complete lifetime | Stationarity difference |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2 | 0.1437121152 | 287.4242 | 0.054657426 | 20.2540 | 20.2592 | 12.4329 | 8.0 | 0.000198551 |
+| 4 | 0.4330143942 | 866.0288 | 0.051902081 | 18.2828 | 18.2640 | 43.1969 | 27.0 | 0.000051968 |
+| 6 | 0.7287976809 | 1457.5954 | 0.052589718 | 6.5492 | 6.5548 | 190.9305 | 124.0 | 0.001061013 |
+| 8 | 0.8878282687 | 1775.6565 | 0.052182702 | 1.5800 | 1.5812 | 827.5301 | 593.0 | 0.004342002 |
+
+All points passed stationarity. The stationary bonded fraction increased
+strictly monotonically, `0.1437 -> 0.4330 -> 0.7288 -> 0.8878`, while bond
+turnover decreased and complete lifetimes increased with `Ee`. **Gate D: PASS.**
+The approximately 5% intra-bond fraction is descriptive only; detailed network
+topology interpretation is deferred to S3. No relation of the form
+`ln Keq = Ee/T + constant` is imposed or claimed for the full star system,
+whose tethering, intramolecular association, connectivity constraints, and
+saturation prevent direct transfer of the K1 simple-fluid concentration
+quotient.
+
+Across S2, complete-lifetime summaries exclude right-censored bonds that remain
+active at trajectory end. Their means and medians are comparative kinetic
+diagnostics, not unbiased estimators of the full lifetime distribution, and are
+not overinterpreted.
+
+**S2: PASS.** Canonical replicas were stationary and reproducible; equilibrium
+bonded fraction converged through `Nevery=100`; `Nevery=100` was retained as a
+production cost/accuracy compromise; `Ea` changed kinetics strongly while
+stationary association remained nearly unchanged; `Ee` strongly and
+monotonically increased association; and lifetime statistics showed the
+expected qualitative trends subject to censoring and finite-cadence caveats.
+
+S2 closure is documentation-only after the manually executed GPU campaign.
+The resulting documentation-only commit SHA is reported with this closure.
 
 ## Analytical/self-test
 
