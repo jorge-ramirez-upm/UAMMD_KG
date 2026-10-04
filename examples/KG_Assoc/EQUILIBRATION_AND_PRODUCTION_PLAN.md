@@ -43,7 +43,7 @@ follow the philosophy of `examples/KG/kg_uammd_equilibrate.cu`:
 1. DPD + FENE with displacement limiting;
 2. DPD + FENE without a displacement cap;
 3. progressive DPD push-off;
-4. DPD hold/cooling at the final Stage-3 conservative amplitude;
+4. final DPD relaxation/hold at the final Stage-3 conservative amplitude;
 5. full WCA + FENE with Langevin NVT.
 
 The current default Stage-4 duration must not be assumed sufficient for every
@@ -72,16 +72,29 @@ normal and that initial WCA/FENE thermo and the first NVT step are finite, but a
 permanent FENE bond can exceed `R0` within roughly 10--20 WCA steps. This is a
 hot-transition failure, not evidence of a severe Stage-3 overlap.
 
-P2.1c adds a configurable Stage-3b DPD hold/cooling segment at the final
+P2.1c adds a configurable Stage-3b final DPD relaxation/hold at the final
 Stage-3 conservative amplitude (currently 1000), retaining DPD target
-temperature 1 and gamma 4.5 before WCA is enabled. Its initial default is
-5,000 steps with transition diagnostics every 500 steps; the scientific hold
-length remains unvalidated. DPD and WCA timesteps can now be set separately,
-and a short promotion diagnostic can exercise WCA at `dt=0.002`, `0.005`, and
-`0.01` sequentially from the cooled state. `dt=0.002` is still only a temporary
-stabilization timestep. Final E1 acceptance must demonstrate robust `dt=0.005`
-and preferably `dt=0.01` behavior across several independent seeds. P2.1c
-does not itself establish that scientific acceptance.
+temperature 1 and gamma 4.5 before WCA is enabled. Its conservative default is
+20,000 steps with transition diagnostics every 500 steps. The measured
+temperature remains above 3 before WCA, so this is documented as relaxation of
+locally compressed configurations rather than cooling. For seed `12003`, 1,000
+steps failed the promotion test, while 5,000, 10,000, and 20,000 passed; 20,000
+was selected conservatively because the local geometry is substantially safer.
+The promotion test remains 1,000 steps at each of `dt=0.002`, `0.005`, and
+`0.010`, in that order. DPD and WCA timesteps can be set separately. Final E1
+acceptance requires a 5/5 CUDA robustness test for seeds `12001--12005` at
+20,000 Stage-3b steps; it is pending on hosts without a CUDA device.
+
+Transition diagnostics include the minimum permanent-bond length and its atom
+IDs, using the existing permanent-bond topology. No automatic minimum-bond
+threshold is introduced.
+
+**Future E2 chemistry note:**
+
+> Active associative bonds may extend beyond the current chemical candidate
+> cutoff r_assoc ≈ 1.12. In E2, verify that break eligibility for already-active
+> bonds is not lost when bond length exceeds the formation-search cutoff.
+> Formation and break neighbor criteria may need to be separated.
 
 ## 3. E2 — chemical and topological equilibration
 

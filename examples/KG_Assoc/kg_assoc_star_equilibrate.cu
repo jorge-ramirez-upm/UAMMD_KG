@@ -50,7 +50,7 @@ struct Parameters {
   int stage2Steps = 50000;
   int stage3Loops = 10;
   int stage3Steps = 100;
-  int stage3bSteps = 5000;
+  int stage3bSteps = 20000;
   int stage3bDiagnosticEvery = 500;
   int stage4Steps = 1000000;
   int promotionSteps = 1000;
@@ -99,7 +99,10 @@ struct PairDistanceInfo {
 struct TransitionDiagnostics {
   double temperature = 0.0;
   double maxSpeed = 0.0;
+  double minPermanentBond = std::numeric_limits<double>::infinity();
   double maxPermanentBond = 0.0;
+  int minBondFirst = -1;
+  int minBondSecond = -1;
   int maxBondFirst = -1;
   int maxBondSecond = -1;
   PairDistanceInfo closestPair;
@@ -339,6 +342,11 @@ TransitionDiagnostics analyzeTransition(
          positions[ordered.second].y - positions[ordered.first].y,
          positions[ordered.second].z - positions[ordered.first].z}, lengths);
     const double distance = std::sqrt(norm2(displacement));
+    if (distance < diagnostics.minPermanentBond) {
+      diagnostics.minPermanentBond = distance;
+      diagnostics.minBondFirst = ordered.first;
+      diagnostics.minBondSecond = ordered.second;
+    }
     if (distance > diagnostics.maxPermanentBond) {
       diagnostics.maxPermanentBond = distance;
       diagnostics.maxBondFirst = ordered.first;
@@ -459,6 +467,7 @@ std::string formatTransitionDiagnostics(const std::string& label,
          << " dpd_amplitude=" << dpdAmplitude
          << " temperature=" << diagnostics.temperature
          << " max_speed=" << diagnostics.maxSpeed
+         << " min_permanent_bond=" << diagnostics.minPermanentBond
          << " max_permanent_bond=" << diagnostics.maxPermanentBond;
   if (stage3bLocalStep >= 0) {
     output << " stage3b_local_step=" << stage3bLocalStep;
@@ -466,6 +475,10 @@ std::string formatTransitionDiagnostics(const std::string& label,
   if (diagnostics.maxBondFirst >= 0) {
     output << " max_permanent_bond_ids=" << diagnostics.maxBondFirst + 1 << ','
            << diagnostics.maxBondSecond + 1;
+  }
+  if (diagnostics.minBondFirst >= 0) {
+    output << " min_permanent_bond_ids=" << diagnostics.minBondFirst + 1 << ','
+           << diagnostics.minBondSecond + 1;
   }
   appendPairDescription(output, "closest_pair", diagnostics.closestPair, data);
   appendPairDescription(output, "closest_nonbonded_pair",
@@ -1146,7 +1159,8 @@ void runSelfTest() {
   if (transition.closestPair.first != 0 || transition.closestPair.second != 1 ||
       transition.closestNonBondedPair.first != 2 ||
       transition.closestNonBondedPair.second != 3 || transition.maxBondFirst != 0 ||
-      transition.maxBondSecond != 1 || transition.pairsBelow05 != 1 ||
+      transition.maxBondSecond != 1 || transition.minBondFirst != 0 ||
+      transition.minBondSecond != 1 || transition.pairsBelow05 != 1 ||
       transition.pairsBelow06 != 2 || transition.pairsBelow07 != 2 ||
       transition.pairsBelow08 != 2 || !transition.positionsFinite ||
       !transition.velocitiesFinite) {
@@ -1155,6 +1169,7 @@ void runSelfTest() {
   expectNear("transition closest pair", transition.closestPair.distance, 0.2);
   expectNear("transition closest nonbonded pair",
              transition.closestNonBondedPair.distance, 0.55);
+  expectNear("transition minimum permanent bond", transition.minPermanentBond, 0.2);
   expectNear("transition max speed", transition.maxSpeed, 5.0);
   expectNear("transition temperature", transition.temperature, 26.0 / 12.0);
   std::vector<Vec3> invalidPositions = transitionPositions;
@@ -1394,7 +1409,7 @@ int main(int argc, char** argv) {
         if (shouldSampleStage3b(local, parameters.stage3bSteps,
                                 parameters.stage3bDiagnosticEvery)) {
           CudaSafeCall(cudaDeviceSynchronize());
-          appendTransitionDiagnostics("during_stage3b", totalSteps,
+          appendTransitionDiagnostics("during_stage3b_relaxation_hold", totalSteps,
                                       parameters.stage3Loops, local, finalAmplitude,
                                       diagnostics, particles, data, bonds, lengths,
                                       parameters.feneR0);

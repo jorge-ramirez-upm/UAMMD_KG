@@ -284,7 +284,7 @@ P2 adds `kg_assoc_star_equilibrate`, an E1-only star conformational
 equilibrator. Before dynamics it runs the S0 permanent-topology audit using
 explicit `--arms` and `--narm`; it performs limited-displacement DPD +
 permanent FENE, uncapped DPD + permanent FENE, progressive DPD push-off, the
-P2.1c final-amplitude DPD hold/cooling stage, and WCA + permanent FENE Langevin
+P2.1c final-amplitude DPD relaxation/hold stage, and WCA + permanent FENE Langevin
 NVT.
 
 Dynamic sticker association, association kinetics, associative bonds, and
@@ -384,30 +384,50 @@ transient on switching from the final DPD state to WCA, rather than an
 unresolved severe overlap at the Stage-3 boundary. It is a diagnosis, not a
 fix. `dt=0.002` remains a possible temporary stabilization timestep only.
 
-### P2.1c: final DPD cooling and timestep-promotion diagnostics
+### P2.1c: final DPD relaxation/hold and timestep-promotion diagnostics
 
-P2.1c retains the P2.1a/P2.1b diagnostics and adds Stage 3b: an explicit DPD
-hold/cooling segment after the Stage-3 ramp and before WCA. It uses the same
+P2.1c retains the P2.1a/P2.1b diagnostics and adds Stage 3b: an explicit final
+DPD relaxation/hold segment after the Stage-3 ramp and before WCA. It uses the same
 DPD implementation, target temperature 1, gamma 4.5, permanent FENE topology,
 and final Stage-3 conservative amplitude (1000 for the default ten-loop ramp).
-The initial operational default is `--stage3b-steps 5000`, sampled every
+The operational default is `--stage3b-steps 20000`, sampled every
 `--stage3b-diagnostic-every 500`; neither number is yet a scientific
-equilibration criterion. There is no automatic temperature-based early stop.
+equilibration criterion. Stage 3b is a final DPD relaxation/hold, not a cooling
+stage: the measured temperature remains above 3 before WCA. There is no
+automatic temperature-based early stop or minimum-bond threshold.
 
 `--dt-dpd` controls Stages 1--3b and `--dt-wca` controls Stage 4. The legacy
 `--dt` option sets both to the supplied value, preserving prior behavior.
 `--stage4-promotion-test --promotion-steps N` runs short, fail-closed WCA
-segments sequentially at `dt=0.002`, `0.005`, and `0.01`, starting from the
-cooled E1 state. It reports transition and thermo/conformation diagnostics at
+segments sequentially at `dt=0.002`, `0.005`, and `0.01`, with 1,000 steps at
+each timestep, starting from the relaxed E1 state. It reports transition and
+thermo/conformation diagnostics at
 each segment boundary and checks every test step for CUDA errors, non-finite
 thermo/particle state, and a permanent bond at or above `R0`; it writes no E1
 configuration. This is a validation diagnostic, not a production trajectory.
 
-The desired E1 result remains robust Stage-4 behavior at `dt=0.005` and,
-preferably, `dt=0.01` across several independent seeds. P2.1c does not claim
-that this has been established or that C1--C6 are equilibrated. GPU validation
-of Stage-3b lengths 1000, 5000, and 10000 with seeds 12004 and 12001 remains
-pending a CUDA-capable host.
+For seed `12003`, `stage3b=1000` failed the promotion test, while `5000`,
+`10000`, and `20000` passed. The conservative selection is `stage3b=20000`:
+the local geometry is substantially safer at that length and the promotion
+sequence `0.002 -> 0.005 -> 0.010` passes cleanly. The interpretation is that
+Stage 3b primarily relaxes locally compressed configurations before WCA; it is
+not being used as a temperature-cooling criterion.
+
+The final robustness requirement is five independent CUDA runs, seeds
+`12001--12005`, with `stage3b=20000` and 1,000 promotion steps at each of the
+three timesteps. P2.1 is not declared closed until all five pass; this host has
+no available CUDA device, so that test remains pending.
+
+Transition diagnostics now also report `min_permanent_bond` and
+`min_permanent_bond_ids`, using the existing permanent-bond topology. No
+automatic threshold is applied to that value.
+
+**Future E2 chemistry note:**
+
+> Active associative bonds may extend beyond the current chemical candidate
+> cutoff r_assoc ≈ 1.12. In E2, verify that break eligibility for already-active
+> bonds is not lost when bond length exceeds the formation-search cutoff.
+> Formation and break neighbor criteria may need to be separated.
 
 ## Analytical/self-test
 
