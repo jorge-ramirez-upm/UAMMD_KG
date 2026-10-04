@@ -44,3 +44,23 @@ examples/build
 compile_commands.json
 !Doxyfile
 .vscode
+
+# Large files for production of Associating Stars
+examples/KG_Assoc/systems/generated/*.lammpsdat
+examples/KG_Assoc/systems/e1_equilibrated/*
+examples/KG_Assoc/systems/e2_equilibrated/*
+examples/KG_Assoc/systems/restarts/*
+examples/KG_Assoc/HISTORICAL_CODEX_RESULTS/*
+examples/KG_Assoc/k1/results/
+examples/KG_Assoc/k1/results_large/
+examples/KG_Assoc/s2/s2/
+examples/KG_Assoc/s2/s2_commands.txt
+.codex
+examples/KG/KremerGrest/
+examples/KG/Stars/
+examples/KG/StarsRAW/
+examples/KG/data/
+examples/KG_Assoc_OLD/
+
+AGENTS.md
+
