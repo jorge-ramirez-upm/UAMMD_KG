@@ -27,7 +27,8 @@ REQUIRED_COLUMNS = (
     "max_permanent_bond",
 )
 MIN_UNIFORM_SAMPLES = 32
-TIME_TOLERANCE = 1.0e-8
+STEP_TOLERANCE = 1.0e-6
+TIME_TOLERANCE = 1.0e-6
 
 
 def read_diagnostics(stream):
@@ -56,6 +57,12 @@ def read_diagnostics(stream):
             if not math.isfinite(value):
                 raise ValueError("non-finite value at line " + str(line_number))
             row[name] = value
+        if "step" in row:
+            step = row["step"]
+            rounded_step = round(step)
+            if abs(step - rounded_step) > STEP_TOLERANCE:
+                raise ValueError("non-integral step at line " + str(line_number))
+            row["step"] = int(rounded_step)
         rows.append(row)
     if header is None:
         raise ValueError("missing diagnostics header")
@@ -111,14 +118,13 @@ def select_uniform_stage4_suffix(rows, minimum_samples=MIN_UNIFORM_SAMPLES,
                                  tolerance=TIME_TOLERANCE):
     if len(rows) < minimum_samples:
         raise ValueError("no sufficiently long uniform Stage-4 suffix")
-    final_interval = rows[-1]["time"] - rows[-2]["time"]
-    if final_interval <= 0.0:
-        raise ValueError("final Stage-4 sampling interval is not positive")
+    final_stride = rows[-1]["step"] - rows[-2]["step"]
+    if final_stride <= 0:
+        raise ValueError("final Stage-4 step stride is not positive")
     start = len(rows) - 2
     while start > 0:
-        interval = rows[start]["time"] - rows[start - 1]["time"]
-        scale = max(abs(final_interval), abs(interval), 1.0)
-        if abs(interval - final_interval) > tolerance * scale:
+        stride = rows[start]["step"] - rows[start - 1]["step"]
+        if stride != final_stride:
             break
         start -= 1
     selected = rows[start:]
@@ -126,18 +132,30 @@ def select_uniform_stage4_suffix(rows, minimum_samples=MIN_UNIFORM_SAMPLES,
         raise ValueError("no sufficiently long uniform Stage-4 suffix")
     intervals = [later["time"] - earlier["time"]
                  for earlier, later in zip(selected, selected[1:])]
+    if any(interval <= 0.0 for interval in intervals):
+        raise ValueError("uniform Stage-4 suffix has non-positive time spacing")
+    physical_per_step = [interval / final_stride for interval in intervals]
+    reference = mean(physical_per_step)
+    if any(abs(value - reference) > tolerance * max(abs(reference), 1.0)
+           for value in physical_per_step):
+        raise ValueError("uniform Stage-4 suffix has inconsistent time spacing")
     sampling_interval = mean(intervals)
     return selected, sampling_interval
 
 
-def integrated_autocorrelation_time(times, values):
+def integrated_autocorrelation_time(times, values, sampling_interval=None):
     if len(values) < 32:
         return {"status": "insufficient samples", "tau": None, "effective": None}
-    intervals = [later - earlier for earlier, later in zip(times, times[1:])]
-    timestep = mean(intervals)
-    if timestep <= 0.0 or any(abs(interval - timestep) > 1.0e-6 * timestep
-                              for interval in intervals):
-        return {"status": "nonuniform sampling", "tau": None, "effective": None}
+    if sampling_interval is None:
+        intervals = [later - earlier for earlier, later in zip(times, times[1:])]
+        timestep = mean(intervals)
+        if timestep <= 0.0 or any(abs(interval - timestep) > TIME_TOLERANCE * timestep
+                                  for interval in intervals):
+            return {"status": "nonuniform sampling", "tau": None, "effective": None}
+    else:
+        timestep = sampling_interval
+        if timestep <= 0.0:
+            return {"status": "invalid sampling interval", "tau": None, "effective": None}
     center = mean(values)
     variance = sum((value - center) ** 2 for value in values) / len(values)
     if variance == 0.0:
@@ -188,7 +206,7 @@ def summarize(rows, block_count):
         result[name] = {"minimum": min(values), "maximum": max(values)}
     result["autocorrelation"] = {
         name: integrated_autocorrelation_time(
-            times, [row[name] for row in selected_rows])
+            times, [row[name] for row in selected_rows], sampling_interval)
         for name in ("mean_rg2", "mean_center_terminal_r2")
     }
     return result
@@ -243,6 +261,7 @@ def run_self_test():
     assert len(rows) == 40
     selected, interval = select_uniform_stage4_suffix(rows)
     assert len(selected) == 40 and interval == 0.5
+    assert all(isinstance(row["step"], int) for row in rows)
     first, second, relative = half_comparison([row["mean_rg2"] for row in rows])
     assert first < second and relative > 0.0
     assert linear_slope([0.0, 1.0, 2.0], [1.0, 3.0, 5.0]) == 2.0
@@ -262,6 +281,12 @@ def run_self_test():
         pass
     else:
         raise AssertionError("malformed input was accepted")
+    try:
+        read_diagnostics([header, "0.5 0 1 2 3 6 1 2 4 5 0.8 1.1"])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("non-integral step was accepted")
     transition_rows = []
     for index, time in enumerate((0.0, 0.1, 0.7, 1.4)):
         values = [
@@ -282,7 +307,7 @@ def run_self_test():
     for index in range(40):
         time = 10.0 + index * 0.5
         values = [
-            index + 4,
+            4000 + index * 1000,
             time,
             1.0,
             2.0,
@@ -303,6 +328,26 @@ def run_self_test():
     assert summary["stage4_last_time"] == 29.5
     assert summary["sampling_interval"] == 0.5
     assert summary["mean_rg2"]["first_mean"] == 4.0
+    long_rows = []
+    for index in range(120):
+        time = index * 10.0 + index * 1.0e-9
+        values = [
+            index * 1000,
+            time,
+            1.0,
+            2.0,
+            3.0,
+            6.0,
+            1.0,
+            2.0,
+            4.0,
+            5.0,
+            0.8,
+            1.1,
+        ]
+        long_rows.append(dict(zip(REQUIRED_COLUMNS, values)))
+    selected, interval = select_uniform_stage4_suffix(long_rows)
+    assert len(selected) == 120 and abs(interval - 10.0) < 1.0e-8
     try:
         select_uniform_stage4_suffix(rows[:10])
     except ValueError:
