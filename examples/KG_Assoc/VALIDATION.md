@@ -59,6 +59,56 @@ Files added: `kg_assoc_star_topology.cuh`, `kg_assoc_star_audit.cu`.
 Files changed: `Makefile`, this validation record. Final repository SHA:
 `4f9d04d292cbff92daa876fed5af4f06cc88e420`. **S0: PASS.**
 
+## S1: associating-star MD smoke integration
+
+Starting repository SHA: `02b3f6b34d01673406edfaf73faf421db43650e4`.
+
+S1 adds `kg_assoc_stars`, which imports the supplied equilibrated star file,
+runs the S0 topology audit before creating UAMMD state, extracts reactive
+particles exclusively from `type == 2`, and keeps permanent KG FENE bonds
+separate from transient associating FENE bonds. Event IDs are original 1-based
+LAMMPS atom IDs. Supplied `Velocities` were intended to be retained:
+`createParticleDataFromLammps` reads them and S1 sets
+`initVelocities = false`.
+
+The targets were rebuilt from scratch and focused non-GPU checks executed:
+
+```bash
+make -B -C examples/KG_Assoc kg_assoc_star_audit kg_assoc_stars
+./examples/KG_Assoc/kg_assoc_star_audit --self-test
+./examples/KG_Assoc/kg_assoc_stars --self-test
+./examples/KG_Assoc/kg_assoc_star_audit \
+  --input examples/KG/Stars/Stars_NA4N10C1000rho0.85rhopoly0.8.equilibrated.lammpsdat \
+  --arms 4 --narm 10
+```
+
+Both self-tests passed. The S1 self-test covers type-2 sticker extraction,
+sticker-subset candidate generation, intra/inter molecule classification,
+state-count invariants, rejection of non-sticker transient endpoints, and
+rejection of a transient/permanent bond conflict. The actual input audit
+passed with 43,563 total atoms, 41,000 polymer beads, 4,000 stickers, 2,563
+solvent beads, 1,000 stars, 40,000 permanent bonds, total density
+`0.849995628364`, and polymer density `0.799986703462`.
+
+The requested production-like S1 invocation was attempted:
+
+```bash
+./examples/KG_Assoc/kg_assoc_stars \
+  --input examples/KG/Stars/Stars_NA4N10C1000rho0.85rhopoly0.8.equilibrated.lammpsdat \
+  --arms 4 --narm 10 --steps 100000 --dt 0.01 --temperature 1 \
+  --Ea 4 --Ee 8 --nu0 20 --Nevery 100 --r-assoc 1.122462048309373 \
+  --damp 2 --seed 12345 --output /tmp/s1_smoke
+```
+
+It failed at UAMMD CUDA initialization before the first MD timestep with
+`no CUDA-capable device is detected` (CUDA error 100). The inspected state and
+event outputs both contained zero lines; therefore no chemistry events,
+runtime invariant observations, final intra/inter counts, or performance
+measurements are recorded. This host-side CUDA limitation prevents the S1
+canonical smoke validation. Final repository SHA:
+`02b3f6b34d01673406edfaf73faf421db43650e4`. **S1: FAIL (no CUDA-capable
+device on execution host).**
+
 ## Analytical/self-test
 
 ```bash
