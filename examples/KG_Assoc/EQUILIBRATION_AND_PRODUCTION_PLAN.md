@@ -96,6 +96,30 @@ threshold is introduced.
 > bonds is not lost when bond length exceeds the formation-search cutoff.
 > Formation and break neighbor criteria may need to be separated.
 
+### P2.1d — staged WCA-strength transition preparation
+
+Direct DPD-to-full-WCA activation remains non-robust even with
+`stage3b=20000`. In the five-seed check, seed `12005` entered Stage 4 with
+`closest_pair_distance=0.70715658846` for permanent-bond IDs `23782,23783`
+and failed after 17 steps at `dt=0.002` when that same permanent bond reached
+or exceeded FENE `R0`. Seed `12003` showed the same initially compressed-bond
+mechanism. The issue is the abrupt WCA-strength transition, not chemistry.
+
+P2.1d therefore adds the optional `--wca-ramp` numerical preparation protocol.
+It uses the existing WCA implementation at fixed `dt=0.002` with epsilon
+`0.01, 0.03, 0.10, 0.30, 1.00`, defaulting to 500 steps per epsilon via
+`--wca-ramp-steps 500`. It leaves sigma, FENE parameters, DPD parameters, and
+the target temperature unchanged. Each epsilon segment has before/after
+transition and thermo diagnostics and fails closed on CUDA errors, non-finite
+state/thermo, or permanent-bond length at or above `R0`.
+
+After the ramp completes its 500 steps at full epsilon and `dt=0.002`, the
+promotion test runs 1,000 steps at `dt=0.005` and 1,000 at `dt=0.010`; there
+is no second 1,000-step `dt=0.002` block in ramp mode. This is a numerical
+transition-preparation protocol, not scientific equilibration. First validate
+only seeds `12003` and `12005`; if both pass, broader five-seed validation is
+the next manual step. Ramp tuning is not automated.
+
 ## 3. E2 — chemical and topological equilibration
 
 E2 starts from E1 output and activates the validated reversible-association

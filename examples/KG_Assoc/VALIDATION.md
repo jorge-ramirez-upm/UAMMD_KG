@@ -429,6 +429,40 @@ automatic threshold is applied to that value.
 > bonds is not lost when bond length exceeds the formation-search cutoff.
 > Formation and break neighbor criteria may need to be separated.
 
+### P2.1d: staged WCA-strength ramp
+
+Direct DPD-to-full-WCA activation remains non-robust even with the conservative
+`stage3b=20000`. In the five-seed check, seed `12005` reached Stage-4 entry
+with `closest_pair_distance=0.70715658846` for permanent-bond IDs
+`23782,23783`, then failed after 17 steps at `dt=0.002` when that same bond
+reached or exceeded FENE `R0`. Seed `12003` showed the same mechanism with an
+initially highly compressed permanent bond. These are occasional compressed
+permanent-bond configurations, not a change to chemistry or a scientific
+equilibration criterion.
+
+P2.1d adds an optional numerical preparation protocol, enabled by
+`--wca-ramp`, after the final DPD relaxation/hold. At fixed `dt=0.002`, it
+applies the existing WCA implementation through the fixed epsilon schedule
+`0.01, 0.03, 0.10, 0.30, 1.00`, with the default `--wca-ramp-steps 500` at
+each level. Each level reports transition and thermo diagnostics before and
+after the segment; every step fails closed on CUDA errors, non-finite particle
+state or thermo, or any permanent bond at or above `R0`. Diagnostics include
+epsilon, temperature, speed, minimum and maximum permanent-bond lengths and
+IDs, closest nonbonded pair, bonded/nonbonded/total energy, and finite-state
+flags.
+
+After the ramp's 500-step `epsilon=1.00`, `dt=0.002` segment, promotion mode
+runs exactly 1,000 steps at `dt=0.005` and then 1,000 steps at `dt=0.010`.
+There is no additional 1,000-step `dt=0.002` promotion block in ramp mode;
+the ramp itself contributes 500 `dt=0.002` steps at each of the five epsilon
+levels. The ramp is a numerical transition-preparation protocol, not
+scientific equilibration.
+
+The first validation targets are seeds `12003` and `12005`, with
+`stage3b=20000`, 500 steps per epsilon, and the schedule above. If both pass,
+the broader five-seed validation is the next manual step; no automatic ramp
+tuning is performed.
+
 ## Analytical/self-test
 
 ```bash
