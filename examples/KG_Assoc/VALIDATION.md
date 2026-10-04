@@ -356,6 +356,33 @@ The P2.1a rebuild and deterministic E1 self-test passed; the independent S0
 audit rebuild and self-test also passed. No real transition diagnostic was run
 because this Codex host has no CUDA-capable device.
 
+### P2.1b: isolate the first Stage-4 failure
+
+The current C1 reproducer is seed `12004` at `dt=0.002`; seed `12001` is the
+passing control. For seed 12004, Stage-3 exit geometry was normal: temperature
+`3.52666156484`, maximum speed `8.85591526699`, maximum permanent bond
+`1.32768594207`, closest-pair distance `0.701904204381`, closest nonbonded-pair
+distance `0.756670554632`, no pairs below `0.7`, 243 pairs below `0.8`, and
+finite positions and velocities. Thus the available Stage-3 geometry does not
+distinguish the later failure.
+
+P2.1b adds separate CUDA synchronize/error checkpoints after WCA construction,
+permanent-FENE construction, NVT construction, both interactor attachments,
+each initial/post-step thermo reduction, conformation readback, and the first
+NVT step. It reports every Stage-4 diagnostic field and its finite flag before
+field validation, and adds a CPU, minimum-image, no-double-counting WCA energy
+reference at Stage-4 entry. `--stage4-entry-diagnostic-only` runs E1 through
+Stage 3, performs Stage-4 entry diagnostics and exactly one NVT step, then
+exits without writing an E1 configuration.
+
+The P2.1b CPU build/self-test and independent S0 audit build/self-test passed.
+The 12004/12001 GPU reproducer/control pair remains to be executed on a
+CUDA-capable host; P2.1b does not claim the failure is solved. `dt=0.002` is a
+possible temporary stabilization timestep only. Final E1 acceptance must later
+show robust promotion to `dt=0.005` and preferably `dt=0.01` from fully relaxed
+configurations across several independent seeds; no promotion is implemented
+here.
+
 ## Analytical/self-test
 
 ```bash

@@ -63,6 +63,15 @@ loop and immediately before Stage 4 to identify the state presented to WCA.
 It does not change the equilibration protocol or claim that the failure is
 solved.
 
+P2.1b isolates Stage-4 construction, attachment, first thermo/conformation
+evaluation, and first NVT step with explicit CUDA checkpoints. The reproducible
+C1 seed `12004` failure and passing control seed `12001` are diagnostic cases,
+not a protocol change. `dt=0.002` is only a possible temporary stabilization
+timestep and is not an acceptable final E1 target by itself. Final E1
+acceptance must later demonstrate robust promotion to `dt=0.005` and preferably
+`dt=0.01` from fully relaxed E1 configurations across several independent seeds.
+P2.1b does not implement that promotion.
+
 ## 3. E2 — chemical and topological equilibration
 
 E2 starts from E1 output and activates the validated reversible-association

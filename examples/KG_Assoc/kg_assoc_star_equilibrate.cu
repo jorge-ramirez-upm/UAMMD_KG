@@ -54,6 +54,7 @@ struct Parameters {
   int conformationEvery = 10000;
   std::uint64_t seed = 0;
   bool hasSeed = false;
+  bool stage4EntryDiagnosticOnly = false;
   bool initializeVelocities = false;
   bool selfTest = false;
 };
@@ -119,7 +120,8 @@ void printHelp() {
       << "  --friction XI --sigma S --epsilon E --fene-k K --fene-r0 R0 --skin S\n"
       << "  --stage1-loops N --stage1-steps N --stage2-steps N\n"
       << "  --stage3-loops N --stage3-steps N --stage4-steps N\n"
-      << "  --conformation-every N --seed INTEGER --init-velocities --self-test\n";
+      << "  --conformation-every N --seed INTEGER --stage4-entry-diagnostic-only\n"
+      << "  --init-velocities --self-test\n";
 }
 
 Parameters parseArguments(int argc, char** argv) {
@@ -169,6 +171,8 @@ Parameters parseArguments(int argc, char** argv) {
     } else if (option == "--seed") {
       parameters.seed = std::stoull(nextArgument(index, argc, argv));
       parameters.hasSeed = true;
+    } else if (option == "--stage4-entry-diagnostic-only") {
+      parameters.stage4EntryDiagnosticOnly = true;
     } else if (option == "--init-velocities") {
       parameters.initializeVelocities = true;
     } else if (option == "--self-test") {
@@ -618,25 +622,133 @@ DpdBundle makeDpdSegment(std::shared_ptr<uammd::ParticleData> particles,
   return {integrator, dpd, fene};
 }
 
-DpdBundle makeWcaSegment(std::shared_ptr<uammd::ParticleData> particles,
-                         const kg::SimulationBox& box,
-                         const kg::LammpsData& data,
-                         const Parameters& parameters,
-                         const std::string& bondData) {
-  auto wca = kg::createWCAInteractor_CellList(
-      particles, box.box, data.atomTypes, parameters.epsilon, parameters.sigma,
-      parameters.skin);
-  auto fene = kg::createFENEInteractor(particles, box.box, bondData);
-  using NVT = uammd::VerletNVT::GronbechJensen;
-  NVT::Parameters integratorParameters;
-  integratorParameters.temperature = static_cast<uammd::real>(parameters.temperature);
-  integratorParameters.friction = static_cast<uammd::real>(parameters.friction);
-  integratorParameters.dt = static_cast<uammd::real>(parameters.dt);
-  integratorParameters.initVelocities = false;
-  auto integrator = std::make_shared<NVT>(particles, integratorParameters);
-  integrator->addInteractor(wca);
-  integrator->addInteractor(fene);
-  return {integrator, wca, fene};
+void checkStage4Cuda(const std::string& operation) {
+  const cudaError_t synchronizeError = cudaDeviceSynchronize();
+  if (synchronizeError != cudaSuccess) {
+    throw std::runtime_error("E1_STAGE4_DIAG FAIL after " + operation +
+                             ": cudaDeviceSynchronize: " +
+                             cudaGetErrorString(synchronizeError));
+  }
+  const cudaError_t lastError = cudaGetLastError();
+  if (lastError != cudaSuccess) {
+    throw std::runtime_error("E1_STAGE4_DIAG FAIL after " + operation +
+                             ": cudaGetLastError: " + cudaGetErrorString(lastError));
+  }
+}
+
+template <class Function>
+auto stage4Value(const std::string& operation, const Function& function)
+    -> decltype(function()) {
+  try {
+    auto value = function();
+    checkStage4Cuda(operation);
+    return value;
+  } catch (const std::exception& error) {
+    const std::string prefix = "E1_STAGE4_DIAG FAIL after " + operation + ": ";
+    if (std::string(error.what()).find(prefix) == 0) {
+      throw;
+    }
+    throw std::runtime_error(prefix + error.what());
+  }
+}
+
+template <class Function>
+void stage4Void(const std::string& operation, const Function& function) {
+  try {
+    function();
+    checkStage4Cuda(operation);
+  } catch (const std::exception& error) {
+    const std::string prefix = "E1_STAGE4_DIAG FAIL after " + operation + ": ";
+    if (std::string(error.what()).find(prefix) == 0) {
+      throw;
+    }
+    throw std::runtime_error(prefix + error.what());
+  }
+}
+
+struct CpuWcaReference {
+  double energy = 0.0;
+  long long pairsInsideCutoff = 0;
+  bool energyFinite = true;
+};
+
+CpuWcaReference computeCpuWcaReference(const std::vector<Vec3>& positions,
+                                       const Vec3& lengths,
+                                       double epsilon,
+                                       double sigma) {
+  const double cutoff = std::pow(2.0, 1.0 / 6.0) * sigma;
+  const double cutoff2 = cutoff * cutoff;
+  const int cellsX = std::max(1, static_cast<int>(lengths.x / cutoff));
+  const int cellsY = std::max(1, static_cast<int>(lengths.y / cutoff));
+  const int cellsZ = std::max(1, static_cast<int>(lengths.z / cutoff));
+  const auto coordinateToCell = [](double coordinate, double length, int cells) {
+    const int cell = static_cast<int>(std::floor(
+        (coordinate + 0.5 * length) / (length / static_cast<double>(cells))));
+    return std::max(0, std::min(cells - 1, cell));
+  };
+  const auto cellKey = [cellsX, cellsY](int x, int y, int z) {
+    return x + cellsX * (y + cellsY * z);
+  };
+  std::vector<std::vector<int>> cells(cellsX * cellsY * cellsZ);
+  std::vector<int> cellX(positions.size());
+  std::vector<int> cellY(positions.size());
+  std::vector<int> cellZ(positions.size());
+  for (size_t atom = 0; atom < positions.size(); ++atom) {
+    cellX[atom] = coordinateToCell(positions[atom].x, lengths.x, cellsX);
+    cellY[atom] = coordinateToCell(positions[atom].y, lengths.y, cellsY);
+    cellZ[atom] = coordinateToCell(positions[atom].z, lengths.z, cellsZ);
+    cells[cellKey(cellX[atom], cellY[atom], cellZ[atom])].push_back(atom);
+  }
+
+  CpuWcaReference reference;
+  std::set<std::pair<int, int>> visitedPairs;
+  for (int first = 0; first < static_cast<int>(positions.size()); ++first) {
+    for (int dx = -1; dx <= 1; ++dx) {
+      for (int dy = -1; dy <= 1; ++dy) {
+        for (int dz = -1; dz <= 1; ++dz) {
+          const int x = (cellX[first] + dx + cellsX) % cellsX;
+          const int y = (cellY[first] + dy + cellsY) % cellsY;
+          const int z = (cellZ[first] + dz + cellsZ) % cellsZ;
+          for (const int second : cells[cellKey(x, y, z)]) {
+            if (first == second) {
+              continue;
+            }
+            const std::pair<int, int> pair = std::minmax(first, second);
+            if (!visitedPairs.insert(pair).second) {
+              continue;
+            }
+            const Vec3 displacement = minimumImage(
+                {positions[pair.second].x - positions[pair.first].x,
+                 positions[pair.second].y - positions[pair.first].y,
+                 positions[pair.second].z - positions[pair.first].z}, lengths);
+            const double r2 = norm2(displacement);
+            if (r2 <= 0.0 || r2 >= cutoff2) {
+              continue;
+            }
+            const double inverseR2 = sigma * sigma / r2;
+            const double inverseR6 = inverseR2 * inverseR2 * inverseR2;
+            reference.energy += 4.0 * epsilon * inverseR6 * (inverseR6 - 1.0) +
+                                epsilon;
+            ++reference.pairsInsideCutoff;
+          }
+        }
+      }
+    }
+  }
+  reference.energyFinite = std::isfinite(reference.energy);
+  return reference;
+}
+
+void appendCpuWcaReference(std::ofstream& output,
+                           const CpuWcaReference& reference) {
+  std::ostringstream message;
+  message << std::setprecision(12) << "E1_STAGE4_DIAG cpu_wca_energy="
+          << reference.energy << " cpu_wca_pairs_inside_cutoff="
+          << reference.pairsInsideCutoff << " cpu_wca_energy_finite="
+          << (reference.energyFinite ? "true" : "false");
+  uammd::System::log<uammd::System::MESSAGE>("%s", message.str().c_str());
+  output << "# " << message.str() << '\n';
+  output.flush();
 }
 
 void limitDisplacements(std::shared_ptr<uammd::ParticleData> particles,
@@ -672,6 +784,165 @@ std::vector<uammd::real4> copyPositions(std::shared_ptr<uammd::ParticleData> par
     positions[index] = source[index];
   }
   return positions;
+}
+
+struct ParticleStateSnapshot {
+  std::vector<Vec3> positions;
+  std::vector<Vec3> velocities;
+};
+
+ParticleStateSnapshot copyParticleState(
+    std::shared_ptr<uammd::ParticleData> particles,
+    int numberParticles) {
+  auto positionsByStorage = particles->getPos(uammd::access::cpu, uammd::access::read);
+  auto velocitiesByStorage = particles->getVel(uammd::access::cpu, uammd::access::read);
+  auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
+  ParticleStateSnapshot snapshot;
+  snapshot.positions.resize(numberParticles);
+  snapshot.velocities.resize(numberParticles);
+  for (int id = 0; id < numberParticles; ++id) {
+    const int storage = idToIndex[id];
+    const uammd::real3 position = uammd::make_real3(positionsByStorage[storage]);
+    snapshot.positions[id] = {position.x, position.y, position.z};
+    const uammd::real3 velocity = velocitiesByStorage[storage];
+    snapshot.velocities[id] = {velocity.x, velocity.y, velocity.z};
+  }
+  return snapshot;
+}
+
+kg::ThermoSnapshot computeStage4Thermo(
+    const std::string& label,
+    std::shared_ptr<uammd::Integrator> integrator,
+    std::shared_ptr<uammd::ParticleData> particles,
+    std::shared_ptr<uammd::Interactor> wca,
+    std::shared_ptr<uammd::Interactor> fene,
+    const kg::LammpsData& data,
+    const kg::SimulationBox& box,
+    const Parameters& parameters) {
+  kg::ThermoSnapshot thermo;
+  thermo.kineticEnergy = stage4Value(label + " kinetic energy", [&]() {
+    return kg::detail::sumKineticEnergy(integrator, particles);
+  });
+  thermo.nonBondedEnergy = stage4Value(label + " WCA energy", [&]() {
+    return kg::detail::sumInteractorEnergy(wca, particles);
+  });
+  thermo.bondedEnergy = stage4Value(label + " permanent FENE energy", [&]() {
+    return kg::detail::sumInteractorEnergy(fene, particles);
+  });
+  const kg::BondedWCACorrection correction = stage4Value(
+      label + " bonded WCA correction", [&]() {
+        return kg::computeBondedWCACorrection(data, particles, box,
+                                              parameters.epsilon, parameters.sigma);
+      });
+  thermo.bondedEnergy += correction.energy;
+  thermo.nonBondedEnergy -= correction.energy;
+  thermo.totalEnergy = thermo.kineticEnergy + thermo.nonBondedEnergy +
+                       thermo.bondedEnergy;
+  if (data.natoms > 0) {
+    thermo.temperature = 2.0 * thermo.kineticEnergy / (3.0 * data.natoms);
+  }
+  const double volume = box.box.getVolume();
+  if (volume > 0.0) {
+    const double nonBondedVirial = stage4Value(label + " WCA virial", [&]() {
+      return kg::detail::sumInteractorVirial(wca, particles);
+    });
+    const double bondedVirial = stage4Value(label + " permanent FENE virial", [&]() {
+      return kg::detail::sumInteractorVirial(fene, particles);
+    });
+    thermo.pressure = 2.0 * thermo.kineticEnergy / (3.0 * volume) -
+                      nonBondedVirial / (6.0 * volume) +
+                      bondedVirial / (6.0 * volume);
+  }
+  return thermo;
+}
+
+std::string formatStage4Field(const std::string& label,
+                              const std::string& name,
+                              double value) {
+  std::ostringstream message;
+  message << std::setprecision(12) << "E1_STAGE4_DIAG label=" << label << ' '
+          << name << '=' << value << " isfinite=" << (std::isfinite(value) ? "true" : "false");
+  return message.str();
+}
+
+void appendStage4Field(std::ofstream& output,
+                       const std::string& label,
+                       const std::string& name,
+                       double value) {
+  const std::string message = formatStage4Field(label, name, value);
+  uammd::System::log<uammd::System::MESSAGE>("%s", message.c_str());
+  output << "# " << message << '\n';
+}
+
+std::string firstNonFiniteStage4Field(const kg::ThermoSnapshot& thermo,
+                                      const ConformationSample& conformation) {
+  if (!std::isfinite(thermo.bondedEnergy)) {
+    return "bondedEnergy";
+  }
+  if (!std::isfinite(thermo.nonBondedEnergy)) {
+    return "nonBondedEnergy";
+  }
+  if (!std::isfinite(thermo.kineticEnergy)) {
+    return "kineticEnergy";
+  }
+  if (!std::isfinite(thermo.totalEnergy)) {
+    return "totalEnergy";
+  }
+  if (!std::isfinite(thermo.temperature)) {
+    return "temperature";
+  }
+  if (!std::isfinite(thermo.pressure)) {
+    return "pressure";
+  }
+  if (!std::isfinite(conformation.meanRg2)) {
+    return "meanRg2";
+  }
+  if (!std::isfinite(conformation.meanCenterTerminalR2)) {
+    return "meanCenterTerminalR2";
+  }
+  if (!std::isfinite(conformation.maxPermanentBond)) {
+    return "maxPermanentBond";
+  }
+  return "";
+}
+
+void appendStage4Sample(
+    const std::string& label,
+    long long step,
+    std::ofstream& output,
+    std::shared_ptr<uammd::Integrator> integrator,
+    std::shared_ptr<uammd::ParticleData> particles,
+    std::shared_ptr<uammd::Interactor> wca,
+    std::shared_ptr<uammd::Interactor> fene,
+    const kg::LammpsData& data,
+    const kg::SimulationBox& box,
+    const Parameters& parameters,
+    const std::vector<StarDefinition>& stars,
+    const std::vector<std::vector<int>>& adjacency,
+    const std::vector<std::pair<int, int>>& bonds,
+    const Vec3& lengths) {
+  const kg::ThermoSnapshot thermo = computeStage4Thermo(
+      label, integrator, particles, wca, fene, data, box, parameters);
+  const ConformationSample conformation = stage4Value(label + " conformation sample", [&]() {
+    return sampleConformation(particles, stars, adjacency, bonds, lengths);
+  });
+  appendStage4Field(output, label, "bondedEnergy", thermo.bondedEnergy);
+  appendStage4Field(output, label, "nonBondedEnergy", thermo.nonBondedEnergy);
+  appendStage4Field(output, label, "kineticEnergy", thermo.kineticEnergy);
+  appendStage4Field(output, label, "totalEnergy", thermo.totalEnergy);
+  appendStage4Field(output, label, "temperature", thermo.temperature);
+  appendStage4Field(output, label, "pressure", thermo.pressure);
+  appendStage4Field(output, label, "meanRg2", conformation.meanRg2);
+  appendStage4Field(output, label, "meanCenterTerminalR2",
+                    conformation.meanCenterTerminalR2);
+  appendStage4Field(output, label, "maxPermanentBond", conformation.maxPermanentBond);
+  const std::string nonFiniteField = firstNonFiniteStage4Field(thermo, conformation);
+  if (!nonFiniteField.empty()) {
+    throw std::runtime_error("E1_STAGE4_DIAG FAIL after " + label +
+                             " fields: non-finite " + nonFiniteField);
+  }
+  output << formatDiagnosticsRow(step, step * parameters.dt, thermo, conformation) << '\n';
+  output.flush();
 }
 
 void logThermo(long long step,
@@ -711,33 +982,6 @@ void logThermo(long long step,
   }
   const std::string row = kg::formatThermoRow(static_cast<int>(step), thermo);
   uammd::System::log<uammd::System::MESSAGE>("[E1] %s", row.c_str());
-}
-
-void appendStage4Diagnostics(long long step,
-                             std::ofstream& output,
-                             std::shared_ptr<uammd::Integrator> integrator,
-                             std::shared_ptr<uammd::ParticleData> particles,
-                             std::shared_ptr<uammd::Interactor> wca,
-                             std::shared_ptr<uammd::Interactor> fene,
-                             const kg::LammpsData& data,
-                             const kg::SimulationBox& box,
-                             const Parameters& parameters,
-                             const std::vector<StarDefinition>& stars,
-                             const std::vector<std::vector<int>>& adjacency,
-                             const std::vector<std::pair<int, int>>& bonds,
-                             const Vec3& lengths) {
-  const kg::ThermoSnapshot thermo = kg::computeThermoSnapshot(
-      integrator, particles, wca, fene, data, box, parameters.epsilon,
-      parameters.sigma, box.box.getVolume(), data.natoms);
-  const ConformationSample conformation =
-      sampleConformation(particles, stars, adjacency, bonds, lengths);
-  if (!std::isfinite(thermo.totalEnergy) || !std::isfinite(conformation.meanRg2) ||
-      !std::isfinite(conformation.meanCenterTerminalR2) ||
-      !std::isfinite(conformation.maxPermanentBond)) {
-    throw std::runtime_error("non-finite Stage 4 diagnostic");
-  }
-  output << formatDiagnosticsRow(step, step * parameters.dt, thermo, conformation) << '\n';
-  output.flush();
 }
 
 void expectNear(const std::string& label, double observed, double expected) {
@@ -827,13 +1071,46 @@ void runSelfTest() {
     (void)analyzeTransition(transitionData, transitionBonds, transitionPositions,
                             invalidVelocities, lengths);
   });
+
+  const CpuWcaReference cpuWca = computeCpuWcaReference(
+      {{4.9, 0.0, 0.0}, {-4.1, 0.0, 0.0}, {0.0, 0.0, 0.0}}, lengths, 1.0, 1.0);
+  expectNear("CPU WCA energy", cpuWca.energy, 1.0);
+  if (cpuWca.pairsInsideCutoff != 1 || !cpuWca.energyFinite) {
+    throw std::runtime_error("CPU WCA pair-count self-test failed");
+  }
+
+  kg::ThermoSnapshot stage4Thermo;
+  ConformationSample stage4Conformation;
+  if (!firstNonFiniteStage4Field(stage4Thermo, stage4Conformation).empty()) {
+    throw std::runtime_error("finite Stage-4 field self-test failed");
+  }
+  stage4Thermo.bondedEnergy = std::numeric_limits<double>::quiet_NaN();
+  if (firstNonFiniteStage4Field(stage4Thermo, stage4Conformation) != "bondedEnergy" ||
+      formatStage4Field("self_test", "bondedEnergy", stage4Thermo.bondedEnergy)
+              .find("isfinite=false") == std::string::npos) {
+    throw std::runtime_error("non-finite Stage-4 field self-test failed");
+  }
+
+  std::vector<std::string> cliStorage = {
+      "kg_assoc_star_equilibrate", "-i", "input.lammpsdat", "-o", "output.lammpsdat",
+      "--arms", "2", "--narm", "1", "--seed", "17", "--stage4-entry-diagnostic-only"};
+  std::vector<char*> cliArguments;
+  cliArguments.reserve(cliStorage.size());
+  for (std::string& argument : cliStorage) {
+    cliArguments.push_back(&argument[0]);
+  }
+  const Parameters parsed = parseArguments(
+      static_cast<int>(cliArguments.size()), cliArguments.data());
+  if (!parsed.stage4EntryDiagnosticOnly || !parsed.hasSeed || parsed.seed != 17) {
+    throw std::runtime_error("Stage-4 entry diagnostic CLI self-test failed");
+  }
   kg::ThermoSnapshot thermo;
   const std::string row = formatDiagnosticsRow(10, 0.1, thermo, sample);
   if (diagnosticsHeader().find("mean_rg2") == std::string::npos ||
       row.find("10 0.1") != 0) {
     throw std::runtime_error("diagnostics formatting self-test failed");
   }
-  std::cout << "E1_SELF_TEST PASS topology, PBC conformation, transition diagnostics\n";
+  std::cout << "E1_SELF_TEST PASS topology, PBC conformation, transition and Stage-4 diagnostics\n";
 }
 
 }  // namespace
@@ -956,24 +1233,71 @@ int main(int argc, char** argv) {
                                 particles, data, bonds, lengths, parameters.feneR0);
 
     {
-      const DpdBundle bundle = makeWcaSegment(particles, box, data, parameters, bondData);
-      appendStage4Diagnostics(totalSteps, diagnostics, bundle.integrator, particles,
-                              bundle.nonBonded, bundle.bonded, data, box, parameters,
-                              stars, adjacency, bonds, lengths);
-      for (int local = 0; local < parameters.stage4Steps; ++local) {
-        bundle.integrator->forwardTime();
-        ++totalSteps;
-        if (totalSteps % 10000 == 0) {
-          logThermo(totalSteps, bundle.integrator, particles, bundle.nonBonded, bundle.bonded,
-                    data, box, parameters, true);
+      const auto wca = stage4Value("construct WCA interactor", [&]() {
+        return kg::createWCAInteractor_CellList(
+            particles, box.box, data.atomTypes, parameters.epsilon, parameters.sigma,
+            parameters.skin);
+      });
+      const auto fene = stage4Value("construct permanent FENE interactor", [&]() {
+        return kg::createFENEInteractor(particles, box.box, bondData);
+      });
+      using NVT = uammd::VerletNVT::GronbechJensen;
+      NVT::Parameters integratorParameters;
+      integratorParameters.temperature = static_cast<uammd::real>(parameters.temperature);
+      integratorParameters.friction = static_cast<uammd::real>(parameters.friction);
+      integratorParameters.dt = static_cast<uammd::real>(parameters.dt);
+      integratorParameters.initVelocities = false;
+      const auto integrator = stage4Value("construct NVT integrator", [&]() {
+        return std::make_shared<NVT>(particles, integratorParameters);
+      });
+      stage4Void("attach WCA interactor", [&]() {
+        integrator->addInteractor(wca);
+      });
+      stage4Void("attach permanent FENE interactor", [&]() {
+        integrator->addInteractor(fene);
+      });
+
+      const ParticleStateSnapshot entryState = stage4Value(
+          "copy Stage-4 entry particle state", [&]() {
+            return copyParticleState(particles, data.natoms);
+          });
+      appendCpuWcaReference(
+          diagnostics,
+          computeCpuWcaReference(entryState.positions, lengths, parameters.epsilon,
+                                 parameters.sigma));
+      appendStage4Sample("initial_stage4", totalSteps, diagnostics, integrator, particles,
+                         wca, fene, data, box, parameters, stars, adjacency, bonds, lengths);
+
+      stage4Void("first NVT forwardTime", [&]() {
+        integrator->forwardTime();
+      });
+      ++totalSteps;
+      appendStage4Sample("post_first_nvt_step", totalSteps, diagnostics, integrator,
+                         particles, wca, fene, data, box, parameters, stars, adjacency,
+                         bonds, lengths);
+
+      if (!parameters.stage4EntryDiagnosticOnly) {
+        for (int local = 1; local < parameters.stage4Steps; ++local) {
+          integrator->forwardTime();
+          ++totalSteps;
+          if (totalSteps % 10000 == 0) {
+            logThermo(totalSteps, integrator, particles, wca, fene, data, box,
+                      parameters, true);
+          }
+          if (totalSteps % parameters.conformationEvery == 0) {
+            appendStage4Sample("stage4_periodic", totalSteps, diagnostics, integrator,
+                               particles, wca, fene, data, box, parameters, stars,
+                               adjacency, bonds, lengths);
+          }
         }
-        if (totalSteps % parameters.conformationEvery == 0) {
-          appendStage4Diagnostics(totalSteps, diagnostics, bundle.integrator, particles,
-                                  bundle.nonBonded, bundle.bonded, data, box, parameters,
-                                  stars, adjacency, bonds, lengths);
-        }
+        checkStage4Cuda("complete Stage 4");
       }
-      CudaSafeCall(cudaDeviceSynchronize());
+    }
+
+    if (parameters.stage4EntryDiagnosticOnly) {
+      std::cout << "E1_STAGE4_DIAG entry-only complete after one NVT step; "
+                << "no E1 configuration written\n";
+      return 0;
     }
 
     const std::string producer = "kg_assoc_star_equilibrate E1 chemistry disabled seed=" +
