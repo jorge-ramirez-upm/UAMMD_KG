@@ -116,9 +116,44 @@ state/thermo, or permanent-bond length at or above `R0`.
 After the ramp completes its 500 steps at full epsilon and `dt=0.002`, the
 promotion test runs 1,000 steps at `dt=0.005` and 1,000 at `dt=0.010`; there
 is no second 1,000-step `dt=0.002` block in ramp mode. This is a numerical
-transition-preparation protocol, not scientific equilibration. First validate
-only seeds `12003` and `12005`; if both pass, broader five-seed validation is
-the next manual step. Ramp tuning is not automated.
+transition-preparation protocol, not scientific equilibration. Seeds `12003`
+and `12005` passed first, followed by the broader five-seed validation
+`12001--12005`; P2.1 is closed. Ramp tuning is not automated.
+
+### P2.2 — long C1 conformational equilibration and stationarity
+
+P2.1 is closed for the C1 transition protocol: the final DPD relaxation/hold
+uses 20,000 steps, the WCA epsilon ramp is
+`0.01, 0.03, 0.10, 0.30, 1.00` at `dt=0.002` with 500 steps per level, and
+the subsequent promotion is 1,000 steps at `dt=0.005` followed by 1,000 steps
+at `dt=0.010`; seeds `12001--12005` passed. P2.2 does not change that
+transition.
+
+P2.2 measures conformational equilibration with chemistry disabled. The normal
+long-run path performs that validated transition, writes an E1 configuration,
+and then continues at full WCA epsilon `1`, `dt=0.01`, target temperature `1`,
+for the requested Stage-4 duration. The first C1 run is seed `12001` from
+`Stars_NA4N10C1000rho0.85rhopoly0.8.lammpsdat`, with 1,000,000 Stage-4 steps
+(10,000 reduced time units). `--conformation-every` remains configurable and
+defaults to 1,000 steps, giving roughly 1,000 diagnostic samples for that
+trajectory. Promotion-test mode is not used because it intentionally writes no
+E1 configuration.
+
+The long-run diagnostics record step, time, bonded/nonbonded/kinetic/total
+energy, temperature, pressure, `mean_rg2`, `mean_center_terminal_r2`,
+`min_permanent_bond`, and `max_permanent_bond`.
+`analyze_e1_stationarity.py` reports first/second-half means and relative
+differences, second-half linear trends, equal contiguous block means, and
+trajectory-wide permanent-bond extrema. It estimates integrated
+autocorrelation times for the two conformational observables with an
+initial-positive-sequence autocorrelation sum and reports insufficient or
+nonuniform data explicitly. These are diagnostic metrics only; no automatic
+equilibrium stopping criterion is introduced.
+
+No long C1 trajectory or stationarity conclusion is claimed until the CUDA run
+is executed and inspected. Chemistry, restart support, topology analysis,
+percolation, rheology, MSD, production correlation, and finite-size scaling
+remain outside P2.2.
 
 ## 3. E2 — chemical and topological equilibration
 

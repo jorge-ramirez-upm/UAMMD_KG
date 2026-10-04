@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -55,7 +56,7 @@ struct Parameters {
   int stage4Steps = 1000000;
   int promotionSteps = 1000;
   int wcaRampSteps = 500;
-  int conformationEvery = 10000;
+  int conformationEvery = 1000;
   double dtDpd = 0.01;
   double dtWca = 0.01;
   std::uint64_t seed = 0;
@@ -77,6 +78,7 @@ struct StarDefinition {
 struct ConformationSample {
   double meanRg2 = 0.0;
   double meanCenterTerminalR2 = 0.0;
+  double minPermanentBond = std::numeric_limits<double>::infinity();
   double maxPermanentBond = 0.0;
 };
 
@@ -623,8 +625,9 @@ ConformationSample computeConformationSample(
         {positions[bond.second].x - positions[bond.first].x,
          positions[bond.second].y - positions[bond.first].y,
          positions[bond.second].z - positions[bond.first].z}, lengths);
-    sample.maxPermanentBond = std::max(sample.maxPermanentBond,
-                                       std::sqrt(norm2(displacement)));
+    const double distance = std::sqrt(norm2(displacement));
+    sample.minPermanentBond = std::min(sample.minPermanentBond, distance);
+    sample.maxPermanentBond = std::max(sample.maxPermanentBond, distance);
   }
   return sample;
 }
@@ -648,7 +651,7 @@ ConformationSample sampleConformation(
 
 std::string diagnosticsHeader() {
   return "# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure "
-         "mean_rg2 mean_center_terminal_r2 max_permanent_bond";
+         "mean_rg2 mean_center_terminal_r2 min_permanent_bond max_permanent_bond";
 }
 
 std::string formatDiagnosticsRow(long long step,
@@ -661,6 +664,7 @@ std::string formatDiagnosticsRow(long long step,
          << thermo.kineticEnergy << ' ' << thermo.totalEnergy << ' '
          << thermo.temperature << ' ' << thermo.pressure << ' '
          << conformation.meanRg2 << ' ' << conformation.meanCenterTerminalR2 << ' '
+         << conformation.minPermanentBond << ' '
          << conformation.maxPermanentBond;
   return output.str();
 }
@@ -960,6 +964,9 @@ std::string firstNonFiniteStage4Field(const kg::ThermoSnapshot& thermo,
   if (!std::isfinite(conformation.meanCenterTerminalR2)) {
     return "meanCenterTerminalR2";
   }
+  if (!std::isfinite(conformation.minPermanentBond)) {
+    return "minPermanentBond";
+  }
   if (!std::isfinite(conformation.maxPermanentBond)) {
     return "maxPermanentBond";
   }
@@ -1185,12 +1192,14 @@ void runSelfTest() {
       lengths);
   expectNear("Rg2", sample.meanRg2, 2.0 / 3.0);
   expectNear("center-terminal r2", sample.meanCenterTerminalR2, 1.0);
+  expectNear("minimum permanent bond", sample.minPermanentBond, 1.0);
   expectNear("maximum permanent bond", sample.maxPermanentBond, 1.0);
   sample = computeConformationSample(
       stars, adjacency, bonds, {{-4.2, 0.0, 0.0}, {4.8, 0.0, 0.0}, {3.8, 0.0, 0.0}},
       lengths);
   expectNear("PBC-safe Rg2", sample.meanRg2, 2.0 / 3.0);
   expectNear("PBC-safe center-terminal r2", sample.meanCenterTerminalR2, 1.0);
+  expectNear("PBC-safe minimum permanent bond", sample.minPermanentBond, 1.0);
 
   kg::LammpsData transitionData;
   transitionData.natoms = 4;
@@ -1241,6 +1250,7 @@ void runSelfTest() {
 
   kg::ThermoSnapshot stage4Thermo;
   ConformationSample stage4Conformation;
+  stage4Conformation.minPermanentBond = 1.0;
   if (!firstNonFiniteStage4Field(stage4Thermo, stage4Conformation).empty()) {
     throw std::runtime_error("finite Stage-4 field self-test failed");
   }
@@ -1525,7 +1535,8 @@ int main(int argc, char** argv) {
           computeCpuWcaReference(entryState.positions, lengths, parameters.epsilon,
                                  parameters.sigma));
 
-      if (parameters.stage4PromotionTest) {
+      std::function<void()> runWcaRamp;
+      {
         const auto runPromotionSegment = [&](double timestep,
                                              std::shared_ptr<uammd::Interactor> segmentWca,
                                              const Parameters& thermoParameters) {
@@ -1576,7 +1587,7 @@ int main(int argc, char** argv) {
                              lengths);
         };
 
-        if (parameters.wcaRamp) {
+        runWcaRamp = [&]() {
           for (const double rampEpsilon : wcaRampEpsilons()) {
             const auto rampWca = stage4Value(
                 "construct WCA ramp epsilon=" + std::to_string(rampEpsilon), [&]() {
@@ -1633,45 +1644,58 @@ int main(int argc, char** argv) {
                 particles, rampWca, fene, data, box, rampThermoParameters, stars, adjacency,
                 bonds, lengths);
           }
-          for (double timestep : promotionTimestepsAfterWcaRamp()) {
-            runPromotionSegment(timestep, wca, parameters);
-          }
-        } else {
-          for (double timestep : promotionTimesteps()) {
-            runPromotionSegment(timestep, wca, parameters);
+        };
+
+        if (parameters.stage4PromotionTest) {
+          if (parameters.wcaRamp) {
+            runWcaRamp();
+            for (double timestep : promotionTimestepsAfterWcaRamp()) {
+              runPromotionSegment(timestep, wca, parameters);
+            }
+          } else {
+            for (double timestep : promotionTimesteps()) {
+              runPromotionSegment(timestep, wca, parameters);
+            }
           }
         }
-      } else {
-        const auto integrator = makeNvtIntegrator(wca, parameters.dtWca, "normal Stage 4");
-        appendStage4Sample("initial_stage4", totalSteps, simulationTime, diagnostics,
-                           integrator, particles, wca, fene, data, box, parameters, stars,
-                           adjacency, bonds, lengths);
-
-        stage4Void("first NVT forwardTime", [&]() {
-          integrator->forwardTime();
-        });
-        ++totalSteps;
-        simulationTime += parameters.dtWca;
-        appendStage4Sample("post_first_nvt_step", totalSteps, simulationTime, diagnostics,
-                           integrator, particles, wca, fene, data, box, parameters, stars,
-                           adjacency, bonds, lengths);
-
-        if (!parameters.stage4EntryDiagnosticOnly) {
-          for (int local = 1; local < parameters.stage4Steps; ++local) {
-            integrator->forwardTime();
-            ++totalSteps;
-            simulationTime += parameters.dtWca;
-            if (totalSteps % 10000 == 0) {
-              logThermo(totalSteps, integrator, particles, wca, fene, data, box,
-                        parameters, true);
-            }
-            if (totalSteps % parameters.conformationEvery == 0) {
-              appendStage4Sample("stage4_periodic", totalSteps, simulationTime,
-                                 diagnostics, integrator, particles, wca, fene, data, box,
-                                 parameters, stars, adjacency, bonds, lengths);
+        if (!parameters.stage4PromotionTest) {
+          if (!parameters.stage4EntryDiagnosticOnly) {
+            runWcaRamp();
+            for (double timestep : promotionTimestepsAfterWcaRamp()) {
+              runPromotionSegment(timestep, wca, parameters);
             }
           }
-          checkStage4Cuda("complete Stage 4");
+          const auto integrator = makeNvtIntegrator(wca, parameters.dtWca, "normal Stage 4");
+          appendStage4Sample("initial_stage4", totalSteps, simulationTime, diagnostics,
+                             integrator, particles, wca, fene, data, box, parameters, stars,
+                             adjacency, bonds, lengths);
+
+          stage4Void("first NVT forwardTime", [&]() {
+            integrator->forwardTime();
+          });
+          ++totalSteps;
+          simulationTime += parameters.dtWca;
+          appendStage4Sample("post_first_nvt_step", totalSteps, simulationTime, diagnostics,
+                             integrator, particles, wca, fene, data, box, parameters, stars,
+                             adjacency, bonds, lengths);
+
+          if (!parameters.stage4EntryDiagnosticOnly) {
+            for (int local = 1; local < parameters.stage4Steps; ++local) {
+              integrator->forwardTime();
+              ++totalSteps;
+              simulationTime += parameters.dtWca;
+              if (totalSteps % 10000 == 0) {
+                logThermo(totalSteps, integrator, particles, wca, fene, data, box,
+                          parameters, true);
+              }
+              if (totalSteps % parameters.conformationEvery == 0) {
+                appendStage4Sample("stage4_periodic", totalSteps, simulationTime,
+                                   diagnostics, integrator, particles, wca, fene, data, box,
+                                   parameters, stars, adjacency, bonds, lengths);
+              }
+            }
+            checkStage4Cuda("complete Stage 4");
+          }
         }
       }
     }

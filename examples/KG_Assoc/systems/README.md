@@ -39,5 +39,5 @@ and `--conformation-every` to override the path and cadence. The file contains
 metadata comments followed by:
 
 ```text
-# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure mean_rg2 mean_center_terminal_r2 max_permanent_bond
+# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure mean_rg2 mean_center_terminal_r2 min_permanent_bond max_permanent_bond
 ```

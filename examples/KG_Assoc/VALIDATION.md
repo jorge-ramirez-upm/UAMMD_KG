@@ -293,14 +293,15 @@ in E1. The final output is a normal LAMMPS data file containing only the input
 permanent topology. Stage-4 diagnostics are machine-readable and contain:
 
 ```text
-# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure mean_rg2 mean_center_terminal_r2 max_permanent_bond
+# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure mean_rg2 mean_center_terminal_r2 min_permanent_bond max_permanent_bond
 ```
 
 The executable self-test covers S0 audit integration, center and terminal
 identification, synthetic-star `Rg^2`, a periodic-boundary-crossing star for
-PBC-safe `Rg^2` and center-terminal distance, permanent-bond maximum distance,
-and diagnostics formatting. E1 diagnostic calculations are CPU-side only at
-the configured Stage-4 cadence (default 10,000 steps), never every MD step.
+PBC-safe `Rg^2` and center-terminal distance, permanent-bond minimum and
+maximum distance, and diagnostics formatting. E1 diagnostic calculations are
+CPU-side only at the configured Stage-4 cadence (default 1,000 steps), never
+every MD step.
 
 This is implementation validation, not scientific equilibration validation.
 E1 infrastructure is implemented; E1 scientific equilibration lengths and the
@@ -413,10 +414,9 @@ sequence `0.002 -> 0.005 -> 0.010` passes cleanly. The interpretation is that
 Stage 3b primarily relaxes locally compressed configurations before WCA; it is
 not being used as a temperature-cooling criterion.
 
-The final robustness requirement is five independent CUDA runs, seeds
+The final robustness requirement was five independent CUDA runs, seeds
 `12001--12005`, with `stage3b=20000` and 1,000 promotion steps at each of the
-three timesteps. P2.1 is not declared closed until all five pass; this host has
-no available CUDA device, so that test remains pending.
+three timesteps. All five passed, so the C1 P2.1 transition protocol is closed.
 
 Transition diagnostics now also report `min_permanent_bond` and
 `min_permanent_bond_ids`, using the existing permanent-bond topology. No
@@ -458,10 +458,46 @@ the ramp itself contributes 500 `dt=0.002` steps at each of the five epsilon
 levels. The ramp is a numerical transition-preparation protocol, not
 scientific equilibration.
 
-The first validation targets are seeds `12003` and `12005`, with
-`stage3b=20000`, 500 steps per epsilon, and the schedule above. If both pass,
-the broader five-seed validation is the next manual step; no automatic ramp
+The first validation targets were seeds `12003` and `12005`, with
+`stage3b=20000`, 500 steps per epsilon, and the schedule above. Both passed;
+the broader five-seed validation passed as the P2.1 closure. No automatic ramp
 tuning is performed.
+
+### P2.2: long C1 conformational equilibration and stationarity
+
+P2.2 addresses conformational stationarity after the P2.1 transition, with
+chemistry disabled. The normal long-run path performs the validated Stage 3b
+relaxation/hold, WCA ramp, and 1,000-step promotions at `dt=0.005` and
+`dt=0.010`, then continues at full WCA epsilon `1`, `dt=0.01`, and target
+temperature `1` for the requested Stage-4 duration. Promotion-test mode is
+not used for this run because it writes no E1 configuration.
+
+The first C1 run is defined as seed `12001`, input
+`Stars_NA4N10C1000rho0.85rhopoly0.8.lammpsdat`, and 1,000,000 Stage-4 steps
+(10,000 reduced time units) at `dt=0.01`. The default `--conformation-every
+1000` gives approximately 1,000 samples for that duration; the cadence remains
+configurable and is not a universal scientific criterion.
+
+The time-series diagnostics columns are:
+
+```text
+# step time e_bonded e_nonbonded e_kinetic e_total temperature pressure mean_rg2 mean_center_terminal_r2 min_permanent_bond max_permanent_bond
+```
+
+`analyze_e1_stationarity.py` reports sample count, time range, first-half and
+second-half means, relative half-to-half differences, second-half linear
+trends, equal contiguous block means, and trajectory-wide minimum/maximum
+permanent-bond summaries for `mean_rg2`, `mean_center_terminal_r2`,
+`temperature`, and `pressure`. It also estimates integrated autocorrelation
+times for the two conformational observables using the initial-positive-
+sequence sum of the normalized autocorrelation function, and reports when the
+trajectory is too short or irregular for that estimate. The script is
+diagnostic only: there is no automatic equilibrium stopping rule and no hard
+E1 equilibrated PASS/FAIL criterion.
+
+The CUDA host must execute the first long run and inspect these metrics before
+selecting later C1--C6 equilibration lengths. This host has no usable CUDA
+device, so no long C1 trajectory or stationarity result is claimed here.
 
 ## Analytical/self-test
 
