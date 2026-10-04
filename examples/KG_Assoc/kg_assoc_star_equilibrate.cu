@@ -232,8 +232,7 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.stage4Steps < 1 || parameters.promotionSteps < 1 ||
       parameters.wcaRampSteps < 1 ||
       parameters.conformationEvery < 1 ||
-      (parameters.stage4EntryDiagnosticOnly && parameters.stage4PromotionTest) ||
-      (parameters.wcaRamp && !parameters.stage4PromotionTest)) {
+      (parameters.stage4EntryDiagnosticOnly && parameters.stage4PromotionTest)) {
     throw std::runtime_error("invalid E1 parameters");
   }
   return parameters;
@@ -1292,6 +1291,28 @@ void runSelfTest() {
   if (explicitTimesteps.stage4PromotionTest) {
     throw std::runtime_error("explicit DPD/WCA timestep CLI self-test failed");
   }
+  std::vector<std::string> normalCliStorage = {
+      "kg_assoc_star_equilibrate", "-i", "input.lammpsdat", "-o", "output.lammpsdat",
+      "--arms", "2", "--narm", "1"};
+  std::vector<char*> normalCliArguments;
+  for (std::string& argument : normalCliStorage) {
+    normalCliArguments.push_back(&argument[0]);
+  }
+  const Parameters normalParsed = parseArguments(
+      static_cast<int>(normalCliArguments.size()), normalCliArguments.data());
+  if (normalParsed.stage4PromotionTest || normalParsed.wcaRamp) {
+    throw std::runtime_error("normal-mode CLI self-test failed");
+  }
+  normalCliStorage.push_back("--wca-ramp");
+  normalCliArguments.clear();
+  for (std::string& argument : normalCliStorage) {
+    normalCliArguments.push_back(&argument[0]);
+  }
+  const Parameters normalRampParsed = parseArguments(
+      static_cast<int>(normalCliArguments.size()), normalCliArguments.data());
+  if (normalRampParsed.stage4PromotionTest || !normalRampParsed.wcaRamp) {
+    throw std::runtime_error("normal WCA-ramp CLI self-test failed");
+  }
   std::vector<std::string> promotionCliStorage = {
       "kg_assoc_star_equilibrate", "-i", "input.lammpsdat", "-o", "output.lammpsdat",
       "--arms", "2", "--narm", "1", "--stage4-promotion-test",
@@ -1659,7 +1680,7 @@ int main(int argc, char** argv) {
           }
         }
         if (!parameters.stage4PromotionTest) {
-          if (!parameters.stage4EntryDiagnosticOnly) {
+          if (parameters.wcaRamp && !parameters.stage4EntryDiagnosticOnly) {
             runWcaRamp();
             for (double timestep : promotionTimestepsAfterWcaRamp()) {
               runPromotionSegment(timestep, wca, parameters);
