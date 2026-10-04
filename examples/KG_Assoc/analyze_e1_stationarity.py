@@ -26,6 +26,8 @@ REQUIRED_COLUMNS = (
     "min_permanent_bond",
     "max_permanent_bond",
 )
+MIN_UNIFORM_SAMPLES = 32
+TIME_TOLERANCE = 1.0e-8
 
 
 def read_diagnostics(stream):
@@ -105,6 +107,29 @@ def block_means(values, block_count=5):
     ]
 
 
+def select_uniform_stage4_suffix(rows, minimum_samples=MIN_UNIFORM_SAMPLES,
+                                 tolerance=TIME_TOLERANCE):
+    if len(rows) < minimum_samples:
+        raise ValueError("no sufficiently long uniform Stage-4 suffix")
+    final_interval = rows[-1]["time"] - rows[-2]["time"]
+    if final_interval <= 0.0:
+        raise ValueError("final Stage-4 sampling interval is not positive")
+    start = len(rows) - 2
+    while start > 0:
+        interval = rows[start]["time"] - rows[start - 1]["time"]
+        scale = max(abs(final_interval), abs(interval), 1.0)
+        if abs(interval - final_interval) > tolerance * scale:
+            break
+        start -= 1
+    selected = rows[start:]
+    if len(selected) < minimum_samples:
+        raise ValueError("no sufficiently long uniform Stage-4 suffix")
+    intervals = [later["time"] - earlier["time"]
+                 for earlier, later in zip(selected, selected[1:])]
+    sampling_interval = mean(intervals)
+    return selected, sampling_interval
+
+
 def integrated_autocorrelation_time(times, values):
     if len(values) < 32:
         return {"status": "insufficient samples", "tau": None, "effective": None}
@@ -138,10 +163,17 @@ def integrated_autocorrelation_time(times, values):
 
 
 def summarize(rows, block_count):
-    times = [row["time"] for row in rows]
-    result = {"samples": len(rows), "first_time": times[0], "last_time": times[-1]}
+    selected_rows, sampling_interval = select_uniform_stage4_suffix(rows)
+    times = [row["time"] for row in selected_rows]
+    result = {
+        "total_rows_read": len(rows),
+        "stage4_uniform_samples": len(selected_rows),
+        "stage4_first_time": times[0],
+        "stage4_last_time": times[-1],
+        "sampling_interval": sampling_interval,
+    }
     for name in OBSERVABLES:
-        values = [row[name] for row in rows]
+        values = [row[name] for row in selected_rows]
         first, second, relative = half_comparison(values)
         second_start = len(values) // 2
         result[name] = {
@@ -152,18 +184,21 @@ def summarize(rows, block_count):
             "blocks": block_means(values, block_count),
         }
     for name in ("min_permanent_bond", "max_permanent_bond"):
-        values = [row[name] for row in rows]
+        values = [row[name] for row in selected_rows]
         result[name] = {"minimum": min(values), "maximum": max(values)}
     result["autocorrelation"] = {
-        name: integrated_autocorrelation_time(times, [row[name] for row in rows])
+        name: integrated_autocorrelation_time(
+            times, [row[name] for row in selected_rows])
         for name in ("mean_rg2", "mean_center_terminal_r2")
     }
     return result
 
 
 def print_summary(summary):
-    print("samples={samples} first_time={first_time:.12g} last_time={last_time:.12g}".format(
-        **summary))
+    print("total_rows_read={total_rows_read} stage4_uniform_samples="
+          "{stage4_uniform_samples} stage4_first_time={stage4_first_time:.12g} "
+          "stage4_last_time={stage4_last_time:.12g} "
+          "sampling_interval={sampling_interval:.12g}".format(**summary))
     for name in OBSERVABLES:
         values = summary[name]
         print("{} first_half_mean={:.12g} second_half_mean={:.12g} "
@@ -206,6 +241,8 @@ def run_self_test():
         lines.append(" ".join(str(value) for value in values))
     rows = read_diagnostics(lines)
     assert len(rows) == 40
+    selected, interval = select_uniform_stage4_suffix(rows)
+    assert len(selected) == 40 and interval == 0.5
     first, second, relative = half_comparison([row["mean_rg2"] for row in rows])
     assert first < second and relative > 0.0
     assert linear_slope([0.0, 1.0, 2.0], [1.0, 3.0, 5.0]) == 2.0
@@ -225,6 +262,53 @@ def run_self_test():
         pass
     else:
         raise AssertionError("malformed input was accepted")
+    transition_rows = []
+    for index, time in enumerate((0.0, 0.1, 0.7, 1.4)):
+        values = [
+            index,
+            time,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            -100.0,
+            -100.0,
+            0.1,
+            5.0,
+        ]
+        transition_rows.append(dict(zip(REQUIRED_COLUMNS, values)))
+    for index in range(40):
+        time = 10.0 + index * 0.5
+        values = [
+            index + 4,
+            time,
+            1.0,
+            2.0,
+            3.0,
+            6.0,
+            1.0,
+            2.0,
+            4.0,
+            5.0,
+            0.8,
+            1.1,
+        ]
+        transition_rows.append(dict(zip(REQUIRED_COLUMNS, values)))
+    summary = summarize(transition_rows, 5)
+    assert summary["total_rows_read"] == 44
+    assert summary["stage4_uniform_samples"] == 40
+    assert summary["stage4_first_time"] == 10.0
+    assert summary["stage4_last_time"] == 29.5
+    assert summary["sampling_interval"] == 0.5
+    assert summary["mean_rg2"]["first_mean"] == 4.0
+    try:
+        select_uniform_stage4_suffix(rows[:10])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("short uniform suffix was accepted")
     print("E1_STATIONARITY_SELF_TEST PASS parsing, blocks, halves, trend, autocorrelation")
 
 
