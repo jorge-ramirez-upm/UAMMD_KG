@@ -472,11 +472,14 @@ relaxation/hold, WCA ramp, and 1,000-step promotions at `dt=0.005` and
 temperature `1` for the requested Stage-4 duration. Promotion-test mode is
 not used for this run because it writes no E1 configuration.
 
-The first C1 run is defined as seed `12001`, input
-`Stars_NA4N10C1000rho0.85rhopoly0.8.lammpsdat`, and 1,000,000 Stage-4 steps
-(10,000 reduced time units) at `dt=0.01`. The default `--conformation-every
-1000` gives approximately 1,000 samples for that duration; the cadence remains
-configurable and is not a universal scientific criterion.
+The validated C1 condition is `A=4`, `Narm=10`, `Nstars=1000`,
+`rho_total=0.85`, `rho_poly=0.8`, with chemistry disabled. Its preparation is
+20,000 Stage-3b final DPD relaxation/hold steps, WCA epsilon
+`0.01, 0.03, 0.10, 0.30, 1.00` with 500 steps per level at `dt=0.002`, then
+1,000 steps at `dt=0.005` and 1,000 steps at `dt=0.010`, followed by full-WCA
+Stage 4 at `dt=0.01`. Two independent runs, seeds `12001` and `12002`, each
+used 2,000,000 Stage-4 steps. The default `--conformation-every 1000` gives
+approximately 2,000 long-run samples; the cadence remains configurable.
 
 The time-series diagnostics columns are:
 
@@ -495,9 +498,35 @@ trajectory is too short or irregular for that estimate. The script is
 diagnostic only: there is no automatic equilibrium stopping rule and no hard
 E1 equilibrated PASS/FAIL criterion.
 
-The CUDA host must execute the first long run and inspect these metrics before
-selecting later C1--C6 equilibration lengths. This host has no usable CUDA
-device, so no long C1 trajectory or stationarity result is claimed here.
+The latter portions of both replicas were conformationally stationary and
+agreed closely:
+
+| seed | second-half mean `Rg^2` | second-half mean center-terminal `r^2` | `tau_int(Rg^2)` | `tau_int(center-terminal r^2)` |
+|---:|---:|---:|---:|---:|
+| 12001 | 7.013572 | 15.587541 | 156.9 | 88.2 |
+| 12002 | 7.012661 | 15.597365 | 132.9 | 89.7 |
+
+Therefore C1 is conformationally stationary by the latter part of the runs,
+and 2,000,000 Stage-4 steps is adopted as a conservative validated E1
+duration for `Narm=10`. This is not claimed to be the minimum necessary
+duration.
+
+### P2.3: longer-arm E1 conformational equilibration plan
+
+The C1 duration is not assumed sufficient for longer arms. The first checks are:
+
+| case | input | condition |
+|---|---|---|
+| C5 | `systems/generated/Stars_NA4N20C1000rho0.85rhopoly0.8.lammpsdat` | `A=4`, `Narm=20`, `rho_poly=0.8`, `rho_total=0.85` |
+| C6 | `systems/generated/Stars_NA4N40C1000rho0.85rhopoly0.8.lammpsdat` | `A=4`, `Narm=40`, `rho_poly=0.8`, `rho_total=0.85` |
+
+For each chain length, use the validated C1 transition protocol, start with one
+seed, and run Stage 4 long enough to assess stationarity rather than stability
+alone. Use `analyze_e1_stationarity.py` to compare `mean_rg2`,
+`mean_center_terminal_r2`, half-window differences, second-half trends, block
+means, and autocorrelation times. Extend a run if those diagnostics do not
+support stationarity. Only after stationarity is established should a second
+seed be used for confirmation. No Stage-4 duration is frozen yet for C5 or C6.
 
 ## Analytical/self-test
 

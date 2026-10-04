@@ -129,15 +129,15 @@ the subsequent promotion is 1,000 steps at `dt=0.005` followed by 1,000 steps
 at `dt=0.010`; seeds `12001--12005` passed. P2.2 does not change that
 transition.
 
-P2.2 measures conformational equilibration with chemistry disabled. The normal
-long-run path performs that validated transition, writes an E1 configuration,
-and then continues at full WCA epsilon `1`, `dt=0.01`, target temperature `1`,
-for the requested Stage-4 duration. The first C1 run is seed `12001` from
-`Stars_NA4N10C1000rho0.85rhopoly0.8.lammpsdat`, with 1,000,000 Stage-4 steps
-(10,000 reduced time units). `--conformation-every` remains configurable and
-defaults to 1,000 steps, giving roughly 1,000 diagnostic samples for that
-trajectory. Promotion-test mode is not used because it intentionally writes no
-E1 configuration.
+P2.2 measures conformational equilibration with chemistry disabled. The
+validated C1 condition is `A=4`, `Narm=10`, `Nstars=1000`, `rho_total=0.85`,
+`rho_poly=0.8`. Its preparation is 20,000 Stage-3b final DPD relaxation/hold
+steps, WCA epsilon `0.01, 0.03, 0.10, 0.30, 1.00` with 500 steps per level at
+`dt=0.002`, then 1,000 steps at `dt=0.005` and 1,000 steps at `dt=0.010`,
+followed by full-WCA Stage 4 at `dt=0.01`. Two independent runs, seeds
+`12001` and `12002`, each used 2,000,000 Stage-4 steps. The normal long-run
+path writes an E1 configuration; promotion-test mode is not used because it
+intentionally writes no E1 configuration.
 
 The long-run diagnostics record step, time, bonded/nonbonded/kinetic/total
 energy, temperature, pressure, `mean_rg2`, `mean_center_terminal_r2`,
@@ -150,10 +150,36 @@ initial-positive-sequence autocorrelation sum and reports insufficient or
 nonuniform data explicitly. These are diagnostic metrics only; no automatic
 equilibrium stopping criterion is introduced.
 
-No long C1 trajectory or stationarity conclusion is claimed until the CUDA run
-is executed and inspected. Chemistry, restart support, topology analysis,
-percolation, rheology, MSD, production correlation, and finite-size scaling
-remain outside P2.2.
+The latter portions of both replicas were conformationally stationary and
+agreed closely:
+
+| seed | second-half mean `Rg^2` | second-half mean center-terminal `r^2` | `tau_int(Rg^2)` | `tau_int(center-terminal r^2)` |
+|---:|---:|---:|---:|---:|
+| 12001 | 7.013572 | 15.587541 | 156.9 | 88.2 |
+| 12002 | 7.012661 | 15.597365 | 132.9 | 89.7 |
+
+C1 is therefore conformationally stationary by the latter part of the runs.
+The conservative validated E1 duration for `Narm=10` is 2,000,000 Stage-4
+steps; this is not claimed to be the minimum necessary duration. Chemistry,
+restart support, topology analysis, percolation, rheology, MSD, production
+correlation, and finite-size scaling remain outside P2.2.
+
+### P2.3 — longer-arm E1 conformational equilibration
+
+The C1 duration is not assumed sufficient for longer arms. Validate:
+
+| case | generated input | condition |
+|---|---|---|
+| C5 | `systems/generated/Stars_NA4N20C1000rho0.85rhopoly0.8.lammpsdat` | `A=4`, `Narm=20`, `rho_poly=0.8`, `rho_total=0.85` |
+| C6 | `systems/generated/Stars_NA4N40C1000rho0.85rhopoly0.8.lammpsdat` | `A=4`, `Narm=40`, `rho_poly=0.8`, `rho_total=0.85` |
+
+Use the same validated transition protocol as C1. Start with one seed per chain
+length and run Stage 4 long enough to assess stationarity, not merely numerical
+stability. Use `analyze_e1_stationarity.py` to compare `mean_rg2`,
+`mean_center_terminal_r2`, trends, block means, and autocorrelation times;
+extend if needed. Only after stationarity is established should a second seed
+confirm each chain length. Do not freeze a Stage-4 duration for `Narm=20` or
+`Narm=40` yet.
 
 ## 3. E2 — chemical and topological equilibration
 
