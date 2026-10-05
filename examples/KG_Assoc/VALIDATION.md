@@ -99,12 +99,27 @@ bounded two-seed rheology pilot determines the required trajectory duration.
 
 `scripts/run_p42_rheology_pilot.sh` runs 1,000,000 steps per independent C1
 seed (12001 and 12002, both `t40000` bank states) with unchanged production
-defaults. `analysis/analyze_p42_rheology_pilot.py` writes each six-channel
-curve, their replica mean, and an explicit long-tail heuristic. A lag is
-resolved when its two-seed SEM is at most `max(0.25*|mean G|, 0.05*|mean G(0)|)`.
-The tail is called decayed only if at least three resolved bins in the latter
-half of the lag range have a mean within their RMS SEM of zero. These are pilot
-diagnostics, not fitted relaxation times or a final production prescription.
+defaults. The first analysis used a `0.05*G(0)` uncertainty floor and was
+rejected: a fast bonded-force modulus of order 66 cannot set the resolution
+scale for a physically meaningful slow signal of order `10^-2` or `10^-3`.
+
+`analysis/analyze_p42_rheology_pilot.py` now scans five-bin neighboring windows
+and uses local scatter, replica disagreement, sign agreement, and trend. It
+does not compare tail uncertainty with `G(0)`. A window is nonzero only when
+its local signal-to-noise is at least 2, its sign is sustained across at least
+80% of bins, and replica disagreement is no larger than twice local scatter.
+A zero-compatible window must satisfy the converse signal/noise condition,
+the same replica-consistency check, and a flat-trend condition. All other
+windows are `unresolved_tail`; isolated low-SEM bins cannot decide the result.
+
+The analyzer excludes the latest 25% of nominal lag as a conservative support
+proxy because Correlator6 does not currently export per-bin origin counts. It
+writes `rheology.windows.csv` for audit, retains all six channels, and labels
+the two-replica SEM as a rough pilot diagnostic rather than final significance.
+Reanalysis of the existing two-seed pilot gives
+`tail_classification=unresolved_tail`, `reliable_max_lag_time=6553.6`, and recommends both longer
+trajectory support and more independent replicas. No longer simulation should
+be launched until this classification is reviewed.
 
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 

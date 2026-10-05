@@ -30,8 +30,11 @@ P4.2 (rheology pilot pending):
 
 - The cache-reuse optimization passed dedicated-host validation and reduced
   controlled overhead to 28.7%; redundant interaction passes are removed.
-- Run the bounded independent-seed rheology pilot and inspect its six-channel
-  tail/noise diagnostics before selecting a production duration.
+- The bounded two-seed pilot has been run, but its first `G(0)`-scaled tail
+  criterion was rejected as physically inappropriate for weak slow modes.
+- Repair and inspect local-window tail classification before selecting a
+  production duration; the current pilot is unresolved and needs longer
+  support plus more independent replicas.
 
 P4.3:
 
