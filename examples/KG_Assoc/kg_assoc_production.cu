@@ -678,6 +678,7 @@ int main(int argc, char** argv) {
         stressReductionBlocks);
     std::vector<kg::detail::StressTensorSample> stressSamplesHost(stressBufferSize);
     int bufferedStressSamples = 0;
+    long long stressSamplesQueued = 0;
     const cudaStream_t samplingStream = integrator->getStream();
     auto flushStressSamples = [&]() {
       if (bufferedStressSamples == 0) {
@@ -714,6 +715,7 @@ int main(int argc, char** argv) {
           thrust::raw_pointer_cast(stressSamplesDevice.data()) + bufferedStressSamples,
           samplingStream);
       ++bufferedStressSamples;
+      ++stressSamplesQueued;
     };
 
     stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter bound_fraction connected_components largest_cluster_size largest_cluster_fraction mean_degree second_degree_moment L1 L2 active_bond_observations max_active_bond_distance fraction_active_gt_1p25 fraction_active_gt_1p30 fraction_active_gt_1p40\n";
@@ -808,6 +810,9 @@ int main(int argc, char** argv) {
     flushStressSamples();
     stressCorrelator.evaluate();
     const double volume = static_cast<double>(simulationBox.box.getVolume());
+    modulusFile << "# stress_samples=" << stressSamplesQueued
+                << " step0_sampled=no stress_interval_steps=1 dt="
+                << std::setprecision(17) << parameters.dt << '\n';
     modulusFile << "# time Gxy Gxz Gyz GNxy GNxz GNyz G\n";
     for (unsigned int index = 0; index < stressCorrelator.npcorr; ++index) {
       const double gxy = volume * stressCorrelator.getf(index, 0);

@@ -29,6 +29,16 @@ a non-executing P4.2 placeholder. These host checks, including real C1
 restart-continuation and cadence/output inspection, are required before P4.1
 can be closed. No long run was launched in-session.
 
+The P4.1 host scripts are fail-closed. `run_p41_validation.sh` requires a
+chemically valid `.restart.lammpsdat` plus `.assoc_restart`, uses validation-
+only 100-step COM/frame cadence, and checks the stress-sample provenance
+(`step0_sampled=no` and one sample per advanced step), six finite correlator
+channels, exact COM/frame cadence, parseable reciprocal topology frames, final
+topology agreement, deterministic PBC temporal-unwrapping arithmetic, and a
+short restart topology round trip. It ends with `P4.1_VALIDATION PASS` only
+after every assertion passes. `benchmark_p41_short.sh` runs both drivers from
+the same chemical restart and reports wall-time overhead and throughput loss.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record
