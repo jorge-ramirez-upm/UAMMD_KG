@@ -18,11 +18,11 @@ nsys=${NSYS:-nsys}
 make -B -C examples/KG_Assoc kg_assoc_stars kg_assoc_production
 
 # Same restart, steps, physics, and GPU. These are short captures only.
-"$nsys" profile --force-overwrite --trace=cuda,nvtx,osrt --stats=true \
+"$nsys" profile --force-overwrite=true --trace=cuda,nvtx,osrt --stats=true \
   -o "$workdir/baseline" -- \
   ./examples/KG_Assoc/kg_assoc_stars --restart-prefix "$restart_prefix" \
     --steps "$steps" --output "$workdir/baseline_output"
-"$nsys" profile --force-overwrite --trace=cuda,nvtx,osrt --stats=true \
+"$nsys" profile --force-overwrite=true --trace=cuda,nvtx,osrt --stats=true \
   -o "$workdir/production" -- \
   ./examples/KG_Assoc/kg_assoc_production --restart-prefix "$restart_prefix" \
     --steps "$steps" --output "$workdir/production_output"
