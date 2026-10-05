@@ -89,6 +89,11 @@ void updateStress(const std::shared_ptr<uammd::Interactor>& interactor) {
   CudaSafeCall(cudaDeviceSynchronize());
 }
 
+void updateForceCache(const std::shared_ptr<uammd::Interactor>& interactor) {
+  interactor->sum({.force = true, .energy = false, .virial = false});
+  CudaSafeCall(cudaDeviceSynchronize());
+}
+
 void runStressRegression() {
   constexpr double k = 30.0;
   constexpr double r0 = 1.5;
@@ -159,11 +164,60 @@ void runStressRegression() {
     throw std::runtime_error("nonfinite total pressure from stress trace");
   }
 
+  // A normal force pass populates the same caches that the stress reducer reads.
+  updateForceCache(wca);
+  updateForceCache(permanent);
+  updateForceCache(associating);
+  const Stress cachedForcePass = kg::sampleStressTensor(
+      fixture.particles, fixture.box, wca, permanent, associating);
+  updateStress(wca);
+  updateStress(permanent);
+  updateStress(associating);
+  requireNear(kg::sampleStressTensor(fixture.particles, fixture.box, wca, permanent,
+                                     associating),
+              cachedForcePass, "force-cache stress equals explicit recomputation");
+
   state.breakPair(1, 2);
   state.syncDevice();
   updateStress(associating);
   requireNear(associatingStress(*associating, volume), kg::detail::zeroStressTensorSample(),
               "stale temporary stress after bond break");
+
+  // On a chemistry step, WCA and permanent topology are unchanged. Reuse their
+  // force-pass caches and refresh only the temporary topology-dependent cache.
+  state.make(1, 2);
+  state.syncDevice();
+  updateForceCache(wca);
+  updateForceCache(permanent);
+  updateForceCache(associating);
+  state.breakPair(1, 2);
+  state.syncDevice();
+  updateStress(associating);
+  const Stress cachedAfterBreak = kg::sampleStressTensor(
+      fixture.particles, fixture.box, wca, permanent, associating);
+  updateStress(wca);
+  updateStress(permanent);
+  updateStress(associating);
+  requireNear(kg::sampleStressTensor(fixture.particles, fixture.box, wca, permanent,
+                                     associating),
+              cachedAfterBreak, "post-break cached stress equals full recomputation");
+  requireNear(associatingStress(*associating, volume), kg::detail::zeroStressTensorSample(),
+              "no stale associating stress after cached break");
+
+  updateForceCache(wca);
+  updateForceCache(permanent);
+  updateForceCache(associating);
+  state.make(1, 2);
+  state.syncDevice();
+  updateStress(associating);
+  const Stress cachedAfterCreation = kg::sampleStressTensor(
+      fixture.particles, fixture.box, wca, permanent, associating);
+  updateStress(wca);
+  updateStress(permanent);
+  updateStress(associating);
+  requireNear(kg::sampleStressTensor(fixture.particles, fixture.box, wca, permanent,
+                                     associating),
+              cachedAfterCreation, "post-creation cached stress equals full recomputation");
 
   kg_assoc::Kinetics kinetics({1000.0, 0.0, 1.0, 0.01, 1, 9876}, k, r0, 0.0);
   bool sawCreation = false;
@@ -186,7 +240,8 @@ void runStressRegression() {
     throw std::runtime_error("short kinetic smoke did not form and break a bond");
   }
 
-  std::cout << "KG_ASSOC_STRESS_TEST PASS tensor, reversal, trace, decomposition, kinetic topology\n";
+  std::cout << "KG_ASSOC_STRESS_TEST PASS tensor, reversal, trace, decomposition, "
+            << "force-cache, chemistry-cache, kinetic topology\n";
 }
 
 }  // namespace

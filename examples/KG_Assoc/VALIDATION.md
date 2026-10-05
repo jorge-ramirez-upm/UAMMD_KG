@@ -67,11 +67,24 @@ was `0.379849` (38.0%).
 
 ## P4.2 — profiling and overhead decomposition (PENDING)
 
-P4.2 begins with profiling only. No scientific conclusion has been drawn from
-the aggregate overhead. `scripts/profile_p42_short.sh` prepares short,
-same-restart Nsight Systems captures for kernel launches, synchronization,
-device-host copies, and host correlation/output timing. Run it on the
-dedicated TITAN Xp host before considering optimization or a rheology pilot.
+P4.2 begins with profiling only. A 2,000-step C1 Nsight Systems capture on the
+dedicated TITAN Xp measured 2,001 baseline calls each to WCA, permanent FENE,
+and associating FENE, versus 4,001 calls each in production. The duplicate
+production pass came from re-evaluating all three interactors only to rebuild
+stress caches after `forwardTime()`. GPU kernel time was approximately 243 ms
+for baseline and 469 ms for production; this is consistent with the earlier
+20,000-step controlled benchmark (61.3% wall-time overhead and 38.0%
+throughput loss).
+
+The P4.2 cache-reuse change preserves the frozen post-chemistry sampling
+convention. Normal steps reduce the caches populated by the force pass. On a
+chemistry step, only the associating-FENE cache is rebuilt after partner
+updates; WCA and permanent-FENE topology is unchanged. The focused stress
+regression checks force-populated caches against an explicit stress-only
+recomputation and checks post-creation/break cached totals against a full
+post-chemistry recomputation. Dedicated-host P4.1 validation, benchmark, and
+2,000-step Nsight Systems remeasurement remain required before judging the
+remaining overhead or considering a rheology pilot.
 
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 

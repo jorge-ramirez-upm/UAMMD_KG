@@ -30,8 +30,8 @@ P4.2 (profiling pending):
 
 - Profile and decompose stress, buffering, correlation, COM, topology I/O,
   and synchronization overhead before considering optimization.
-- Run a short rheology pilot.
-- Estimate the required production duration.
+- Re-measure the cache-reuse optimization on the dedicated host before deciding
+  whether the remaining overhead is acceptable for a rheology pilot.
 
 P4.3:
 

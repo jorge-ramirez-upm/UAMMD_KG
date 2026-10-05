@@ -697,18 +697,15 @@ int main(int argc, char** argv) {
       }
       bufferedStressSamples = 0;
     };
-    auto queueStressSample = [&]() {
-      if (bufferedStressSamples == stressBufferSize) {
-        flushStressSamples();
-      }
-      wca->sum({.force = false, .energy = false, .virial = false, .stress = true},
-               samplingStream);
-      permanentFene->sum(
-          {.force = false, .energy = false, .virial = false, .stress = true},
-          samplingStream);
+    auto refreshAssociatingStressAfterChemistry = [&]() {
       associating->sum(
           {.force = false, .energy = false, .virial = false, .stress = true},
           samplingStream);
+    };
+    auto queueCachedStressSample = [&]() {
+      if (bufferedStressSamples == stressBufferSize) {
+        flushStressSamples();
+      }
       kg::appendStressTensorSampleAsync(
           particles, simulationBox, wca, permanentFene, associating,
           thrust::raw_pointer_cast(stressPartialSumsDevice.data()),
@@ -775,9 +772,13 @@ int main(int argc, char** argv) {
           }
         }
       }
-      // Stress is sampled after chemistry at this MD step, so its temporary
-      // FENE cache and topology output use the same partner state.
-      queueStressSample();
+      // forwardTime() populates all three force/stress caches at the current
+      // coordinates. Chemistry changes only temporary partners, so refresh
+      // only that cache before sampling the post-chemistry state.
+      if (chemistryStep) {
+        refreshAssociatingStressAfterChemistry();
+      }
+      queueCachedStressSample();
       if (chemistryStep || diagnosticStep) {
         counts = kg_assoc::checkAssociationInvariants(
             particles, data, state, permanentBonds, lengths, parameters.feneR0,
