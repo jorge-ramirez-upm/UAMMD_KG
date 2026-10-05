@@ -34,3 +34,26 @@ where `Nxy = sigma_xx - sigma_yy`, `Nxz = sigma_xx - sigma_zz`, and
   from one seed are well-separated states, not independent replicas.
 - Build a clean, readable, optimized production executable. Keep
   validation-only/test instrumentation out of its hot path.
+
+## Development workflow and code style
+
+Code development for `examples/KG_Assoc/` uses Codex with the Ponytail skill.
+Use Ponytail to remove unnecessary duplication and boilerplate, factor repeated
+logic appropriately, simplify control flow, and keep implementations compact
+and maintainable. Compactness must not reduce readability.
+
+The desired balance is **Ponytail compactness + Google-style readability**.
+Use the Google C++ Style Guide: descriptive names, explicit control flow, and
+short focused functions. Avoid deep nesting, clever one-liners, compressed
+expressions that are hard to audit, and code golf. Factor repetition when it
+improves clarity; keep hot paths efficient without obscuring intent. Comments
+should explain non-obvious scientific or algorithmic intent, not obvious code.
+
+For CUDA/C++, separate host orchestration from kernels where practical; keep
+kernels small and purpose-specific; prefer explicit data flow and no hidden
+side effects; make synchronization obvious; and avoid unnecessary host-device
+transfers. Preserve validated performance-sensitive batching and buffering.
+
+Priority order: scientific correctness, reproducibility/auditability,
+performance, readability/maintainability, then compactness. Compactness is
+desirable only when it does not harm a higher-priority goal.

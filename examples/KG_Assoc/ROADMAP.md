@@ -2,6 +2,9 @@
 
 ## P4 — production/rheology instrumentation
 
+P4 implementation follows the development workflow and code style in
+`SCIENTIFIC_DECISIONS.md`.
+
 P4.0:
 
 - Inspect and port the `kg_uammd.cu` stress machinery.

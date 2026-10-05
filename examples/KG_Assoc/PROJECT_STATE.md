@@ -2,6 +2,8 @@
 
 Current validated branch/HEAD: `KremerGrest` at `ff5cd97a8ac7e80328a046e9796a7209c8ad0841`.
 
+Development workflow: Codex + Ponytail; Google-style readable C++/CUDA.
+
 Completed milestones:
 
 - P2 / E1 validation
