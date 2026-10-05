@@ -977,42 +977,69 @@ remain historical records and are not rewritten as 1.25 results.
 
 P3.0 is therefore **CLOSED** with `r_assoc=1.25` frozen as the E2 default.
 
-## P3.1 — C1 E2 chemical/topological equilibration
+## P3.1 — C1 E2 chemical/topological equilibration (CLOSED)
 
-P3.1 diagnostics are implemented; no E2 trajectory has been executed or
-interpreted in this implementation commit. The existing `kg_assoc_stars`
-workflow now writes configurable-interval E2 state rows containing chemical
-counts, bound fraction, intra/inter counts, molecular connected components,
-largest-cluster size/fraction, distinct-neighbor degree moments, thesis-style
-`L1` and `L2`, and cumulative active-bond distance safety diagnostics.
+P3.1/C1 E2 is closed for the validated C1 condition. Two independently
+E1-equilibrated configurations were continued with chemistry enabled:
 
-The molecular graph uses star molecules as nodes and one distinct edge per
-inter-star pair. `L1=sum(n_AB choose 2)` retains edge multiplicity; `L2` counts
-distinct molecular triangles. The historical `largest_cluster_fraction > .40`
-may be inspected as a pragmatic proxy only; no PBC wrapping/percolation claim
-is made.
+| parameter | value |
+|---|---:|
+| `A` | 4 |
+| `Narm` | 10 |
+| `Nstars` | 1000 |
+| `rho_total` / `rho_poly` | 0.85 / 0.8 |
+| `T`, `dt` | 1, 0.01 |
+| `Ea`, `Ee`, `nu0`, `Nevery` | 4, 8, 20, 100 |
+| `r_assoc` | 1.25 |
+| `diagnostic_every` | 1000 MD steps |
+| replicas | seeds 12001 and 12002 |
+| duration | 6,000,000 MD steps (`t=60,000`) |
 
-The initial C1 probe is prepared, but intentionally not launched here:
+Late-time second-half means and event balance were:
 
-```bash
-./examples/KG_Assoc/kg_assoc_stars \
-  --input examples/KG_Assoc/systems/e1_equilibrated/C1_long_s12001.e1.lammpsdat \
-  --arms 4 --narm 10 --steps 2000000 --dt 0.01 --temperature 1 \
-  --Ea 4 --Ee 8 --nu0 20 --Nevery 100 --diagnostic-every 1000 \
-  --r-assoc 1.25 --damp 2 --K 30 --R0 1.5 --seed 12001 \
-  --output c1_e2_s12001
-python3 examples/KG_Assoc/analysis/analyze_e2_stationarity.py c1_e2_s12001.state
-```
+| observable | seed 12001 | seed 12002 |
+|---|---:|---:|
+| bound fraction | 0.8861278333 | 0.886436 |
+| `N_intra` | 99.1056667 | 105.323 |
+| `N_inter` | 1673.15 | 1667.549 |
+| `L1` | 43.4816667 | 43.0906667 |
+| `L2` | 33.1753333 | 32.038 |
+| largest-cluster fraction | 0.9972976667 | 0.9969376667 |
+| mean degree | 3.260016 | 3.249748 |
+| creations / breaks | 37770 / 37786 | 37760 / 37767 |
+| net bond change | -16 | -7 |
+| maximum sampled active-bond distance | 1.2024667519 | 1.19947321283 |
 
-`analyze_e2_stationarity.py` is descriptive and fail-closed. It reports sample
-and time ranges, half means/differences, second-half slopes, block means,
-uniform-cadence autocorrelation/effective sample estimates, and event-balance
-rates for bound fraction, intra/inter bonds, `L1`, `L2`, largest-cluster
-fraction, and mean degree. It applies no automatic equilibrium threshold.
+The corresponding integrated autocorrelation times (physical time units) were:
 
-At completion, the runner writes a permanent-topology LAMMPS snapshot and a
-separate final active-association listing. This is **not** a restart format:
-temporary partner state cannot yet be reloaded, so restart-bank support remains
-deferred. Atom IDs, molecule IDs, types, positions, velocities, and permanent
-bonds are retained in the permanent snapshot; active bonds are explicitly
-separate to avoid silently claiming a valid continuation state.
+| observable | seed 12001 | seed 12002 |
+|---|---:|---:|
+| bound fraction | 52.68 | 49.62 |
+| `N_intra` | 1741.06 | 2772.68 |
+| `N_inter` | 185.91 | 405.54 |
+| `L1` | 2104.03 | 1720.92 |
+| `L2` | 473.79 | 671.43 |
+| largest-cluster fraction | 18.93 | 14.97 |
+| mean degree | 228.80 | 457.64 |
+
+Global chemistry is stationary in the second half of both replicas: creation
+and break rates are essentially balanced. Bound fraction, inter-star bond
+count, largest-cluster fraction, and mean degree agree closely between
+replicas. `L1` is slow and strongly correlated, but its independent late-time
+means agree closely. `L2` is also slower than global chemistry without a
+consistent secular drift. `N_intra` is noisy and strongly correlated; its
+fluctuations are consistent with a slow equilibrium observable rather than a
+reproducible monotonic transient. The C1 network is almost fully connected.
+Active temporary bonds remain below `r_assoc=1.25` in the sampled maxima and
+well below FENE `R0=1.5`.
+
+The validated C1 E2 duration is therefore **6,000,000 MD steps at `dt=0.01`**.
+This is a conservative validated duration, not a demonstrated minimum.
+
+The existing E2 diagnostic analyzer remains descriptive and fail-closed; no
+automatic equilibrium threshold is implied by this closure. C5/C6 E2 remain
+unvalidated. Chemical restart-bank support and rigorous PBC
+wrapping/percolation remain pending. The runner can write a final permanent
+configuration and a separate active-temporary-bond listing, but the current
+format cannot reload temporary partner state. A chemically valid restart is
+required before restart-bank construction or long production continuation.

@@ -47,27 +47,31 @@ a conservative choice for the intended range through `Ee=16`, not a claim of
 mathematical uniqueness or global optimality. Temporary FENE mechanics remain
 topology-based up to `R0=1.5`, independent of the WCA neighbor-list range.
 
-### P3.1 — C1 E2 chemical/topological equilibration
+### P3.1 — C1 E2 chemical/topological equilibration (CLOSED)
 
-P3.1 begins from the E1-equilibrated C1 configuration with chemistry enabled,
-not from a new preparation protocol. It uses the frozen `r_assoc=1.25` for
-both creation and breaking, with unchanged `Ee=8`, `Ea=4`, `nu0=20`,
-`Nevery=100`, `T=1`, and `dt=.01`. Its purpose is to measure the time required
-for chemical and molecular-network observables to become stationary, not to
-produce a production trajectory.
+P3.1/C1 E2 is closed for `A=4`, `Narm=10`, `Nstars=1000`,
+`rho_total=.85`, `rho_poly=.8`, `T=1`, `dt=.01`, `Ea=4`, `Ee=8`, `nu0=20`,
+`Nevery=100`, `r_assoc=1.25`, and diagnostics every 1000 MD steps. Two
+independently E1-equilibrated configurations (seeds 12001 and 12002) each ran
+6,000,000 MD steps, or total E2 time 60,000.
 
-The first probe is 2,000,000 MD steps with diagnostics every 1,000 steps.
-Diagnostics include bond counts/fraction, intra/inter bonds, components,
-largest cluster, distinct-neighbor degree, `L1`, `L2`, event balance, and
-active-bond extension statistics. The historical largest-cluster `.40` proxy
-is not a wrapping criterion. Rigorous PBC wrapping, restart banks, rheology,
-MSD, and production remain outside P3.1.
+Both replicas show stationary late-time chemistry with balanced creation and
+break rates. Their bound fraction, inter-star bond count, largest-cluster
+fraction, and distinct-neighbor mean degree agree closely. `L1` is slow and
+strongly correlated but has nearly identical late-time means across replicas;
+`L2` is also slow without a consistent secular drift. `N_intra` is noisy and
+strongly correlated, consistent with a slow equilibrium observable rather than
+a reproducible monotonic transient. The molecular network is nearly fully
+connected, and sampled active bonds remain below `1.25` and well below
+`R0=1.5`.
 
-The final permanent-topology snapshot is useful for inspection, but active
-temporary associations are written separately and cannot yet be reloaded.
-Therefore it is not a scientifically valid chemical restart; robust restart
-support remains a later dedicated milestone. P3.1 is implemented and pending
-the first C1 trajectory and stationarity assessment; it is not closed.
+The validated C1 E2 duration is **6,000,000 MD steps at `dt=.01`**. This is a
+conservative validated duration, not a demonstrated minimum. C5/C6 E2 remain
+unvalidated; chemical restart-bank support and rigorous PBC
+wrapping/percolation remain pending. The final permanent configuration and
+active temporary bonds are written separately, but the current format cannot
+reload temporary partner state; a chemically valid restart is required before
+restart-bank construction or long production continuation.
 
 ## 1. Scientific motivation
 
