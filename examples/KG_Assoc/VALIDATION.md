@@ -1018,6 +1018,25 @@ not construct a production restart bank or implement rigorous PBC wrapping.
   --output C1_e2_continued
 ```
 
+## P3.3 — C1 E2 chemically valid restart bank (prepared; pending host execution)
+
+`run_p33_c1_restart_bank.sh` generates a six-entry, untracked C1 bank using
+the P3.2 restart pair rather than historical P3.1 permanent-only snapshots.
+For each independent E1 seed (12001 and 12002), it runs once to `t=40,000`,
+then continues through chemically valid restart pairs to `t=50,000` and
+`t=60,000`. The resulting names are `C1_e2_sSEED_t40000`, `...t50000`, and
+`...t60000`, each with `.restart.lammpsdat` and `.assoc_restart` under
+`systems/restart_bank/C1/`.
+
+The 10,000-time-unit spacing exceeds several measured slow topological
+autocorrelation times. States within a seed are therefore described as
+well-separated restart states, not independent replicas; the two E1 seeds are
+the independent replicas. `analysis/validate_c1_restart_bank.py` fail-closes
+on missing/malformed restart pairs, canonical-C1 parameter mismatches,
+topology/partner/FENE invariants, incorrect labels/steps, and reports the
+requested network observables and cross-bank mean/range. P3.3 remains open
+until all six entries are generated and validated on the dedicated host.
+
 ## P3.1 — C1 E2 chemical/topological equilibration (CLOSED)
 
 P3.1/C1 E2 is closed for the validated C1 condition. Two independently
