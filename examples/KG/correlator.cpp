@@ -32,6 +32,7 @@ Correlator::~Correlator() {
 
 	delete[] t;
 	delete[] f;
+	delete[] n;
 	delete[] tav;
 	delete[] fav;
 }
@@ -65,6 +66,7 @@ void Correlator::setsize(const unsigned int numcorrin, const unsigned int pin, c
 
 	t = new double[length];
 	f = new double[length];
+	n = new unsigned long int[length];
 	tav = new double[length];
 	fav = new double[length];
 }
@@ -90,6 +92,7 @@ void Correlator::resetCurrentState() {
 	for (unsigned int i = 0; i < length; ++i) {
 		t[i] = 0;
 		f[i] = 0;
+		n[i] = 0;
 	}
 
 	npcorr = 0;
@@ -162,6 +165,7 @@ void Correlator::evaluate() {
 		if (ncorrelation[0][i] > 0) {
 			t[im] = i;
 			f[im] = correlation[0][i] / ncorrelation[0][i];
+			n[im] = ncorrelation[0][i];
 			++im;
 		}
 	}
@@ -172,6 +176,7 @@ void Correlator::evaluate() {
 			if (ncorrelation[k][i] > 0) {
 				t[im] = i * pow((double)m, k);
 				f[im] = correlation[k][i] / ncorrelation[k][i];
+				n[im] = ncorrelation[k][i];
 				++im;
 			}
 		}
@@ -660,6 +665,7 @@ void Correlator6::evaluate() {
 			f4[im] = correlation4[0][i] / ncorrelation[0][i];
 			f5[im] = correlation5[0][i] / ncorrelation[0][i];
 			f6[im] = correlation6[0][i] / ncorrelation[0][i];
+			n[im] = ncorrelation[0][i];
 			++im;
 		}
 	}
@@ -674,6 +680,7 @@ void Correlator6::evaluate() {
 				f4[im] = correlation4[k][i] / ncorrelation[k][i];
 				f5[im] = correlation5[k][i] / ncorrelation[k][i];
 				f6[im] = correlation6[k][i] / ncorrelation[k][i];
+				n[im] = ncorrelation[k][i];
 				++im;
 			}
 		}

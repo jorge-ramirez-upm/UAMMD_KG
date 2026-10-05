@@ -814,7 +814,7 @@ int main(int argc, char** argv) {
     modulusFile << "# stress_samples=" << stressSamplesQueued
                 << " step0_sampled=no stress_interval_steps=1 dt="
                 << std::setprecision(17) << parameters.dt << '\n';
-    modulusFile << "# time Gxy Gxz Gyz GNxy GNxz GNyz G\n";
+    modulusFile << "# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n";
     for (unsigned int index = 0; index < stressCorrelator.npcorr; ++index) {
       const double gxy = volume * stressCorrelator.getf(index, 0);
       const double gxz = volume * stressCorrelator.getf(index, 1);
@@ -827,7 +827,8 @@ int main(int argc, char** argv) {
           (gnxy + gnxz + gnyz) / (30.0 * parameters.temperature);
       modulusFile << stressCorrelator.gett(index) * parameters.dt << ' '
                   << gxy << ' ' << gxz << ' ' << gyz << ' ' << gnxy << ' '
-                  << gnxz << ' ' << gnyz << ' ' << modulus << '\n';
+                  << gnxz << ' ' << gnyz << ' ' << modulus << ' '
+                  << stressCorrelator.getn(index) << '\n';
     }
     CudaSafeCall(cudaStreamSynchronize(integrator->getStream()));
     if (associating->hasInvalidFene()) {

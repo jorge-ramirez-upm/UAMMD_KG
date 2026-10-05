@@ -32,9 +32,14 @@ P4.2 (rheology pilot pending):
   controlled overhead to 28.7%; redundant interaction passes are removed.
 - The bounded two-seed pilot has been run, but its first `G(0)`-scaled tail
   criterion was rejected as physically inappropriate for weak slow modes.
-- Repair and inspect local-window tail classification before selecting a
-  production duration; the current pilot is unresolved and needs longer
-  support plus more independent replicas.
+- `Correlator6` now exports per-lag raw contribution support (`n_pairs`) with
+  the stress correlator output. This is not an effective independent-sample
+  count, but it replaces the arbitrary 25%-tail exclusion for new-format
+  files. Existing eight-column pilot files remain explicitly legacy and
+  provisional.
+- Rerun the bounded two-seed pilot and inspect count-aware local-window tail
+  classification before selecting a production duration or launching a longer
+  trajectory.
 
 P4.3:
 

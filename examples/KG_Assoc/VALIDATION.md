@@ -112,14 +112,29 @@ A zero-compatible window must satisfy the converse signal/noise condition,
 the same replica-consistency check, and a flat-trend condition. All other
 windows are `unresolved_tail`; isolated low-SEM bins cannot decide the result.
 
-The analyzer excludes the latest 25% of nominal lag as a conservative support
-proxy because Correlator6 does not currently export per-bin origin counts. It
-writes `rheology.windows.csv` for audit, retains all six channels, and labels
-the two-replica SEM as a rough pilot diagnostic rather than final significance.
-Reanalysis of the existing two-seed pilot gives
+`Correlator6` now exports the exact raw contribution count for each flattened
+lag via `getn(i)`, aligned with `gett(i)` and every six-channel `getf(i, j)`.
+The production `.stress_correlator` appends this metadata as `n_pairs`.
+It is the common denominator accumulated for all six channel estimates at that
+lag, not an effective number of independent time origins: multi-tau samples
+remain correlated and coarse-grained. For new-format files, the analyzer
+uses a transparent configurable support rule (`n_pairs >= max(minimum count,
+minimum fraction of the maximum short-lag support)`) only to decide whether a
+bin may enter a tail window. Its default is `max(8, ceil(1e-5 * maximum
+support))`; this is a conservative pilot eligibility heuristic, not a claim
+about effective sample size. It does not use support alone to classify a tail.
+`rheology.windows.csv` records every tested window and its minimum/median
+support, including rejected windows. The old eight-column pilot files retain
+the explicit 75%-of-nominal-lag legacy fallback and remain scientifically
+provisional; they are never treated as having exact support counts.
+
+The analyzer retains all six channels and labels the two-replica SEM as a
+rough pilot diagnostic rather than final significance. Reanalysis of the
+existing old-format two-seed pilot gives
 `tail_classification=unresolved_tail`, `reliable_max_lag_time=6553.6`, and recommends both longer
-trajectory support and more independent replicas. No longer simulation should
-be launched until this classification is reviewed.
+trajectory support and more independent replicas. Rerun the same bounded
+pilot to obtain `n_pairs`, then inspect the count-aware result before launching
+any longer simulation.
 
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 

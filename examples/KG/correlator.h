@@ -43,6 +43,8 @@ protected:
 
 	/** Storage capacity of the flattened output arrays. */
 	unsigned int length;
+	/** Raw contribution count aligned with each flattened t/f output bin. */
+	unsigned long int *n;
 	/** Deepest level that has received data so far. */
 	unsigned int kmax;
 
@@ -82,9 +84,10 @@ public:
 	/** Read contents of correlator from file */
 	void read(FILE *f);
 
-        // Return t and f
-        double gett(int i) {return t[i];}
-        double getf(int i) {return f[i];}
+	// Return flattened lag, estimate, and raw contribution count.
+	double gett(int i) { return t[i]; }
+	double getf(int i) { return f[i]; }
+	unsigned long int getn(int i) const { return n[i]; }
 
 	};
 
