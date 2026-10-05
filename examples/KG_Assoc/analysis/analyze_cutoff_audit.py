@@ -9,6 +9,7 @@ K = 30.0
 R0 = 1.5
 T = 1.0
 CUTOFFS = (2.0 ** (1.0 / 6.0), 1.15, 1.20, 1.25)
+DECISION_CUTOFFS = (2.0 ** (1.0 / 6.0), 1.20, 1.25)
 
 
 def fene(r):
@@ -35,8 +36,8 @@ def rstar():
     return (lo + hi) / 2.0
 
 
-def break_acceptance(r, ee):
-    delta_u = fene(r) - fene(rstar()) - ee
+def break_acceptance(r, ee, r_star=None):
+    delta_u = fene(r) - fene(rstar() if r_star is None else r_star) - ee
     return min(1.0, math.exp(delta_u / T))
 
 
@@ -46,12 +47,13 @@ def reference(ee, intervals=200000):
     weights = [0.0 for _ in CUTOFFS]
     break_total = 0.0
     break_weights = [0.0 for _ in CUTOFFS]
+    r_star = rstar()
     dr = R0 / intervals
     for index in range(intervals):
         r = (index + 0.5) * dr
         density = r * r * math.exp(-(wca(r) + fene(r)) / T)
         total += density
-        acceptance_weight = density * break_acceptance(r, ee)
+        acceptance_weight = density * break_acceptance(r, ee, r_star)
         break_total += acceptance_weight
         for cutoff_index, cutoff in enumerate(CUTOFFS):
             if r > cutoff:
@@ -117,7 +119,9 @@ def self_test():
     values4 = reference(4.0, 50000)
     values6 = reference(6.0, 50000)
     values8 = reference(8.0, 50000)
-    for values in (values4, values6, values8):
+    values12 = reference(12.0, 50000)
+    values16 = reference(16.0, 50000)
+    for values in (values4, values6, values8, values12, values16):
         if any(values[index][1] < values[index + 1][1] or
                values[index][2] < values[index + 1][2]
                for index in range(len(values) - 1)):
@@ -125,6 +129,10 @@ def self_test():
     if any(abs(left[1] - right[1]) > 1e-12
            for left, right in zip(values4, values8)):
         raise AssertionError('bonded radial reference incorrectly depends on Ee')
+    if any(values12[index][2] < values12[index + 1][2] or
+           values16[index][2] < values16[index + 1][2]
+           for index in range(len(DECISION_CUTOFFS) - 1)):
+        raise AssertionError('high-Ee reference cutoff monotonicity failed')
     print('SELF_TEST PASS deterministic cutoff reference')
 
 
@@ -139,11 +147,21 @@ def main():
         self_test()
         return
     if not arguments.files:
-        for ee in (4.0, 6.0, 8.0):
+        for ee in (4.0, 6.0, 8.0, 12.0, 16.0):
             print('Ee', ee)
             for cutoff, tail, missing in reference(ee, arguments.intervals):
                 print('{:.12f} tail {:.12g} F_miss {:.12g}'.format(
                     cutoff, tail, missing))
+        print('P3.0 decision table (F_miss)')
+        print('cutoff F_miss_Ee8 F_miss_Ee12 F_miss_Ee16')
+        references = {ee: dict((cutoff, missing)
+                               for cutoff, _, missing in reference(ee,
+                                                                   arguments.intervals))
+                      for ee in (8.0, 12.0, 16.0)}
+        for cutoff in DECISION_CUTOFFS:
+            values = [references[ee][cutoff] for ee in (8.0, 12.0, 16.0)]
+            print('{:.12f} {:.12g} {:.12g} {:.12g}'.format(
+                cutoff, *values))
         return
     paths = sorted({path for pattern in arguments.files for path in glob.glob(pattern)})
     check_samples(paths, arguments.tolerance)

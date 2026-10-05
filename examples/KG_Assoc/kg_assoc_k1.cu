@@ -294,12 +294,15 @@ int main(int argc, char** argv) {
                      (static_cast<double>(parameters.n) *
                       static_cast<double>(parameters.steps))
               << " chemistry_sweeps " << chemistrySweeps
+              << " total_candidate_pairs " << candidateEdgeSum
               << " mean_candidate_edges "
               << (chemistrySweeps
                       ? static_cast<double>(candidateEdgeSum) / chemistrySweeps
                       : 0.0)
               << " creations " << creations
               << " breaks " << breaks << "\n";
+    std::cout << "particle_timesteps_per_second "
+              << parameters.steps / productionWallSeconds << "\n";
     cutoffAudit.write(std::cout, "K1 ");
     std::ofstream cutoffAuditFile(cutoffAuditPath);
     if (!cutoffAuditFile) {

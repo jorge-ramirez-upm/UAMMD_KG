@@ -914,3 +914,46 @@ Report bound fraction from the state rows, creations, breaks, and both
 changing the physical transition region need not leave raw populations
 invariant. No `Ea`, `Ee`, `nu0`, or `Nevery` compensation is part of P3.0, and
 no final cutoff recommendation has yet been made.
+
+### P3.0 cutoff-efficiency benchmark
+
+The K1 executable now reports `wall_seconds`, `chemistry_sweeps`,
+`total_candidate_pairs`, `mean_candidate_edges`, `creations`, `breaks`, and
+`particle_timesteps_per_second`. The benchmark below keeps all K1 physics and
+the three repetition seeds identical between the current cutoff and `1.25`;
+it has not been executed in this implementation-only update:
+
+```bash
+make -C examples/KG_Assoc kg_assoc_k1
+work=$(mktemp -d /tmp/p30_k1_benchmark.XXXXXX)
+for cutoff in 1.122462048309373 1.25; do
+  for rep in 1 2 3; do
+    seed=$((510000 + rep))
+    prefix="$work/k1_r${cutoff}_rep${rep}"
+    printf 'r_assoc %.15g\n' "$cutoff" > "$prefix.log"
+    ./examples/KG_Assoc/kg_assoc_k1 \
+      --n 256 --rho .05 --push-steps 5000 --warmup 20000 \
+      --steps 100000 --dt .005 --temperature 1 --nu0 20 \
+      --Ea 4 --Ee 4 --Nevery 100 --sample 100 \
+      --r-assoc "$cutoff" --seed "$seed" --output "$prefix" --force \
+      >> "$prefix.log" 2>&1
+  done
+done
+python3 examples/KG_Assoc/analysis/analyze_cutoff_benchmark.py \
+  "$work"/*.log
+```
+
+The benchmark analyzer prints the requested per-cutoff means and relative wall
+time, followed by the compact P3.0 decision table. The deterministic oracle
+now also evaluates `Ee=12` and `Ee=16`. With the configured WCA+FENE
+reference (`K=30`, `R0=1.5`, `T=1`), its current values are:
+
+| cutoff | F_miss(Ee=8) | F_miss(Ee=12) | F_miss(Ee=16) |
+|---:|---:|---:|---:|
+| 1.1224620483 | 2.3362e-2 | 2.9239e-1 | 4.7589e-1 |
+| 1.20 | 2.3261e-5 | 7.8957e-4 | 3.1930e-2 |
+| 1.25 | 8.1071e-8 | 2.7519e-6 | 1.1128e-4 |
+
+The measured relative K1 wall time and candidate-pair columns remain pending
+until those commands are run. This benchmark is observational only; it does
+not optimize candidate construction or change the production default cutoff.

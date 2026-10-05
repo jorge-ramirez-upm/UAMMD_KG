@@ -34,6 +34,15 @@ validated kinetic parameters. P3.0 must be completed and its simple-system
 results inspected before proposing an E2 or production cutoff change. No
 production workflow is instrumented or changed by this milestone.
 
+The efficiency extension compares `r_assoc=2^(1/6)` with `1.25` under the
+same K1 conditions and three matched seeds. It records wall time, chemistry
+sweeps, total and mean candidate sticker pairs, event counts, and particle
+timesteps per second. This is measurement only: candidate construction is not
+optimized and the production default is unchanged. The resulting relative
+wall-time/candidate-cost measurements are combined with deterministic
+`F_miss` values at `Ee=8,12,16` in the P3.0 decision table documented in
+`VALIDATION.md`.
+
 ## 1. Scientific motivation
 
 A stationary bonded fraction alone does not certify equilibrium. The network
