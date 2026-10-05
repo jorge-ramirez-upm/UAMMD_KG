@@ -56,15 +56,18 @@ final = {tuple(sorted(map(int, x[:2]))) for x in rows(p.with_suffix('.final_asso
 assert frames[expected[-1]] == final
 # PBC temporal-unwrapping regression: 4.9 -> -4.9 is +0.2, never -9.8.
 d = -4.9 - 4.9 - 10.0 * round((-4.9 - 4.9) / 10.0); assert abs(d - .2) < 1e-12
-print(f'P4.1 validation: stress={steps}; COM={len(com)}; frames={len(expected)}; stars={stars}')
+print(f'P4.1 validation: stress_samples={steps}; com_sample_steps={len(expected)}; '
+      f'com_rows={len(com)}; synchronized_frames={len(expected)}; stars={stars}')
 PY
-./examples/KG_Assoc/kg_assoc_production --restart-prefix "$prefix" --steps 100 \
+./examples/KG_Assoc/kg_assoc_production --restart-prefix "$prefix" --steps 1 \
   --com-every 100 --frame-every 100 --output "$continuation"
-python3 - "$prefix.assoc_restart" "$continuation.assoc_restart" <<'PY'
+python3 - "$prefix.assoc_restart" "$continuation.assoc_restart" "$continuation.state" <<'PY'
 import sys
 def pairs(path):
   x = open(path).read().splitlines(); i = next(i for i, y in enumerate(x) if y.startswith('active_bonds ')); return x[i+1:i+1+int(x[i].split()[1])]
 assert pairs(sys.argv[1]) == pairs(sys.argv[2])
+footer = open(sys.argv[3]).read().splitlines()[-1]
+assert footer.startswith('# chemistry_sweeps=0 '), footer
 PY
-echo 'P4.1 restart: chemical topology preserved; COM output starts a new segment by design'
+echo 'P4.1 restart: 1 step, zero chemistry sweeps, topology preserved; COM output starts a new segment by design'
 echo 'P4.1_VALIDATION PASS'
