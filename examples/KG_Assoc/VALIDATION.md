@@ -1018,10 +1018,10 @@ not construct a production restart bank or implement rigorous PBC wrapping.
   --output C1_e2_continued
 ```
 
-## P3.3 — C1 E2 chemically valid restart bank (prepared; pending host execution)
+## P3.3 — C1 E2 chemically valid restart bank (CLOSED)
 
-`run_p33_c1_restart_bank.sh` generates a six-entry, untracked C1 bank using
-the P3.2 restart pair rather than historical P3.1 permanent-only snapshots.
+The six-entry, untracked C1 bank was generated using the P3.2 restart pair,
+not historical P3.1 permanent-only snapshots.
 For each independent E1 seed (12001 and 12002), it runs once to `t=40,000`,
 then continues through chemically valid restart pairs to `t=50,000` and
 `t=60,000`. The resulting names are `C1_e2_sSEED_t40000`, `...t50000`, and
@@ -1034,8 +1034,37 @@ well-separated restart states, not independent replicas; the two E1 seeds are
 the independent replicas. `analysis/validate_c1_restart_bank.py` fail-closes
 on missing/malformed restart pairs, canonical-C1 parameter mismatches,
 topology/partner/FENE invariants, incorrect labels/steps, and reports the
-requested network observables and cross-bank mean/range. P3.3 remains open
-until all six entries are generated and validated on the dedicated host.
+requested network observables and cross-bank mean/range. All six entries were
+generated and validated on the dedicated host.
+
+The validated bank is:
+
+| state | bonds | bound fraction | `N_intra` | `N_inter` | `L1` | `L2` | largest-cluster fraction | mean degree | max active distance |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| s12001 t40000 | 1781 | 0.8905 | 98 | 1683 | 46 | 36 | 0.997 | 3.274 | 1.078486980 |
+| s12001 t50000 | 1779 | 0.8895 | 98 | 1681 | 29 | 36 | 0.997 | 3.304 | 1.104389084 |
+| s12001 t60000 | 1770 | 0.8850 | 99 | 1671 | 31 | 31 | 0.996 | 3.280 | 1.097450460 |
+| s12002 t40000 | 1764 | 0.8820 | 106 | 1658 | 37 | 29 | 0.996 | 3.242 | 1.095837922 |
+| s12002 t50000 | 1786 | 0.8930 | 106 | 1680 | 35 | 33 | 0.998 | 3.290 | 1.100650908 |
+| s12002 t60000 | 1790 | 0.8950 | 88 | 1702 | 41 | 44 | 1.000 | 3.322 | 1.082906394 |
+
+Bank means and ranges are: bound fraction `0.889166667 [0.882,0.895]`,
+`N_intra` `99.1666667 [88,106]`, `N_inter` `1679.16667 [1658,1702]`,
+`L1` `36.5 [29,46]`, `L2` `34.8333333 [29,44]`, largest-cluster fraction
+`0.997333333 [0.996,1.0]`, and mean degree `3.28533333 [3.242,3.322]`.
+All six states satisfy the chemical/topological invariants and lie within the
+P3.1 stationary regime; none is an obvious outlier. The instantaneous spread
+of `L1`, `L2`, and `N_intra` is consistent with the slow fluctuations measured
+in P3.1. The network remains almost fully connected, and every active-bond
+distance is well below `r_assoc=1.25` and `R0=1.5`.
+
+Continuation smokes from `C1_e2_s12001_t60000` and
+`C1_e2_s12002_t60000` reloaded with `--restart-prefix`, ran 20,000 MD steps,
+passed all chemistry/FENE invariants, and produced reloadable continuation
+states. Thus these are chemically valid continuation points suitable as
+initial conditions for later C1 production runs. Within-seed states are
+well-separated restart states, not independent replicas; only the two seeds
+are independent E1/E2 replicas.
 
 ## P3.1 — C1 E2 chemical/topological equilibration (CLOSED)
 
@@ -1098,8 +1127,5 @@ This is a conservative validated duration, not a demonstrated minimum.
 
 The existing E2 diagnostic analyzer remains descriptive and fail-closed; no
 automatic equilibrium threshold is implied by this closure. C5/C6 E2 remain
-unvalidated. Chemical restart-bank support and rigorous PBC
-wrapping/percolation remain pending. The runner can write a final permanent
-configuration and a separate active-temporary-bond listing, but the current
-format cannot reload temporary partner state. A chemically valid restart is
-required before restart-bank construction or long production continuation.
+unvalidated. Rigorous PBC wrapping/percolation and production observables
+remain pending.

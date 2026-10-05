@@ -91,7 +91,7 @@ continuation is not claimed. A short C1 GPU save/reload smoke recovered all
 This closes P3.2 but does not construct the production restart bank; C5/C6 E2
 and rigorous wrapping/percolation remain pending.
 
-### P3.3 — C1 restart-bank construction (prepared)
+### P3.3 — C1 restart-bank construction (CLOSED)
 
 The generated C1 bank is intentionally not versioned: the local
 `systems/restart_bank/C1/` directory is ignored. The host-side script
@@ -101,8 +101,11 @@ using one continuous E2 trajectory per seed. The corresponding bank validator
 checks the complete restart pair and reports chemical/topological observables.
 Its 10,000 time-unit spacing is conservative relative to measured slow
 autocorrelation times, but does not establish strict independence for samples
-from the same trajectory. P3.3 is pending execution and validation on the
-dedicated CUDA host.
+from the same trajectory. The six entries were validated, and continuation
+smokes from both `t=60,000` states ran 20,000 MD steps successfully and
+produced reloadable continuation states. P3.3 is **CLOSED**. The bank is
+suitable for later C1 production initial conditions; C5/C6 E2, rigorous PBC
+wrapping/percolation, and production observables remain pending.
 
 ## 1. Scientific motivation
 
