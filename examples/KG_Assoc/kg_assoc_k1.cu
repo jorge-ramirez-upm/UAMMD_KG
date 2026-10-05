@@ -3,6 +3,7 @@
 #include "Integrator/VerletNVT.cuh"
 #include "../KG/kg_interactors.cuh"
 #include "kg_assoc_interactors.cuh"
+#include "kg_assoc_cutoff_audit.cuh"
 #include "kg_assoc_kinetics.cuh"
 #include "kg_assoc_state.cuh"
 #include <algorithm>
@@ -25,7 +26,7 @@ constexpr int kDpdRampStepsPerLevel = 100;
 
 struct P { int n=256,push=5000,warmup=20000,steps=100000,every=100,sample=100; double rho=.05,dt=.005,t=1,nu0=20,ea=4,ee=4,damp=2,k=30,r0=1.5,rassoc=std::pow(2.,1./6.); unsigned long long seed=410510; std::string out="k1"; bool force=false,selfTest=false; };
 std::string next(int&i,int n,char**v){if(++i>=n)throw std::runtime_error("missing option value");return v[i];}
-P parse(int n,char**v){P p;for(int i=1;i<n;++i){std::string a=v[i];if(a=="--n")p.n=std::stoi(next(i,n,v));else if(a=="--rho")p.rho=std::stod(next(i,n,v));else if(a=="--push-steps")p.push=std::stoi(next(i,n,v));else if(a=="--warmup")p.warmup=std::stoi(next(i,n,v));else if(a=="--steps")p.steps=std::stoi(next(i,n,v));else if(a=="--dt")p.dt=std::stod(next(i,n,v));else if(a=="--temperature")p.t=std::stod(next(i,n,v));else if(a=="--nu0")p.nu0=std::stod(next(i,n,v));else if(a=="--Ea")p.ea=std::stod(next(i,n,v));else if(a=="--Ee")p.ee=std::stod(next(i,n,v));else if(a=="--Nevery")p.every=std::stoi(next(i,n,v));else if(a=="--sample")p.sample=std::stoi(next(i,n,v));else if(a=="--damp")p.damp=std::stod(next(i,n,v));else if(a=="--seed")p.seed=std::stoull(next(i,n,v));else if(a=="--output")p.out=next(i,n,v);else if(a=="--force")p.force=true;else if(a=="--self-test")p.selfTest=true;else if(a=="--help"){std::cout<<"kg_assoc_k1 [--n 256 --rho .05 --push-steps 5000 --warmup 20000 --steps 100000 --Ea 4 --Ee 4 --Nevery 100 --sample 100 --seed S --output PREFIX --self-test]\n";std::exit(0);}else throw std::runtime_error("unknown argument: "+a);}if(p.n<2||p.push<0||p.rho<=0||p.rassoc>=p.r0||p.every<=0||p.sample<=0||p.damp<=0)throw std::runtime_error("invalid K1 parameters");return p;}
+P parse(int n,char**v){P p;for(int i=1;i<n;++i){std::string a=v[i];if(a=="--n")p.n=std::stoi(next(i,n,v));else if(a=="--rho")p.rho=std::stod(next(i,n,v));else if(a=="--push-steps")p.push=std::stoi(next(i,n,v));else if(a=="--warmup")p.warmup=std::stoi(next(i,n,v));else if(a=="--steps")p.steps=std::stoi(next(i,n,v));else if(a=="--dt")p.dt=std::stod(next(i,n,v));else if(a=="--temperature")p.t=std::stod(next(i,n,v));else if(a=="--nu0")p.nu0=std::stod(next(i,n,v));else if(a=="--Ea")p.ea=std::stod(next(i,n,v));else if(a=="--Ee")p.ee=std::stod(next(i,n,v));else if(a=="--r-assoc")p.rassoc=std::stod(next(i,n,v));else if(a=="--Nevery")p.every=std::stoi(next(i,n,v));else if(a=="--sample")p.sample=std::stoi(next(i,n,v));else if(a=="--damp")p.damp=std::stod(next(i,n,v));else if(a=="--seed")p.seed=std::stoull(next(i,n,v));else if(a=="--output")p.out=next(i,n,v);else if(a=="--force")p.force=true;else if(a=="--self-test")p.selfTest=true;else if(a=="--help"){std::cout<<"kg_assoc_k1 [--n 256 --rho .05 --push-steps 5000 --warmup 20000 --steps 100000 --Ea 4 --Ee 4 --r-assoc R --Nevery 100 --sample 100 --seed S --output PREFIX --self-test]\n";std::exit(0);}else throw std::runtime_error("unknown argument: "+a);}if(p.n<2||p.push<0||p.rho<=0||p.rassoc<=0||p.rassoc>=p.r0||p.every<=0||p.sample<=0||p.damp<=0)throw std::runtime_error("invalid K1 parameters");return p;}
 double minImage(double x,double side){return x-side*std::nearbyint(x/side);}
 double dpdRampAmplitude(int level) {
   return kInitialDpdAmplitude +
@@ -104,6 +105,7 @@ void preparationCheck(std::shared_ptr<ParticleData> pd, double side,
 bool warmupIdSelfTest(){return minImage(6.,10.)==-4.&&minImage(-6.,10.)==4.;}
 double bondDistance(std::shared_ptr<ParticleData> pd,int i,int j,double side){auto x=pd->getPos(access::cpu,access::read);auto map=pd->getIdOrderedIndices(access::cpu);auto a=make_real3(x[map[i]]),b=make_real3(x[map[j]]);double dx=minImage(double(b.x-a.x),side),dy=minImage(double(b.y-a.y),side),dz=minImage(double(b.z-a.z),side);return std::sqrt(dx*dx+dy*dy+dz*dz);}
 void checkActiveBonds(std::shared_ptr<ParticleData> pd,const kg_assoc::StickerState&s,double side,double r0){for(int i:s.stickers())if(s.partner(i)>i){int j=s.partner(i);double r=bondDistance(pd,i,j,side);if(!std::isfinite(r)||r>=r0)throw std::runtime_error("associating FENE bond invalid: ids "+std::to_string(i)+","+std::to_string(j)+" r="+std::to_string(r));}}
+void observeActiveBonds(std::shared_ptr<ParticleData> pd,const kg_assoc::StickerState&s,double side,const P&p,kg_assoc::CutoffAudit& audit){for(int i:s.stickers())if(s.partner(i)>i)audit.observe(bondDistance(pd,i,s.partner(i),side),p.k,p.r0,p.ee,p.t);}
 void writeState(std::ofstream& f,long long step,const P&p,const kg_assoc::StickerState&s,long long made,long long broke){long long b=0;for(int i:s.stickers())if(s.partner(i)>i)++b;long long a=p.n-2*b;if(a+2*b!=p.n||b!=made-broke)throw std::runtime_error("K1 state invariant failed");f<<step<<' '<<step*p.dt<<' '<<a<<' '<<b<<' '<<made<<' '<<broke<<'\n';}
 }
 int main(int argc, char** argv) {
@@ -119,8 +121,10 @@ int main(int argc, char** argv) {
 
     const std::string statePath = parameters.out + ".state";
     const std::string eventPath = parameters.out + ".events";
+    const std::string cutoffAuditPath = parameters.out + ".cutoff_audit";
     if (!parameters.force &&
-        (std::ifstream(statePath) || std::ifstream(eventPath))) {
+        (std::ifstream(statePath) || std::ifstream(eventPath) ||
+         std::ifstream(cutoffAuditPath))) {
       throw std::runtime_error("output exists; choose --output or use --force");
     }
 
@@ -212,6 +216,7 @@ int main(int argc, char** argv) {
               << " damp=" << parameters.damp
               << " Ea=" << parameters.ea
               << " Ee=" << parameters.ee
+              << " r_assoc=" << parameters.rassoc
               << " Nevery=" << parameters.every
               << " seed=" << parameters.seed
               << " push=" << parameters.push
@@ -223,6 +228,7 @@ int main(int argc, char** argv) {
     long long breaks = 0;
     long long chemistrySweeps = 0;
     long long candidateEdgeSum = 0;
+    kg_assoc::CutoffAudit cutoffAudit;
     writeState(stateFile, 0, parameters, state, creations, breaks);
 
     const auto productionStart = std::chrono::steady_clock::now();
@@ -240,6 +246,7 @@ int main(int argc, char** argv) {
                   bondDistance(particles, badPair.first, badPair.second, side)));
         }
         checkActiveBonds(particles, state, side, parameters.r0);
+        observeActiveBonds(particles, state, side, parameters, cutoffAudit);
 
         auto candidateEdges = candidates(particles, side, parameters.rassoc);
         candidateEdgeSum += candidateEdges.size();
@@ -293,6 +300,14 @@ int main(int argc, char** argv) {
                       : 0.0)
               << " creations " << creations
               << " breaks " << breaks << "\n";
+    cutoffAudit.write(std::cout, "K1 ");
+    std::ofstream cutoffAuditFile(cutoffAuditPath);
+    if (!cutoffAuditFile) {
+      throw std::runtime_error("cannot open K1 cutoff audit output");
+    }
+    cutoffAuditFile << "mode k1_active_bond_audit\n";
+    cutoffAuditFile << "r_assoc " << parameters.rassoc << "\n";
+    cutoffAudit.write(cutoffAuditFile);
     return 0;
   } catch (const std::exception& error) {
     std::cerr << "K1 error: " << error.what() << '\n';

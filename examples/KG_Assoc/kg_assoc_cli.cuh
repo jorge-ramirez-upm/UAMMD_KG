@@ -27,6 +27,9 @@ struct Params {
   bool selfTest = false;
   bool staticMode = false;
   bool initialBound = false;
+  bool bondedRadialAudit = false;
+  int auditBurnin = 10000;
+  int auditSample = 100;
 };
 
 inline std::string nextArgument(int& index, int argc, char** argv) {
@@ -41,7 +44,7 @@ inline void printHelp() {
       << "kg_assoc_dimer [--static --distance R --initial-bound] "
       << "--steps N --dt DT --temperature T --Ee E --Ea E --nu0 X "
       << "--Nevery N --r-assoc R --K K --R0 R --box L --seed S "
-      << "--output PREFIX [--self-test]\n";
+      << "--output PREFIX [--bonded-radial-audit --audit-burnin N --audit-sample N] [--self-test]\n";
 }
 
 inline Params parseArgs(int argc, char** argv) {
@@ -81,6 +84,12 @@ inline Params parseArgs(int argc, char** argv) {
       params.staticMode = true;
     } else if (option == "--initial-bound") {
       params.initialBound = true;
+    } else if (option == "--bonded-radial-audit") {
+      params.bondedRadialAudit = true;
+    } else if (option == "--audit-burnin") {
+      params.auditBurnin = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--audit-sample") {
+      params.auditSample = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--self-test") {
       params.selfTest = true;
     } else if (option == "--help") {
@@ -94,7 +103,8 @@ inline Params parseArgs(int argc, char** argv) {
   if (params.steps < 0 || params.every <= 0 || params.dt <= 0.0 ||
       params.temperature <= 0.0 || params.k <= 0.0 || params.r0 <= 0.0 ||
       params.rAssoc <= 0.0 || params.rAssoc >= params.r0 ||
-      params.box <= 2.0 * params.r0 || params.distance < 0.0) {
+      params.box <= 2.0 * params.r0 || params.distance < 0.0 ||
+      params.auditBurnin < 0 || params.auditSample <= 0) {
     throw std::runtime_error("invalid physical parameters");
   }
   return params;

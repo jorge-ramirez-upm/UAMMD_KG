@@ -855,3 +855,62 @@ attempt frequency `nu0`; density `rho`; and combined `rho x Ee` behavior.
 K1 is sufficiently validated to proceed to the full associating-star system.
 This status covers the K1 chemistry implementation and its coupling to the
 simple associating fluid, not the full polymer-network or rheology pipeline.
+
+## P3.0 — associating cutoff audit
+
+P3.0 is implemented but has no new CUDA trajectory results in this revision.
+It does not change the default physical reaction cutoff. The concern is
+kinetic, not mechanical: an active temporary FENE pair is evaluated directly
+from the dynamic partner topology up to `R0=1.5`, independently of the WCA
+cell-list cutoff and neighbor-list skin. In contrast, the physical
+`r_assoc` gates both creation and breaking in the current LAMMPS-equivalent
+kinetics. A bond beyond that radius stays mechanically active but cannot break
+until it returns.
+
+`kg_assoc_dimer --bonded-radial-audit` creates one permanent-for-the-audit
+temporary bond, disables kinetic transitions, and samples its WCA+FENE radial
+ensemble. Its `.cutoff_audit` output reports the maximum valid distance and,
+at `2^(1/6)`, `1.15`, `1.20`, `1.25`, `1.30`, `1.40`, the active-bond fraction outside
+the cutoff and the missing Metropolis break-propensity fraction. The latter is
+the sampled form of `F_miss`; it calls the same `deltaU`, `rstar`, FENE, and
+Metropolis helpers used by the kinetic update. Run the `Ee=4,6,8` audits and
+compare them with the deterministic oracle:
+
+```bash
+for ee in 4 6 8; do
+  ./examples/KG_Assoc/kg_assoc_dimer --bonded-radial-audit --Ee "$ee" \
+    --steps 2000000 --audit-burnin 200000 --audit-sample 100 --seed 1701 \
+    --output "p30_dimer_Ee${ee}"
+done
+python3 examples/KG_Assoc/analysis/analyze_cutoff_audit.py \
+  'p30_dimer_Ee*.cutoff_audit'
+```
+
+The oracle integrates `r^2 exp[-(U_WCA+U_FENE)/T]` by transparent midpoint
+quadrature on `(0,R0)`. It verifies decreasing tails and `F_miss` with cutoff,
+the expected `Ee`-independent conditional radial distribution, agreement of
+each sampled tail and `F_miss` with the reference, and rejection of an audit
+that reaches `R0`. The default comparison allowance is the larger of 0.02 and
+five independent-sample standard errors; it is deliberately reported rather
+than used to retune physics.
+
+K1 now accepts `--r-assoc`, records it in state metadata, keeps it in analyzer
+condition keys, and prints active-bond distance diagnostics at every chemistry
+sweep. The corresponding minimal sensitivity matrix is:
+
+```bash
+for ee in 4 6 8; do
+  for cutoff in 1.122462048309373 1.15 1.20; do
+    ./examples/KG_Assoc/kg_assoc_k1 --Ee "$ee" --r-assoc "$cutoff" \
+      --output "p30_k1_Ee${ee}_r${cutoff}" --force
+  done
+done
+python3 examples/KG_Assoc/analysis/analyze_k1.py 'p30_k1_*.state' \
+  --summary p30_k1.csv
+```
+
+Report bound fraction from the state rows, creations, breaks, and both
+`Keq_event`/`Keq_direct` from the analyzer. Compare only measured differences:
+changing the physical transition region need not leave raw populations
+invariant. No `Ea`, `Ee`, `nu0`, or `Nevery` compensation is part of P3.0, and
+no final cutoff recommendation has yet been made.

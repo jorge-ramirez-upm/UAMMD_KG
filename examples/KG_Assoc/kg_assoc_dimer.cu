@@ -3,6 +3,7 @@
 #include "Integrator/VerletNVT.cuh"
 #include "../KG/kg_interactors.cuh"
 #include "kg_assoc_cli.cuh"
+#include "kg_assoc_cutoff_audit.cuh"
 #include "kg_assoc_interactors.cuh"
 #include "kg_assoc_kinetics.cuh"
 #include "kg_assoc_state.cuh"
@@ -374,11 +375,96 @@ bool diagnostics(const kg_assoc::Params& params) {
     }
   }
 
+  kg_assoc::CutoffAudit cutoffAudit;
+  for (const double distance : {0.9, 1.13, 1.17, 1.22}) {
+    cutoffAudit.observe(distance, params.k, params.r0, params.ee,
+                        params.temperature);
+  }
+  for (std::size_t index = 1;
+       index < kg_assoc::kCutoffAuditThresholds.size(); ++index) {
+    if (cutoffAudit.outside[index - 1] < cutoffAudit.outside[index] ||
+        cutoffAudit.missingBreakWeight[index - 1] <
+            cutoffAudit.missingBreakWeight[index]) {
+      return false;
+    }
+  }
+
   if (!interactorRegression() || !staticRegression()) {
     return false;
   }
   std::cout << "SELF_TEST PASS actual-interactor and static-kinetics regressions\n";
   return true;
+}
+
+int runBondedRadialAudit(const kg_assoc::Params& params, int argc, char** argv) {
+  auto system = std::make_shared<System>(argc, argv);
+  Box box(make_real3(real(params.box)));
+  box.setPeriodicity(true, true, true);
+  auto particles = std::make_shared<ParticleData>(2, system);
+
+  {
+    auto positions = particles->getPos(access::cpu, access::write);
+    auto ids = particles->getId(access::cpu, access::write);
+    auto masses = particles->getMass(access::cpu, access::write);
+    auto velocities = particles->getVel(access::cpu, access::write);
+    auto forces = particles->getForce(access::cpu, access::write);
+    positions[0] = make_real4(real(-.5), real(0), real(0), real(0));
+    positions[1] = make_real4(real(.5), real(0), real(0), real(0));
+    for (int index = 0; index < 2; ++index) {
+      ids[index] = index;
+      masses[index] = real(1);
+      velocities[index] = make_real3(real(0));
+      forces[index] = make_real4(real(0));
+    }
+  }
+
+  kg_assoc::StickerState state(2, {0, 1});
+  state.make(0, 1);
+  state.syncDevice();
+  auto wca = kg::createWCAInteractor_CellList(particles, box, 1, 1., 1., .3);
+  auto associating = std::make_shared<kg_assoc::AssociatingFENEInteractor>(
+      particles, box, state.devicePartner(), params.k, params.r0, params.ee,
+      kg_assoc::rstar(params.k, params.r0));
+  using NVT = VerletNVT::GronbechJensen;
+  NVT::Parameters integratorParameters;
+  integratorParameters.temperature = real(params.temperature);
+  integratorParameters.friction = real(params.friction);
+  integratorParameters.dt = real(params.dt);
+  integratorParameters.initVelocities = true;
+  auto integrator = std::make_shared<NVT>(particles, integratorParameters);
+  integrator->addInteractor(wca);
+  integrator->addInteractor(associating);
+
+  kg_assoc::CutoffAudit audit;
+  for (int step = 1; step <= params.steps; ++step) {
+    integrator->forwardTime();
+    if (step <= params.auditBurnin || step % params.auditSample != 0) {
+      continue;
+    }
+    CudaSafeCall(cudaStreamSynchronize(integrator->getStream()));
+    const double distance = dimerDistance(particles, box);
+    if (associating->hasInvalidFene() || distance >= params.r0) {
+      throw std::runtime_error("bonded radial audit reached invalid FENE distance");
+    }
+    audit.observe(distance, params.k, params.r0, params.ee, params.temperature);
+  }
+
+  std::ofstream output(params.prefix + ".cutoff_audit");
+  if (!output) {
+    throw std::runtime_error("cannot open bonded radial audit output");
+  }
+  output << std::setprecision(12)
+         << "mode bonded_radial_audit\n"
+         << "Ee " << params.ee << "\n"
+         << "K " << params.k << "\n"
+         << "R0 " << params.r0 << "\n"
+         << "temperature " << params.temperature << "\n"
+         << "steps " << params.steps << "\n"
+         << "burnin_steps " << params.auditBurnin << "\n"
+         << "sample_interval_steps " << params.auditSample << "\n";
+  audit.write(output);
+  audit.write(std::cout);
+  return 0;
 }
 
 int runDynamic(const kg_assoc::Params& params, int argc, char** argv) {
@@ -552,6 +638,9 @@ int main(int argc, char** argv) {
       const StaticResult result = runStatic(params, true);
       writeStaticSummary(params, result);
       return 0;
+    }
+    if (params.bondedRadialAudit) {
+      return runBondedRadialAudit(params, argc, argv);
     }
     return runDynamic(params, argc, argv);
   } catch (const std::exception& error) {

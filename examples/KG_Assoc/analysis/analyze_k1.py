@@ -135,6 +135,9 @@ def analyze_file(path):
     ea = resolve_parameter(path, metadata, legacy, 'Ea', float)
     ee = resolve_parameter(path, metadata, legacy, 'Ee', float)
     every = resolve_parameter(path, metadata, legacy, 'Nevery', int)
+    r_assoc = resolve_parameter(
+        path, metadata, legacy, 'r_assoc', float, required=False,
+        default=2.0 ** (1.0 / 6.0))
 
     replica = resolve_parameter(
         path, metadata, legacy, 'replica', int, required=False)
@@ -173,6 +176,7 @@ def analyze_file(path):
         nu0=nu0,
         Ea=ea,
         Ee=ee,
+        r_assoc=r_assoc,
         Nevery=every,
         replica=replica,
         run_type=run_type(path),
@@ -197,7 +201,7 @@ def analyze_file(path):
 
 def condition_key(result):
     return (result['Nparticles'], result['rho'], result['Ea'], result['Ee'],
-            result['nu0'], result['Nevery'])
+            result['r_assoc'], result['nu0'], result['Nevery'])
 
 
 def run_type(path):
@@ -288,7 +292,7 @@ def write_outputs(results, summary_path):
     production = production_results(results)
     groups = group_conditions(production)
     fields = (
-        ['Nparticles', 'rho', 'Ea', 'Ee', 'nu0', 'Nevery', 'replicas'] +
+        ['Nparticles', 'rho', 'Ea', 'Ee', 'r_assoc', 'nu0', 'Nevery', 'replicas'] +
         [quantity + suffix for quantity in (
             'creations', 'breaks', 'kf_event', 'kb_event', 'kf_over_q',
             'kb_over_q', 'attempt_rate', 'kf_over_attempt_rate',
@@ -300,7 +304,7 @@ def write_outputs(results, summary_path):
         writer.writeheader()
         for key, group in sorted(groups.items()):
             result = dict(zip(
-                ('Nparticles', 'rho', 'Ea', 'Ee', 'nu0', 'Nevery'), key))
+                ('Nparticles', 'rho', 'Ea', 'Ee', 'r_assoc', 'nu0', 'Nevery'), key))
             result['replicas'] = len(group)
             for quantity in (
                     'creations', 'breaks', 'kf_event', 'kb_event',

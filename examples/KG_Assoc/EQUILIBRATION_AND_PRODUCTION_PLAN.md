@@ -14,6 +14,26 @@ external star generator
     -> topology + percolation + diffusion + rheology + bond dynamics
 ```
 
+## P3.0 — associating cutoff audit
+
+Before any E2 chemistry or star-production work changes `r_assoc`, P3.0 uses
+only the dimer and K1 validation systems. This is intentionally separate from
+the E1-validated star preparation workflow. The temporary associating FENE
+force is topology-driven and remains evaluated to `R0`; neither the WCA force
+cutoff nor its neighbor-list skin determines whether that force exists.
+`r_assoc` instead defines the physical kinetic candidate region for both
+formation and breaking, matching the current LAMMPS reference implementation.
+Thus a stretched active bond outside `r_assoc` remains mechanically safe but
+temporarily has zero break-transition probability.
+
+The audit records radial tails, maximum active-bond distance, and the omitted
+Metropolis break-propensity `F_miss`, rather than using only tail population.
+It also runs the K1 `Ee={4,6,8}` and
+`r_assoc={2^(1/6),1.15,1.20}` sensitivity matrix without changing the already
+validated kinetic parameters. P3.0 must be completed and its simple-system
+results inspected before proposing an E2 or production cutoff change. No
+production workflow is instrumented or changed by this milestone.
+
 ## 1. Scientific motivation
 
 A stationary bonded fraction alone does not certify equilibrium. The network
