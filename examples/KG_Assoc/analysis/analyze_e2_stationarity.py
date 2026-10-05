@@ -5,6 +5,7 @@ import json
 import math
 import statistics
 import tempfile
+import sys
 
 
 COLUMNS = ('timestep time N_free_stickers N_assoc_bonds creations breaks '
