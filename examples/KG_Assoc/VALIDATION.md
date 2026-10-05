@@ -136,6 +136,15 @@ trajectory support and more independent replicas. Rerun the same bounded
 pilot to obtain `n_pairs`, then inspect the count-aware result before launching
 any longer simulation.
 
+The next bounded P4.2 extension is planned as 32,000,000 MD steps for each of
+the two independent C1 states (`s12001` and `s12002`), with `dt=0.01` and
+trajectory duration 320,000 time units per seed. Stress remains sampled every
+MD step. Only the nonessential COM output cadence is changed for I/O control,
+from the production default of 100 steps to 10,000 steps through the runner's
+`P42_PILOT_COM_EVERY`; synchronized frame/topology output remains at 10,000
+steps. This extended pilot prioritizes long-lag support before adding more
+independent replicas and is not final production.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record

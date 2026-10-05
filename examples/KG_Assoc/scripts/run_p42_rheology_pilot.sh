@@ -8,9 +8,19 @@ steps=${P42_PILOT_STEPS:-1000000}
 pilot_root=${P42_PILOT_DIR:-p42_rheology_pilot}
 throughput=${P42_PILOT_THROUGHPUT:-1.14428e8}
 particles=${P42_PILOT_PARTICLES:-43563}
+stars=${P42_PILOT_STARS:-1000}
+com_every=${P42_PILOT_COM_EVERY:-100}
 
 if (( steps <= 0 )); then
   echo "P42_PILOT_STEPS must be positive" >&2
+  exit 2
+fi
+if (( com_every <= 0 )); then
+  echo "P42_PILOT_COM_EVERY must be positive" >&2
+  exit 2
+fi
+if (( stars <= 0 )); then
+  echo "P42_PILOT_STARS must be positive" >&2
   exit 2
 fi
 
@@ -27,6 +37,18 @@ if (( ${#restart_prefixes[@]} < 2 )); then
   echo "provide one restart prefix for each independent seed" >&2
   exit 2
 fi
+
+com_rows_per_seed=$(awk -v steps="$steps" -v com_every="$com_every" -v stars="$stars" \
+  'BEGIN { printf "%.0f", (steps / com_every) * stars }')
+wall_seconds_per_seed=$(awk -v steps="$steps" -v particles="$particles" -v throughput="$throughput" \
+  'BEGIN { printf "%.6f", steps * particles / throughput }')
+serial_wall_seconds=$(awk -v per_seed="$wall_seconds_per_seed" -v seeds="${#restart_prefixes[@]}" \
+  'BEGIN { printf "%.6f", per_seed * seeds }')
+
+echo "P4.2 rheology pilot steps per seed: $steps"
+echo "P4.2 rheology pilot COM cadence: $com_every MD steps"
+echo "P4.2 rheology pilot estimated COM rows per seed: $com_rows_per_seed"
+echo "P4.2 rheology pilot estimated serial wall seconds: $serial_wall_seconds"
 
 mkdir -p "$pilot_root"
 workdir=$(mktemp -d "$pilot_root/run.XXXXXX")
@@ -55,10 +77,14 @@ make -B -C examples/KG_Assoc kg_assoc_production
 {
   echo "pilot_git_sha $(git rev-parse HEAD)"
   echo "pilot_steps $steps"
+  echo "pilot_com_every $com_every"
+  echo "pilot_stress_sampling every_md_step"
+  echo "estimated_com_rows_per_seed $com_rows_per_seed"
+  echo "stars $stars"
   echo "optimized_particle_timesteps_per_second $throughput"
   echo "particles $particles"
-  awk -v steps="$steps" -v particles="$particles" -v throughput="$throughput" \
-    'BEGIN { printf "estimated_wall_seconds %.6f\n", steps * particles / throughput }'
+  echo "estimated_wall_seconds_per_seed $wall_seconds_per_seed"
+  echo "estimated_serial_wall_seconds $serial_wall_seconds"
   echo "executable_sha256 $(sha256sum examples/KG_Assoc/kg_assoc_production | awk '{print $1}')"
   echo "host $(hostname)"
   if command -v nvidia-smi >/dev/null 2>&1; then
@@ -88,7 +114,8 @@ for restart_prefix in "${restart_prefixes[@]}"; do
   } >> "$workdir/provenance.txt"
 
   ./examples/KG_Assoc/kg_assoc_production --restart-prefix "$restart_prefix" \
-    --steps "$steps" --output "$output_prefix" > "$workdir/$label.log" 2>&1
+    --steps "$steps" --com-every "$com_every" --output "$output_prefix" \
+    > "$workdir/$label.log" 2>&1
   require_completed_run "$label" "$output_prefix" "$workdir/$label.log"
   grep -F 'S1 total_timesteps' "$workdir/$label.log" | tail -n 1
 done

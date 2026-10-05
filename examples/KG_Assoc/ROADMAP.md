@@ -40,6 +40,13 @@ P4.2 (rheology pilot pending):
 - Rerun the bounded two-seed pilot and inspect count-aware local-window tail
   classification before selecting a production duration or launching a longer
   trajectory.
+- The planned overnight extension is 32,000,000 steps per seed for the same
+  two independent C1 states (`s12001` and `s12002`), `dt=0.01`, or 320,000
+  time units per seed. The runner will set `P42_PILOT_COM_EVERY=10000` for
+  I/O control only; stress remains sampled every MD step and frame/topology
+  cadence remains 10,000 steps. This is an extended P4.2 pilot, not final
+  production, and is intended to improve long-lag support before adding more
+  replicas.
 
 P4.3:
 
