@@ -62,7 +62,8 @@ The dimer smoke completed 200 kinetic updates with 6 accepted creations and
 6 breaks. This is a topology/finite-value smoke, not a production rheology
 run. P4.0 is closed. P4.1 must connect this validated three-term reducer to a
 clean every-step production sampler and retain the existing six-channel
-`Correlator6` estimator unchanged. Final P4.0 commit: pending commit below.
+`Correlator6` estimator unchanged. P4.0 implementation commit:
+`8e5d106854e285bb7c0fd8c9db8c4d8da1f18d21`.
 
 ## S0: star-input import and permanent-topology audit
 
