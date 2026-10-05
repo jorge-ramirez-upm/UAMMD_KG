@@ -166,6 +166,8 @@ def analyze_file(path):
     direct_equilibrium = [
         (row[3] / volume) / (row[2] / volume) ** 2
         for row in equilibrium_rows if row[2] > 0]
+    bound_fractions = [2.0 * row[3] / actual_particles
+                       for row in equilibrium_rows]
     q, attempt_rate = chemistry_attempt_rate(
         nu0, ea, temperature, every, dt)
 
@@ -196,6 +198,7 @@ def analyze_file(path):
         Keq_event=(creations / free_exposure) / (breaks / bound_exposure)
         if bound_exposure and breaks else float('nan'),
         Keq_direct=statistics.mean(direct_equilibrium),
+        bound_fraction=statistics.mean(bound_fractions),
         exposure_relative_difference=exposure_difference)
 
 
@@ -219,6 +222,17 @@ def group_conditions(results):
     return groups
 
 
+def equilibrium_slope_groups(results):
+    groups = {}
+    for result in production_results(results):
+        if result['Ea'] != 4 or result['Nevery'] != 100:
+            continue
+        key = (result['Nparticles'], result['rho'], result['nu0'],
+               result['r_assoc'])
+        groups.setdefault(key, []).append(result)
+    return groups
+
+
 def run_self_test():
     q, attempt_rate = chemistry_attempt_rate(20.0, 4.0, 1.0, 100, 0.005)
     if (not math.isclose(q, 0.16736206976502233, rel_tol=1e-14) or
@@ -231,6 +245,27 @@ def run_self_test():
     if (not math.isclose(fitted_slope, 1.0, rel_tol=1e-14) or
             not math.isclose(fitted_intercept, 1.0, rel_tol=1e-14)):
         raise AssertionError('linear equilibrium-fit regression failed')
+
+    synthetic = []
+    for cutoff, slope in ((2.0 ** (1.0 / 6.0), 1.0), (1.20, 2.0)):
+        for ee in (4.0, 6.0, 8.0):
+            synthetic.append({
+                'run_type': 'production', 'Nparticles': 256, 'rho': .05,
+                'nu0': 20.0, 'r_assoc': cutoff, 'Ea': 4.0,
+                'Nevery': 100, 'Ee': ee, 'Keq_event': math.exp(slope * ee),
+                'Keq_direct': math.exp(slope * ee)})
+    slope_groups = equilibrium_slope_groups(synthetic)
+    if len(slope_groups) != 2 or any(len(group) != 3
+                                     for group in slope_groups.values()):
+        raise AssertionError('different r_assoc values were pooled in slope fit')
+    slopes = sorted(linear_fit([(row['Ee'], math.log(row['Keq_event']))
+                                for row in group])
+                    for group in slope_groups.values())
+    if any(not (math.isclose(slope, expected_slope, rel_tol=1e-12) and
+                math.isclose(intercept, 0.0, abs_tol=1e-12))
+           for (slope, intercept), expected_slope in zip(
+                   slopes, (1.0, 2.0))):
+        raise AssertionError('cutoff-specific equilibrium slopes regressed incorrectly')
 
     header = (
         '# N={n} rho={rho} T=1 dt=0.005 nu0={nu0} damp=2 Ea=4 Ee=4 '
@@ -297,6 +332,7 @@ def write_outputs(results, summary_path):
             'creations', 'breaks', 'kf_event', 'kb_event', 'kf_over_q',
             'kb_over_q', 'attempt_rate', 'kf_over_attempt_rate',
             'kb_over_attempt_rate', 'Keq_event', 'Keq_direct',
+            'bound_fraction',
             'exposure_relative_difference') for suffix in ('', '_se')])
     condition_path = os.path.splitext(summary_path)[0] + '_conditions.csv'
     with open(condition_path, 'w', newline='') as condition_file:
@@ -310,7 +346,7 @@ def write_outputs(results, summary_path):
                     'creations', 'breaks', 'kf_event', 'kb_event',
                     'kf_over_q', 'kb_over_q', 'attempt_rate',
                     'kf_over_attempt_rate', 'kb_over_attempt_rate',
-                    'Keq_event', 'Keq_direct',
+                    'Keq_event', 'Keq_direct', 'bound_fraction',
                     'exposure_relative_difference'):
                 result[quantity], result[quantity + '_se'] = meanse(
                     [entry[quantity] for entry in group])
@@ -322,22 +358,12 @@ def write_outputs(results, summary_path):
 
 
 def print_equilibrium_slopes(results):
-    production = production_results(results)
-    parameter_sets = sorted(set(
-        (result['Nparticles'], result['rho'], result['nu0'])
-        for result in production))
-    for particle_count, density, attempt_frequency in parameter_sets:
-        selected = [
-            result for result in production
-            if (result['Nparticles'] == particle_count and
-                result['rho'] == density and
-                result['nu0'] == attempt_frequency and
-                result['Ea'] == 4 and result['Nevery'] == 100)]
+    for (particle_count, density, attempt_frequency, cutoff), selected in sorted(
+            equilibrium_slope_groups(results).items()):
         if len({result['Ee'] for result in selected}) < 2:
             continue
-        prefix = '' if len(parameter_sets) == 1 else (
-            'Nparticles {} rho {} nu0 {} '.format(
-                particle_count, density, attempt_frequency))
+        prefix = ('Nparticles {} rho {} nu0 {} r_assoc {} '.format(
+            particle_count, density, attempt_frequency, cutoff))
         for quantity in ('Keq_event', 'Keq_direct'):
             points = [
                 (result['Ee'], math.log(result[quantity]))
@@ -346,6 +372,53 @@ def print_equilibrium_slopes(results):
                 fitted_slope, fitted_intercept = linear_fit(points)
                 print('{}ln {} vs Ee slope {} intercept {}'.format(
                     prefix, quantity, fitted_slope, fitted_intercept))
+
+
+def print_cutoff_sensitivity(results):
+    selected = [result for result in production_results(results)
+                if result['Ea'] == 4 and result['Nevery'] == 100 and
+                result['Ee'] in (4, 6, 8)]
+    base_cutoff = 2.0 ** (1.0 / 6.0)
+    for base_condition in sorted(set(
+            (result['Nparticles'], result['rho'], result['nu0'])
+            for result in selected)):
+        print('cutoff_sensitivity Nparticles {} rho {} nu0 {}'.format(
+            *base_condition))
+        rows = [result for result in selected
+                if (result['Nparticles'], result['rho'], result['nu0']) ==
+                base_condition]
+        by_key = {}
+        for result in rows:
+            by_key.setdefault((result['Ee'], result['r_assoc']), []).append(result)
+        baselines = {}
+        for ee in (4, 6, 8):
+            baseline_key = min(
+                (key for key in by_key if key[0] == ee),
+                key=lambda key: abs(key[1] - base_cutoff),
+                default=None)
+            baseline = (by_key[baseline_key]
+                        if baseline_key is not None and
+                        abs(baseline_key[1] - base_cutoff) < 1e-4 else None)
+            if baseline:
+                baselines[ee] = {quantity: statistics.mean(
+                    entry[quantity] for entry in baseline)
+                    for quantity in ('Keq_event', 'Keq_direct')}
+        print('Ee r_assoc Keq_event Keq_direct bound_fraction creations breaks '
+              'Keq_event_relative Keq_direct_relative')
+        for (ee, cutoff), group in sorted(by_key.items()):
+            values = {quantity: statistics.mean(entry[quantity] for entry in group)
+                      for quantity in ('Keq_event', 'Keq_direct', 'bound_fraction',
+                                       'creations', 'breaks')}
+            baseline = baselines.get(ee, {})
+            event_change = (values['Keq_event'] / baseline['Keq_event'] - 1.0
+                            if baseline.get('Keq_event') else float('nan'))
+            direct_change = (values['Keq_direct'] / baseline['Keq_direct'] - 1.0
+                             if baseline.get('Keq_direct') else float('nan'))
+            print('{} {:.12g} {:.12g} {:.12g} {:.12g} {:.12g} {:.12g} '
+                  '{:.12g} {:.12g}'.format(
+                      ee, cutoff, values['Keq_event'], values['Keq_direct'],
+                      values['bound_fraction'], values['creations'],
+                      values['breaks'], event_change, direct_change))
 
 
 def main():
@@ -369,6 +442,7 @@ def main():
 
     write_outputs(results, arguments.summary)
     print_equilibrium_slopes(results)
+    print_cutoff_sensitivity(results)
 
 
 if __name__ == '__main__':
