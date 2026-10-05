@@ -20,6 +20,10 @@
 
 namespace {
 
+bool near(double left, double right, double tolerance = 1e-12) {
+  return std::abs(left - right) <= tolerance * std::max(1.0, std::abs(right));
+}
+
 struct Parameters {
   std::string input;
   std::string output = "s1_smoke";
@@ -27,6 +31,7 @@ struct Parameters {
   int beadsPerArm = 0;
   int steps = 100000;
   int every = 100;
+  int diagnosticEvery = 1000;
   double dt = 0.01;
   double temperature = 1.0;
   double ea = 4.0;
@@ -54,6 +59,7 @@ void printHelp() {
   std::cout << "kg_assoc_stars --input FILE --arms NA --narm NARM [options]\n"
             << "  --steps N --dt DT --temperature T --Ea E --Ee E --nu0 X\n"
             << "  --Nevery N --r-assoc R --damp D --K K --R0 R --seed S\n"
+            << "  --diagnostic-every N\n"
             << "  --output PREFIX --force --self-test\n";
 }
 
@@ -81,6 +87,8 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.nu0 = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--Nevery") {
       parameters.every = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--diagnostic-every") {
+      parameters.diagnosticEvery = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--r-assoc") {
       parameters.rAssoc = std::stod(nextArgument(index, argc, argv));
       parameters.rAssocExplicit = true;
@@ -109,7 +117,8 @@ Parameters parseArguments(int argc, char** argv) {
     return parameters;
   }
   if (parameters.input.empty() || parameters.arms <= 0 || parameters.beadsPerArm <= 0 ||
-      parameters.steps <= 0 || parameters.every <= 0 || parameters.dt <= 0.0 ||
+      parameters.steps <= 0 || parameters.every <= 0 ||
+      parameters.diagnosticEvery <= 0 || parameters.dt <= 0.0 ||
       parameters.temperature <= 0.0 || parameters.ea < 0.0 || parameters.nu0 < 0.0 ||
       parameters.rAssoc <= 0.0 || parameters.feneK <= 0.0 || parameters.feneR0 <= 0.0 ||
       parameters.rAssoc >= parameters.feneR0 || parameters.damping <= 0.0) {
@@ -168,6 +177,45 @@ void runSelfTest() {
   expectReject("state-count mismatch", [&]() {
     (void)kg_assoc::summarizeAssociationState(data, state, {}, 0, 0);
   });
+
+  const auto emptyGraph = kg_assoc::analyzeMolecularGraph({10, 11, 12}, {});
+  if (emptyGraph.connectedComponents != 3 || emptyGraph.largestClusterSize != 1 ||
+      emptyGraph.meanDegree != 0.0 || emptyGraph.primaryLoops != 0 ||
+      emptyGraph.secondaryLoops != 0) {
+    throw std::runtime_error("empty molecular graph regression failed");
+  }
+  const auto oneEdge = kg_assoc::analyzeMolecularGraph({10, 11, 12}, {{10, 11}});
+  if (oneEdge.connectedComponents != 2 || oneEdge.largestClusterSize != 2 ||
+      !near(oneEdge.meanDegree, 2.0 / 3.0)) {
+    throw std::runtime_error("single molecular edge regression failed");
+  }
+  const auto doubleEdge = kg_assoc::analyzeMolecularGraph({10, 11}, {{10, 11}, {10, 11}});
+  const auto tripleEdge = kg_assoc::analyzeMolecularGraph(
+      {10, 11}, {{10, 11}, {10, 11}, {10, 11}});
+  if (doubleEdge.primaryLoops != 1 || tripleEdge.primaryLoops != 3 ||
+      !near(tripleEdge.meanDegree, 1.0)) {
+    throw std::runtime_error("molecular edge multiplicity regression failed");
+  }
+  const auto triangle = kg_assoc::analyzeMolecularGraph(
+      {10, 11, 12}, {{10, 11}, {10, 12}, {11, 12}});
+  const auto duplicatedTriangle = kg_assoc::analyzeMolecularGraph(
+      {10, 11, 12}, {{10, 11}, {10, 11}, {10, 12}, {11, 12}});
+  if (triangle.secondaryLoops != 1 || duplicatedTriangle.primaryLoops != 1 ||
+      duplicatedTriangle.secondaryLoops != 1 || !near(triangle.secondDegreeMoment, 4.0)) {
+    throw std::runtime_error("molecular triangle regression failed");
+  }
+  kg::LammpsData intraData = data;
+  intraData.mol[3] = 10;
+  kg_assoc::StickerState intraState(5, stickers, false);
+  intraState.make(1, 3);
+  const auto intraOnly = kg_assoc::molecularNetworkObservables(intraData, intraState);
+  if (intraOnly.connectedComponents != 2 || intraOnly.largestClusterSize != 1 ||
+      intraOnly.meanDegree != 0.0) {
+    throw std::runtime_error("intra-star graph exclusion regression failed");
+  }
+  expectReject("malformed molecular graph", [&]() {
+    (void)kg_assoc::analyzeMolecularGraph({10, 10}, {});
+  });
   std::cout << "STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants\n";
 }
 
@@ -175,11 +223,26 @@ void writeState(std::ofstream& output,
                 long long step,
                 const Parameters& parameters,
                 const kg_assoc::AssociationCounts& counts,
+                const kg_assoc::MolecularNetworkObservables& network,
+                const kg_assoc::ActiveBondDistanceDiagnostics& distances,
+                int stickerCount,
                 long long creations,
                 long long breaks) {
   output << step << ' ' << std::setprecision(12) << step * parameters.dt << ' '
          << counts.freeStickers << ' ' << counts.bonds << ' ' << creations << ' '
-         << breaks << ' ' << counts.intraStarBonds << ' ' << counts.interStarBonds << '\n';
+         << breaks << ' ' << counts.intraStarBonds << ' ' << counts.interStarBonds << ' '
+         << 2.0 * counts.bonds / stickerCount << ' '
+         << network.connectedComponents << ' ' << network.largestClusterSize << ' '
+         << network.largestClusterFraction << ' ' << network.meanDegree << ' '
+         << network.secondDegreeMoment << ' ' << network.primaryLoops << ' '
+         << network.secondaryLoops << ' ' << distances.observations << ' '
+         << distances.maximumDistance << ' '
+         << (distances.observations ?
+             static_cast<double>(distances.above125) / distances.observations : 0.0) << ' '
+         << (distances.observations ?
+             static_cast<double>(distances.above130) / distances.observations : 0.0) << ' '
+         << (distances.observations ?
+             static_cast<double>(distances.above140) / distances.observations : 0.0) << '\n';
 }
 
 void writeProvenance(std::ofstream& stateFile,
@@ -201,6 +264,7 @@ void writeProvenance(std::ofstream& stateFile,
             << " Ee=" << parameters.ee
             << " nu0=" << parameters.nu0
             << " Nevery=" << parameters.every
+            << " diagnostic_every=" << parameters.diagnosticEvery
             << " r_assoc=" << parameters.rAssoc
             << " damping=" << parameters.damping
             << " K=" << parameters.feneK
@@ -257,7 +321,11 @@ int main(int argc, char** argv) {
 
     const std::string statePath = parameters.output + ".state";
     const std::string eventPath = parameters.output + ".events";
-    if (!parameters.force && (std::ifstream(statePath) || std::ifstream(eventPath))) {
+    const std::string finalSnapshotPath = parameters.output + ".final_permanent.lammpsdat";
+    const std::string finalAssociationsPath = parameters.output + ".final_associations";
+    if (!parameters.force && (std::ifstream(statePath) || std::ifstream(eventPath) ||
+                              std::ifstream(finalSnapshotPath) ||
+                              std::ifstream(finalAssociationsPath))) {
       throw std::runtime_error("output exists; choose a new --output or use --force");
     }
     std::ofstream stateFile(statePath);
@@ -300,7 +368,7 @@ int main(int argc, char** argv) {
          parameters.every, parameters.seed},
         parameters.feneK, parameters.feneR0, parameters.ee);
 
-    stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter\n";
+    stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter bound_fraction connected_components largest_cluster_size largest_cluster_fraction mean_degree second_degree_moment L1 L2 active_bond_observations max_active_bond_distance fraction_active_gt_1p25 fraction_active_gt_1p30 fraction_active_gt_1p40\n";
     eventFile << "# timestep event_type sticker_i sticker_j molecule_i molecule_j\n";
     writeProvenance(stateFile, eventFile, parameters, data,
                     static_cast<int>(stickerIds.size()));
@@ -309,14 +377,20 @@ int main(int argc, char** argv) {
     long long breaks = 0;
     long long chemistrySweeps = 0;
     long long candidatePairs = 0;
+    kg_assoc::ActiveBondDistanceDiagnostics distanceDiagnostics;
     kg_assoc::AssociationCounts counts = kg_assoc::checkAssociationInvariants(
         particles, data, state, permanentBonds, lengths, parameters.feneR0, creations, breaks);
-    writeState(stateFile, 0, parameters, counts, creations, breaks);
+    const kg_assoc::MolecularNetworkObservables initialNetwork =
+        kg_assoc::molecularNetworkObservables(data, state);
+    writeState(stateFile, 0, parameters, counts, initialNetwork, distanceDiagnostics,
+               static_cast<int>(stickerIds.size()), creations, breaks);
 
     const auto start = std::chrono::steady_clock::now();
     for (int step = 1; step <= parameters.steps; ++step) {
       integrator->forwardTime();
-      if (step % parameters.every != 0) {
+      const bool chemistryStep = step % parameters.every == 0;
+      const bool diagnosticStep = step % parameters.diagnosticEvery == 0;
+      if (!chemistryStep && !diagnosticStep) {
         continue;
       }
       CudaSafeCall(cudaStreamSynchronize(integrator->getStream()));
@@ -329,30 +403,39 @@ int main(int argc, char** argv) {
                                      particles, pair.first, pair.second, lengths)));
       }
 
-      std::vector<kg_assoc::Candidate> candidates = kg_assoc::findStickerCandidates(
-          particles, state, lengths, parameters.rAssoc);
-      candidatePairs += static_cast<long long>(candidates.size());
-      ++chemistrySweeps;
-      std::vector<kg_assoc::Event> acceptedEvents;
-      kinetics.update(step, state, std::move(candidates), acceptedEvents);
-      for (const kg_assoc::Event& event : acceptedEvents) {
-        const int firstLammpsId = event.first + 1;
-        const int secondLammpsId = event.second + 1;
-        eventFile << event.step << ' ' << event.type << ' ' << firstLammpsId << ' '
-                  << secondLammpsId << ' ' << data.mol.at(event.first) << ' '
-                  << data.mol.at(event.second) << '\n';
-        if (event.type == 'C') {
-          ++creations;
-        } else if (event.type == 'B') {
-          ++breaks;
-        } else {
-          throw std::runtime_error("unknown kinetic event type");
+      if (chemistryStep) {
+        std::vector<kg_assoc::Candidate> candidates = kg_assoc::findStickerCandidates(
+            particles, state, lengths, parameters.rAssoc);
+        candidatePairs += static_cast<long long>(candidates.size());
+        ++chemistrySweeps;
+        std::vector<kg_assoc::Event> acceptedEvents;
+        kinetics.update(step, state, std::move(candidates), acceptedEvents);
+        for (const kg_assoc::Event& event : acceptedEvents) {
+          const int firstLammpsId = event.first + 1;
+          const int secondLammpsId = event.second + 1;
+          eventFile << event.step << ' ' << event.type << ' ' << firstLammpsId << ' '
+                    << secondLammpsId << ' ' << data.mol.at(event.first) << ' '
+                    << data.mol.at(event.second) << '\n';
+          if (event.type == 'C') {
+            ++creations;
+          } else if (event.type == 'B') {
+            ++breaks;
+          } else {
+            throw std::runtime_error("unknown kinetic event type");
+          }
         }
       }
       counts = kg_assoc::checkAssociationInvariants(
           particles, data, state, permanentBonds, lengths, parameters.feneR0,
           creations, breaks);
-      writeState(stateFile, step, parameters, counts, creations, breaks);
+      if (diagnosticStep) {
+        kg_assoc::observeActiveBondDistances(
+            particles, state, lengths, distanceDiagnostics);
+        const kg_assoc::MolecularNetworkObservables network =
+            kg_assoc::molecularNetworkObservables(data, state);
+        writeState(stateFile, step, parameters, counts, network, distanceDiagnostics,
+                   static_cast<int>(stickerIds.size()), creations, breaks);
+      }
     }
 
     CudaSafeCall(cudaStreamSynchronize(integrator->getStream()));
@@ -365,11 +448,34 @@ int main(int argc, char** argv) {
     counts = kg_assoc::checkAssociationInvariants(
         particles, data, state, permanentBonds, lengths, parameters.feneR0,
         creations, breaks);
+    if (parameters.steps % parameters.diagnosticEvery != 0) {
+      kg_assoc::observeActiveBondDistances(particles, state, lengths, distanceDiagnostics);
+      const kg_assoc::MolecularNetworkObservables network =
+          kg_assoc::molecularNetworkObservables(data, state);
+      writeState(stateFile, parameters.steps, parameters, counts, network,
+                 distanceDiagnostics, static_cast<int>(stickerIds.size()), creations, breaks);
+    }
     stateFile << "# chemistry_sweeps=" << chemistrySweeps
               << " candidate_sticker_pairs=" << candidatePairs
               << " mean_candidate_sticker_pairs="
               << (chemistrySweeps == 0 ? 0.0 :
                   static_cast<double>(candidatePairs) / chemistrySweeps) << '\n';
+    kg::writeLAMMPSDataSnapshot(
+        finalSnapshotPath, parameters.steps, data,
+        particles, "kg_assoc_e2_permanent_only");
+    std::ofstream activeBondsFile(finalAssociationsPath);
+    if (!activeBondsFile) {
+      throw std::runtime_error("cannot open final active-association record");
+    }
+    activeBondsFile << "# Not a standalone restart: pair state requires explicit reload support.\n";
+    activeBondsFile << "# atom_i atom_j molecule_i molecule_j\n";
+    for (const int first : state.stickers()) {
+      const int second = state.partner(first);
+      if (second > first) {
+        activeBondsFile << first + 1 << ' ' << second + 1 << ' '
+                        << data.mol.at(first) << ' ' << data.mol.at(second) << '\n';
+      }
+    }
     const double wallSeconds = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - start).count();
     std::cout << kg_assoc::formatStarTopologyReport(topology);

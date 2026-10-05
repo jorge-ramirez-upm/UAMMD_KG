@@ -5,9 +5,11 @@
 #include "kg_assoc_star_topology.cuh"
 
 #include <cmath>
+#include <map>
 #include <set>
 #include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -32,6 +34,152 @@ struct AssociationCounts {
   int intraStarBonds = 0;
   int interStarBonds = 0;
 };
+
+inline double stickerDistance(
+    std::shared_ptr<uammd::ParticleData> particles,
+    int firstId,
+    int secondId,
+    const BoxLengths& lengths);
+
+struct MolecularNetworkObservables {
+  int connectedComponents = 0;
+  int largestClusterSize = 0;
+  double largestClusterFraction = 0.0;
+  double meanDegree = 0.0;
+  double secondDegreeMoment = 0.0;
+  long long primaryLoops = 0;
+  long long secondaryLoops = 0;
+};
+
+inline MolecularNetworkObservables analyzeMolecularGraph(
+    const std::vector<int>& molecules,
+    const std::vector<std::pair<int, int>>& interStarBonds) {
+  std::set<int> nodes(molecules.begin(), molecules.end());
+  if (nodes.size() != molecules.size() || nodes.empty()) {
+    throw std::runtime_error("molecular graph requires unique nonempty nodes");
+  }
+  std::map<std::pair<int, int>, int> multiplicity;
+  std::map<int, std::set<int>> neighbours;
+  for (const int molecule : nodes) {
+    neighbours[molecule];
+  }
+  for (const auto& bond : interStarBonds) {
+    if (bond.first == bond.second || !nodes.count(bond.first) ||
+        !nodes.count(bond.second)) {
+      throw std::runtime_error("invalid molecular graph edge");
+    }
+    const std::pair<int, int> edge = std::minmax(bond.first, bond.second);
+    ++multiplicity[edge];
+    neighbours[edge.first].insert(edge.second);
+    neighbours[edge.second].insert(edge.first);
+  }
+
+  MolecularNetworkObservables observables;
+  for (const auto& edge : multiplicity) {
+    const long long count = edge.second;
+    observables.primaryLoops += count * (count - 1) / 2;
+  }
+
+  std::set<int> visited;
+  double degreeSum = 0.0;
+  double degreeSquaredSum = 0.0;
+  for (const int molecule : nodes) {
+    const double degree = neighbours[molecule].size();
+    degreeSum += degree;
+    degreeSquaredSum += degree * degree;
+    if (!visited.insert(molecule).second) {
+      continue;
+    }
+    int clusterSize = 0;
+    std::vector<int> pending = {molecule};
+    while (!pending.empty()) {
+      const int current = pending.back();
+      pending.pop_back();
+      ++clusterSize;
+      for (const int neighbour : neighbours[current]) {
+        if (visited.insert(neighbour).second) {
+          pending.push_back(neighbour);
+        }
+      }
+    }
+    ++observables.connectedComponents;
+    observables.largestClusterSize = std::max(observables.largestClusterSize,
+                                              clusterSize);
+  }
+  observables.largestClusterFraction =
+      static_cast<double>(observables.largestClusterSize) / nodes.size();
+  observables.meanDegree = degreeSum / nodes.size();
+  observables.secondDegreeMoment = degreeSquaredSum / nodes.size();
+
+  for (const int first : nodes) {
+    for (const int second : neighbours[first]) {
+      if (second <= first) {
+        continue;
+      }
+      for (const int third : neighbours[second]) {
+        if (third <= second || !neighbours[first].count(third)) {
+          continue;
+        }
+        ++observables.secondaryLoops;
+      }
+    }
+  }
+  return observables;
+}
+
+inline MolecularNetworkObservables molecularNetworkObservables(
+    const kg::LammpsData& data,
+    const StickerState& state) {
+  std::set<int> starMolecules;
+  for (int index = 0; index < data.natoms; ++index) {
+    if (data.type.at(index) == 1 || data.type.at(index) == 2) {
+      starMolecules.insert(data.mol.at(index));
+    }
+  }
+  std::vector<std::pair<int, int>> interStarBonds;
+  for (const int first : state.stickers()) {
+    const int second = state.partner(first);
+    if (second <= first) {
+      continue;
+    }
+    const int firstMolecule = data.mol.at(first);
+    const int secondMolecule = data.mol.at(second);
+    if (firstMolecule != secondMolecule) {
+      interStarBonds.push_back({firstMolecule, secondMolecule});
+    }
+  }
+  return analyzeMolecularGraph(
+      std::vector<int>(starMolecules.begin(), starMolecules.end()), interStarBonds);
+}
+
+struct ActiveBondDistanceDiagnostics {
+  long long observations = 0;
+  long long above125 = 0;
+  long long above130 = 0;
+  long long above140 = 0;
+  double maximumDistance = 0.0;
+
+  void observe(double distance) {
+    ++observations;
+    maximumDistance = std::max(maximumDistance, distance);
+    above125 += distance > 1.25;
+    above130 += distance > 1.30;
+    above140 += distance > 1.40;
+  }
+};
+
+inline void observeActiveBondDistances(
+    std::shared_ptr<uammd::ParticleData> particles,
+    const StickerState& state,
+    const BoxLengths& lengths,
+    ActiveBondDistanceDiagnostics& diagnostics) {
+  for (const int first : state.stickers()) {
+    const int second = state.partner(first);
+    if (second > first) {
+      diagnostics.observe(stickerDistance(particles, first, second, lengths));
+    }
+  }
+}
 
 inline std::vector<int> extractStickerIds(const kg::LammpsData& data) {
   std::vector<int> stickerIds;

@@ -47,6 +47,28 @@ a conservative choice for the intended range through `Ee=16`, not a claim of
 mathematical uniqueness or global optimality. Temporary FENE mechanics remain
 topology-based up to `R0=1.5`, independent of the WCA neighbor-list range.
 
+### P3.1 — C1 E2 chemical/topological equilibration
+
+P3.1 begins from the E1-equilibrated C1 configuration with chemistry enabled,
+not from a new preparation protocol. It uses the frozen `r_assoc=1.25` for
+both creation and breaking, with unchanged `Ee=8`, `Ea=4`, `nu0=20`,
+`Nevery=100`, `T=1`, and `dt=.01`. Its purpose is to measure the time required
+for chemical and molecular-network observables to become stationary, not to
+produce a production trajectory.
+
+The first probe is 2,000,000 MD steps with diagnostics every 1,000 steps.
+Diagnostics include bond counts/fraction, intra/inter bonds, components,
+largest cluster, distinct-neighbor degree, `L1`, `L2`, event balance, and
+active-bond extension statistics. The historical largest-cluster `.40` proxy
+is not a wrapping criterion. Rigorous PBC wrapping, restart banks, rheology,
+MSD, and production remain outside P3.1.
+
+The final permanent-topology snapshot is useful for inspection, but active
+temporary associations are written separately and cannot yet be reloaded.
+Therefore it is not a scientifically valid chemical restart; robust restart
+support remains a later dedicated milestone. P3.1 is implemented and pending
+the first C1 trajectory and stationarity assessment; it is not closed.
+
 ## 1. Scientific motivation
 
 A stationary bonded fraction alone does not certify equilibrium. The network

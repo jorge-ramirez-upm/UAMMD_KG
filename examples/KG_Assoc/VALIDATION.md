@@ -976,3 +976,43 @@ factor was introduced. Historical results below that used `r_assoc=2^(1/6)`
 remain historical records and are not rewritten as 1.25 results.
 
 P3.0 is therefore **CLOSED** with `r_assoc=1.25` frozen as the E2 default.
+
+## P3.1 — C1 E2 chemical/topological equilibration
+
+P3.1 diagnostics are implemented; no E2 trajectory has been executed or
+interpreted in this implementation commit. The existing `kg_assoc_stars`
+workflow now writes configurable-interval E2 state rows containing chemical
+counts, bound fraction, intra/inter counts, molecular connected components,
+largest-cluster size/fraction, distinct-neighbor degree moments, thesis-style
+`L1` and `L2`, and cumulative active-bond distance safety diagnostics.
+
+The molecular graph uses star molecules as nodes and one distinct edge per
+inter-star pair. `L1=sum(n_AB choose 2)` retains edge multiplicity; `L2` counts
+distinct molecular triangles. The historical `largest_cluster_fraction > .40`
+may be inspected as a pragmatic proxy only; no PBC wrapping/percolation claim
+is made.
+
+The initial C1 probe is prepared, but intentionally not launched here:
+
+```bash
+./examples/KG_Assoc/kg_assoc_stars \
+  --input examples/KG_Assoc/systems/e1_equilibrated/C1_long_s12001.e1.lammpsdat \
+  --arms 4 --narm 10 --steps 2000000 --dt 0.01 --temperature 1 \
+  --Ea 4 --Ee 8 --nu0 20 --Nevery 100 --diagnostic-every 1000 \
+  --r-assoc 1.25 --damp 2 --K 30 --R0 1.5 --seed 12001 \
+  --output c1_e2_s12001
+python3 examples/KG_Assoc/analysis/analyze_e2_stationarity.py c1_e2_s12001.state
+```
+
+`analyze_e2_stationarity.py` is descriptive and fail-closed. It reports sample
+and time ranges, half means/differences, second-half slopes, block means,
+uniform-cadence autocorrelation/effective sample estimates, and event-balance
+rates for bound fraction, intra/inter bonds, `L1`, `L2`, largest-cluster
+fraction, and mean degree. It applies no automatic equilibrium threshold.
+
+At completion, the runner writes a permanent-topology LAMMPS snapshot and a
+separate final active-association listing. This is **not** a restart format:
+temporary partner state cannot yet be reloaded, so restart-bank support remains
+deferred. Atom IDs, molecule IDs, types, positions, velocities, and permanent
+bonds are retained in the permanent snapshot; active bonds are explicitly
+separate to avoid silently claiming a valid continuation state.
