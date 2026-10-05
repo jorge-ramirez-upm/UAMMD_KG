@@ -57,3 +57,13 @@ transfers. Preserve validated performance-sensitive batching and buffering.
 Priority order: scientific correctness, reproducibility/auditability,
 performance, readability/maintainability, then compactness. Compactness is
 desirable only when it does not harm a higher-priority goal.
+
+## Execution policy
+
+Codex must not run long simulations, long benchmarks, or expensive analyses.
+In-session execution is limited to compilation, unit/regression and
+deterministic validation, and short smoke runs. When scientifically necessary
+validation needs substantial wall time, large trajectories, or production-scale
+resources, Codex must prepare reproducible scripts and exact commands for the
+dedicated Linux host, then stop and report them. Never weaken a necessary test
+to fit the Codex environment.

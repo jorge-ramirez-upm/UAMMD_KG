@@ -17,6 +17,9 @@ Completed milestones:
 - P3.3 C1 chemically valid restart bank
 - P4.0 associating-FENE stress tensor validation
 
+P4.1 implementation is present but remains open pending the dedicated-host
+validation script; no production campaign has been started.
+
 Validated C1 E2 duration: 6,000,000 MD steps at `dt=0.01`.
 
 The validated C1 restart bank contains six chemically valid states at

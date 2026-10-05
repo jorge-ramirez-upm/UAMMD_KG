@@ -15,7 +15,7 @@ The active temporary FENE contribution now uses the same endpoint-doubled
 cache and `+1/2` reducer convention as permanent FENE. It is independent of
 the WCA list and remains active to `R0`; `Ee` does not enter its stress.
 
-P4.1:
+P4.1 (implementation complete; dedicated-host validation pending):
 
 - Create a clean production executable.
 - Sample stress every step and COM every 100 steps.

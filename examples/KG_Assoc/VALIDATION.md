@@ -6,6 +6,29 @@ This record contains only executed and inspected checks. Generated `.events` and
 For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
 
+## P4.1 — production instrumentation (implementation; validation pending)
+
+`kg_assoc_production` is a separate production-oriented executable. Its
+ordering is fixed as: advance one MD step; synchronize and update chemistry on
+scheduled steps; then refresh WCA, permanent-FENE, and associating-FENE stress
+caches and enqueue the buffered six-channel reduction. Thus the step's stress
+and topology frame refer to the post-chemistry partner state. Stress excludes
+step zero and contains exactly one sample for every advanced MD step.
+
+It writes unwrapped star COM samples every 100 steps and synchronized COM and
+topology frames every 10,000 steps. Molecular COMs are constructed relative to
+one stable anchor bead using minimum-image bead displacements, then unwrapped
+in time from successive minimum-image COM increments. The topology stream uses
+`FRAME step time active_pairs` followed by original 1-based atom IDs and both
+molecule IDs. Restart starts a new output segment; the P3 chemical state is
+preserved, but image history is intentionally not claimed to be serialized.
+
+Dedicated-host commands are provided in `scripts/run_p41_validation.sh` and
+`scripts/benchmark_p41_short.sh`; `scripts/p42_rheology_pilot.template.sh` is
+a non-executing P4.2 placeholder. These host checks, including real C1
+restart-continuation and cadence/output inspection, are required before P4.1
+can be closed. No long run was launched in-session.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record
