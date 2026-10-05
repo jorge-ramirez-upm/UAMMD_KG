@@ -5,11 +5,15 @@
 P4 implementation follows the development workflow and code style in
 `SCIENTIFIC_DECISIONS.md`.
 
-P4.0:
+P4.0 (CLOSED):
 
 - Inspect and port the `kg_uammd.cu` stress machinery.
 - Add the associating-FENE virial/stress contribution.
 - Validate the total stress tensor.
+
+The active temporary FENE contribution now uses the same endpoint-doubled
+cache and `+1/2` reducer convention as permanent FENE. It is independent of
+the WCA list and remains active to `R0`; `Ee` does not enter its stress.
 
 P4.1:
 

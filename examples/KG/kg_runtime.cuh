@@ -383,27 +383,35 @@ inline __device__ StressTensorSample computeStressTensorContribution(
     const uammd::real4& wcaOff,
     const uammd::real4& feneDiag,
     const uammd::real4& feneOff,
+    const uammd::real4& associatingFeneDiag,
+    const uammd::real4& associatingFeneOff,
     double invVolume) {
   const double mi = static_cast<double>(mass);
   return {
       invVolume * (mi * static_cast<double>(vel.x) * static_cast<double>(vel.x) -
                    0.5 * static_cast<double>(wcaDiag.x) +
-                   0.5 * static_cast<double>(feneDiag.x)),
+                   0.5 * static_cast<double>(feneDiag.x) +
+                   0.5 * static_cast<double>(associatingFeneDiag.x)),
       invVolume * (mi * static_cast<double>(vel.y) * static_cast<double>(vel.y) -
                    0.5 * static_cast<double>(wcaDiag.y) +
-                   0.5 * static_cast<double>(feneDiag.y)),
+                   0.5 * static_cast<double>(feneDiag.y) +
+                   0.5 * static_cast<double>(associatingFeneDiag.y)),
       invVolume * (mi * static_cast<double>(vel.z) * static_cast<double>(vel.z) -
                    0.5 * static_cast<double>(wcaDiag.z) +
-                   0.5 * static_cast<double>(feneDiag.z)),
+                   0.5 * static_cast<double>(feneDiag.z) +
+                   0.5 * static_cast<double>(associatingFeneDiag.z)),
       invVolume * (mi * static_cast<double>(vel.x) * static_cast<double>(vel.y) -
                    0.5 * static_cast<double>(wcaOff.x) +
-                   0.5 * static_cast<double>(feneOff.x)),
+                   0.5 * static_cast<double>(feneOff.x) +
+                   0.5 * static_cast<double>(associatingFeneOff.x)),
       invVolume * (mi * static_cast<double>(vel.x) * static_cast<double>(vel.z) -
                    0.5 * static_cast<double>(wcaOff.y) +
-                   0.5 * static_cast<double>(feneOff.y)),
+                   0.5 * static_cast<double>(feneOff.y) +
+                   0.5 * static_cast<double>(associatingFeneOff.y)),
       invVolume * (mi * static_cast<double>(vel.y) * static_cast<double>(vel.z) -
                    0.5 * static_cast<double>(wcaOff.z) +
-                   0.5 * static_cast<double>(feneOff.z)),
+                   0.5 * static_cast<double>(feneOff.z) +
+                   0.5 * static_cast<double>(associatingFeneOff.z)),
   };
 }
 
@@ -415,6 +423,8 @@ __global__ void reduceStressTensorParticlesKernel(
     const uammd::real4* wcaStressOff,
     const uammd::real4* feneStressDiag,
     const uammd::real4* feneStressOff,
+    const uammd::real4* associatingFeneStressDiag,
+    const uammd::real4* associatingFeneStressOff,
     int numberParticles,
     double invVolume,
     StressTensorSample* partialSums) {
@@ -423,9 +433,16 @@ __global__ void reduceStressTensorParticlesKernel(
 
   StressTensorSample local;
   if (i < numberParticles) {
-    local = computeStressTensorContribution(vel[i], mass[i], wcaStressDiag[i],
-                                            wcaStressOff[i], feneStressDiag[i],
-                                            feneStressOff[i], invVolume);
+    const uammd::real4 zero = uammd::make_real4(uammd::real(0.0));
+    const uammd::real4 associatingDiag = associatingFeneStressDiag
+                                             ? associatingFeneStressDiag[i]
+                                             : zero;
+    const uammd::real4 associatingOff = associatingFeneStressOff
+                                            ? associatingFeneStressOff[i]
+                                            : zero;
+    local = computeStressTensorContribution(
+        vel[i], mass[i], wcaStressDiag[i], wcaStressOff[i], feneStressDiag[i],
+        feneStressOff[i], associatingDiag, associatingOff, invVolume);
   } else {
     local = zeroStressTensorSample();
   }
@@ -606,6 +623,63 @@ inline void appendStressTensorSampleAsync(
       thrust::raw_pointer_cast(wca->getStressOff().data()),
       thrust::raw_pointer_cast(fene->getStressDiag().data()),
       thrust::raw_pointer_cast(fene->getStressOff().data()),
+      nullptr, nullptr,
+      numberParticles, invVolume, partialSums);
+  detail::reduceStressTensorPartialsKernel<threads><<<1, threads, 0, stream>>>(
+      partialSums, blocks, output);
+  CudaCheckError();
+}
+
+template <class WCAInteractor, class FENEInteractor,
+          class AssociatingFENEInteractor>
+inline detail::StressTensorSample sampleStressTensor(
+    std::shared_ptr<uammd::ParticleData> particles,
+    const SimulationBox& simulationBox,
+    const WCAInteractor& wca,
+    const FENEInteractor& fene,
+    const AssociatingFENEInteractor& associatingFene) {
+  detail::StressTensorSample total =
+      sampleStressTensor(particles, simulationBox, wca, fene);
+
+  const double volume = static_cast<double>(simulationBox.box.getVolume());
+  if (volume > 0.0) {
+    // Associating FENE uses the same doubled, bonded cache convention as
+    // permanent FENE, so it enters with the same +1/2 sign.
+    total += (0.5 / volume) * detail::reduceInteractorStress(*associatingFene);
+  }
+  return total;
+}
+
+template <class WCAInteractor, class FENEInteractor,
+          class AssociatingFENEInteractor>
+inline void appendStressTensorSampleAsync(
+    std::shared_ptr<uammd::ParticleData> particles,
+    const SimulationBox& simulationBox,
+    const WCAInteractor& wca,
+    const FENEInteractor& fene,
+    const AssociatingFENEInteractor& associatingFene,
+    detail::StressTensorSample* partialSums,
+    detail::StressTensorSample* output,
+    cudaStream_t stream) {
+  using namespace uammd;
+
+  auto vel = particles->getVel(access::location::gpu, access::mode::read);
+  auto mass = particles->getMass(access::location::gpu, access::mode::read);
+  const int numberParticles = particles->getNumParticles();
+  constexpr int threads = 256;
+  const int blocks = (numberParticles + threads - 1) / threads;
+  const double volume = static_cast<double>(simulationBox.box.getVolume());
+  const double invVolume = volume > 0.0 ? 1.0 / volume : 0.0;
+
+  detail::reduceStressTensorParticlesKernel<threads><<<blocks, threads, 0,
+                                                       stream>>>(
+      vel.raw(), mass.raw(),
+      thrust::raw_pointer_cast(wca->getStressDiag().data()),
+      thrust::raw_pointer_cast(wca->getStressOff().data()),
+      thrust::raw_pointer_cast(fene->getStressDiag().data()),
+      thrust::raw_pointer_cast(fene->getStressOff().data()),
+      thrust::raw_pointer_cast(associatingFene->getStressDiag().data()),
+      thrust::raw_pointer_cast(associatingFene->getStressOff().data()),
       numberParticles, invVolume, partialSums);
   detail::reduceStressTensorPartialsKernel<threads><<<1, threads, 0, stream>>>(
       partialSums, blocks, output);

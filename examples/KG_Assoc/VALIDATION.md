@@ -6,6 +6,64 @@ This record contains only executed and inspected checks. Generated `.events` and
 For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
 
+## P4.0 — associating-FENE stress tensor (CLOSED)
+
+Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record
+Ponytail and code style workflow`), rather than the older P3 validation SHA
+still named in the prior project-state record.
+
+`AssociatingFENEInteractor` now caches diagonal and off-diagonal temporary
+FENE stress per particle. For one active pair with `rij = rj-ri` and `fij` the
+force on `i`, it stores `-rij tensor fij` on both endpoints. The KG reducer
+therefore adds `+1/2` of the cache, exactly matching permanent FENE and giving
+one physical pair contribution. The shifted bonded energy, including `Ee`, is
+not part of this force or stress. The live partner array is the only temporary
+topology input, so an active pair is included at every valid distance below
+`R0=1.5`, independently of `r_assoc=1.25` and the WCA neighbor list.
+
+The existing GPU-buffered KG reducer gained a three-interactor overload for
+WCA, permanent FENE, and associating FENE; the original two-interactor API is
+unchanged. No host loop over active associations or sampling-only device-host
+synchronization was added to the production path.
+
+The focused GPU regression was rebuilt and executed on NVIDIA TITAN Xp,
+single-precision UAMMD:
+
+```bash
+make -B -C examples/KG_Assoc kg_assoc_stress_test
+./examples/KG_Assoc/kg_assoc_stress_test
+```
+
+It passed `KG_ASSOC_STRESS_TEST PASS tensor, reversal, trace, decomposition,
+kinetic topology`. The test establishes: zero temporary topology yields an
+exact zero cache and the ordinary KG tensor; a non-axis-aligned temporary bond
+matches an independent analytic calculation in all six channels; exchanging
+endpoints leaves the physical tensor unchanged; its trace matches
+`-rij dot fij / V`; the total is the independent kinetic + WCA + permanent
+FENE + associating-FENE decomposition; and the asynchronous buffered reducer
+matches the direct reducer. A deterministic kinetic loop formed and broke the
+live temporary pair and confirmed finite active stress and no stale cache after
+dissociation.
+
+Existing focused checks and a short dynamic GPU smoke also passed:
+
+```bash
+make -B -C examples/KG_Assoc kg_assoc_dimer kg_assoc_stars kg_assoc_star_audit
+./examples/KG_Assoc/kg_assoc_dimer --self-test
+./examples/KG_Assoc/kg_assoc_k1 --self-test
+./examples/KG_Assoc/kg_assoc_star_audit --self-test
+./examples/KG_Assoc/kg_assoc_stars --self-test
+./examples/KG_Assoc/kg_assoc_dimer --steps 200 --dt 0.005 --Nevery 1 \
+  --Ea 0 --Ee 0 --nu0 1000 --r-assoc 1.25 --seed 9876 \
+  --output /tmp/p40_dimer_0310794
+```
+
+The dimer smoke completed 200 kinetic updates with 6 accepted creations and
+6 breaks. This is a topology/finite-value smoke, not a production rheology
+run. P4.0 is closed. P4.1 must connect this validated three-term reducer to a
+clean every-step production sampler and retain the existing six-channel
+`Correlator6` estimator unchanged. Final P4.0 commit: pending commit below.
+
 ## S0: star-input import and permanent-topology audit
 
 Starting repository SHA: `227893355f30662ff49e6ab09f3f4d4cf12e70fa`.
