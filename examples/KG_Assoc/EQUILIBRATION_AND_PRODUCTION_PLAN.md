@@ -1,5 +1,8 @@
 # Associating-star equilibration and production plan
 
+For the current project snapshot, frozen scientific choices, and next steps,
+see `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
+
 This document is the planning specification for the next associating-star
 phase. P2 has implemented E1 conformational-equilibration infrastructure only;
 E1 scientific equilibration lengths remain unvalidated. E2, topology analysis,

@@ -3,6 +3,9 @@
 This record contains only executed and inspected checks. Generated `.events` and
 `.summary` files are intentionally not versioned.
 
+For the current project snapshot, frozen scientific choices, and next steps,
+start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
+
 ## S0: star-input import and permanent-topology audit
 
 Starting repository SHA: `227893355f30662ff49e6ab09f3f4d4cf12e70fa`.
