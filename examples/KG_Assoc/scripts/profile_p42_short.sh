@@ -27,9 +27,9 @@ make -B -C examples/KG_Assoc kg_assoc_stars kg_assoc_production
   ./examples/KG_Assoc/kg_assoc_production --restart-prefix "$restart_prefix" \
     --steps "$steps" --output "$workdir/production_output"
 
-"$nsys" stats --report cudaapisum,gpukernsum,osrtsum \
+"$nsys" stats --force-export=true --report cudaapisum,gpukernsum,osrtsum \
   "$workdir/baseline.nsys-rep" > "$workdir/baseline.stats.txt"
-"$nsys" stats --report cudaapisum,gpukernsum,osrtsum \
+"$nsys" stats --force-export=true --report cudaapisum,gpukernsum,osrtsum \
   "$workdir/production.nsys-rep" > "$workdir/production.stats.txt"
 
 echo "P4.2 short Nsight captures written to $workdir"
