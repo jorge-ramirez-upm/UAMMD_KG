@@ -15,16 +15,21 @@ The active temporary FENE contribution now uses the same endpoint-doubled
 cache and `+1/2` reducer convention as permanent FENE. It is independent of
 the WCA list and remains active to `R0`; `Ee` does not enter its stress.
 
-P4.1 (implementation complete; dedicated-host validation pending):
+P4.1 (CLOSED):
 
 - Create a clean production executable.
 - Sample stress every step and COM every 100 steps.
 - Write unwrapped COM trajectory and synchronized topology stream every
   10,000 steps.
 
-P4.2:
+Dedicated-host validation passed at `e843d6c60c38d5dd6c9aee74235de3fdc1bf79b3`.
+Measured production overhead was approximately 61.3% wall time and 38.0%
+throughput loss relative to the controlled baseline.
 
-- Benchmark overhead and I/O.
+P4.2 (profiling pending):
+
+- Profile and decompose stress, buffering, correlation, COM, topology I/O,
+  and synchronization overhead before considering optimization.
 - Run a short rheology pilot.
 - Estimate the required production duration.
 

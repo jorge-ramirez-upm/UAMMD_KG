@@ -67,3 +67,12 @@ validation needs substantial wall time, large trajectories, or production-scale
 resources, Codex must prepare reproducible scripts and exact commands for the
 dedicated Linux host, then stop and report them. Never weaken a necessary test
 to fit the Codex environment.
+
+## P4.2 profiling policy
+
+The measured P4.1 overhead is a profiling target, not a scientific conclusion.
+Use the same chemically valid restart, GPU, physics parameters, and short step
+count for baseline and production captures. First collect wall-clock and
+Nsight Systems evidence for launches, synchronization, device-host copies,
+and dominant kernels; do not optimize or launch a rheology pilot until those
+measurements identify a scientifically neutral target.

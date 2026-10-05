@@ -6,7 +6,7 @@ This record contains only executed and inspected checks. Generated `.events` and
 For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
 
-## P4.1 — production instrumentation (implementation; validation pending)
+## P4.1 — production instrumentation (CLOSED)
 
 `kg_assoc_production` is a separate production-oriented executable. Its
 ordering is fixed as: advance one MD step; synchronize and update chemistry on
@@ -26,8 +26,8 @@ preserved, but image history is intentionally not claimed to be serialized.
 Dedicated-host commands are provided in `scripts/run_p41_validation.sh` and
 `scripts/benchmark_p41_short.sh`; `scripts/p42_rheology_pilot.template.sh` is
 a non-executing P4.2 placeholder. These host checks, including real C1
-restart-continuation and cadence/output inspection, are required before P4.1
-can be closed. No long run was launched in-session.
+restart-continuation and cadence/output inspection, passed on the dedicated
+TITAN Xp host. No long production run was launched.
 
 The P4.1 host scripts are fail-closed. `run_p41_validation.sh` requires a
 chemically valid `.restart.lammpsdat` plus `.assoc_restart`, uses validation-
@@ -38,6 +38,40 @@ topology agreement, deterministic PBC temporal-unwrapping arithmetic, and a
 short restart topology round trip. It ends with `P4.1_VALIDATION PASS` only
 after every assertion passes. `benchmark_p41_short.sh` runs both drivers from
 the same chemical restart and reports wall-time overhead and throughput loss.
+
+The exact validated commands were:
+
+```bash
+INPUT=examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat \
+  examples/KG_Assoc/scripts/run_p41_validation.sh
+INPUT=examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat \
+  examples/KG_Assoc/scripts/benchmark_p41_short.sh
+```
+
+The validation reported `stress_samples=20000`, `com_sample_steps=200`,
+`com_rows=200000`, `synchronized_frames=200`, and `stars=1000`, ending with
+`P4.1_VALIDATION PASS`. The one-step restart continuation performed zero
+chemistry sweeps and preserved active temporary topology exactly. Its COM
+output intentionally starts a new unwrapped segment because image history is
+not serialized.
+
+The controlled benchmark ended with `P4.1_BENCHMARK PASS`:
+
+| run | wall seconds | particle-timesteps/s |
+|---|---:|---:|
+| baseline | 5.87473 | 1.48306e8 |
+| production | 9.47309 | 9.19721e7 |
+
+Relative wall-time overhead was `0.612515` (61.3%); relative throughput loss
+was `0.379849` (38.0%).
+
+## P4.2 — profiling and overhead decomposition (PENDING)
+
+P4.2 begins with profiling only. No scientific conclusion has been drawn from
+the aggregate overhead. `scripts/profile_p42_short.sh` prepares short,
+same-restart Nsight Systems captures for kernel launches, synchronization,
+device-host copies, and host correlation/output timing. Run it on the
+dedicated TITAN Xp host before considering optimization or a rheology pilot.
 
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
