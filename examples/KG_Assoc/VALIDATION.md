@@ -67,7 +67,7 @@ was `0.379849` (38.0%).
 
 ## P4.2 — profiling and overhead decomposition (PENDING)
 
-P4.2 begins with profiling only. A 2,000-step C1 Nsight Systems capture on the
+P4.2 began with profiling. A 2,000-step C1 Nsight Systems capture on the
 dedicated TITAN Xp measured 2,001 baseline calls each to WCA, permanent FENE,
 and associating FENE, versus 4,001 calls each in production. The duplicate
 production pass came from re-evaluating all three interactors only to rebuild
@@ -82,9 +82,29 @@ chemistry step, only the associating-FENE cache is rebuilt after partner
 updates; WCA and permanent-FENE topology is unchanged. The focused stress
 regression checks force-populated caches against an explicit stress-only
 recomputation and checks post-creation/break cached totals against a full
-post-chemistry recomputation. Dedicated-host P4.1 validation, benchmark, and
-2,000-step Nsight Systems remeasurement remain required before judging the
-remaining overhead or considering a rheology pilot.
+post-chemistry recomputation. The dedicated TITAN Xp P4.1 validation passed
+after this change. The repeated 20,000-step benchmark measured 5.91834 s
+(1.47214e8 particle-timesteps/s) for baseline and 7.61406 s (1.14428e8
+particle-timesteps/s) for production: 28.652% wall-time overhead and 22.271%
+throughput loss. This supersedes the pre-optimization overhead measurement.
+
+The valid optimized 2,000-step profile reports 2,001 stress-aware WCA calls,
+2,001 permanent-FENE calls, 2,021 associating-FENE calls, and 2,000 calls each
+to the particle and partial stress-reduction kernels. Thus redundant full
+interaction evaluation is removed. Device-host transfers are not dominant;
+the remaining overhead is intrinsic stress-aware interaction work, every-step
+stress reduction, and their launches/synchronization. Permanent FENE has the
+largest intrinsic per-call penalty. Further optimization is deferred until a
+bounded two-seed rheology pilot determines the required trajectory duration.
+
+`scripts/run_p42_rheology_pilot.sh` runs 1,000,000 steps per independent C1
+seed (12001 and 12002, both `t40000` bank states) with unchanged production
+defaults. `analysis/analyze_p42_rheology_pilot.py` writes each six-channel
+curve, their replica mean, and an explicit long-tail heuristic. A lag is
+resolved when its two-seed SEM is at most `max(0.25*|mean G|, 0.05*|mean G(0)|)`.
+The tail is called decayed only if at least three resolved bins in the latter
+half of the lag range have a mean within their RMS SEM of zero. These are pilot
+diagnostics, not fitted relaxation times or a final production prescription.
 
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Dedicated-host template only. Choose validated C1 restart/input and duration
-# in P4.2; do not execute this as a production campaign without that decision.
+# Dedicated-host compatibility entry point. The bounded P4.2 pilot is prepared
+# by run_p42_rheology_pilot.sh; do not use it as a production campaign.
 set -euo pipefail
-echo "P4.2 pilot parameters must be selected after P4.1 validation."
+echo "Use scripts/run_p42_rheology_pilot.sh for the two-seed P4.2 pilot."

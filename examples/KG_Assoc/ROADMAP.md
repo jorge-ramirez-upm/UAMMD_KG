@@ -26,12 +26,12 @@ Dedicated-host validation passed at `e843d6c60c38d5dd6c9aee74235de3fdc1bf79b3`.
 Measured production overhead was approximately 61.3% wall time and 38.0%
 throughput loss relative to the controlled baseline.
 
-P4.2 (profiling pending):
+P4.2 (rheology pilot pending):
 
-- Profile and decompose stress, buffering, correlation, COM, topology I/O,
-  and synchronization overhead before considering optimization.
-- Re-measure the cache-reuse optimization on the dedicated host before deciding
-  whether the remaining overhead is acceptable for a rheology pilot.
+- The cache-reuse optimization passed dedicated-host validation and reduced
+  controlled overhead to 28.7%; redundant interaction passes are removed.
+- Run the bounded independent-seed rheology pilot and inspect its six-channel
+  tail/noise diagnostics before selecting a production duration.
 
 P4.3:
 
