@@ -9,6 +9,7 @@
 #include <vector>
 
 namespace kg_assoc {
+constexpr double kDefaultReactionCutoff = 1.25;
 struct Candidate { int first, second; double r; };
 struct Event { long long step; char type; int first, second; };
 struct KineticParameters { double nu0, ea, temperature, dt; int every; unsigned long long seed; };

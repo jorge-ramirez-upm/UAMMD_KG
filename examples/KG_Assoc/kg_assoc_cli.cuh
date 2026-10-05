@@ -16,7 +16,7 @@ struct Params {
   double ee = 4.;
   double ea = 1.;
   double nu0 = 10.;
-  double rAssoc = 1.3;
+  double rAssoc = 1.25;
   double k = 30.;
   double r0 = 1.5;
   double friction = .5;
@@ -27,6 +27,7 @@ struct Params {
   bool selfTest = false;
   bool staticMode = false;
   bool initialBound = false;
+  bool rAssocExplicit = false;
   bool bondedRadialAudit = false;
   int auditBurnin = 10000;
   int auditSample = 100;
@@ -68,6 +69,7 @@ inline Params parseArgs(int argc, char** argv) {
       params.every = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--r-assoc") {
       params.rAssoc = std::stod(nextArgument(index, argc, argv));
+      params.rAssocExplicit = true;
     } else if (option == "--K") {
       params.k = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--R0") {

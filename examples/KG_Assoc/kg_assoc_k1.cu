@@ -24,9 +24,9 @@ constexpr double kFinalDpdAmplitude = 1000.0;
 constexpr int kDpdRampLevels = 10;
 constexpr int kDpdRampStepsPerLevel = 100;
 
-struct P { int n=256,push=5000,warmup=20000,steps=100000,every=100,sample=100; double rho=.05,dt=.005,t=1,nu0=20,ea=4,ee=4,damp=2,k=30,r0=1.5,rassoc=std::pow(2.,1./6.); unsigned long long seed=410510; std::string out="k1"; bool force=false,selfTest=false; };
+struct P { int n=256,push=5000,warmup=20000,steps=100000,every=100,sample=100; double rho=.05,dt=.005,t=1,nu0=20,ea=4,ee=4,damp=2,k=30,r0=1.5,rassoc=1.25; unsigned long long seed=410510; std::string out="k1"; bool force=false,selfTest=false,rassocExplicit=false; };
 std::string next(int&i,int n,char**v){if(++i>=n)throw std::runtime_error("missing option value");return v[i];}
-P parse(int n,char**v){P p;for(int i=1;i<n;++i){std::string a=v[i];if(a=="--n")p.n=std::stoi(next(i,n,v));else if(a=="--rho")p.rho=std::stod(next(i,n,v));else if(a=="--push-steps")p.push=std::stoi(next(i,n,v));else if(a=="--warmup")p.warmup=std::stoi(next(i,n,v));else if(a=="--steps")p.steps=std::stoi(next(i,n,v));else if(a=="--dt")p.dt=std::stod(next(i,n,v));else if(a=="--temperature")p.t=std::stod(next(i,n,v));else if(a=="--nu0")p.nu0=std::stod(next(i,n,v));else if(a=="--Ea")p.ea=std::stod(next(i,n,v));else if(a=="--Ee")p.ee=std::stod(next(i,n,v));else if(a=="--r-assoc")p.rassoc=std::stod(next(i,n,v));else if(a=="--Nevery")p.every=std::stoi(next(i,n,v));else if(a=="--sample")p.sample=std::stoi(next(i,n,v));else if(a=="--damp")p.damp=std::stod(next(i,n,v));else if(a=="--seed")p.seed=std::stoull(next(i,n,v));else if(a=="--output")p.out=next(i,n,v);else if(a=="--force")p.force=true;else if(a=="--self-test")p.selfTest=true;else if(a=="--help"){std::cout<<"kg_assoc_k1 [--n 256 --rho .05 --push-steps 5000 --warmup 20000 --steps 100000 --Ea 4 --Ee 4 --r-assoc R --Nevery 100 --sample 100 --seed S --output PREFIX --self-test]\n";std::exit(0);}else throw std::runtime_error("unknown argument: "+a);}if(p.n<2||p.push<0||p.rho<=0||p.rassoc<=0||p.rassoc>=p.r0||p.every<=0||p.sample<=0||p.damp<=0)throw std::runtime_error("invalid K1 parameters");return p;}
+P parse(int n,char**v){P p;for(int i=1;i<n;++i){std::string a=v[i];if(a=="--n")p.n=std::stoi(next(i,n,v));else if(a=="--rho")p.rho=std::stod(next(i,n,v));else if(a=="--push-steps")p.push=std::stoi(next(i,n,v));else if(a=="--warmup")p.warmup=std::stoi(next(i,n,v));else if(a=="--steps")p.steps=std::stoi(next(i,n,v));else if(a=="--dt")p.dt=std::stod(next(i,n,v));else if(a=="--temperature")p.t=std::stod(next(i,n,v));else if(a=="--nu0")p.nu0=std::stod(next(i,n,v));else if(a=="--Ea")p.ea=std::stod(next(i,n,v));else if(a=="--Ee")p.ee=std::stod(next(i,n,v));else if(a=="--r-assoc"){p.rassoc=std::stod(next(i,n,v));p.rassocExplicit=true;}else if(a=="--Nevery")p.every=std::stoi(next(i,n,v));else if(a=="--sample")p.sample=std::stoi(next(i,n,v));else if(a=="--damp")p.damp=std::stod(next(i,n,v));else if(a=="--seed")p.seed=std::stoull(next(i,n,v));else if(a=="--output")p.out=next(i,n,v);else if(a=="--force")p.force=true;else if(a=="--self-test")p.selfTest=true;else if(a=="--help"){std::cout<<"kg_assoc_k1 [--n 256 --rho .05 --push-steps 5000 --warmup 20000 --steps 100000 --Ea 4 --Ee 4 --r-assoc R --Nevery 100 --sample 100 --seed S --output PREFIX --self-test]\n";std::exit(0);}else throw std::runtime_error("unknown argument: "+a);}if(p.n<2||p.push<0||p.rho<=0||p.rassoc<=0||p.rassoc>=p.r0||p.every<=0||p.sample<=0||p.damp<=0)throw std::runtime_error("invalid K1 parameters");return p;}
 double minImage(double x,double side){return x-side*std::nearbyint(x/side);}
 double dpdRampAmplitude(int level) {
   return kInitialDpdAmplitude +
@@ -112,6 +112,9 @@ int main(int argc, char** argv) {
   try {
     const P parameters = parse(argc, argv);
     if (parameters.selfTest) {
+      if (!parameters.rassocExplicit && parameters.rassoc != kg_assoc::kDefaultReactionCutoff) {
+        throw std::runtime_error("default reaction cutoff regression failed");
+      }
       if (!warmupIdSelfTest()) {
         throw std::runtime_error("minimum-image self-test failed");
       }

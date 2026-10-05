@@ -856,9 +856,13 @@ K1 is sufficiently validated to proceed to the full associating-star system.
 This status covers the K1 chemistry implementation and its coupling to the
 simple associating fluid, not the full polymer-network or rheology pipeline.
 
-## P3.0 — associating cutoff audit
+## P3.0 — associating cutoff audit (CLOSED)
 
-P3.0 is implemented but has no new CUDA trajectory results in this revision.
+P3.0 is closed. The recommended/default E2 physical reaction cutoff is now
+`r_assoc=1.25`, used identically for association creation and breaking. This
+is a conservative engineering/scientific choice for the intended `Ee` range
+through 16; it is not claimed to be mathematically unique or globally
+optimal.
 It does not change the default physical reaction cutoff. The concern is
 kinetic, not mechanical: an active temporary FENE pair is evaluated directly
 from the dynamic partner topology up to `R0=1.5`, independently of the WCA
@@ -920,8 +924,7 @@ no final cutoff recommendation has yet been made.
 The K1 executable now reports `wall_seconds`, `chemistry_sweeps`,
 `total_candidate_pairs`, `mean_candidate_edges`, `creations`, `breaks`, and
 `particle_timesteps_per_second`. The benchmark below keeps all K1 physics and
-the three repetition seeds identical between the current cutoff and `1.25`;
-it has not been executed in this implementation-only update:
+the three repetition seeds identical between the current cutoff and `1.25`.
 
 ```bash
 make -C examples/KG_Assoc kg_assoc_k1
@@ -954,6 +957,22 @@ reference (`K=30`, `R0=1.5`, `T=1`), its current values are:
 | 1.20 | 2.3261e-5 | 7.8957e-4 | 3.1930e-2 |
 | 1.25 | 8.1071e-8 | 2.7519e-6 | 1.1128e-4 |
 
-The measured relative K1 wall time and candidate-pair columns remain pending
-until those commands are run. This benchmark is observational only; it does
-not optimize candidate construction or change the production default cutoff.
+The matched benchmark results were:
+
+| cutoff | mean wall seconds | relative wall time | mean candidate pairs/sweep | mean creations | mean breaks |
+|---:|---:|---:|---:|---:|---:|
+| 1.12246204831 | 4.40536 | 1.00000 | 30.6946667 | 425.0 | 400.3333333 |
+| 1.25 | 4.46734 | 1.0140692 | 45.6943333 | 427.3333333 | 403.3333333 |
+
+The candidate-pair count rises by approximately 49%, while total K1 wall time
+rises by approximately 1.4% in this tested regime. The benchmark is
+observational only; it did not optimize candidate construction. The executable
+now emits `particle_timesteps_per_second`; the benchmark parser self-test
+verifies that field is read and retained.
+
+The separate-cutoff K1 equilibrium fits retain the existing detailed-balance
+check, `d ln Keq / d Ee ≈ 1/T`, for each cutoff independently. No compensating
+factor was introduced. Historical results below that used `r_assoc=2^(1/6)`
+remain historical records and are not rewritten as 1.25 results.
+
+P3.0 is therefore **CLOSED** with `r_assoc=1.25` frozen as the E2 default.

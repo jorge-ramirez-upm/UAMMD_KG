@@ -83,13 +83,15 @@ def self_test():
     import tempfile
     with tempfile.NamedTemporaryFile(mode='w') as baseline:
         baseline.write('r_assoc 1.122462048309373\nK1 done wall_seconds 10 '
-                       'timesteps_per_second 100 chemistry_sweeps 5 '
+                       'chemistry_sweeps 5 '
                        'total_candidate_pairs 20 mean_candidate_edges 4 '
-                       'creations 2 breaks 1\n')
+                       'creations 2 breaks 1\n'
+                       'particle_timesteps_per_second 100\n')
         baseline.flush()
         row = parse_log(baseline.name)
         assert math.isclose(row['mean_candidate_pairs_per_sweep'], 4.0)
         assert row['total_candidate_pairs'] == 20.0
+        assert row['particle_timesteps_per_second'] == 100.0
     print('SELF_TEST PASS cutoff benchmark parser')
 
 

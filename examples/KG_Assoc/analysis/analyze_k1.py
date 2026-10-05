@@ -137,6 +137,8 @@ def analyze_file(path):
     every = resolve_parameter(path, metadata, legacy, 'Nevery', int)
     r_assoc = resolve_parameter(
         path, metadata, legacy, 'r_assoc', float, required=False,
+        # Legacy state files predate cutoff metadata and were generated at the
+        # historical Lennard-Jones minimum; preserve their interpretation.
         default=2.0 ** (1.0 / 6.0))
 
     replica = resolve_parameter(

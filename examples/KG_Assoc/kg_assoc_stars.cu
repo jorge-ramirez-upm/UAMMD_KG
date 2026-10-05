@@ -32,7 +32,7 @@ struct Parameters {
   double ea = 4.0;
   double ee = 8.0;
   double nu0 = 20.0;
-  double rAssoc = std::pow(2.0, 1.0 / 6.0);
+  double rAssoc = 1.25;
   double damping = 2.0;
   double feneK = 30.0;
   double feneR0 = 1.5;
@@ -40,6 +40,7 @@ struct Parameters {
   unsigned long long seed = 12345;
   bool force = false;
   bool selfTest = false;
+  bool rAssocExplicit = false;
 };
 
 std::string nextArgument(int& index, int argc, char** argv) {
@@ -82,6 +83,7 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.every = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--r-assoc") {
       parameters.rAssoc = std::stod(nextArgument(index, argc, argv));
+      parameters.rAssocExplicit = true;
     } else if (option == "--damp") {
       parameters.damping = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--K") {
@@ -235,6 +237,10 @@ int main(int argc, char** argv) {
   try {
     const Parameters parameters = parseArguments(argc, argv);
     if (parameters.selfTest) {
+      if (!parameters.rAssocExplicit &&
+          parameters.rAssoc != kg_assoc::kDefaultReactionCutoff) {
+        throw std::runtime_error("default reaction cutoff regression failed");
+      }
       runSelfTest();
       return 0;
     }

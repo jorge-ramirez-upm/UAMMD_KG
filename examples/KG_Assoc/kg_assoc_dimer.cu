@@ -359,6 +359,10 @@ bool interactorRegression() {
 }
 
 bool diagnostics(const kg_assoc::Params& params) {
+  if (!params.rAssocExplicit &&
+      !near(params.rAssoc, kg_assoc::kDefaultReactionCutoff)) {
+    return false;
+  }
   const double rStar = kg_assoc::rstar(params.k, params.r0);
   const double step = 1e-6;
 

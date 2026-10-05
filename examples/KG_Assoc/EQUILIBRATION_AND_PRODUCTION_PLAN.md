@@ -14,7 +14,7 @@ external star generator
     -> topology + percolation + diffusion + rheology + bond dynamics
 ```
 
-## P3.0 — associating cutoff audit
+## P3.0 — associating cutoff audit (CLOSED)
 
 Before any E2 chemistry or star-production work changes `r_assoc`, P3.0 uses
 only the dimer and K1 validation systems. This is intentionally separate from
@@ -30,9 +30,9 @@ The audit records radial tails, maximum active-bond distance, and the omitted
 Metropolis break-propensity `F_miss`, rather than using only tail population.
 It also runs the K1 `Ee={4,6,8}` and
 `r_assoc={2^(1/6),1.15,1.20}` sensitivity matrix without changing the already
-validated kinetic parameters. P3.0 must be completed and its simple-system
-results inspected before proposing an E2 or production cutoff change. No
-production workflow is instrumented or changed by this milestone.
+validated kinetic parameters. P3.0 simple-system results were inspected before
+freezing the E2 cutoff. No production workflow is instrumented or changed by
+this milestone.
 
 The efficiency extension compares `r_assoc=2^(1/6)` with `1.25` under the
 same K1 conditions and three matched seeds. It records wall time, chemistry
@@ -41,7 +41,11 @@ timesteps per second. This is measurement only: candidate construction is not
 optimized and the production default is unchanged. The resulting relative
 wall-time/candidate-cost measurements are combined with deterministic
 `F_miss` values at `Ee=8,12,16` in the P3.0 decision table documented in
-`VALIDATION.md`.
+`VALIDATION.md`. P3.0 is now closed: `r_assoc=1.25` is frozen as the
+recommended/default E2 reaction cutoff for both creation and breaking. This is
+a conservative choice for the intended range through `Ee=16`, not a claim of
+mathematical uniqueness or global optimality. Temporary FENE mechanics remain
+topology-based up to `R0=1.5`, independent of the WCA neighbor-list range.
 
 ## 1. Scientific motivation
 

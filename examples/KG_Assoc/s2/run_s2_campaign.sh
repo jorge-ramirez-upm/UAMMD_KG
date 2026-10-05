@@ -41,7 +41,7 @@ run() {
         --Ee "$ee"
         --nu0 20
         --Nevery "$every"
-        --r-assoc 1.122462048309373
+        --r-assoc 1.25
         --damp 2
         --K 30
         --R0 1.5
