@@ -977,6 +977,47 @@ remain historical records and are not rewritten as 1.25 results.
 
 P3.0 is therefore **CLOSED** with `r_assoc=1.25` frozen as the E2 default.
 
+## P3.2 — chemically valid associating-star restart support (CLOSED)
+
+`kg_assoc_stars` now writes an explicit restart pair:
+
+```text
+PREFIX.restart.lammpsdat
+PREFIX.assoc_restart
+```
+
+The LAMMPS-data snapshot preserves positions, velocities, types, molecule IDs,
+permanent bonds, and box dimensions. The versioned `KG_ASSOC_RESTART 1`
+sidecar records the completed MD step, chemistry parameters and seed,
+cumulative creations/breaks, and every active temporary sticker pair using
+original 1-based atom IDs. Reload with `--restart-prefix PREFIX`; it is
+mutually exclusive with `--input`.
+
+Load rejects malformed schema/version, inconsistent counters, duplicate/self/
+out-of-range partners, non-sticker partners, nonreciprocal mappings, and active
+temporary FENE distances at or beyond `R0`. Thus the partner topology, `N_assoc`,
+intra/inter counts, molecular graph, loop counts, components, largest cluster,
+and distinct-neighbor degree are restored exactly at the boundary.
+
+Chemistry acceptance is stateless and keyed by absolute MD step, retained in
+the sidecar with its seed. The UAMMD NVT random stream has no exposed
+serializable state, so it is re-seeded on reload. A restart therefore preserves
+the physical microstate and chemical network exactly, but does not claim a
+bitwise-identical post-restart trajectory.
+
+A GPU C1 smoke test (`C1_smoke.e1.lammpsdat`) ran 20,000 fresh chemistry
+steps, saved 1,736 active pairs, and reloaded them. A one-step reload retained
+all 1,736 pair identities and unchanged cumulative counters; a further 200
+steps maintained all chemical and FENE invariants. P3.2 is **CLOSED**. It does
+not construct a production restart bank or implement rigorous PBC wrapping.
+
+```bash
+./kg_assoc_stars --input systems/e1_equilibrated/C1_long_s12001.e1.lammpsdat \
+  --arms 4 --narm 10 --steps 2000000 --output C1_e2_segment
+./kg_assoc_stars --restart-prefix C1_e2_segment --steps 2000000 \
+  --output C1_e2_continued
+```
+
 ## P3.1 — C1 E2 chemical/topological equilibration (CLOSED)
 
 P3.1/C1 E2 is closed for the validated C1 condition. Two independently

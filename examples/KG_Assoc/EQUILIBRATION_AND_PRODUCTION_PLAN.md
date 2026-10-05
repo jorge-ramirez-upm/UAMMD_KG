@@ -73,6 +73,24 @@ active temporary bonds are written separately, but the current format cannot
 reload temporary partner state; a chemically valid restart is required before
 restart-bank construction or long production continuation.
 
+### P3.2 — chemically valid restart support (CLOSED)
+
+The previous temporary-bond listing has been replaced for continuation by an
+explicit pair, `PREFIX.restart.lammpsdat` and `PREFIX.assoc_restart`. The
+versioned sidecar stores the completed step, all chemistry settings and seed,
+cumulative events, and canonical temporary sticker pairs. `--restart-prefix
+PREFIX` reloads that pair and is intentionally incompatible with `--input`.
+The loader fail-closes on malformed partners or state and verifies active FENE
+distances below `R0`; force evaluation remains partner-topology based.
+
+The UAMMD NVT RNG state cannot be serialized through the current API and is
+re-seeded on reload. Consequently the restart boundary state/network is exact,
+and chemistry retains its absolute-step hash schedule, but bitwise trajectory
+continuation is not claimed. A short C1 GPU save/reload smoke recovered all
+1,736 saved temporary-pair identities and continued with invariants intact.
+This closes P3.2 but does not construct the production restart bank; C5/C6 E2
+and rigorous wrapping/percolation remain pending.
+
 ## 1. Scientific motivation
 
 A stationary bonded fraction alone does not certify equilibrium. The network

@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <functional>
 #include <fstream>
 #include <iomanip>
@@ -26,6 +27,7 @@ bool near(double left, double right, double tolerance = 1e-12) {
 
 struct Parameters {
   std::string input;
+  std::string restartPrefix;
   std::string output = "s1_smoke";
   int arms = 0;
   int beadsPerArm = 0;
@@ -46,6 +48,15 @@ struct Parameters {
   bool force = false;
   bool selfTest = false;
   bool rAssocExplicit = false;
+  bool seedExplicit = false;
+};
+
+struct RestartMetadata {
+  long long completedSteps = 0;
+  long long creations = 0;
+  long long breaks = 0;
+  Parameters parameters;
+  std::vector<std::pair<int, int>> activeBonds;
 };
 
 std::string nextArgument(int& index, int argc, char** argv) {
@@ -56,11 +67,11 @@ std::string nextArgument(int& index, int argc, char** argv) {
 }
 
 void printHelp() {
-  std::cout << "kg_assoc_stars --input FILE --arms NA --narm NARM [options]\n"
+  std::cout << "kg_assoc_stars (--input FILE | --restart-prefix PREFIX) [options]\n"
             << "  --steps N --dt DT --temperature T --Ea E --Ee E --nu0 X\n"
             << "  --Nevery N --r-assoc R --damp D --K K --R0 R --seed S\n"
             << "  --diagnostic-every N\n"
-            << "  --output PREFIX --force --self-test\n";
+            << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
 }
 
 Parameters parseArguments(int argc, char** argv) {
@@ -69,6 +80,8 @@ Parameters parseArguments(int argc, char** argv) {
     const std::string option = argv[index];
     if (option == "--input") {
       parameters.input = nextArgument(index, argc, argv);
+    } else if (option == "--restart-prefix") {
+      parameters.restartPrefix = nextArgument(index, argc, argv);
     } else if (option == "--arms") {
       parameters.arms = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--narm") {
@@ -100,6 +113,7 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.feneR0 = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--seed") {
       parameters.seed = std::stoull(nextArgument(index, argc, argv));
+      parameters.seedExplicit = true;
     } else if (option == "--output") {
       parameters.output = nextArgument(index, argc, argv);
     } else if (option == "--force") {
@@ -116,7 +130,13 @@ Parameters parseArguments(int argc, char** argv) {
   if (parameters.selfTest) {
     return parameters;
   }
-  if (parameters.input.empty() || parameters.arms <= 0 || parameters.beadsPerArm <= 0 ||
+  if ((!parameters.input.empty() && !parameters.restartPrefix.empty()) ||
+      (parameters.input.empty() && parameters.restartPrefix.empty())) {
+    throw std::runtime_error("provide exactly one of --input or --restart-prefix");
+  }
+  if ((!parameters.restartPrefix.empty() &&
+       (parameters.arms < 0 || parameters.beadsPerArm < 0)) ||
+      (!parameters.input.empty() && (parameters.arms <= 0 || parameters.beadsPerArm <= 0)) ||
       parameters.steps <= 0 || parameters.every <= 0 ||
       parameters.diagnosticEvery <= 0 || parameters.dt <= 0.0 ||
       parameters.temperature <= 0.0 || parameters.ea < 0.0 || parameters.nu0 < 0.0 ||
@@ -125,6 +145,117 @@ Parameters parseArguments(int argc, char** argv) {
     throw std::runtime_error("invalid S1 parameters");
   }
   return parameters;
+}
+
+void writeRestartMetadata(const std::string& path,
+                          const Parameters& parameters,
+                          long long completedSteps,
+                          long long creations,
+                          long long breaks,
+                          const kg_assoc::StickerState& state) {
+  std::ofstream output(path);
+  if (!output) {
+    throw std::runtime_error("cannot write associating restart metadata");
+  }
+  output << std::setprecision(17);
+  output << "KG_ASSOC_RESTART 1\n"
+         << "completed_steps " << completedSteps << "\n"
+         << "arms " << parameters.arms << "\n"
+         << "narm " << parameters.beadsPerArm << "\n"
+         << "dt " << parameters.dt << "\n"
+         << "temperature " << parameters.temperature << "\n"
+         << "Ea " << parameters.ea << "\n"
+         << "Ee " << parameters.ee << "\n"
+         << "nu0 " << parameters.nu0 << "\n"
+         << "Nevery " << parameters.every << "\n"
+         << "r_assoc " << parameters.rAssoc << "\n"
+         << "damping " << parameters.damping << "\n"
+         << "K " << parameters.feneK << "\n"
+         << "R0 " << parameters.feneR0 << "\n"
+         << "seed " << parameters.seed << "\n"
+         << "creations " << creations << "\n"
+         << "breaks " << breaks << "\n";
+  std::vector<std::pair<int, int>> bonds;
+  for (const int first : state.stickers()) {
+    const int second = state.partner(first);
+    if (second > first) {
+      bonds.push_back({first + 1, second + 1});
+    }
+  }
+  output << "active_bonds " << bonds.size() << "\n";
+  for (const auto& bond : bonds) {
+    output << bond.first << ' ' << bond.second << '\n';
+  }
+  output << "end\n";
+}
+
+RestartMetadata readRestartMetadata(const std::string& path) {
+  std::ifstream input(path);
+  if (!input) {
+    throw std::runtime_error("cannot open associating restart metadata");
+  }
+  RestartMetadata metadata;
+  std::string key;
+  int version = 0;
+  if (!(input >> key >> version) || key != "KG_ASSOC_RESTART" || version != 1) {
+    throw std::runtime_error("unsupported or malformed associating restart metadata");
+  }
+  auto readKey = [&](const char* expected, auto& value) {
+    if (!(input >> key >> value) || key != expected) {
+      throw std::runtime_error(std::string("malformed associating restart field: ") + expected);
+    }
+  };
+  readKey("completed_steps", metadata.completedSteps);
+  readKey("arms", metadata.parameters.arms);
+  readKey("narm", metadata.parameters.beadsPerArm);
+  readKey("dt", metadata.parameters.dt);
+  readKey("temperature", metadata.parameters.temperature);
+  readKey("Ea", metadata.parameters.ea);
+  readKey("Ee", metadata.parameters.ee);
+  readKey("nu0", metadata.parameters.nu0);
+  readKey("Nevery", metadata.parameters.every);
+  readKey("r_assoc", metadata.parameters.rAssoc);
+  readKey("damping", metadata.parameters.damping);
+  readKey("K", metadata.parameters.feneK);
+  readKey("R0", metadata.parameters.feneR0);
+  readKey("seed", metadata.parameters.seed);
+  readKey("creations", metadata.creations);
+  readKey("breaks", metadata.breaks);
+  std::size_t bondCount = 0;
+  readKey("active_bonds", bondCount);
+  std::set<std::pair<int, int>> uniqueBonds;
+  for (std::size_t index = 0; index < bondCount; ++index) {
+    int first = 0;
+    int second = 0;
+    if (!(input >> first >> second) || first >= second || first <= 0) {
+      throw std::runtime_error("malformed active temporary bond in restart");
+    }
+    if (!uniqueBonds.insert({first, second}).second) {
+      throw std::runtime_error("duplicate active temporary bond in restart");
+    }
+    metadata.activeBonds.push_back({first, second});
+  }
+  if (!(input >> key) || key != "end" || (input >> key)) {
+    throw std::runtime_error("trailing or missing end marker in associating restart");
+  }
+  if (metadata.completedSteps < 0 || metadata.creations < 0 || metadata.breaks < 0 ||
+      metadata.creations - metadata.breaks != static_cast<long long>(bondCount)) {
+    throw std::runtime_error("inconsistent associating restart event counters");
+  }
+  const Parameters& parameters = metadata.parameters;
+  if (parameters.arms <= 0 || parameters.beadsPerArm <= 0 ||
+      !std::isfinite(parameters.dt) || !std::isfinite(parameters.temperature) ||
+      !std::isfinite(parameters.ea) || !std::isfinite(parameters.ee) ||
+      !std::isfinite(parameters.nu0) || !std::isfinite(parameters.rAssoc) ||
+      !std::isfinite(parameters.damping) || !std::isfinite(parameters.feneK) ||
+      !std::isfinite(parameters.feneR0) || parameters.dt <= 0.0 ||
+      parameters.temperature <= 0.0 || parameters.ea < 0.0 || parameters.nu0 < 0.0 ||
+      parameters.every <= 0 || parameters.rAssoc <= 0.0 || parameters.damping <= 0.0 ||
+      parameters.feneK <= 0.0 || parameters.feneR0 <= 0.0 ||
+      parameters.rAssoc >= parameters.feneR0) {
+    throw std::runtime_error("invalid physical parameters in associating restart");
+  }
+  return metadata;
 }
 
 void expectReject(const std::string& name, const std::function<void()>& operation) {
@@ -216,6 +347,33 @@ void runSelfTest() {
   expectReject("malformed molecular graph", [&]() {
     (void)kg_assoc::analyzeMolecularGraph({10, 10}, {});
   });
+
+  const std::string restartTestPath = "/tmp/kg_assoc_restart_self_test.assoc_restart";
+  Parameters restartParameters;
+  restartParameters.arms = 4;
+  restartParameters.beadsPerArm = 10;
+  restartParameters.seed = 12001;
+  kg_assoc::StickerState restartState(5, stickers, false);
+  restartState.make(1, 3);
+  writeRestartMetadata(restartTestPath, restartParameters, 200, 4, 3, restartState);
+  const RestartMetadata restart = readRestartMetadata(restartTestPath);
+  if (restart.completedSteps != 200 || restart.creations != 4 || restart.breaks != 3 ||
+      restart.parameters.seed != 12001 || restart.activeBonds !=
+          std::vector<std::pair<int, int>>({{2, 4}})) {
+    throw std::runtime_error("restart metadata round-trip regression failed");
+  }
+  {
+    std::ofstream malformed(restartTestPath);
+    malformed << "KG_ASSOC_RESTART 1\n"
+              << "completed_steps 0\narms 4\nnarm 10\ndt 0.01\ntemperature 1\n"
+              << "Ea 4\nEe 8\nnu0 20\nNevery 100\nr_assoc 1.25\ndamping 2\n"
+              << "K 30\nR0 1.5\nseed 1\ncreations 1\nbreaks 0\nactive_bonds 1\n"
+              << "2 2\nend\n";
+  }
+  expectReject("malformed associating restart", [&]() {
+    (void)readRestartMetadata(restartTestPath);
+  });
+  std::remove(restartTestPath.c_str());
   std::cout << "STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants\n";
 }
 
@@ -249,7 +407,8 @@ void writeProvenance(std::ofstream& stateFile,
                      std::ofstream& eventFile,
                      const Parameters& parameters,
                      const kg::LammpsData& data,
-                     int stickers) {
+                     int stickers,
+                     long long startStep) {
   const std::streamsize previousPrecision = stateFile.precision();
   stateFile << std::setprecision(17)
             << "# input_file=" << parameters.input
@@ -270,7 +429,8 @@ void writeProvenance(std::ofstream& stateFile,
             << " K=" << parameters.feneK
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
-            << " total_requested_steps=" << parameters.steps << '\n';
+            << " start_step=" << startStep
+            << " total_requested_steps=" << startStep + parameters.steps << '\n';
   stateFile.precision(previousPrecision);
   eventFile << std::setprecision(17)
             << "# input_file=" << parameters.input
@@ -290,7 +450,8 @@ void writeProvenance(std::ofstream& stateFile,
             << " K=" << parameters.feneK
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
-            << " total_requested_steps=" << parameters.steps
+            << " start_step=" << startStep
+            << " total_requested_steps=" << startStep + parameters.steps
             << " original_lammps_atom_ids=1_based\n";
   eventFile.precision(previousPrecision);
 }
@@ -299,7 +460,7 @@ void writeProvenance(std::ofstream& stateFile,
 
 int main(int argc, char** argv) {
   try {
-    const Parameters parameters = parseArguments(argc, argv);
+    Parameters parameters = parseArguments(argc, argv);
     if (parameters.selfTest) {
       if (!parameters.rAssocExplicit &&
           parameters.rAssoc != kg_assoc::kDefaultReactionCutoff) {
@@ -309,6 +470,34 @@ int main(int argc, char** argv) {
       return 0;
     }
 
+    RestartMetadata restart;
+    long long initialStep = 0;
+    if (!parameters.restartPrefix.empty()) {
+      restart = readRestartMetadata(parameters.restartPrefix + ".assoc_restart");
+      if (parameters.rAssocExplicit && !near(parameters.rAssoc, restart.parameters.rAssoc)) {
+        throw std::runtime_error("--r-assoc does not match restart metadata");
+      }
+      if (parameters.seedExplicit && parameters.seed != restart.parameters.seed) {
+        throw std::runtime_error("--seed does not match restart metadata");
+      }
+      const int requestedDiagnosticEvery = parameters.diagnosticEvery;
+      parameters.arms = restart.parameters.arms;
+      parameters.beadsPerArm = restart.parameters.beadsPerArm;
+      parameters.dt = restart.parameters.dt;
+      parameters.temperature = restart.parameters.temperature;
+      parameters.ea = restart.parameters.ea;
+      parameters.ee = restart.parameters.ee;
+      parameters.nu0 = restart.parameters.nu0;
+      parameters.every = restart.parameters.every;
+      parameters.rAssoc = restart.parameters.rAssoc;
+      parameters.damping = restart.parameters.damping;
+      parameters.feneK = restart.parameters.feneK;
+      parameters.feneR0 = restart.parameters.feneR0;
+      parameters.seed = restart.parameters.seed;
+      parameters.diagnosticEvery = requestedDiagnosticEvery;
+      parameters.input = parameters.restartPrefix + ".restart.lammpsdat";
+      initialStep = restart.completedSteps;
+    }
     const kg::LammpsData data = kg::readLammpsDataFile(parameters.input);
     const kg_assoc::StarTopologyReport topology = kg_assoc::auditStarTopology(
         data, {parameters.arms, parameters.beadsPerArm});
@@ -323,9 +512,13 @@ int main(int argc, char** argv) {
     const std::string eventPath = parameters.output + ".events";
     const std::string finalSnapshotPath = parameters.output + ".final_permanent.lammpsdat";
     const std::string finalAssociationsPath = parameters.output + ".final_associations";
+    const std::string restartSnapshotPath = parameters.output + ".restart.lammpsdat";
+    const std::string restartMetadataPath = parameters.output + ".assoc_restart";
     if (!parameters.force && (std::ifstream(statePath) || std::ifstream(eventPath) ||
                               std::ifstream(finalSnapshotPath) ||
-                              std::ifstream(finalAssociationsPath))) {
+                              std::ifstream(finalAssociationsPath) ||
+                              std::ifstream(restartSnapshotPath) ||
+                              std::ifstream(restartMetadataPath))) {
       throw std::runtime_error("output exists; choose a new --output or use --force");
     }
     std::ofstream stateFile(statePath);
@@ -335,6 +528,7 @@ int main(int argc, char** argv) {
     }
 
     auto system = std::make_shared<uammd::System>(argc, argv);
+    system->rng().setSeed(parameters.seed);
     const kg::SimulationBox simulationBox = kg::makeSimulationBox(data);
     const auto particles = kg::createParticleDataFromLammps(data, system, simulationBox);
     const kg_assoc::BoxLengths lengths{
@@ -347,6 +541,20 @@ int main(int argc, char** argv) {
     const auto permanentFene = kg::createFENEInteractor(
         particles, simulationBox.box, permanentBondData);
     kg_assoc::StickerState state(data.natoms, stickerIds);
+    if (!parameters.restartPrefix.empty()) {
+      std::vector<int> partners(data.natoms, -1);
+      for (const auto& bond : restart.activeBonds) {
+        const int first = bond.first - 1;
+        const int second = bond.second - 1;
+        if (first < 0 || second < 0 || first >= data.natoms || second >= data.natoms ||
+            partners[first] != -1 || partners[second] != -1) {
+          throw std::runtime_error("invalid temporary partner IDs in restart");
+        }
+        partners[first] = second;
+        partners[second] = first;
+      }
+      state.loadPartners(partners);
+    }
     const auto associating = std::make_shared<kg_assoc::AssociatingFENEInteractor>(
         particles, simulationBox.box, state.devicePartner(), parameters.feneK,
         parameters.feneR0, parameters.ee,
@@ -371,10 +579,10 @@ int main(int argc, char** argv) {
     stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter bound_fraction connected_components largest_cluster_size largest_cluster_fraction mean_degree second_degree_moment L1 L2 active_bond_observations max_active_bond_distance fraction_active_gt_1p25 fraction_active_gt_1p30 fraction_active_gt_1p40\n";
     eventFile << "# timestep event_type sticker_i sticker_j molecule_i molecule_j\n";
     writeProvenance(stateFile, eventFile, parameters, data,
-                    static_cast<int>(stickerIds.size()));
+                    static_cast<int>(stickerIds.size()), initialStep);
 
-    long long creations = 0;
-    long long breaks = 0;
+    long long creations = restart.creations;
+    long long breaks = restart.breaks;
     long long chemistrySweeps = 0;
     long long candidatePairs = 0;
     kg_assoc::ActiveBondDistanceDiagnostics distanceDiagnostics;
@@ -382,14 +590,15 @@ int main(int argc, char** argv) {
         particles, data, state, permanentBonds, lengths, parameters.feneR0, creations, breaks);
     const kg_assoc::MolecularNetworkObservables initialNetwork =
         kg_assoc::molecularNetworkObservables(data, state);
-    writeState(stateFile, 0, parameters, counts, initialNetwork, distanceDiagnostics,
+    writeState(stateFile, initialStep, parameters, counts, initialNetwork, distanceDiagnostics,
                static_cast<int>(stickerIds.size()), creations, breaks);
 
     const auto start = std::chrono::steady_clock::now();
     for (int step = 1; step <= parameters.steps; ++step) {
+      const long long absoluteStep = initialStep + step;
       integrator->forwardTime();
-      const bool chemistryStep = step % parameters.every == 0;
-      const bool diagnosticStep = step % parameters.diagnosticEvery == 0;
+      const bool chemistryStep = absoluteStep % parameters.every == 0;
+      const bool diagnosticStep = absoluteStep % parameters.diagnosticEvery == 0;
       if (!chemistryStep && !diagnosticStep) {
         continue;
       }
@@ -409,7 +618,7 @@ int main(int argc, char** argv) {
         candidatePairs += static_cast<long long>(candidates.size());
         ++chemistrySweeps;
         std::vector<kg_assoc::Event> acceptedEvents;
-        kinetics.update(step, state, std::move(candidates), acceptedEvents);
+        kinetics.update(absoluteStep, state, std::move(candidates), acceptedEvents);
         for (const kg_assoc::Event& event : acceptedEvents) {
           const int firstLammpsId = event.first + 1;
           const int secondLammpsId = event.second + 1;
@@ -433,7 +642,7 @@ int main(int argc, char** argv) {
             particles, state, lengths, distanceDiagnostics);
         const kg_assoc::MolecularNetworkObservables network =
             kg_assoc::molecularNetworkObservables(data, state);
-        writeState(stateFile, step, parameters, counts, network, distanceDiagnostics,
+        writeState(stateFile, absoluteStep, parameters, counts, network, distanceDiagnostics,
                    static_cast<int>(stickerIds.size()), creations, breaks);
       }
     }
@@ -448,11 +657,11 @@ int main(int argc, char** argv) {
     counts = kg_assoc::checkAssociationInvariants(
         particles, data, state, permanentBonds, lengths, parameters.feneR0,
         creations, breaks);
-    if (parameters.steps % parameters.diagnosticEvery != 0) {
+    if ((initialStep + parameters.steps) % parameters.diagnosticEvery != 0) {
       kg_assoc::observeActiveBondDistances(particles, state, lengths, distanceDiagnostics);
       const kg_assoc::MolecularNetworkObservables network =
           kg_assoc::molecularNetworkObservables(data, state);
-      writeState(stateFile, parameters.steps, parameters, counts, network,
+      writeState(stateFile, initialStep + parameters.steps, parameters, counts, network,
                  distanceDiagnostics, static_cast<int>(stickerIds.size()), creations, breaks);
     }
     stateFile << "# chemistry_sweeps=" << chemistrySweeps
@@ -461,13 +670,19 @@ int main(int argc, char** argv) {
               << (chemistrySweeps == 0 ? 0.0 :
                   static_cast<double>(candidatePairs) / chemistrySweeps) << '\n';
     kg::writeLAMMPSDataSnapshot(
-        finalSnapshotPath, parameters.steps, data,
+        finalSnapshotPath, initialStep + parameters.steps, data,
         particles, "kg_assoc_e2_permanent_only");
+    kg::writeLAMMPSDataSnapshot(
+        restartSnapshotPath, initialStep + parameters.steps, data,
+        particles, "kg_assoc_e2_restart_snapshot");
+    writeRestartMetadata(restartMetadataPath, parameters, initialStep + parameters.steps,
+                         creations, breaks, state);
     std::ofstream activeBondsFile(finalAssociationsPath);
     if (!activeBondsFile) {
       throw std::runtime_error("cannot open final active-association record");
     }
-    activeBondsFile << "# Not a standalone restart: pair state requires explicit reload support.\n";
+    activeBondsFile << "# Mirror of " << restartMetadataPath << "; use --restart-prefix "
+                    << parameters.output << " to reload.\n";
     activeBondsFile << "# atom_i atom_j molecule_i molecule_j\n";
     for (const int first : state.stickers()) {
       const int second = state.partner(first);

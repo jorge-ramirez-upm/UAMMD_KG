@@ -43,6 +43,26 @@ class StickerState {
     if (!bonded(i, j)) throw std::runtime_error("invalid associating break");
     partner_[i] = -1; partner_[j] = -1;
   }
+  void loadPartners(const std::vector<int>& partners) {
+    if (partners.size() != partner_.size()) {
+      throw std::runtime_error("associating restart partner count mismatch");
+    }
+    for (int i = 0; i < static_cast<int>(partners.size()); ++i) {
+      const int j = partners[i];
+      if (!isSticker(i) && j != -1) {
+        throw std::runtime_error("non-sticker has temporary partner in restart");
+      }
+      if (j == -1) {
+        continue;
+      }
+      if (!isSticker(i) || !isSticker(j) || j == i || partners.at(j) != i) {
+        throw std::runtime_error("invalid temporary partner mapping in restart");
+      }
+    }
+    partner_ = partners;
+    validate();
+    syncDevice();
+  }
   void syncDevice() {
     if (!devicePartner_.empty()) {
       devicePartner_ = partner_;
