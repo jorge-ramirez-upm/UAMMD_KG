@@ -55,6 +55,13 @@ P4.2 (rheology pilot pending):
   window near `t=39,321.6--57,671.68`, but all tested thresholds remain
   unresolved at their terminal eligible windows. The overall result is still
   analysis-pending and no further simulation is authorized before review.
+- The next design is four genuinely independent 32M replicas: retain 12001
+  and 12002, prepare E1/E2 restart-bank seeds 12003 and 12004 through the
+  same validated P2.2/P3.3 path, validate each restart pair, then run all four
+  at `P42_PILOT_COM_EVERY=10000`. Different restart times within one seed are
+  not independent replicas. The expected one-GPU serial wall time is 12.65 h
+  from the measured mean 32M runtime; do not start this run before reviewing
+  the new-seed E1 diagnostics and restart-bank validation.
 
 P4.3:
 

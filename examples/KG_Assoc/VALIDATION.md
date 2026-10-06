@@ -167,6 +167,40 @@ not stable enough to resolve the eventual decay. The report now distinguishes
 being only the end of the latest locally classified window. No further
 simulation is authorized until this reanalysis is inspected.
 
+The next P4.2 design decision is to add two genuinely independent replicas,
+seeds 12003 and 12004, before considering a 64M extension of either existing
+trajectory. Different restart times from seeds 12001/12002 are explicitly not
+independent replicas. `scripts/prepare_p42_c1_replicas.sh` reconstructs the
+validated C1 path: it starts each seed from the same generated C1 input, runs
+the chemistry-disabled E1 protocol (20,000 Stage-3b DPD hold; five-level WCA
+ramp at `dt=0.002`; 1,000-step promotions at `dt=0.005` and `0.01`; then
+2,000,000 Stage-4 steps at `dt=0.01`), records stationarity diagnostics, and
+uses `run_p33_c1_restart_bank.sh` to run the chemistry-enabled E2 trajectory
+continuously to 6,000,000 steps. It writes P3.3-style restart pairs at
+`t=40000`, `t=50000`, and `t=60000` for each supplied seed.
+
+`analysis/validate_c1_restart_bank.py --seeds 12003,12004` is the shared
+acceptance check. It requires each restart pair, canonical C1 system and
+chemistry parameters, 43,563 atoms, 40,000 permanent bonds, 4,000 stickers,
+matching seed/step provenance, reciprocal valence-one temporary topology,
+permanent and active FENE distances below `R0`, and event-counter/bond
+consistency; it also records active, intra-, and inter-star association counts
+and network metrics. The E1 stationarity report must also be reviewed before an
+entry is accepted. The preparation script then performs the existing P3.3
+20,000-step `t=60000` restart-continuation smoke for each seed and requires its
+reloadable restart pair.
+
+The rheology runner is already generic over any number of distinct restart
+prefixes. The analyzer now uses the actual replica count for its SEM and
+statistical caveat, checks support equality at every lag across all replicas,
+and defines sign agreement as the fraction of replica-by-bin values matching
+the window-mean sign. Its four-replica synthetic regression passes. The planned
+experiment is 32M steps per seed for all four independent seeds with
+`P42_PILOT_COM_EVERY=10000`; stress remains sampled every step. Using the
+mean measured 32M runtime (11,383.05 s per seed), a one-GPU serial run is
+estimated at 45,532.2 s, or 12.65 h. This remains an extended P4.2 pilot, not
+final production.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record

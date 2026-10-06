@@ -153,14 +153,16 @@ def window_diagnostic(replicas, start, end, z_threshold, eligible, support_thres
         0.0, 1.0 - disagreement / max(abs(window_mean) + local_scatter, 1e-15))
     bin_means = [statistics.mean(replica['rows'][index]['G'] for replica in replicas)
                  for index in range(start, end + 1)]
-    sign_matches = sum(value == 0.0 or value * window_mean > 0.0 for value in bin_means)
+    sign_matches = sum(value == 0.0 or value * window_mean > 0.0
+                       for series in values for value in series)
     times = [replicas[0]['rows'][index]['time'] for index in range(start, end + 1)]
     trend = linear_slope(times, bin_means)
     trend_change = trend * (times[-1] - times[0])
     flat = abs(trend_change) <= z_threshold * noise_scale
     if not eligible:
         classification = UNRESOLVED
-    elif signal_to_noise >= z_threshold and sign_matches / len(bin_means) >= 0.8 and replica_consistent:
+    elif (signal_to_noise >= z_threshold and
+          sign_matches / (len(values) * len(bin_means)) >= 0.8 and replica_consistent):
         classification = NONZERO
     elif signal_to_noise < z_threshold and flat and replica_consistent:
         classification = ZERO
@@ -171,7 +173,7 @@ def window_diagnostic(replicas, start, end, z_threshold, eligible, support_thres
         'start': times[0], 'end': times[-1], 'bin_count': len(bin_means),
         'mean_g': window_mean, 'noise_scale': noise_scale,
         'signal_to_noise': signal_to_noise,
-        'sign_agreement': sign_matches / len(bin_means),
+        'sign_agreement': sign_matches / (len(values) * len(bin_means)),
         'replica_agreement': replica_agreement, 'replica_consistent': replica_consistent,
         'trend': trend, 'trend_change': trend_change, 'classification': classification,
         'support_eligible': eligible, 'support_threshold': support_threshold,
@@ -260,8 +262,12 @@ def classify_tail(replicas, legacy_reliable_fraction, window_bins, z_threshold,
         'recommended_next_action': next_action,
         'needs_longer_trajectory': tail_classification != ZERO,
         'needs_more_independent_replicas': True,
-        'statistical_caveat': ('Only two independent replicas are available; SEM and window labels '
-                               'are rough pilot diagnostics, not final significance estimates.'),
+        'replicas': len(replicas),
+        'sign_agreement_definition': (
+            'fraction of replica-by-bin values with the window-mean sign'),
+        'statistical_caveat': ('{} independent replicas are available; SEM and window labels are '
+                               'rough pilot diagnostics, not final significance estimates.'
+                               .format(len(replicas))),
         'support_caveat': (
             'n_pairs is the raw number of Correlator6 contributions, not an effective '
             'number of independent time origins.' if support_mode == 'exact_n_pairs' else
@@ -383,11 +389,15 @@ def write_outputs(prefix, replicas, windows, report, sensitivity_rows):
     return replica_path, mean_path, window_path, sensitivity_path, report_path
 
 
-def synthetic_replicas(values_a, values_b, support=None):
-    support = support or [None] * len(values_a)
+def synthetic_replicas(*series, support=None):
+    if len(series) < 2:
+        raise ValueError('at least two synthetic replicas are required')
+    support = support or [None] * len(series[0])
     mode = 'exact_n_pairs' if support[0] is not None else 'legacy_fixed_lag_fraction'
     replicas = []
-    for replica_index, values in enumerate((values_a, values_b)):
+    for replica_index, values in enumerate(series):
+        if len(values) != len(support):
+            raise ValueError('synthetic replica length mismatch')
         replicas.append({
             'path': 'synthetic{}'.format(replica_index),
             'metadata': {'dt': 0.01, 'temperature': 1.0, 'stress_samples': len(values),
@@ -399,18 +409,32 @@ def synthetic_replicas(values_a, values_b, support=None):
 
 
 def expect_classification(values_a, values_b, expected, label, support=None):
-    _, report = classify_tail(synthetic_replicas(values_a, values_b, support), 1.0, 5, 2.0)
+    _, report = classify_tail(synthetic_replicas(values_a, values_b, support=support),
+                              1.0, 5, 2.0)
     if report['tail_classification'] != expected:
         raise AssertionError('{} classified as {}'.format(label, report['tail_classification']))
 
 
 def expect_sensitivity(values_a, values_b, expected, label, support, thresholds):
     _, report, rows = support_sensitivity(
-        synthetic_replicas(values_a, values_b, support), 1.0, 5, 2.0, thresholds)
+        synthetic_replicas(values_a, values_b, support=support), 1.0, 5, 2.0, thresholds)
     if report['tail_classification'] != expected:
         raise AssertionError('{} interpreted as {}'.format(label, report['tail_classification']))
     if len(rows) != len(thresholds):
         raise AssertionError('{} did not report every threshold'.format(label))
+
+
+def expect_four_replica_sensitivity():
+    values = ([10, 3, 1, .01, .001, .001, .001, .001],
+              [10.1, 2.9, 1.1, .0011, .0009, .001, .0011, .0009],
+              [9.9, 3.1, .9, .0009, .0011, .001, .0009, .0011],
+              [10.05, 3.05, 1.05, .001, .001, .0011, .001, .0009])
+    _, report, _ = support_sensitivity(
+        synthetic_replicas(*values, support=[64] * 8), 1.0, 5, 2.0, [8, 16, 32, 64])
+    if report['tail_classification'] != 'robust_resolved_nonzero_tail':
+        raise AssertionError('four-replica plateau did not remain resolved')
+    if report['replicas'] != 4 or not report['statistical_caveat'].startswith('4 independent'):
+        raise AssertionError('four-replica metadata was not retained')
 
 
 def check_new_format_parser():
@@ -457,8 +481,9 @@ def self_test():
                        'one-count apparent plateau', [2] * 8, [8, 16, 32, 64])
     expect_sensitivity(plateau_a, plateau_b, 'support_sensitive_tail',
                        'threshold-sensitive plateau', [32] * 8, [8, 16, 32, 64])
+    expect_four_replica_sensitivity()
     check_new_format_parser()
-    print('P4.2 RHEOLOGY PILOT ANALYZER SELF_TEST PASS ten synthetic/parser regimes')
+    print('P4.2 RHEOLOGY PILOT ANALYZER SELF_TEST PASS eleven synthetic/parser regimes')
 
 
 def main():

@@ -13,7 +13,7 @@ CANONICAL = {
     'Ee': 8.0, 'nu0': 20.0, 'Nevery': 100, 'r_assoc': 1.25,
     'damping': 2.0, 'K': 30.0, 'R0': 1.5,
 }
-LABEL = re.compile(r'^C1_e2_s(12001|12002)_t(40000|50000|60000)$')
+LABEL = re.compile(r'^C1_e2_s([1-9][0-9]*)_t([1-9][0-9]*)$')
 METRICS = ('bound_fraction', 'intra', 'inter', 'L1', 'L2',
            'largest_cluster_fraction', 'mean_degree')
 
@@ -124,11 +124,13 @@ def graph(molecules, pairs):
     return l1, l2, max(clusters) / len(nodes), statistics.mean(degrees)
 
 
-def validate(prefix):
+def validate(prefix, expected_seeds, expected_times):
     label = os.path.basename(prefix)
     match = LABEL.match(label)
     require(match is not None, prefix + ': unexpected bank label')
     seed, time_label = int(match.group(1)), int(match.group(2))
+    require(seed in expected_seeds and time_label in expected_times,
+            prefix + ': unexpected bank label')
     metadata, pairs = read_metadata(prefix + '.assoc_restart')
     atoms, bonds, positions, types, molecules, bounds = read_snapshot(prefix + '.restart.lammpsdat')
     for key, expected in CANONICAL.items():
@@ -140,6 +142,12 @@ def validate(prefix):
     require(len(atoms) == 43563 and len(bonds) == 40000, prefix + ': C1 size mismatch')
     stickers = {atom for atom, atom_type in types.items() if atom_type == 2}
     require(len(stickers) == 4000, prefix + ': sticker count')
+    maximum_permanent = 0.0
+    for first, second in bonds:
+        require(first in atoms and second in atoms, prefix + ': invalid permanent endpoint')
+        current = distance(positions[first], positions[second], bounds)
+        require(current < CANONICAL['R0'], prefix + ': permanent FENE distance >= R0')
+        maximum_permanent = max(maximum_permanent, current)
     seen, maximum = set(), 0.0
     intra = inter = 0
     for first, second in pairs:
@@ -162,6 +170,7 @@ def validate(prefix):
     return {'prefix': prefix, 'bonds': len(pairs), 'bound_fraction': 2 * len(pairs) / 4000,
             'intra': intra, 'inter': inter, 'L1': l1, 'L2': l2,
             'largest_cluster_fraction': largest, 'mean_degree': mean_degree,
+            'max_permanent_bond_distance': maximum_permanent,
             'max_active_bond_distance': maximum}
 
 
@@ -194,20 +203,35 @@ def self_test():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bank-dir')
+    parser.add_argument('--seeds', default='12001,12002')
+    parser.add_argument('--times', default='40000,50000,60000')
     parser.add_argument('--self-test', action='store_true')
     args = parser.parse_args()
     if args.self_test:
         self_test()
         return
     require(args.bank_dir is not None, '--bank-dir is required')
-    prefixes = sorted(os.path.join(args.bank_dir, name[:-14]) for name in os.listdir(args.bank_dir)
-                      if name.endswith('.assoc_restart'))
-    require(len(prefixes) == 6, 'expected exactly six C1 restart metadata files')
-    records = [validate(prefix) for prefix in prefixes]
-    print('prefix bonds bound_fraction N_intra N_inter L1 L2 largest_cluster_fraction mean_degree max_active_distance')
+    try:
+        seeds = [int(value) for value in args.seeds.split(',')]
+        times = [int(value) for value in args.times.split(',')]
+    except ValueError as error:
+        raise ValueError('seeds and times must be comma-separated integers') from error
+    require(seeds and times and all(value > 0 for value in seeds + times),
+            'seeds and times must be positive')
+    require(len(set(seeds)) == len(seeds) and len(set(times)) == len(times),
+            'duplicate seed or time')
+    prefixes = [os.path.join(args.bank_dir, 'C1_e2_s{}_t{}'.format(seed, time_label))
+                for seed in seeds for time_label in times]
+    for prefix in prefixes:
+        require(os.path.isfile(prefix + '.assoc_restart'), prefix + ': missing metadata')
+        require(os.path.isfile(prefix + '.restart.lammpsdat'), prefix + ': missing snapshot')
+    records = [validate(prefix, set(seeds), set(times)) for prefix in prefixes]
+    print('prefix bonds bound_fraction N_intra N_inter L1 L2 largest_cluster_fraction mean_degree '
+          'max_permanent_distance max_active_distance')
     for record in records:
         print('{prefix} {bonds} {bound_fraction:.9f} {intra} {inter} {L1} {L2} '
-              '{largest_cluster_fraction:.9f} {mean_degree:.9f} {max_active_bond_distance:.9f}'.format(**record))
+              '{largest_cluster_fraction:.9f} {mean_degree:.9f} '
+              '{max_permanent_bond_distance:.9f} {max_active_bond_distance:.9f}'.format(**record))
     for metric in METRICS:
         values = [record[metric] for record in records]
         print('bank {} mean={:.9g} range=[{:.9g}, {:.9g}]'.format(metric, statistics.mean(values), min(values), max(values)))
