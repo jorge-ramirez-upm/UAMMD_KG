@@ -48,6 +48,14 @@ P4.2 (rheology pilot pending):
   production, and is intended to improve long-lag support before adding more
   replicas.
 
+- The completed 32M x 2 extension took 11,512.3 s and 11,253.8 s for seeds
+  12001 and 12002. It exposed the length-dependent 320-count eligibility
+  threshold as overly restrictive for late bins with roughly 50 contributions.
+  The analyzer now sweeps `8,16,32,64,128`; it finds a resolved weak positive
+  window near `t=39,321.6--57,671.68`, but all tested thresholds remain
+  unresolved at their terminal eligible windows. The overall result is still
+  analysis-pending and no further simulation is authorized before review.
+
 P4.3:
 
 - Launch long multi-replica C1 production.

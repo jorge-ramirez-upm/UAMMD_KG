@@ -234,6 +234,8 @@ def classify_tail(replicas, legacy_reliable_fraction, window_bins, z_threshold,
         'max_lag_time': maximum_time,
         'max_lag_with_nonzero_support': max_nonzero_lag,
         'reliable_max_lag_time': max(reliable_times) if reliable_times else None,
+        'last_eligible_window_start': tail.get('start'),
+        'last_eligible_window_end': tail.get('end'),
         'support_mode': support_mode,
         'support_reference_count': reference_support,
         'support_threshold': support_threshold,
@@ -253,6 +255,7 @@ def classify_tail(replicas, legacy_reliable_fraction, window_bins, z_threshold,
         'tail_window_min_n_pairs': tail.get('min_n_pairs'),
         'tail_window_median_n_pairs': tail.get('median_n_pairs'),
         'resolved_max_lag_time': resolved_max,
+        'resolved_classification_max_lag_time': resolved_max,
         'recommendation_type': recommendation_type,
         'recommended_next_action': next_action,
         'needs_longer_trajectory': tail_classification != ZERO,
@@ -267,10 +270,87 @@ def classify_tail(replicas, legacy_reliable_fraction, window_bins, z_threshold,
     }
 
 
-def write_outputs(prefix, replicas, windows, report):
+def support_sensitivity(replicas, legacy_reliable_fraction, window_bins, z_threshold,
+                       thresholds):
+    support_mode = replicas[0]['metadata']['support_mode']
+    reports = []
+    windows_by_threshold = []
+    if support_mode == 'exact_n_pairs':
+        for threshold in thresholds:
+            windows, report = classify_tail(
+                replicas, legacy_reliable_fraction, window_bins, z_threshold,
+                threshold, 0.0)
+            windows_by_threshold.append(windows)
+            reports.append(report)
+    else:
+        windows, report = classify_tail(
+            replicas, legacy_reliable_fraction, window_bins, z_threshold)
+        windows_by_threshold.append(windows)
+        reports.append(report)
+    classifications = [report['tail_classification'] for report in reports]
+    if len(set(classifications)) == 1 and classifications[0] == NONZERO:
+        overall = 'robust_resolved_nonzero_tail'
+    elif len(set(classifications)) == 1 and classifications[0] == ZERO:
+        overall = 'robust_resolved_decay_to_zero'
+    elif len(set(classifications)) == 1 and classifications[0] == UNRESOLVED:
+        overall = UNRESOLVED
+    else:
+        overall = 'support_sensitive_tail'
+    sensitivity_rows = []
+    for threshold, report in zip(
+            thresholds if support_mode == 'exact_n_pairs' else [None], reports):
+        sensitivity_rows.append({
+            'support_threshold': threshold,
+            'reliable_max_lag_time': report['reliable_max_lag_time'],
+            'last_eligible_window_start': report['last_eligible_window_start'],
+            'last_eligible_window_end': report['last_eligible_window_end'],
+            'tail_window_start': report['tail_window_start'],
+            'tail_window_end': report['tail_window_end'],
+            'tail_classification': report['tail_classification'],
+            'tail_window_mean_g': report['tail_window_mean_g'],
+            'tail_window_noise_scale': report['tail_window_noise_scale'],
+            'tail_signal_to_noise': report['tail_signal_to_noise'],
+            'tail_sign_agreement': report['tail_sign_agreement'],
+            'tail_replica_agreement': report['tail_replica_agreement'],
+            'tail_trend': report['tail_trend'],
+            'tail_window_min_n_pairs': report['tail_window_min_n_pairs'],
+            'tail_window_median_n_pairs': report['tail_window_median_n_pairs'],
+        })
+    primary = dict(reports[0])
+    primary['tail_classification'] = overall
+    primary['support_threshold'] = None
+    primary['support_rule'] = ('support sensitivity thresholds: ' +
+                               ','.join(str(threshold) for threshold in thresholds)
+                               if support_mode == 'exact_n_pairs' else
+                               'legacy fixed lag-fraction fallback')
+    primary['support_sensitivity'] = {
+        'thresholds': thresholds if support_mode == 'exact_n_pairs' else [],
+        'results': sensitivity_rows,
+        'overall_interpretation': overall,
+    }
+    if overall == 'robust_resolved_decay_to_zero':
+        primary['recommendation_type'] = 'more_replicas_before_production'
+        primary['recommended_next_action'] = (
+            'tail is locally zero-compatible across support choices; confirm with more seeds')
+        primary['needs_longer_trajectory'] = False
+    elif overall == 'robust_resolved_nonzero_tail':
+        primary['recommendation_type'] = 'longer_trajectory_and_more_replicas'
+        primary['recommended_next_action'] = (
+            'a nonzero tail persists across support choices; extend before production')
+        primary['needs_longer_trajectory'] = True
+    else:
+        primary['recommendation_type'] = 'longer_trajectory_and_more_replicas'
+        primary['recommended_next_action'] = (
+            'support choices do not give one robust tail conclusion; extend and add seeds')
+        primary['needs_longer_trajectory'] = True
+    return windows_by_threshold[0], primary, sensitivity_rows
+
+
+def write_outputs(prefix, replicas, windows, report, sensitivity_rows):
     replica_path = prefix + '.replicas.csv'
     mean_path = prefix + '.mean.csv'
     window_path = prefix + '.windows.csv'
+    sensitivity_path = prefix + '.support_sensitivity.csv'
     report_path = prefix + '.summary.json'
     with open(replica_path, 'w', newline='', encoding='utf-8') as output:
         writer = csv.DictWriter(output, fieldnames=('replica', 'source', 'time') + CHANNELS +
@@ -292,10 +372,15 @@ def write_outputs(prefix, replicas, windows, report):
         writer = csv.DictWriter(output, fieldnames=fields)
         writer.writeheader()
         writer.writerows(windows)
+    with open(sensitivity_path, 'w', newline='', encoding='utf-8') as output:
+        fields = tuple(sensitivity_rows[0])
+        writer = csv.DictWriter(output, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(sensitivity_rows)
     with open(report_path, 'w', encoding='utf-8') as output:
         json.dump(report, output, indent=2, allow_nan=False)
         output.write('\n')
-    return replica_path, mean_path, window_path, report_path
+    return replica_path, mean_path, window_path, sensitivity_path, report_path
 
 
 def synthetic_replicas(values_a, values_b, support=None):
@@ -317,6 +402,15 @@ def expect_classification(values_a, values_b, expected, label, support=None):
     _, report = classify_tail(synthetic_replicas(values_a, values_b, support), 1.0, 5, 2.0)
     if report['tail_classification'] != expected:
         raise AssertionError('{} classified as {}'.format(label, report['tail_classification']))
+
+
+def expect_sensitivity(values_a, values_b, expected, label, support, thresholds):
+    _, report, rows = support_sensitivity(
+        synthetic_replicas(values_a, values_b, support), 1.0, 5, 2.0, thresholds)
+    if report['tail_classification'] != expected:
+        raise AssertionError('{} interpreted as {}'.format(label, report['tail_classification']))
+    if len(rows) != len(thresholds):
+        raise AssertionError('{} did not report every threshold'.format(label))
 
 
 def check_new_format_parser():
@@ -357,8 +451,14 @@ def self_test():
     expect_classification(plateau_a, plateau_b, UNRESOLVED, 'under-supported plateau',
                           [100, 100, 100, 2, 2, 2, 2, 2])
     expect_classification(plateau_a, plateau_b, NONZERO, 'supported plateau', [100] * 8)
+    expect_sensitivity(plateau_a, plateau_b, 'robust_resolved_nonzero_tail',
+                       'stable moderate-support plateau', [64] * 8, [8, 16, 32, 64])
+    expect_sensitivity(plateau_a, plateau_b, UNRESOLVED,
+                       'one-count apparent plateau', [2] * 8, [8, 16, 32, 64])
+    expect_sensitivity(plateau_a, plateau_b, 'support_sensitive_tail',
+                       'threshold-sensitive plateau', [32] * 8, [8, 16, 32, 64])
     check_new_format_parser()
-    print('P4.2 RHEOLOGY PILOT ANALYZER SELF_TEST PASS seven synthetic/parser regimes')
+    print('P4.2 RHEOLOGY PILOT ANALYZER SELF_TEST PASS ten synthetic/parser regimes')
 
 
 def main():
@@ -368,7 +468,10 @@ def main():
     parser.add_argument('--reliable-fraction', type=float, default=0.75,
                         help='legacy eight-column fallback only')
     parser.add_argument('--min-support-count', type=int, default=8)
-    parser.add_argument('--min-support-fraction', type=float, default=1.0e-5)
+    parser.add_argument('--min-support-fraction', type=float, default=1.0e-5,
+                        help='legacy single-threshold compatibility; exact files use the sweep')
+    parser.add_argument('--support-thresholds', default='8,16,32,64,128',
+                        help='comma-separated exact raw-support sensitivity thresholds')
     parser.add_argument('--window-bins', type=int, default=5)
     parser.add_argument('--z-threshold', type=float, default=2.0)
     parser.add_argument('--self-test', action='store_true')
@@ -384,17 +487,24 @@ def main():
             arguments.z_threshold <= 0.0 or arguments.min_support_count < 1 or
             not 0.0 <= arguments.min_support_fraction <= 1.0):
         parser.error('invalid support or window parameters')
+    try:
+        support_thresholds = sorted(set(int(value) for value in
+                                        arguments.support_thresholds.split(',')))
+    except ValueError as error:
+        parser.error('support thresholds must be positive integers')
+    if not support_thresholds or support_thresholds[0] < 1:
+        parser.error('support thresholds must be positive integers')
     replicas = []
     for path in arguments.stress_files:
         metadata, rows = read_stress_correlator(path)
         replicas.append({'path': path, 'metadata': metadata, 'rows': rows})
-    windows, report = classify_tail(replicas, arguments.reliable_fraction,
-                                    arguments.window_bins, arguments.z_threshold,
-                                    arguments.min_support_count,
-                                    arguments.min_support_fraction)
+    windows, report, sensitivity_rows = support_sensitivity(
+        replicas, arguments.reliable_fraction, arguments.window_bins,
+        arguments.z_threshold, support_thresholds)
     report['replicas'] = len(replicas)
     report['g0_mean'] = statistics.mean(replica['rows'][0]['G'] for replica in replicas)
-    output_paths = write_outputs(arguments.output_prefix, replicas, windows, report)
+    output_paths = write_outputs(arguments.output_prefix, replicas, windows, report,
+                                 sensitivity_rows)
     print('P4.2 rheology pilot analysis written: {}'.format(', '.join(output_paths)))
     print('tail_classification={}'.format(report['tail_classification']))
     print('recommended_next_action={}'.format(report['recommended_next_action']))

@@ -145,6 +145,28 @@ from the production default of 100 steps to 10,000 steps through the runner's
 steps. This extended pilot prioritizes long-lag support before adding more
 independent replicas and is not final production.
 
+The 32M x 2 extension completed with runtimes of 11,512.3 s (seed 12001) and
+11,253.8 s (seed 12002). It reaches 320,000 time units per seed. The former
+`ceil(1e-5 * maximum_support)` rule would require 320 raw contributions and
+therefore rejected late windows with approximately 50 contributions solely
+because the trajectory was longer. Count-aware reanalysis now sweeps exact
+minimum-support thresholds `8,16,32,64,128` and reports each result in
+`rheology.support_sensitivity.csv` and the summary's `support_sensitivity`
+block. Raw `n_pairs` remain eligibility metadata, not independent samples or
+a significance model.
+
+At threshold 8, the data contain a resolved positive window from `t=39321.6`
+to `57671.68` with mean `G=0.00390028`, SNR `4.6418`, and minimum support 50.
+The terminal eligible windows become replica-noise limited: all five tested
+thresholds end as `unresolved_tail`, although the last eligible lag ranges
+from `19660.8` (threshold 128) to `157286.4` (threshold 8). The overall
+interpretation remains `unresolved_tail`, not because the 320-count rule is
+scientifically preferred, but because the two-replica terminal conclusion is
+not stable enough to resolve the eventual decay. The report now distinguishes
+`reliable_max_lag_time` from `resolved_classification_max_lag_time`, the latter
+being only the end of the latest locally classified window. No further
+simulation is authorized until this reanalysis is inspected.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record
