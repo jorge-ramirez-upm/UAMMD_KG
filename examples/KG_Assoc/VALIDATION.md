@@ -201,6 +201,34 @@ mean measured 32M runtime (11,383.05 s per seed), a one-GPU serial run is
 estimated at 45,532.2 s, or 12.65 h. This remains an extended P4.2 pilot, not
 final production.
 
+Five genuinely independent 32M replicas are now available (seeds
+12001--12005). The former two-replica weak plateau does not remain robust in
+the five-replica mean: the curve decays toward the noise floor over roughly
+`O(3e4--5e4)`. Zero-tail inference therefore no longer uses same-sign or
+same-amplitude checks, which are appropriate for a nonzero signal but not for
+a mean near zero: mixed replica signs near zero are expected, not evidence of
+inconsistency. For each five-bin window the analyzer uses the equal-bin mean
+within each independent replica, then computes the mean, sample standard
+deviation, SEM, and two-sided 95% Student-t CI across replicas (`df=N-1`; a
+tabulated critical value is used, with `t(4)=2.776445` for these data).
+`n_pairs` remains only a support-eligibility diagnostic and is never used in
+the CI.
+
+Three overlapping eligible windows are required as a structural persistence
+guard, not as independent repeated tests. A nonzero tail requires a CI that
+excludes zero and no window-scale trend exceeding its CI half-width; decay is
+reported only as `resolved_decay_to_zero`, meaning persistently compatible
+with the available noise floor, never exactly zero. The five-replica result is
+`robust_resolved_decay_to_zero`: thresholds 8, 16, 32, and 64 confirm the
+same sustained zero-compatible region. Threshold 128 has enough support to
+confirm the preceding nonzero region, but cannot reach the third
+zero-compatible window required for persistence, so it is explicitly marked
+support-limited rather than contradictory. The late `t=47185.92--68157.44`
+positive excursion has CI `[-0.0001771, 0.0042536]`, includes zero, and is not
+replica-robust. No additional simulation is authorized until this analysis is
+reviewed; the present pilot is suitable to move toward viscosity/production
+precision design, not to claim final rheological precision.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record
