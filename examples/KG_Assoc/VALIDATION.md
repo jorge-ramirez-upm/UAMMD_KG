@@ -327,6 +327,35 @@ some replicas show a mild early-to-late decline, so this is a descriptive
 baseline rather than a formal stationarity proof. No lifetime, exchange,
 walking, or hopping classification is included.
 
+## P4.6 — temporary-bond dynamics
+
+P4.6 is an offline analysis of existing production outputs only. Production
+events encode one accepted creation (`C`) or break (`B`) for one ascending,
+1-based sticker pair, including both molecule IDs. The parent restart named
+in event provenance supplies the active pairs at the beginning of a restarted
+segment. Those opening episodes are explicitly left-censored; known-origin
+episodes active at the end are right-censored. Kaplan-Meier curves use only
+known-origin episodes while retaining right-censored observations in their
+risk sets. Sparse topology frames validate exact event reconstruction.
+
+Inter-star neighbor changes are defined only by edge-multiplicity transitions
+between zero and one. Consequently, a parallel-bond creation or break changes
+`k_bond` but not necessarily `k_neighbor`. This baseline records partner
+exchange and same-step neighbor gain/loss statistics; it does not infer
+walking, hopping, COM-conditioned events, or independent uncertainty from
+individual bonds.
+
+Five 32M C1 replicas reconstruct 1,719,534 physical-bond episodes (plus the
+CSV header) with all sparse topology frames agreeing exactly. Inter-star
+Kaplan--Meier medians are 725--731 time units and intra-star medians are
+689--700; the corresponding `S=1/e` crossings are 1055--1069 and 996--1012.
+These exchange times are much shorter than C1 stress relaxation (`O(10^4)`) and
+the currently unresolved terminal COM-diffusion scale (`O(10^5+)`). About
+52.6--53.1% of broken stickers next bind the same sticker, 2.0% bind a
+different sticker on the same prior-partner star, and 44.8--45.4% bind a
+different star. These are descriptive five-seed results; episode counts are
+not treated as independent replicas.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record

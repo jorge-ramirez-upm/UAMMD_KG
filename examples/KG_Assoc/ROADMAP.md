@@ -126,6 +126,11 @@ P4.5 (C1 static topology baseline complete):
   relation to COM motion, but walking/hopping classification is not part of
   this baseline.
 
+P4.6 adds offline temporary-bond episode, censoring-aware survival, rebinding,
+and star-neighbor exchange analysis from the existing event streams. It does
+not classify walking or hopping, and it treats independent seeds rather than
+bond episodes as the final statistical units.
+
 Later work: offline COM MSD, offline COM `S(q,t)`, bond dynamics,
 topology/percolation, and C5/C6.
 

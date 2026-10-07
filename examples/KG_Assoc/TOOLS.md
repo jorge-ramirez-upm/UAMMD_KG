@@ -132,6 +132,32 @@ not collective, correlator. High-q relaxation may occur before the first
 
 ## Network topology
 
+### `analysis/analyze_p46_bond_dynamics.py`
+
+Purpose: reconstruct temporary sticker-bond episodes and partner exchange from
+production event streams. It uses the parent restart named by each event file
+to identify opening left-censored bonds, and can validate reconstruction against
+the synchronized topology stream.
+
+Example:
+
+```bash
+python3 examples/KG_Assoc/analysis/analyze_p46_bond_dynamics.py \
+  --system examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat \
+  --output-prefix p46_c1_bonds \
+  --topology p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.topology \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.events
+```
+
+Outputs: episode, all/intra/inter Kaplan-Meier survival, rebinding, partner
+exchange, and summary files. A bond is the unordered pair of sticker atom IDs.
+Opening bonds are left-censored and excluded from the Kaplan-Meier risk set;
+known-origin bonds active at segment end are right-censored. Rebinding categories
+are same sticker, different sticker on the same prior-partner star, different
+star, and unbound at segment end. Star-neighbor changes are only inter-star
+multiplicity transitions between zero and one; a parallel-bond event can change
+`k_bond` without changing `k_neighbor`.
+
 ### `analysis/analyze_p45_topology.py`
 
 Purpose: reconstruct the static transient sticker network from synchronized
