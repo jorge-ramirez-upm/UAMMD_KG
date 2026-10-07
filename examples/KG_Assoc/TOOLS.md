@@ -130,6 +130,38 @@ diagnostics/crossing times. It uses `correlator.SqtCorrelatorIsotropicManyQ`, ev
 not collective, correlator. High-q relaxation may occur before the first
 100-time-unit COM lag in the current 32M data.
 
+## Network topology
+
+### `analysis/analyze_p45_topology.py`
+
+Purpose: reconstruct the static transient sticker network from synchronized
+`.topology` frames. Supply the LAMMPS restart/system file explicitly so all
+stars, sticker atoms, and isolated nodes are known.
+
+Example:
+
+```bash
+python3 examples/KG_Assoc/analysis/analyze_p45_topology.py \
+  --system examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat \
+  --output-prefix p45_c1_topology \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.topology \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.topology
+```
+
+Outputs: `<prefix>.frames.csv`, degree-bond, degree-neighbor, edge-multiplicity,
+and cluster-size histograms, plus a JSON summary with per-replica means and
+replica-level uncertainty. Nodes are stars; each inter-star sticker bond is a
+multigraph edge, while the component calculation uses its corresponding simple
+graph. An intra-star bond is not an edge, counts once in `n_intra`, and consumes
+two stickers on that star; an inter-star bond consumes one sticker at each end.
+
+Production topology files list each physical temporary bond once in ascending
+atom-ID order and include both molecule IDs. The analyzer rejects duplicate,
+reciprocal, nonreciprocal, malformed, or non-sticker endpoints. Largest
+connected component is not proof of PBC wrapping/percolation; winding analysis
+is deliberately deferred. This tool is static topology only: it does not infer
+lifetimes, partner exchange, walking, or hopping.
+
 ## Visualization
 
 ### `analysis/plot_analysis.py`

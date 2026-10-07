@@ -297,6 +297,36 @@ The installed package also exposes `SqtCorrelatorIsotropic` and
 small COM self-`S(q,t)` study can begin near `2pi/L=0.1691` and `1/Rg=0.3776`
 and their low multiples; no q-grid analysis is part of this validation.
 
+## P4.5 — C1 static transient-network topology baseline
+
+The production topology writer emits `FRAME step time active_pairs`, followed
+by exactly that many `atom_i atom_j molecule_i molecule_j` records. It lists
+each temporary sticker bond once only (`atom_i < atom_j`), so no reciprocal
+deduplication is applied. The explicit C1 restart system maps atom IDs to
+molecule IDs and identifies type-2 sticker atoms; it establishes 1,000 stars
+and 4,000 stickers (four per star). The analyzer validates every recorded atom
+and molecule ID, rejects repeated sticker endpoints, and checks sticker
+conservation frame by frame.
+
+Across five independent 32M C1 segments, the replica-mean temporary, intra,
+and inter bond counts are `1766.47 +/- 2.38`, `117.53 +/- 6.37`, and
+`1648.94 +/- 8.67` (95% Student-t replica half-widths). The intra fraction is
+`0.06654 +/- 0.00369`; intra bonds consume two stickers on one star, whereas
+inter bonds contribute one incidence to each endpoint. Mean inter-bond degree
+is `3.2979 +/- 0.0173`, distinct-neighbor degree is `3.2125 +/- 0.0240`, and
+the isolated-star fraction is `0.00447 +/- 0.00068`. The difference between
+the two degree definitions is therefore small but measurable: roughly 2.6% of
+connected star pairs have multiplicity at least two (mostly multiplicity two).
+
+The largest simple-graph component contains `0.99474 +/- 0.00107` of stars.
+This demonstrates a dominant connected component in these finite snapshots,
+not periodic-boundary percolation or spanning; a geometry/winding analysis is
+required for that deferred question. Three equal time blocks show only modest
+changes in inter-bond count, neighbor degree, and largest-component fraction;
+some replicas show a mild early-to-late decline, so this is a descriptive
+baseline rather than a formal stationarity proof. No lifetime, exchange,
+walking, or hopping classification is included.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record

@@ -109,6 +109,23 @@ P4.4 (C1 star-COM diffusion analysis pending):
   COM output is a separate segment and must not be stitched to its parent.
   See `TOOLS.md` for the exact command and operational caveats.
 
+P4.5 (C1 static topology baseline complete):
+
+- The synchronized topology format records each active temporary sticker bond
+  once as atom IDs plus both molecule IDs. The baseline analyzer reconstructs
+  a star multigraph for bond multiplicity and a simple graph for components,
+  while retaining intra-star bonds as sticker-capacity consumption rather than
+  graph edges.
+- Five 32M C1 replicas contain a dominant largest connected component of
+  `0.9947 +/- 0.0011` (95% replica CI) of stars, but this is not a PBC
+  percolation claim. Mean inter-star bond degree is `3.298 +/- 0.017`; mean
+  distinct-neighbor degree is `3.212 +/- 0.024`. About 6.65% of temporary
+  bonds are intra-star and only about 2.63% of connected star pairs have two
+  or more simultaneous sticker bonds.
+- The next topology work may add dynamic bond survival/exchange and its
+  relation to COM motion, but walking/hopping classification is not part of
+  this baseline.
+
 Later work: offline COM MSD, offline COM `S(q,t)`, bond dynamics,
 topology/percolation, and C5/C6.
 
