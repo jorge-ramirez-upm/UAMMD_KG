@@ -78,6 +78,29 @@ P4.3 (limited C1 viscosity estimate complete):
   network/topology including hopping/walking mechanisms. Do not launch a new
   viscosity simulation automatically.
 
+P4.4 (C1 star-COM diffusion analysis pending):
+
+- `analysis/analyze_p44_com_diffusion.py` reads each self-contained unwrapped
+  COM segment and uses the installed `correlator.DiffusionCorrelator` at its
+  selected multi-tau lags, averaging the per-star MSDs. The five 32M C1
+  segments have 3,200 frames of 1,000 ordered star IDs at 100 time-unit
+  spacing; segments are never stitched across restart boundaries.
+- The multi-tau estimator passes deterministic ballistic and constant tests,
+  fine-lag brute-force all-origin checks, and a C1 short-slice check. Its raw
+  origin count is reported only as support, never as the replica uncertainty.
+- The five-replica mean remains subdiffusive over the sampled range: the
+  five-point local logarithmic slope is about 0.63--0.86 and never supplies
+  five adjacent points within 0.1 of one. Thus the diagnostic linear-fit
+  values around `2.6e-4--2.8e-4` are not yet a defensible terminal `D`; more
+  long-time support is needed before reporting C1 diffusion. The 100-time-unit
+  COM spacing is adequate for that long-time diagnosis; denser old data would
+  instead help short/intermediate-time physics.
+- For later self-`S(q,t)`, the same package offers
+  `SqtCorrelatorIsotropic` and `SqtCorrelatorIsotropicManyQ`, which evaluate
+  isotropic `sinc(q|Delta R|)` at selected multi-tau lags. Candidate COM
+  wave numbers are `2pi/L=0.1691`, `1/Rg=0.3776`, and their low multiples;
+  this reconnaissance does not launch a q-grid analysis.
+
 Later work: offline COM MSD, offline COM `S(q,t)`, bond dynamics,
 topology/percolation, and C5/C6.
 

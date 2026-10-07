@@ -262,6 +262,41 @@ work is therefore sufficient for the current paper scope; priority moves to
 diffusion, sticker lifetimes, and network/topology mechanisms rather than a
 new viscosity simulation.
 
+## P4.4 — C1 star-COM diffusion (ANALYSIS PENDING)
+
+The five 32M C1 production segments (seeds 12001--12005) each provide 3,200
+COM frames for 1,000 ordered stars, from steps 4,010,000 through 36,000,000,
+at 10,000-step / 100-time-unit spacing. The COM writer records the header
+`# step time molecule_id com_x com_y com_z` and temporally unwraps only within
+one executable segment. The analysis therefore validates IDs, monotonic and
+uniform time, and frame count, then analyzes each segment independently rather
+than stitching restart histories.
+
+`analysis/analyze_p44_com_diffusion.py` uses the installed Python 3.11 module
+`correlator` and its `DiffusionCorrelator(20, 16, 2)`. It evaluates each star
+separately and averages the resulting squared-displacement MSDs over stars;
+five independent segments, not stars or time origins, define uncertainty. The
+implementation is multi-tau rather than all-origin at its coarse selected lags.
+Its reported origin count is a support diagnostic, not an effective independent
+sample count. Deterministic ballistic and constant trajectories, fine-lag
+all-origin brute-force checks, and a 64-frame C1 slice all pass.
+
+For the existing data the five-point local log-slope of the mean MSD is about
+0.63--0.86, without five adjacent multi-tau points satisfying
+`|alpha - 1| <= 0.1`. The candidate linear fits over `20k--80k`, `30k--100k`,
+and `40k--120k` give means `2.798e-4`, `2.679e-4`, and `2.616e-4`, respectively,
+but they are explicitly diagnostic: no terminal diffusive regime is established
+and no defensible C1 `D` is claimed yet. The 100-time-unit COM cadence is
+adequate for this long-time diagnosis; denser earlier output would be useful
+only for short/intermediate-time validation. No new simulation is launched by
+this analysis.
+
+The installed package also exposes `SqtCorrelatorIsotropic` and
+`SqtCorrelatorIsotropicManyQ`. They compute the isotropic self result
+`sinc(q |Delta R|)` with the same selected-lag multi-tau support. A later,
+small COM self-`S(q,t)` study can begin near `2pi/L=0.1691` and `1/Rg=0.3776`
+and their low multiples; no q-grid analysis is part of this validation.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record
