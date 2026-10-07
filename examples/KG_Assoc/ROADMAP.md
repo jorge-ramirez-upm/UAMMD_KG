@@ -100,6 +100,14 @@ P4.4 (C1 star-COM diffusion analysis pending):
   isotropic `sinc(q|Delta R|)` at selected multi-tau lags. Candidate COM
   wave numbers are `2pi/L=0.1691`, `1/Rg=0.3776`, and their low multiples;
   this reconnaissance does not launch a q-grid analysis.
+- The fixed nine-q self-`F_s(q,t)` analysis now confirms scale-separated COM
+  relaxation: `q=0.1` remains 0.514 at the last 281,600-time-unit lag, while
+  `q>=3.162` has already decayed below 0.2 at the first 100-time-unit lag.
+  Intermediate q values decay within the segment; no terminal D is inferred.
+- The next approved transport run is three 64M-step continuation segments from
+  the completed 32M final restart pairs for seeds 12001--12003. Each resulting
+  COM output is a separate segment and must not be stitched to its parent.
+  See `TOOLS.md` for the exact command and operational caveats.
 
 Later work: offline COM MSD, offline COM `S(q,t)`, bond dynamics,
 topology/percolation, and C5/C6.

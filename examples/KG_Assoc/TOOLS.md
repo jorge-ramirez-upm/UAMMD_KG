@@ -1,0 +1,131 @@
+# KG_Assoc operational tools
+
+Run commands from the repository root. These tools preserve provenance but do
+not make a restart time or a time origin into an independent replica: use a
+different stochastic seed for each independent realization.
+
+`C1_e2_s*_t40000` denotes 40,000 **physical time units**, not 40,000 MD
+steps. COM coordinates are unwrapped only within one executable segment. Do
+not stitch COM trajectories across a restart without reconstructing image
+history. Raw correlator `n_pairs` and multi-tau origin counts are support
+metadata, not independent statistical samples.
+
+## Preparation and restart bank
+
+### `scripts/prepare_p42_c1_replicas.sh`
+
+Purpose: build independent C1 E1 states, create C1 E2 restart-bank entries,
+validate them, and run a short continuation smoke test.
+
+Example: `examples/KG_Assoc/scripts/prepare_p42_c1_replicas.sh 12003 12004`
+
+Inputs: the generated C1 LAMMPS data and requested unique seeds. Outputs: E1
+data/provenance and restart pairs under `systems/restart_bank/C1`. It refuses
+to overwrite existing artifacts. This is a dedicated-host equilibration tool.
+
+### `run_p33_c1_restart_bank.sh`
+
+Purpose: create `t40000`, `t50000`, and `t60000` C1 E2 restart pairs from E1
+states and invoke restart-bank validation.
+
+Example: `P33_C1_SEEDS="12001 12002" examples/KG_Assoc/run_p33_c1_restart_bank.sh`
+
+Inputs: `systems/e1_equilibrated/C1_long_s*.e1.lammpsdat`. Outputs: paired
+`.restart.lammpsdat` and `.assoc_restart` files. Do not use different bank
+times from the same seed as independent replicas.
+
+### `analysis/validate_c1_restart_bank.py`
+
+Purpose: audit C1 restart-bank pairs and their associating topology.
+
+Example: `python3 examples/KG_Assoc/analysis/validate_c1_restart_bank.py \
+  --bank-dir examples/KG_Assoc/systems/restart_bank/C1 --seeds 12001,12002`
+
+Inputs: a bank directory and comma-separated seed list. Outputs: validation
+report to standard output. Run it before accepting new seed states.
+
+## Production, validation, and profiling
+
+### `scripts/run_p41_validation.sh` and `scripts/benchmark_p41_short.sh`
+
+Purpose: dedicated-host P4.1 validation and controlled baseline/production
+throughput comparison. Inputs: documented C1 restart. Outputs: validation and
+benchmark logs. Use before changing production instrumentation; these are not
+rheology-production runners.
+
+### `scripts/profile_p42_short.sh`
+
+Purpose: short Nsight Systems baseline/production structural profile.
+
+Example: `INPUT=examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000 \
+  examples/KG_Assoc/scripts/profile_p42_short.sh`
+
+Outputs: one fresh profile subdirectory containing reports, stats, and target
+logs. It rejects failed applications and CUDA-trace-free reports. It is not an
+Nsight Compute runner.
+
+### `scripts/run_p42_rheology_pilot.sh`
+
+Purpose: run one or more production restart segments with every-step stress,
+fresh output paths, provenance, duplicate-seed rejection, and completion
+checks.
+
+Example continuation command:
+
+```bash
+P42_PILOT_RUN_KIND=64M_continuation \
+P42_PILOT_STEPS=64000000 \
+P42_PILOT_COM_EVERY=10000 \
+P42_PILOT_DIR=p42_diffusion_continuation \
+  examples/KG_Assoc/scripts/run_p42_rheology_pilot.sh \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000 \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12003_t40000
+```
+
+Inputs: restart prefixes, each with both restart files. Outputs: a unique
+`run.*` directory with simulation files, logs, and `provenance.txt`; it records
+the parent restart paths/SHA256, run kind, stress sampling, COM cadence, and
+frame cadence. The production executable samples stress every MD step; the
+example writes COM and frame/topology output every 10,000 MD steps. A restarted
+COM trajectory remains a separate unwrapped segment.
+
+### `analysis/analyze_p42_rheology_pilot.py`
+
+Purpose: analyze six-channel stress correlators, tail support sensitivity, and
+replica-level tail classification.
+
+Example: `python3 examples/KG_Assoc/analysis/analyze_p42_rheology_pilot.py \
+  --output-prefix "$RUN_DIR/rheology" "$RUN_DIR"/*.stress_correlator`
+
+Outputs: mean, replica, window, support-sensitivity CSVs and JSON summary.
+`n_pairs` is raw correlation support, not an effective sample count. P4.2/P4.3
+conclusions are C1-specific; 32M is not a universal sufficient duration.
+
+## COM transport observables
+
+### `analysis/analyze_p44_com_diffusion.py`
+
+Purpose: selected-lag multi-tau star-COM MSD and terminal-diffusion diagnosis.
+
+Example: `python3.11 examples/KG_Assoc/analysis/analyze_p44_com_diffusion.py \
+  --output-prefix "$RUN_DIR/diffusion" "$RUN_DIR"/*.com_trajectory`
+
+Outputs: `<prefix>.diffusion.replicas.csv`, `<prefix>.diffusion.mean.csv`, fit
+CSV, and JSON summary. It validates ordered IDs and a uniform segment-local COM grid. Origin
+counts are support only; independent segment replicas define uncertainty. The
+present 32M C1 segments are not terminally diffusive.
+
+### `analysis/analyze_p44_com_fsqt.py`
+
+Purpose: isotropically averaged self intermediate scattering function of star
+COMs at the fixed nine-value q grid from 0.1 to 10, including `q=1`.
+
+Example: `python3.11 examples/KG_Assoc/analysis/analyze_p44_com_fsqt.py \
+  --output-prefix "$RUN_DIR/fsqt" "$RUN_DIR"/*.com_trajectory`
+
+Outputs: `<prefix>.fsqt.replicas.csv`, `<prefix>.fsqt.mean.csv`, and JSON
+diagnostics/crossing times. It uses `correlator.SqtCorrelatorIsotropicManyQ`, evaluating
+`mean[sinc(q |Delta R|)]` over stars at selected multi-tau lags. It is a self,
+not collective, correlator. High-q relaxation may occur before the first
+100-time-unit COM lag in the current 32M data.

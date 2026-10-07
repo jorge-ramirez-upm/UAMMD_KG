@@ -10,6 +10,8 @@ throughput=${P42_PILOT_THROUGHPUT:-1.14428e8}
 particles=${P42_PILOT_PARTICLES:-43563}
 stars=${P42_PILOT_STARS:-1000}
 com_every=${P42_PILOT_COM_EVERY:-100}
+run_kind=${P42_PILOT_RUN_KIND:-restart_segment}
+frame_every=10000
 
 if (( steps <= 0 )); then
   echo "P42_PILOT_STEPS must be positive" >&2
@@ -76,8 +78,10 @@ make -B -C examples/KG_Assoc kg_assoc_production
 
 {
   echo "pilot_git_sha $(git rev-parse HEAD)"
+  echo "pilot_run_kind $run_kind"
   echo "pilot_steps $steps"
   echo "pilot_com_every $com_every"
+  echo "pilot_frame_every $frame_every"
   echo "pilot_stress_sampling every_md_step"
   echo "estimated_com_rows_per_seed $com_rows_per_seed"
   echo "stars $stars"
@@ -114,7 +118,8 @@ for restart_prefix in "${restart_prefixes[@]}"; do
   } >> "$workdir/provenance.txt"
 
   ./examples/KG_Assoc/kg_assoc_production --restart-prefix "$restart_prefix" \
-    --steps "$steps" --com-every "$com_every" --output "$output_prefix" \
+    --steps "$steps" --com-every "$com_every" --frame-every "$frame_every" \
+    --output "$output_prefix" \
     > "$workdir/$label.log" 2>&1
   require_completed_run "$label" "$output_prefix" "$workdir/$label.log"
   grep -F 'S1 total_timesteps' "$workdir/$label.log" | tail -n 1
