@@ -60,6 +60,19 @@ def save_or_show(plt, figures, output, no_show, dpi):
         plt.close(figure)
 
 
+def apply_limits(axis, arguments):
+    if axis.get_xscale() == 'log' and ((arguments.xmin is not None and arguments.xmin <= 0.0) or
+                                       (arguments.xmax is not None and arguments.xmax <= 0.0)):
+        raise ValueError('log-axis x limits must be positive')
+    if axis.get_yscale() == 'log' and ((arguments.ymin is not None and arguments.ymin <= 0.0) or
+                                       (arguments.ymax is not None and arguments.ymax <= 0.0)):
+        raise ValueError('log-axis y limits must be positive')
+    if arguments.xmin is not None or arguments.xmax is not None:
+        axis.set_xlim(left=arguments.xmin, right=arguments.xmax)
+    if arguments.ymin is not None or arguments.ymax is not None:
+        axis.set_ylim(bottom=arguments.ymin, top=arguments.ymax)
+
+
 def plot_fsqt(plt, arguments):
     rows = read_csv(arguments.file, ('q', 'lag_time', 'fsqt_mean'))
     q_values = sorted(set(column(rows, 'q')))
@@ -81,6 +94,7 @@ def plot_fsqt(plt, arguments):
              title=arguments.title or 'Self intermediate scattering function')
     axis.legend()
     axis.grid(True, alpha=.25)
+    apply_limits(axis, arguments)
     return [figure]
 
 
@@ -117,7 +131,26 @@ def plot_rheology(plt, arguments):
     axis.set(xlabel='t', ylabel='G(t)', title=arguments.title or 'Relaxation modulus')
     axis.legend()
     axis.grid(True, alpha=.25)
+    apply_limits(axis, arguments)
     return [figure]
+
+
+def slope_guide(axis, points, exponent, label):
+    start = max(len(points) * 2 // 3, 1)
+    interval = points[start:]
+    reference_time, reference_msd = interval[len(interval) // 2]
+    guide_time = [point[0] for point in interval]
+    guide_msd = [reference_msd * (time / reference_time) ** exponent for time in guide_time]
+    axis.plot(guide_time, guide_msd, linestyle='--', linewidth=1, label=label, zorder=2)
+
+
+def replica_msd_rows(path):
+    rows = read_csv(path, ('replica', 'lag_time', 'msd'))
+    replicas = {}
+    for row in rows:
+        replica = row['replica']
+        replicas.setdefault(replica, []).append(row)
+    return replicas
 
 
 def plot_diffusion(plt, arguments):
@@ -128,20 +161,34 @@ def plot_diffusion(plt, arguments):
     if not points:
         raise ValueError('no positive time/MSD points for log-log plot')
     figure, axis = plt.subplots()
-    axis.plot(*zip(*points), label='MSD')
-    if 'msd_sem' in rows[0]:
+    if 'msd_sem' in rows[0] and not arguments.no_sem:
         sem = column(rows, 'msd_sem')
-        lower = [max(y - error, float.fromhex('0x1.0p-1022')) for y, error in zip(msd, sem)]
-        axis.fill_between(time, lower, [y + error for y, error in zip(msd, sem)], alpha=.2)
+        band = [(x, y, error) for x, y, error in zip(time, msd, sem) if x > 0.0 and y > 0.0]
+        band_time, band_msd, band_sem = zip(*band)
+        lower = [max(y - error, float.fromhex('0x1.0p-1022'))
+                 for y, error in zip(band_msd, band_sem)]
+        axis.fill_between(band_time, lower, [y + error for y, error in zip(band_msd, band_sem)],
+                          alpha=.15, zorder=0)
+    axis.plot(*zip(*points), marker='o', markersize=3, linewidth=1.2, label='mean', zorder=3)
+    if arguments.replicas:
+        for index, replica in enumerate(replica_msd_rows(arguments.replicas).values()):
+            replica_points = [(float(row['lag_time']), float(row['msd'])) for row in replica
+                              if float(row['lag_time']) > 0.0 and float(row['msd']) > 0.0]
+            if not replica_points:
+                continue
+            axis.plot(*zip(*replica_points), linewidth=.75, alpha=.3,
+                      label='replicas' if index == 0 else '_nolegend_', zorder=1)
     if arguments.show_diffusive_guide:
-        index = len(points) // 2
-        reference_time, reference_msd = points[index]
-        guide = [reference_msd * x / reference_time for x, _ in points]
-        axis.plot([x for x, _ in points], guide, linestyle='--', label='t^1 guide')
-    axis.set(xlabel='t', ylabel='MSD(t)', xscale=arguments.xscale, yscale=arguments.yscale,
+        slope_guide(axis, points, 1.0, r'$t^1$')
+    if arguments.show_subdiffusive_guide:
+        slope_guide(axis, points, .5, r'$t^{1/2}$')
+    axis.set(xlabel=r'$t$', ylabel=r'$\langle \Delta R_{\mathrm{CM}}^2(t) \rangle$',
+             xscale=arguments.xscale, yscale=arguments.yscale,
              title=arguments.title or 'Star center-of-mass MSD')
+    axis.minorticks_on()
+    axis.margins(x=.04, y=.1)
     axis.legend()
-    axis.grid(True, alpha=.25)
+    apply_limits(axis, arguments)
     figures = [figure]
     if arguments.alpha:
         if 'alpha' not in rows[0]:
@@ -151,13 +198,21 @@ def plot_diffusion(plt, arguments):
         if not alpha_points:
             raise ValueError('CSV has no finite alpha values')
         alpha_figure, alpha_axis = plt.subplots()
-        alpha_axis.plot(*zip(*alpha_points), label='alpha')
+        alpha_axis.plot(*zip(*alpha_points), marker='o', markersize=3, linewidth=1.2,
+                        label=r'$\alpha$')
         alpha_axis.axhline(1.0, color='0.5', linestyle='--', linewidth=1, label='alpha = 1')
         alpha_axis.axhspan(.9, 1.1, color='0.5', alpha=.1)
-        alpha_axis.set(xlabel='t', ylabel='alpha(t)', xscale='log',
+        alpha_values = [point[1] for point in alpha_points]
+        if min(alpha_values) >= 0.0 and max(alpha_values) <= 1.5:
+            alpha_axis.set_ylim(0.0, 1.5)
+        else:
+            span = max(alpha_values) - min(alpha_values)
+            alpha_axis.set_ylim(min(0.0, min(alpha_values) - .1 * span),
+                                max(1.5, max(alpha_values) + .1 * span))
+        alpha_axis.set(xlabel=r'$t$', ylabel=r'$\alpha(t)=d\ln(\mathrm{MSD})/d\ln t$', xscale='log',
                        title=arguments.title or 'Local MSD slope')
+        alpha_axis.minorticks_on()
         alpha_axis.legend()
-        alpha_axis.grid(True, alpha=.25)
         figures.append(alpha_figure)
     return figures
 
@@ -174,16 +229,22 @@ def self_test():
         diffusion = root / 'diffusion.csv'
         diffusion.write_text(
             'lag_time,msd_mean,msd_sem,alpha\n0,0,0,nan\n1,1,.1,.9\n10,10,.2,1\n')
+        replicas = root / 'replicas.csv'
+        replicas.write_text(
+            'replica,lag_time,msd\n1,0,0\n1,1,.9\n1,10,9\n2,0,0\n2,1,1.1\n2,10,11\n')
         plt = pyplot(True)
-        fsqt_arguments = argparse.Namespace(file=fsqt, q=[.1], xscale='log', yscale='linear',
-                                            title=None)
+        fsqt_arguments = argparse.Namespace(
+            file=fsqt, q=[.1], xscale='log', yscale='linear', title=None,
+            xmin=None, xmax=None, ymin=None, ymax=None)
         save_or_show(plt, plot_fsqt(plt, fsqt_arguments), root / 'fsqt.png', True, 72)
-        rheology_arguments = argparse.Namespace(file=rheology, components=True, positive_log=False,
-                                                xscale='log', yscale='symlog', title=None)
+        rheology_arguments = argparse.Namespace(
+            file=rheology, components=True, positive_log=False, xscale='log', yscale='symlog',
+            title=None, xmin=None, xmax=None, ymin=None, ymax=None)
         save_or_show(plt, plot_rheology(plt, rheology_arguments), root / 'rheology.png', True, 72)
         diffusion_arguments = argparse.Namespace(
             file=diffusion, alpha=True, show_diffusive_guide=True, xscale='log',
-            yscale='log', title=None)
+            yscale='log', title=None, show_subdiffusive_guide=True, replicas=replicas, no_sem=False,
+            xmin=1.0, xmax=10.0, ymin=.5, ymax=20.0)
         save_or_show(
             plt, plot_diffusion(plt, diffusion_arguments), root / 'diffusion.png', True, 72)
         for name in ('fsqt.png', 'rheology.png', 'diffusion.png', 'diffusion.alpha.png'):
@@ -198,6 +259,10 @@ def common_options(parser, xscale, yscale):
     parser.add_argument('--title')
     parser.add_argument('--xscale', choices=('linear', 'log'), default=xscale)
     parser.add_argument('--yscale', choices=('linear', 'log', 'symlog'), default=yscale)
+    parser.add_argument('--xmin', type=float)
+    parser.add_argument('--xmax', type=float)
+    parser.add_argument('--ymin', type=float)
+    parser.add_argument('--ymax', type=float)
     parser.add_argument('--dpi', type=int, default=150)
 
 
@@ -216,6 +281,9 @@ def main():
     common_options(diffusion_parser, 'log', 'log')
     diffusion_parser.add_argument('--alpha', action='store_true')
     diffusion_parser.add_argument('--show-diffusive-guide', action='store_true')
+    diffusion_parser.add_argument('--show-subdiffusive-guide', action='store_true')
+    diffusion_parser.add_argument('--replicas', type=Path)
+    diffusion_parser.add_argument('--no-sem', action='store_true')
     arguments = parser.parse_args()
     if arguments.self_test:
         self_test()

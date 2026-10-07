@@ -155,7 +155,10 @@ plots every curve by default. Use `--q 0.1 0.316227766 1.0` to select q values.
 `rheology` uses a log-x/symlog-y total `G(t)` plot; add `--components` for the
 six channels or `--positive-log` for a positive-only log-log view. `diffusion`
 uses log-log MSD axes; add `--alpha` for a separate local-slope figure and
-`--show-diffusive-guide` for an anchored `t^1` guide. The alpha image is named
+`--show-diffusive-guide` or `--show-subdiffusive-guide` for late-time `t^1` or
+`t^{1/2}` visual references. Add `--replicas FILE` to show low-emphasis
+replica curves, `--no-sem` to hide the SEM band, and `--xmin`, `--xmax`,
+`--ymin`, or `--ymax` for manual primary-axis limits. The alpha image is named
 `<output-stem>.alpha.png` when `--output` is used.
 
 For example, save an F_s(q,t) plot without a display:
@@ -163,4 +166,8 @@ For example, save an F_s(q,t) plot without a display:
 ```bash
 python3 examples/KG_Assoc/analysis/plot_analysis.py fsqt \
   p44_c1.fsqt.mean.csv --output fsqt.png --no-show
+
+python3 examples/KG_Assoc/analysis/plot_analysis.py diffusion \
+  p44_c1_diffusion.diffusion.mean.csv \
+  --alpha --show-diffusive-guide --show-subdiffusive-guide
 ```
