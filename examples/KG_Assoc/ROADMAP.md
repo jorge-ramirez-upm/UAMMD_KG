@@ -64,9 +64,19 @@ P4.2 (rheology pilot pending):
   review before viscosity/production precision design; no new simulation is
   authorized.
 
-P4.3:
+P4.3 (limited C1 viscosity estimate complete):
 
-- Launch long multi-replica C1 production.
+- Five 32M C1 replicas establish terminal relaxation for C1 only. Trapezoidal
+  integration on the actual multi-tau lag grid gives the deliberately
+  approximate estimate `eta0 = 184.28 +/- 89.36` (95% replica CI) at
+  `t_c=28835.84`, with cutoff sensitivity `16.32` over the terminal
+  20k--50k target range. This is adequate for C1 comparison, not maximal
+  viscosity precision.
+- Another/slower system must independently establish terminal relaxation
+  before reporting viscosity; 32M is not a universal duration.
+- Priority now moves to diffusion, sticker lifetime distributions, and
+  network/topology including hopping/walking mechanisms. Do not launch a new
+  viscosity simulation automatically.
 
 Later work: offline COM MSD, offline COM `S(q,t)`, bond dynamics,
 topology/percolation, and C5/C6.

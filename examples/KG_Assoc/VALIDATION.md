@@ -229,6 +229,39 @@ replica-robust. No additional simulation is authorized until this analysis is
 reviewed; the present pilot is suitable to move toward viscosity/production
 precision design, not to claim final rheological precision.
 
+## P4.3 — limited C1 viscosity estimate
+
+The C1 five-replica result supports a deliberately limited Green--Kubo
+estimate, not a fitted long-time extrapolation. For each replica the analyzer
+integrates its `G(t)` with the trapezoidal rule on the actual nonuniform
+Correlator6 lag grid. The lag-zero correlator row is retained: its short-time
+contribution is the first trapezoid from `t=0` to `t=0.01`. Requested terminal
+cutoffs `20000, 25000, 30000, 40000, 50000` snap down to existing lag-grid
+values `19660.8, 23592.96, 28835.84, 39321.6, 47185.92`; no tail fit is used.
+
+| cutoff | mean eta | sample std. | SEM | 95% Student-t CI |
+|---:|---:|---:|---:|---:|
+| 19660.8 | 167.96 | 51.71 | 23.12 | [103.76, 232.16] |
+| 23592.96 | 177.03 | 60.58 | 27.09 | [101.81, 252.24] |
+| 28835.84 | 184.28 | 71.97 | 32.18 | [94.93, 273.64] |
+| 39321.6 | 188.57 | 95.92 | 42.89 | [69.48, 307.67] |
+| 47185.92 | 195.91 | 119.30 | 53.35 | [47.77, 344.04] |
+
+The median target is the transparent recommended cutoff, so the limited C1
+estimate is `eta0 = 184.28 +/- 89.36` (two-sided 95% Student-t replica CI,
+five replicas), with separate cutoff sensitivity `16.32` (largest mean change
+across the candidate cutoffs). The cutoff effect is below the replica CI
+half-width, making this adequate for approximate scientific comparison. The
+machine-readable outputs are `rheology.viscosity_replicas.csv`,
+`rheology.viscosity_cutoffs.csv`, and `rheology.viscosity_summary.json`.
+
+This conclusion is C1-specific: five 32M trajectories reach a terminal
+noise-floor regime, but another or slower system must establish terminal
+relaxation before its viscosity can be called converged. C1 viscosity-specific
+work is therefore sufficient for the current paper scope; priority moves to
+diffusion, sticker lifetimes, and network/topology mechanisms rather than a
+new viscosity simulation.
+
 ## P4.0 — associating-FENE stress tensor (CLOSED)
 
 Starting HEAD was `0310794d75625e35f646173807879668f5af56d7` (`docs: record

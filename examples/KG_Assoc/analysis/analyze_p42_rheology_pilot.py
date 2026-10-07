@@ -435,6 +435,111 @@ def support_sensitivity(replicas, legacy_reliable_fraction, window_bins, thresho
     return windows_by_threshold[0], primary, sensitivity_rows
 
 
+def trapezoid_to_cutoff(rows, requested_cutoff):
+    """Integrate the sampled G(t) through the last actual lag not above a target."""
+    if requested_cutoff < rows[0]['time']:
+        raise ValueError('viscosity cutoff precedes the lag-zero sample')
+    index = max(index for index, row in enumerate(rows) if row['time'] <= requested_cutoff)
+    integral = sum(
+        0.5 * (rows[previous]['G'] + rows[previous + 1]['G']) *
+        (rows[previous + 1]['time'] - rows[previous]['time'])
+        for previous in range(index))
+    return rows[index]['time'], integral
+
+
+def viscosity_statistics(values):
+    mean = statistics.mean(values)
+    sample_std = statistics.stdev(values)
+    sem = sample_std / math.sqrt(len(values))
+    half_width = student_t_critical_95(len(values) - 1) * sem
+    return mean, sample_std, sem, mean - half_width, mean + half_width
+
+
+def analyze_viscosity(replicas, tail_report, cutoff_targets):
+    """Estimate eta0 only after the shared tail analysis establishes relaxation."""
+    established = tail_report['tail_classification'] == 'robust_resolved_decay_to_zero'
+    summary = {
+        'terminal_relaxation_established': established,
+        'terminal_tail_classification': tail_report['tail_classification'],
+        'integration_method': 'trapezoidal rule on sampled nonuniform lag grid',
+        't0_treatment': (
+            'G(0) is the first correlator row; its short-time contribution is the '
+            'first trapezoid from t=0 to the first positive lag'),
+        'confidence_level': 0.95,
+        'student_t_critical_value': student_t_critical_95(len(replicas) - 1),
+        'replicas': len(replicas),
+        'candidate_cutoff_targets': cutoff_targets,
+    }
+    if not established:
+        summary.update({
+            'recommended_cutoff': None,
+            'eta0_estimate': None,
+            'adequate_for_approximate_scientific_use': False,
+            'recommended_next_action': (
+                'terminal relaxation is unresolved; do not report a converged viscosity'),
+        })
+        return [], [], summary
+
+    replica_rows = []
+    cutoff_rows = []
+    for target in cutoff_targets:
+        actual_cutoffs = []
+        values = []
+        for replica_index, replica in enumerate(replicas, 1):
+            actual_cutoff, eta = trapezoid_to_cutoff(replica['rows'], target)
+            actual_cutoffs.append(actual_cutoff)
+            values.append(eta)
+            replica_rows.append({
+                'requested_cutoff': target,
+                'cutoff_time': actual_cutoff,
+                'replica': replica_index,
+                'source': replica['path'],
+                'eta': eta,
+            })
+        if len(set(actual_cutoffs)) != 1:
+            raise ValueError('replica lag grids differ during viscosity integration')
+        mean, sample_std, sem, ci_low, ci_high = viscosity_statistics(values)
+        cutoff_rows.append({
+            'requested_cutoff': target,
+            'cutoff_time': actual_cutoffs[0],
+            'replica_count': len(values),
+            'eta_mean': mean,
+            'eta_sample_std': sample_std,
+            'eta_sem': sem,
+            'eta_ci_low': ci_low,
+            'eta_ci_high': ci_high,
+            'difference_from_previous_cutoff': None,
+        })
+    for previous, current in zip(cutoff_rows, cutoff_rows[1:]):
+        current['difference_from_previous_cutoff'] = current['eta_mean'] - previous['eta_mean']
+
+    recommended = cutoff_rows[len(cutoff_rows) // 2]
+    cutoff_sensitivity = max(abs(row['eta_mean'] - recommended['eta_mean'])
+                             for row in cutoff_rows)
+    for row in cutoff_rows:
+        row['difference_from_recommended_cutoff'] = row['eta_mean'] - recommended['eta_mean']
+    adequate = cutoff_sensitivity <= (recommended['eta_ci_high'] - recommended['eta_mean'])
+    summary.update({
+        'selection_rule': 'median requested cutoff in the terminal candidate set',
+        'recommended_cutoff': recommended['cutoff_time'],
+        'recommended_cutoff_target': recommended['requested_cutoff'],
+        'eta0_estimate': recommended['eta_mean'],
+        'eta_sample_std': recommended['eta_sample_std'],
+        'eta_sem': recommended['eta_sem'],
+        'eta_ci_low': recommended['eta_ci_low'],
+        'eta_ci_high': recommended['eta_ci_high'],
+        'cutoff_sensitivity_max_absolute_change': cutoff_sensitivity,
+        'cutoff_sensitivity_rule': (
+            'maximum absolute difference from the recommended cutoff mean'),
+        'adequate_for_approximate_scientific_use': adequate,
+        'recommended_next_action': (
+            'use the estimate for approximate C1 comparison; report replica and cutoff '
+            'uncertainties separately' if adequate else
+            'cutoff sensitivity exceeds the 95% replica CI half-width; extend the analysis'),
+    })
+    return replica_rows, cutoff_rows, summary
+
+
 def write_outputs(prefix, replicas, windows, report, sensitivity_rows):
     replica_path = prefix + '.replicas.csv'
     mean_path = prefix + '.mean.csv'
@@ -470,6 +575,28 @@ def write_outputs(prefix, replicas, windows, report, sensitivity_rows):
         json.dump(report, output, indent=2, allow_nan=False)
         output.write('\n')
     return replica_path, mean_path, window_path, sensitivity_path, report_path
+
+
+def write_viscosity_outputs(prefix, replica_rows, cutoff_rows, summary):
+    replica_path = prefix + '.viscosity_replicas.csv'
+    cutoff_path = prefix + '.viscosity_cutoffs.csv'
+    summary_path = prefix + '.viscosity_summary.json'
+    with open(replica_path, 'w', newline='', encoding='utf-8') as output:
+        fields = ('requested_cutoff', 'cutoff_time', 'replica', 'source', 'eta')
+        writer = csv.DictWriter(output, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(replica_rows)
+    with open(cutoff_path, 'w', newline='', encoding='utf-8') as output:
+        fields = ('requested_cutoff', 'cutoff_time', 'replica_count', 'eta_mean',
+                  'eta_sample_std', 'eta_sem', 'eta_ci_low', 'eta_ci_high',
+                  'difference_from_previous_cutoff', 'difference_from_recommended_cutoff')
+        writer = csv.DictWriter(output, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(cutoff_rows)
+    with open(summary_path, 'w', encoding='utf-8') as output:
+        json.dump(summary, output, indent=2, allow_nan=False)
+        output.write('\n')
+    return replica_path, cutoff_path, summary_path
 
 
 def synthetic_replicas(*series, support=None):
@@ -571,7 +698,35 @@ def self_test():
                        'threshold-sensitive plateau', [32] * 8, [8, 16, 32, 64])
     expect_five_replica_sensitivity()
     check_new_format_parser()
-    print('P4.2 RHEOLOGY PILOT ANALYZER SELF_TEST PASS ten synthetic/parser regimes')
+    exponential = [{'time': index / 1000.0, 'G': math.exp(-index / 1000.0)}
+                   for index in range(1001)]
+    _, exponential_eta = trapezoid_to_cutoff(exponential, 1.0)
+    if not math.isclose(exponential_eta, 1.0 - math.exp(-1.0), rel_tol=0.0, abs_tol=1e-7):
+        raise AssertionError('exponential trapezoid integral failed')
+    nonuniform = [{'time': time, 'G': 1.0 + 2.0 * time} for time in (0.0, .2, .7, 1.0)]
+    _, nonuniform_eta = trapezoid_to_cutoff(nonuniform, 1.0)
+    if not math.isclose(nonuniform_eta, 2.0, rel_tol=0.0, abs_tol=1e-12):
+        raise AssertionError('nonuniform trapezoid integral failed')
+    mean, sample_std, sem, ci_low, ci_high = viscosity_statistics([1, 2, 3, 4, 5])
+    if (mean, sample_std, sem) != (3, math.sqrt(2.5), math.sqrt(.5)) or not (
+            ci_low < mean < ci_high):
+        raise AssertionError('replica viscosity statistics failed')
+    viscosity_replicas = []
+    for offset in (-.2, -.1, 0.0, .1, .2):
+        viscosity_replicas.append({
+            'path': 'viscosity{}'.format(offset),
+            'rows': [{'time': time, 'G': 1.0 + offset} for time in (0.0, 1.0, 2.0, 3.0)],
+        })
+    established = {'tail_classification': 'robust_resolved_decay_to_zero'}
+    _, cutoffs, summary = analyze_viscosity(viscosity_replicas, established, [1.0, 2.0, 3.0])
+    if (summary['recommended_cutoff'] != 2.0 or len(cutoffs) != 3 or
+            cutoffs[2]['difference_from_previous_cutoff'] <= 0.0):
+        raise AssertionError('viscosity cutoff sensitivity failed')
+    _, unresolved_cutoffs, unresolved = analyze_viscosity(
+        viscosity_replicas, {'tail_classification': UNRESOLVED}, [1.0, 2.0, 3.0])
+    if unresolved_cutoffs or unresolved['adequate_for_approximate_scientific_use']:
+        raise AssertionError('unresolved tail produced a viscosity estimate')
+    print('P4.2/P4.3 RHEOLOGY ANALYZER SELF_TEST PASS fourteen synthetic/parser regimes')
 
 
 def main():
@@ -586,6 +741,8 @@ def main():
     parser.add_argument('--support-thresholds', default='8,16,32,64,128',
                         help='comma-separated exact raw-support sensitivity thresholds')
     parser.add_argument('--window-bins', type=int, default=5)
+    parser.add_argument('--viscosity-cutoffs', default='20000,25000,30000,40000,50000',
+                        help='requested terminal-region cutoffs; each snaps down to the lag grid')
     parser.add_argument('--self-test', action='store_true')
     arguments = parser.parse_args()
     if arguments.self_test:
@@ -602,10 +759,15 @@ def main():
     try:
         support_thresholds = sorted(set(int(value) for value in
                                         arguments.support_thresholds.split(',')))
+        viscosity_cutoffs = [float(value) for value in arguments.viscosity_cutoffs.split(',')]
     except ValueError as error:
-        parser.error('support thresholds must be positive integers')
+        parser.error('support thresholds and viscosity cutoffs must be numeric')
     if not support_thresholds or support_thresholds[0] < 1:
         parser.error('support thresholds must be positive integers')
+    if (not viscosity_cutoffs or any(cutoff <= 0.0 or not math.isfinite(cutoff)
+                                     for cutoff in viscosity_cutoffs) or
+            viscosity_cutoffs != sorted(set(viscosity_cutoffs))):
+        parser.error('viscosity cutoffs must be unique, positive, and increasing')
     replicas = []
     for path in arguments.stress_files:
         metadata, rows = read_stress_correlator(path)
@@ -616,9 +778,15 @@ def main():
     report['g0_mean'] = statistics.mean(replica['rows'][0]['G'] for replica in replicas)
     output_paths = write_outputs(arguments.output_prefix, replicas, windows, report,
                                  sensitivity_rows)
+    viscosity_replicas, viscosity_cutoffs, viscosity_summary = analyze_viscosity(
+        replicas, report, viscosity_cutoffs)
+    viscosity_paths = write_viscosity_outputs(
+        arguments.output_prefix, viscosity_replicas, viscosity_cutoffs, viscosity_summary)
     print('P4.2 rheology pilot analysis written: {}'.format(', '.join(output_paths)))
+    print('P4.3 viscosity analysis written: {}'.format(', '.join(viscosity_paths)))
     print('tail_classification={}'.format(report['tail_classification']))
     print('recommended_next_action={}'.format(report['recommended_next_action']))
+    print('eta0_estimate={}'.format(viscosity_summary['eta0_estimate']))
 
 
 if __name__ == '__main__':
