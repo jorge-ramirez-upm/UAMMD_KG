@@ -193,6 +193,26 @@ replica curves, `--no-sem` to hide the SEM band, and `--xmin`, `--xmax`,
 `--ymin`, or `--ymax` for manual primary-axis limits. The alpha image is named
 `<output-stem>.alpha.png` when `--output` is used.
 
+`topology` detects the P4.5 frame, degree-bond, degree-neighbor,
+edge-multiplicity, and component-weighted cluster-size CSV schemas from their
+headers. For frame files it creates separate figures for inter-star bonds,
+mean neighbor degree, isolated-star fraction, and largest-component fraction
+by default; use `--metric NAME [NAME ...]` to choose other frame columns. With
+`--output topology.png`, these become files such as
+`topology.inter_bonds.png`. Distribution plots use normalized probabilities by
+default; add `--counts` for raw histogram counts. Cluster-size histograms remain
+explicitly component-weighted and default to a logarithmic y axis.
+
+```bash
+python3 examples/KG_Assoc/analysis/plot_analysis.py topology \
+  p45_c1_topology.frames.csv
+python3 examples/KG_Assoc/analysis/plot_analysis.py topology \
+  p45_c1_topology.degree_neighbor.csv
+python3 examples/KG_Assoc/analysis/plot_analysis.py topology \
+  p45_c1_topology.edge_multiplicity.csv \
+  --output multiplicity.png --no-show
+```
+
 For example, save an F_s(q,t) plot without a display:
 
 ```bash

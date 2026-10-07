@@ -10,6 +10,32 @@ from pathlib import Path
 
 COMPONENTS = ('Gxy', 'Gxz', 'Gyz', 'GNxy', 'GNxz', 'GNyz')
 
+TOPOLOGY_METRICS = {
+    'inter_bonds': 'Inter-star temporary bonds',
+    'intra_bonds': 'Intra-star temporary bonds',
+    'mean_k_bond': r'$\langle k_{\mathrm{bond}}\rangle$',
+    'mean_k_neighbor': r'$\langle k_{\mathrm{neighbor}}\rangle$',
+    'isolated_fraction': 'Isolated-star fraction',
+    'largest_component_fraction': 'Largest-component fraction',
+    'mean_edge_multiplicity': 'Mean edge multiplicity',
+}
+TOPOLOGY_DEFAULT_METRICS = (
+    'inter_bonds',
+    'mean_k_neighbor',
+    'isolated_fraction',
+    'largest_component_fraction',
+)
+TOPOLOGY_DISTRIBUTIONS = {
+    'degree-neighbor': (
+        'degree_neighbor', r'$k_{\mathrm{neighbor}}$', 'Neighbor-degree distribution'),
+    'degree-bond': (
+        'degree_bond', r'$k_{\mathrm{bond}}$', 'Bond-degree distribution'),
+    'multiplicity': (
+        'edge_multiplicity', 'Edge multiplicity $m$', 'Edge-multiplicity distribution'),
+    'clusters': ('cluster_sizes', 'Cluster size (component-weighted)',
+                 'Component-weighted cluster-size distribution'),
+}
+
 
 def read_csv(path, required):
     try:
@@ -45,15 +71,18 @@ def pyplot(headless):
     return plt
 
 
-def save_or_show(plt, figures, output, no_show, dpi):
+def save_or_show(plt, figures, output, no_show, dpi, output_suffixes=None):
     for figure in figures:
         figure.tight_layout()
     if output:
-        figures[0].savefig(output, dpi=dpi)
-        if len(figures) > 1:
-            path = Path(output)
-            alpha_path = path.with_name(path.stem + '.alpha' + path.suffix)
-            figures[1].savefig(alpha_path, dpi=dpi)
+        if output_suffixes is None:
+            output_suffixes = [''] + ['.alpha'] * (len(figures) - 1)
+        if len(output_suffixes) != len(figures):
+            raise ValueError('output suffix count does not match figure count')
+        path = Path(output)
+        for figure, suffix in zip(figures, output_suffixes):
+            target = path.with_name(path.stem + suffix + path.suffix)
+            figure.savefig(target, dpi=dpi)
     if not no_show:
         plt.show()
     for figure in figures:
@@ -217,6 +246,93 @@ def plot_diffusion(plt, arguments):
     return figures
 
 
+def topology_kind(rows):
+    fields = set(rows[0])
+    if {'time', 'inter_bonds', 'mean_k_neighbor'} <= fields:
+        return 'frames'
+    for kind, (field, _, _) in TOPOLOGY_DISTRIBUTIONS.items():
+        if field in fields:
+            return kind
+    raise ValueError('unrecognized topology CSV schema')
+
+
+def topology_aggregate_rows(rows):
+    aggregate = [row for row in rows if row.get('replica') == 'all_frames']
+    if not aggregate:
+        raise ValueError('topology distribution has no all_frames aggregate rows')
+    return aggregate
+
+
+def plot_topology_frames(plt, rows, arguments):
+    metrics = arguments.metric or TOPOLOGY_DEFAULT_METRICS
+    missing = set(metrics) - set(rows[0])
+    if missing:
+        raise ValueError('unknown or unavailable topology metric: {}'.format(
+            ', '.join(sorted(missing))))
+    replicas = {}
+    for row in rows:
+        replicas.setdefault(row.get('replica', ''), []).append(row)
+    figures = []
+    suffixes = []
+    for metric in metrics:
+        figure, axis = plt.subplots()
+        for replica, replica_rows in replicas.items():
+            time = column(replica_rows, 'time')
+            values = column(replica_rows, metric)
+            plot_arguments = {'linewidth': 1.0}
+            if len(replica_rows) <= 400:
+                plot_arguments.update(marker='o', markersize=2.5)
+            label = 'replica {}'.format(replica) if len(replicas) > 1 else None
+            axis.plot(time, values, label=label, **plot_arguments)
+        label = TOPOLOGY_METRICS.get(metric, metric)
+        title = arguments.title or label
+        axis.set(xlabel=r'$t$', ylabel=label, xscale=arguments.xscale or 'linear',
+                 yscale=arguments.yscale or 'linear', title=title)
+        if metric.endswith('_fraction'):
+            values = column(rows, metric)
+            if min(values) >= 0.0 and max(values) <= 1.0:
+                axis.set_ylim(0.0, 1.0)
+        if len(replicas) > 1:
+            axis.legend()
+        axis.margins(x=.03, y=.08)
+        apply_limits(axis, arguments)
+        figures.append(figure)
+        suffixes.append('.{}'.format(metric))
+    return figures, suffixes
+
+
+def plot_topology_distribution(plt, rows, kind, arguments):
+    field, xlabel, default_title = TOPOLOGY_DISTRIBUTIONS[kind]
+    aggregate = topology_aggregate_rows(rows)
+    values = column(aggregate, field)
+    value_name = 'count' if arguments.counts else 'probability'
+    heights = column(aggregate, value_name)
+    figure, axis = plt.subplots()
+    axis.bar(values, heights, width=.8)
+    yscale = arguments.yscale or ('log' if kind == 'clusters' else 'linear')
+    ylabel = 'Count' if arguments.counts else 'Probability'
+    if kind == 'multiplicity' and not arguments.counts:
+        ylabel = 'Probability among connected star pairs'
+    axis.set(xlabel=xlabel, ylabel=ylabel, xscale=arguments.xscale or 'linear', yscale=yscale,
+             title=arguments.title or default_title)
+    axis.set_xticks(values)
+    axis.margins(x=.03, y=.08)
+    apply_limits(axis, arguments)
+    return [figure], ['']
+
+
+def plot_topology(plt, arguments):
+    rows = read_csv(arguments.file, ())
+    detected_kind = topology_kind(rows)
+    kind = arguments.kind or detected_kind
+    if kind != detected_kind:
+        raise ValueError('--kind={} does not match this topology CSV schema ({})'.format(
+            kind, detected_kind))
+    if kind == 'frames':
+        return plot_topology_frames(plt, rows, arguments)
+    return plot_topology_distribution(plt, rows, kind, arguments)
+
+
 def self_test():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -232,6 +348,30 @@ def self_test():
         replicas = root / 'replicas.csv'
         replicas.write_text(
             'replica,lag_time,msd\n1,0,0\n1,1,.9\n1,10,9\n2,0,0\n2,1,1.1\n2,10,11\n')
+        topology_frames = root / 'topology.frames.csv'
+        topology_frames.write_text(
+            'frame,time,inter_bonds,intra_bonds,mean_k_bond,mean_k_neighbor,'
+            'isolated_fraction,largest_component_fraction,mean_edge_multiplicity,replica\n'
+            '0,0,2,1,.4,.2,.8,.2,1,1\n'
+            '1,10,3,1,.6,.3,.7,.3,1.1,1\n'
+            '0,0,4,2,.8,.4,.6,.4,1.2,2\n'
+            '1,10,5,2,1,.5,.5,.5,1.3,2\n')
+        topology_neighbor = root / 'topology.degree_neighbor.csv'
+        topology_neighbor.write_text(
+            'replica,degree_neighbor,count,probability\n'
+            'all_frames,0,20,.2\nall_frames,1,50,.5\nall_frames,2,30,.3\n')
+        topology_bond = root / 'topology.degree_bond.csv'
+        topology_bond.write_text(
+            'replica,degree_bond,count,probability\n'
+            'all_frames,0,10,.1\nall_frames,1,60,.6\nall_frames,2,30,.3\n')
+        topology_multiplicity = root / 'topology.edge_multiplicity.csv'
+        topology_multiplicity.write_text(
+            'replica,edge_multiplicity,count,probability\n'
+            'all_frames,1,90,.9\nall_frames,2,10,.1\n')
+        topology_clusters = root / 'topology.cluster_sizes.csv'
+        topology_clusters.write_text(
+            'replica,cluster_sizes,count,probability\n'
+            'all_frames,1,20,.2\nall_frames,2,10,.1\nall_frames,10,70,.7\n')
         plt = pyplot(True)
         fsqt_arguments = argparse.Namespace(
             file=fsqt, q=[.1], xscale='log', yscale='linear', title=None,
@@ -247,7 +387,24 @@ def self_test():
             xmin=1.0, xmax=10.0, ymin=.5, ymax=20.0)
         save_or_show(
             plt, plot_diffusion(plt, diffusion_arguments), root / 'diffusion.png', True, 72)
-        for name in ('fsqt.png', 'rheology.png', 'diffusion.png', 'diffusion.alpha.png'):
+        topology_arguments = argparse.Namespace(
+            file=topology_frames, kind=None, metric=None, counts=False, xscale=None, yscale=None,
+            title=None, xmin=None, xmax=None, ymin=None, ymax=None)
+        topology_figures, topology_suffixes = plot_topology(plt, topology_arguments)
+        save_or_show(plt, topology_figures, root / 'topology.png', True, 72, topology_suffixes)
+        for topology_file in (
+                topology_neighbor, topology_bond, topology_multiplicity, topology_clusters):
+            topology_arguments.file = topology_file
+            topology_figures, topology_suffixes = plot_topology(plt, topology_arguments)
+            save_or_show(plt, topology_figures, root / '{}.png'.format(topology_file.stem), True, 72,
+                         topology_suffixes)
+        expected = (
+            'fsqt.png', 'rheology.png', 'diffusion.png', 'diffusion.alpha.png',
+            'topology.inter_bonds.png', 'topology.mean_k_neighbor.png',
+            'topology.isolated_fraction.png', 'topology.largest_component_fraction.png',
+            'topology.degree_neighbor.png', 'topology.degree_bond.png',
+            'topology.edge_multiplicity.png', 'topology.cluster_sizes.png')
+        for name in expected:
             if not (root / name).is_file():
                 raise AssertionError('missing self-test image {}'.format(name))
 
@@ -284,13 +441,18 @@ def main():
     diffusion_parser.add_argument('--show-subdiffusive-guide', action='store_true')
     diffusion_parser.add_argument('--replicas', type=Path)
     diffusion_parser.add_argument('--no-sem', action='store_true')
+    topology_parser = commands.add_parser('topology')
+    common_options(topology_parser, None, None)
+    topology_parser.add_argument('--kind', choices=('frames',) + tuple(TOPOLOGY_DISTRIBUTIONS))
+    topology_parser.add_argument('--metric', nargs='+')
+    topology_parser.add_argument('--counts', action='store_true')
     arguments = parser.parse_args()
     if arguments.self_test:
         self_test()
         print('PLOT_ANALYSIS SELF_TEST PASS')
         return
     if not arguments.command:
-        parser.error('choose fsqt, rheology, or diffusion')
+        parser.error('choose fsqt, rheology, diffusion, or topology')
     if arguments.dpi <= 0:
         parser.error('--dpi must be positive')
     try:
@@ -299,8 +461,13 @@ def main():
             figures = plot_fsqt(plt, arguments)
         elif arguments.command == 'rheology':
             figures = plot_rheology(plt, arguments)
-        else:
+        elif arguments.command == 'diffusion':
             figures = plot_diffusion(plt, arguments)
+        else:
+            figures, output_suffixes = plot_topology(plt, arguments)
+            save_or_show(plt, figures, arguments.output, arguments.no_show, arguments.dpi,
+                         output_suffixes)
+            return
         save_or_show(plt, figures, arguments.output, arguments.no_show, arguments.dpi)
     except ValueError as error:
         parser.error(str(error))
