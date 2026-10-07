@@ -129,3 +129,38 @@ diagnostics/crossing times. It uses `correlator.SqtCorrelatorIsotropicManyQ`, ev
 `mean[sinc(q |Delta R|)]` over stars at selected multi-tau lags. It is a self,
 not collective, correlator. High-q relaxation may occur before the first
 100-time-unit COM lag in the current 32M data.
+
+## Visualization
+
+### `analysis/plot_analysis.py`
+
+Purpose: make quick interactive or saved Matplotlib inspection plots from the
+mean CSV files. It uses only the standard library and Matplotlib.
+
+Basic forms:
+
+```bash
+python3 examples/KG_Assoc/analysis/plot_analysis.py fsqt p44_c1.fsqt.mean.csv
+python3 examples/KG_Assoc/analysis/plot_analysis.py rheology rheology.mean.csv
+python3 examples/KG_Assoc/analysis/plot_analysis.py diffusion \
+  p44_c1_diffusion.diffusion.mean.csv
+```
+
+Use `--output FILE.png` to save, `--no-show` for headless use, `--title TEXT`
+to override the title, and `--dpi N` to change the default 150 DPI. If an
+output is supplied without `--no-show`, the figure is saved and then shown.
+
+`fsqt` discovers all q values from long-format `q,lag_time,fsqt_mean` data and
+plots every curve by default. Use `--q 0.1 0.316227766 1.0` to select q values.
+`rheology` uses a log-x/symlog-y total `G(t)` plot; add `--components` for the
+six channels or `--positive-log` for a positive-only log-log view. `diffusion`
+uses log-log MSD axes; add `--alpha` for a separate local-slope figure and
+`--show-diffusive-guide` for an anchored `t^1` guide. The alpha image is named
+`<output-stem>.alpha.png` when `--output` is used.
+
+For example, save an F_s(q,t) plot without a display:
+
+```bash
+python3 examples/KG_Assoc/analysis/plot_analysis.py fsqt \
+  p44_c1.fsqt.mean.csv --output fsqt.png --no-show
+```
