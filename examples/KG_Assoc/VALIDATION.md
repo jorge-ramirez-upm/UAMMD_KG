@@ -5,6 +5,7 @@ This record contains only executed and inspected checks. Generated `.events` and
 
 For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
+For concise C1 scientific conclusions, see `RESULTS.md`.
 
 ## P4.1 — production instrumentation (CLOSED)
 

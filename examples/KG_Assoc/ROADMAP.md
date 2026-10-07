@@ -5,6 +5,8 @@
 P4 implementation follows the development workflow and code style in
 `SCIENTIFIC_DECISIONS.md`.
 
+For the concise, manuscript-oriented C1 conclusions, see `RESULTS.md`.
+
 P4.0 (CLOSED):
 
 - Inspect and port the `kg_uammd.cu` stress machinery.

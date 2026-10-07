@@ -294,7 +294,7 @@ def main():
                                    'mean_wait': statistics.mean(values) if values else '',
                                    'median_wait': statistics.median(values) if values else ''})
         exchange_rows.append({'replica': replica, **exchange,
-                              'neighbor_change_fraction': exchange['neighbor_gain_events'] + exchange['neighbor_loss_events']})
+                              'neighbor_change_events': exchange['neighbor_gain_events'] + exchange['neighbor_loss_events']})
     def write_csv(path, rows):
         with open(path, 'w', newline='', encoding='utf-8') as output:
             writer = csv.DictWriter(output, fieldnames=rows[0])

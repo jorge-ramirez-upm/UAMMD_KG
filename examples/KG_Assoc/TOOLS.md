@@ -4,6 +4,8 @@ Run commands from the repository root. These tools preserve provenance but do
 not make a restart time or a time origin into an independent replica: use a
 different stochastic seed for each independent realization.
 
+For scientific conclusions rather than operational instructions, see `RESULTS.md`.
+
 `C1_e2_s*_t40000` denotes 40,000 **physical time units**, not 40,000 MD
 steps. COM coordinates are unwrapped only within one executable segment. Do
 not stitch COM trajectories across a restart without reconstructing image
@@ -131,6 +133,20 @@ not collective, correlator. High-q relaxation may occur before the first
 100-time-unit COM lag in the current 32M data.
 
 ## Network topology
+
+### `analysis/analyze_p47_walking_hopping.py`
+
+Purpose: classify inter-star topology transitions into multiplicity-only,
+walking (attached neighbor-set change), and hopping (isolation then
+reconnection) before joining them to a segment-local COM trajectory.
+
+Example: `python3 examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py \
+--system SYSTEM --output-prefix p47 RUN_PREFIX ...`
+
+Inputs are matching production prefixes with `.events`, `.topology`, and
+`.com_trajectory`. The analyzer validates every topology frame, groups only
+same-star changes at the same chemistry step, and outward-snaps requested COM
+windows to valid frames. Never stitch restart segments.
 
 ### `analysis/analyze_p46_bond_dynamics.py`
 
