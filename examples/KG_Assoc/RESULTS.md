@@ -111,3 +111,8 @@ Thus C1 is robustly periodically percolated over the sampled frames. This is
 stronger than the earlier giant-component observation: it is based on a
 nonzero periodic winding criterion, not connectivity alone. The finite-box
 wrapping crossover location remains unknown.
+
+P4.8b has not yet estimated an Ee crossover. The next C1 work is a
+piecewise-constant downward continuation scout from the robustly percolated
+Ee=8 reference, followed by independent fixed-Ee confirmation; no threshold
+number is claimed here.

@@ -1629,3 +1629,12 @@ initializations only: every target Ee requires re-equilibration and block
 stationarity checks before it may update a bracket. Bidirectional continuation
 near a crossover is a convergence check; path dependence first means
 `EQUILIBRATION_NOT_ESTABLISHED`, not thermodynamic hysteresis.
+
+The preferred first-pass bracket finder is a downward staircase of
+piecewise-constant Ee plateaus. Each plateau is initialized from the final
+restart at the preceding Ee, but continuation is only an initialization: block
+stationarity of bond populations, neighbor degree, largest-component fraction,
+and P_wrap is required before measurement. The staircase result is a rough
+bracket, never a final Ee_50. Independent fixed-Ee replicas provide the final
+replica-level crossover estimate. An optional upward staircase is a convergence
+check; disagreement is first reported as insufficient equilibration.

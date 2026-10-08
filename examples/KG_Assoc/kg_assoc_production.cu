@@ -36,6 +36,7 @@ struct Parameters {
   int steps = 100000;
   int every = 100;
   int diagnosticEvery = 1000;
+  int progressEvery = 100000;
   int comEvery = 100;
   int frameEvery = 10000;
   double dt = 0.01;
@@ -51,6 +52,20 @@ struct Parameters {
   unsigned long long seed = 12345;
   bool force = false;
   bool selfTest = false;
+  bool topologyOnly = false;
+  bool eeExplicit = false;
+  bool eaExplicit = false;
+  bool nu0Explicit = false;
+  bool everyExplicit = false;
+  bool dtExplicit = false;
+  bool temperatureExplicit = false;
+  bool continuationEeSwitch = false;
+  double continuationEeParent = 0.0;
+  std::string continuationParent;
+  std::string continuationDirection;
+  std::string continuationStage;
+  int reequilibrationSteps = 0;
+  int measurementSteps = 0;
   bool rAssocExplicit = false;
   bool seedExplicit = false;
 };
@@ -75,7 +90,11 @@ void printHelp() {
             << "  --steps N --dt DT --temperature T --Ea E --Ee E --nu0 X\n"
             << "  --Nevery N --r-assoc R --damp D --K K --R0 R --seed S\n"
             << "  --diagnostic-every N --com-every N --frame-every N\n"
-            << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
+            << "  --progress-every N\n"
+            << "  --restart-prefix PREFIX --output PREFIX --force --topology-only\n"
+            << "  --continuation-ee-parent E --continuation-ee-target E\n"
+            << "  --continuation-parent PREFIX --continuation-direction downward|upward\n"
+            << "  --continuation-stage reequilibration|measurement\n";
 }
 
 Parameters parseArguments(int argc, char** argv) {
@@ -94,18 +113,42 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.steps = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--dt") {
       parameters.dt = std::stod(nextArgument(index, argc, argv));
+      parameters.dtExplicit = true;
     } else if (option == "--temperature") {
       parameters.temperature = std::stod(nextArgument(index, argc, argv));
+      parameters.temperatureExplicit = true;
     } else if (option == "--Ea") {
       parameters.ea = std::stod(nextArgument(index, argc, argv));
+      parameters.eaExplicit = true;
     } else if (option == "--Ee") {
       parameters.ee = std::stod(nextArgument(index, argc, argv));
+      parameters.eeExplicit = true;
+    } else if (option == "--continuation-ee-parent") {
+      parameters.continuationEeParent = std::stod(nextArgument(index, argc, argv));
+    } else if (option == "--continuation-ee-target") {
+      parameters.ee = std::stod(nextArgument(index, argc, argv));
+      parameters.eeExplicit = true;
+      parameters.continuationEeSwitch = true;
+    } else if (option == "--continuation-parent") {
+      parameters.continuationParent = nextArgument(index, argc, argv);
+    } else if (option == "--continuation-direction") {
+      parameters.continuationDirection = nextArgument(index, argc, argv);
+    } else if (option == "--continuation-stage") {
+      parameters.continuationStage = nextArgument(index, argc, argv);
+    } else if (option == "--reequilibration-steps") {
+      parameters.reequilibrationSteps = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--measurement-steps") {
+      parameters.measurementSteps = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--nu0") {
       parameters.nu0 = std::stod(nextArgument(index, argc, argv));
+      parameters.nu0Explicit = true;
     } else if (option == "--Nevery") {
       parameters.every = std::stoi(nextArgument(index, argc, argv));
+      parameters.everyExplicit = true;
     } else if (option == "--diagnostic-every") {
       parameters.diagnosticEvery = std::stoi(nextArgument(index, argc, argv));
+    } else if (option == "--progress-every") {
+      parameters.progressEvery = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--com-every") {
       parameters.comEvery = std::stoi(nextArgument(index, argc, argv));
     } else if (option == "--frame-every") {
@@ -126,6 +169,8 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.output = nextArgument(index, argc, argv);
     } else if (option == "--force") {
       parameters.force = true;
+    } else if (option == "--topology-only") {
+      parameters.topologyOnly = true;
     } else if (option == "--self-test") {
       parameters.selfTest = true;
     } else if (option == "--help") {
@@ -134,6 +179,14 @@ Parameters parseArguments(int argc, char** argv) {
     } else {
       throw std::runtime_error("unknown argument: " + option);
     }
+  }
+  if (parameters.continuationEeSwitch &&
+      (parameters.continuationParent.empty() ||
+       (parameters.continuationDirection != "downward" &&
+        parameters.continuationDirection != "upward") ||
+       (parameters.continuationStage != "reequilibration" &&
+        parameters.continuationStage != "measurement"))) {
+    throw std::runtime_error("Ee switching requires parent, direction, and explicit stage");
   }
   if (parameters.selfTest) {
     return parameters;
@@ -147,7 +200,7 @@ Parameters parseArguments(int argc, char** argv) {
       (!parameters.input.empty() && (parameters.arms <= 0 || parameters.beadsPerArm <= 0)) ||
       parameters.steps <= 0 || parameters.every <= 0 ||
       parameters.diagnosticEvery <= 0 || parameters.comEvery <= 0 ||
-      parameters.frameEvery <= 0 || parameters.dt <= 0.0 ||
+      parameters.frameEvery <= 0 || parameters.progressEvery <= 0 || parameters.dt <= 0.0 ||
       parameters.temperature <= 0.0 || parameters.ea < 0.0 || parameters.nu0 < 0.0 ||
       parameters.rAssoc <= 0.0 || parameters.feneK <= 0.0 || parameters.feneR0 <= 0.0 ||
       parameters.rAssoc >= parameters.feneR0 || parameters.damping <= 0.0) {
@@ -267,6 +320,33 @@ RestartMetadata readRestartMetadata(const std::string& path) {
   return metadata;
 }
 
+void validateRestartRequest(const Parameters& request, const RestartMetadata& restart) {
+  if (request.rAssocExplicit && !near(request.rAssoc, restart.parameters.rAssoc)) {
+    throw std::runtime_error("--r-assoc does not match restart metadata");
+  }
+  if (request.seedExplicit && request.seed != restart.parameters.seed) {
+    throw std::runtime_error("--seed does not match restart metadata");
+  }
+  if (request.continuationEeSwitch) {
+    if (!near(request.continuationEeParent, restart.parameters.ee)) {
+      throw std::runtime_error("--continuation-ee-parent does not match restart metadata");
+    }
+    if (near(request.ee, restart.parameters.ee)) {
+      throw std::runtime_error("--continuation-ee-target must differ from parent Ee");
+    }
+    if ((request.eaExplicit && !near(request.ea, restart.parameters.ea)) ||
+        (request.nu0Explicit && !near(request.nu0, restart.parameters.nu0)) ||
+        (request.everyExplicit && request.every != restart.parameters.every) ||
+        (request.dtExplicit && !near(request.dt, restart.parameters.dt)) ||
+        (request.temperatureExplicit &&
+         !near(request.temperature, restart.parameters.temperature))) {
+      throw std::runtime_error("continuation chemistry/integration parameter mismatch");
+    }
+  } else if (request.eeExplicit && !near(request.ee, restart.parameters.ee)) {
+    throw std::runtime_error("use --continuation-ee-target for a restart Ee change");
+  }
+}
+
 void expectReject(const std::string& name, const std::function<void()>& operation) {
   try {
     operation();
@@ -371,6 +451,22 @@ void runSelfTest() {
           std::vector<std::pair<int, int>>({{2, 4}})) {
     throw std::runtime_error("restart metadata round-trip regression failed");
   }
+  Parameters continuation = restart.parameters;
+  continuation.continuationEeSwitch = true;
+  continuation.continuationEeParent = 8.0;
+  continuation.ee = 7.5;
+  continuation.continuationParent = "parent";
+  continuation.continuationDirection = "downward";
+  continuation.continuationStage = "reequilibration";
+  validateRestartRequest(continuation, restart);
+  if (continuation.ee != 7.5 || restart.activeBonds !=
+      std::vector<std::pair<int, int>>({{2, 4}})) {
+    throw std::runtime_error("Ee-switch restart preservation regression failed");
+  }
+  continuation.continuationEeParent = 7.0;
+  expectReject("wrong inherited Ee", [&]() {
+    validateRestartRequest(continuation, restart);
+  });
   {
     std::ofstream malformed(restartTestPath);
     malformed << "KG_ASSOC_RESTART 1\n"
@@ -439,7 +535,16 @@ void writeProvenance(std::ofstream& stateFile,
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
             << " start_step=" << startStep
-            << " total_requested_steps=" << startStep + parameters.steps << '\n';
+            << " total_requested_steps=" << startStep + parameters.steps
+            << " topology_only=" << (parameters.topologyOnly ? "yes" : "no")
+            << " Ee_parent=" << (parameters.continuationEeSwitch ?
+                                    parameters.continuationEeParent : parameters.ee)
+            << " Ee_target=" << parameters.ee
+            << " continuation_parent=" << parameters.continuationParent
+            << " continuation_direction=" << parameters.continuationDirection
+            << " continuation_stage=" << parameters.continuationStage
+            << " reequilibration_steps=" << parameters.reequilibrationSteps
+            << " measurement_steps=" << parameters.measurementSteps << '\n';
   stateFile.precision(previousPrecision);
   eventFile << std::setprecision(17)
             << "# input_file=" << parameters.input
@@ -461,6 +566,15 @@ void writeProvenance(std::ofstream& stateFile,
             << " seed=" << parameters.seed
             << " start_step=" << startStep
             << " total_requested_steps=" << startStep + parameters.steps
+            << " topology_only=" << (parameters.topologyOnly ? "yes" : "no")
+            << " Ee_parent=" << (parameters.continuationEeSwitch ?
+                                    parameters.continuationEeParent : parameters.ee)
+            << " Ee_target=" << parameters.ee
+            << " continuation_parent=" << parameters.continuationParent
+            << " continuation_direction=" << parameters.continuationDirection
+            << " continuation_stage=" << parameters.continuationStage
+            << " reequilibration_steps=" << parameters.reequilibrationSteps
+            << " measurement_steps=" << parameters.measurementSteps
             << " original_lammps_atom_ids=1_based\n";
   eventFile.precision(previousPrecision);
 }
@@ -550,19 +664,15 @@ int main(int argc, char** argv) {
     long long initialStep = 0;
     if (!parameters.restartPrefix.empty()) {
       restart = readRestartMetadata(parameters.restartPrefix + ".assoc_restart");
-      if (parameters.rAssocExplicit && !near(parameters.rAssoc, restart.parameters.rAssoc)) {
-        throw std::runtime_error("--r-assoc does not match restart metadata");
-      }
-      if (parameters.seedExplicit && parameters.seed != restart.parameters.seed) {
-        throw std::runtime_error("--seed does not match restart metadata");
-      }
+      validateRestartRequest(parameters, restart);
       const int requestedDiagnosticEvery = parameters.diagnosticEvery;
+      const double requestedEe = parameters.ee;
       parameters.arms = restart.parameters.arms;
       parameters.beadsPerArm = restart.parameters.beadsPerArm;
       parameters.dt = restart.parameters.dt;
       parameters.temperature = restart.parameters.temperature;
       parameters.ea = restart.parameters.ea;
-      parameters.ee = restart.parameters.ee;
+      parameters.ee = parameters.continuationEeSwitch ? requestedEe : restart.parameters.ee;
       parameters.nu0 = restart.parameters.nu0;
       parameters.every = restart.parameters.every;
       parameters.rAssoc = restart.parameters.rAssoc;
@@ -775,10 +885,12 @@ int main(int argc, char** argv) {
       // forwardTime() populates all three force/stress caches at the current
       // coordinates. Chemistry changes only temporary partners, so refresh
       // only that cache before sampling the post-chemistry state.
-      if (chemistryStep) {
+      if (chemistryStep && !parameters.topologyOnly) {
         refreshAssociatingStressAfterChemistry();
       }
-      queueCachedStressSample();
+      if (!parameters.topologyOnly) {
+        queueCachedStressSample();
+      }
       if (chemistryStep || diagnosticStep) {
         counts = kg_assoc::checkAssociationInvariants(
             particles, data, state, permanentBonds, lengths, parameters.feneR0,
@@ -806,29 +918,38 @@ int main(int argc, char** argv) {
                              data, state);
         }
       }
+      if (step % parameters.progressEvery == 0 || step == parameters.steps) {
+        std::cerr << "P4.8b continuation " << parameters.continuationStage
+                  << " Ee=" << parameters.ee << " step=" << step << '/'
+                  << parameters.steps << " temporary_bonds=" << counts.bonds << '\n';
+      }
     }
 
-    flushStressSamples();
-    stressCorrelator.evaluate();
-    const double volume = static_cast<double>(simulationBox.box.getVolume());
-    modulusFile << "# stress_samples=" << stressSamplesQueued
-                << " step0_sampled=no stress_interval_steps=1 dt="
-                << std::setprecision(17) << parameters.dt << '\n';
-    modulusFile << "# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n";
-    for (unsigned int index = 0; index < stressCorrelator.npcorr; ++index) {
-      const double gxy = volume * stressCorrelator.getf(index, 0);
-      const double gxz = volume * stressCorrelator.getf(index, 1);
-      const double gyz = volume * stressCorrelator.getf(index, 2);
-      const double gnxy = volume * stressCorrelator.getf(index, 3);
-      const double gnxz = volume * stressCorrelator.getf(index, 4);
-      const double gnyz = volume * stressCorrelator.getf(index, 5);
-      const double modulus =
-          (gxy + gxz + gyz) / (5.0 * parameters.temperature) +
-          (gnxy + gnxz + gnyz) / (30.0 * parameters.temperature);
-      modulusFile << stressCorrelator.gett(index) * parameters.dt << ' '
-                  << gxy << ' ' << gxz << ' ' << gyz << ' ' << gnxy << ' '
-                  << gnxz << ' ' << gnyz << ' ' << modulus << ' '
-                  << stressCorrelator.getn(index) << '\n';
+    if (parameters.topologyOnly) {
+      modulusFile << "# topology_only=yes; stress sampling disabled\n";
+    } else {
+      flushStressSamples();
+      stressCorrelator.evaluate();
+      const double volume = static_cast<double>(simulationBox.box.getVolume());
+      modulusFile << "# stress_samples=" << stressSamplesQueued
+                  << " step0_sampled=no stress_interval_steps=1 dt="
+                  << std::setprecision(17) << parameters.dt << '\n';
+      modulusFile << "# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n";
+      for (unsigned int index = 0; index < stressCorrelator.npcorr; ++index) {
+        const double gxy = volume * stressCorrelator.getf(index, 0);
+        const double gxz = volume * stressCorrelator.getf(index, 1);
+        const double gyz = volume * stressCorrelator.getf(index, 2);
+        const double gnxy = volume * stressCorrelator.getf(index, 3);
+        const double gnxz = volume * stressCorrelator.getf(index, 4);
+        const double gnyz = volume * stressCorrelator.getf(index, 5);
+        const double modulus =
+            (gxy + gxz + gyz) / (5.0 * parameters.temperature) +
+            (gnxy + gnxz + gnyz) / (30.0 * parameters.temperature);
+        modulusFile << stressCorrelator.gett(index) * parameters.dt << ' '
+                    << gxy << ' ' << gxz << ' ' << gyz << ' ' << gnxy << ' '
+                    << gnxz << ' ' << gnyz << ' ' << modulus << ' '
+                    << stressCorrelator.getn(index) << '\n';
+      }
     }
     CudaSafeCall(cudaStreamSynchronize(integrator->getStream()));
     if (associating->hasInvalidFene()) {

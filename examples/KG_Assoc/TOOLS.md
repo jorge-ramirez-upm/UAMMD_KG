@@ -244,6 +244,65 @@ reports confidence-interval compatibility and deliberately returns a
 `PASS_CANDIDATE`, not an automatic scientific approval; record the final
 decision with `set-ea-validation` in the search state.
 
+### `analysis/plan_p48b_staircase_scout.py`
+
+Purpose: create and record a non-executing, downward, piecewise-constant Ee
+continuation scout. It is the preferred inexpensive first-pass bracket finder;
+the existing fixed-Ee planner remains the confirmation tool. The script never
+launches MD. Two chains must use distinct equilibrated parent restarts and are
+never pooled as independent frames.
+
+For C1, create a state and two chains beginning at Ee=8, Ea=4, nu0=20:
+
+```bash
+python3 examples/KG_Assoc/analysis/plan_p48b_staircase_scout.py init \
+  --state examples/KG_Assoc/percolation_search/C1/staircase_scout_state.json \
+  --system-label C1 --arms 4 --arm-length 10 --polymer-density 0.799986703462 \
+  --temperature 1 --number-of-stars 1000 --reaction-geometry r_assoc=1.25 \
+  --ea 4 --ea-physical 4 --nu0 20 --nevery 100 --r-assoc 1.25 --dt 0.01
+```
+
+Use `add-scout` with an actual final, equilibrated Ee=8 restart for each seed,
+then `write-next-request` to create the first 8 -> 7.5 request. Every request
+sets `topology_only=true`, records parent/target Ee and direction, and asks for
+re-equilibration blocks before a separate measurement stage. The production
+runner accepts `--continuation-ee-parent`, `--continuation-ee-target`,
+`--continuation-parent`, `--continuation-direction`, and
+`--continuation-stage`; it rejects a silent restart Ee change or a parent
+mismatch. `--topology-only` disables every-step stress sampling while retaining
+synchronized COM/topology output. Register a plateau only after its block gate
+returns `ADMITTED`. The first high-to-not-high interval is saved as a scout
+bracket and automatically stops further downward requests for that chain.
+
+Concrete first two C1 request commands (they only write JSON) are:
+
+```bash
+python3 examples/KG_Assoc/analysis/plan_p48b_staircase_scout.py add-scout \
+  --state examples/KG_Assoc/percolation_search/C1/staircase_scout_state.json \
+  --staircase-id C1_down_12001 --replica-id 12001 --starting-ee 8 \
+  --parent-seed 12001 \
+  --parent-restart p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000
+python3 examples/KG_Assoc/analysis/plan_p48b_staircase_scout.py add-scout \
+  --state examples/KG_Assoc/percolation_search/C1/staircase_scout_state.json \
+  --staircase-id C1_down_12002 --replica-id 12002 --starting-ee 8 \
+  --parent-seed 12002 \
+  --parent-restart p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000
+python3 examples/KG_Assoc/analysis/plan_p48b_staircase_scout.py write-next-request \
+  --state examples/KG_Assoc/percolation_search/C1/staircase_scout_state.json \
+  --staircase-id C1_down_12001 --output-prefix p48b_c1_s12001_ee7p5_reeq \
+  --output examples/KG_Assoc/percolation_search/C1/C1_down_12001_ee7p5.json
+python3 examples/KG_Assoc/analysis/plan_p48b_staircase_scout.py write-next-request \
+  --state examples/KG_Assoc/percolation_search/C1/staircase_scout_state.json \
+  --staircase-id C1_down_12002 --output-prefix p48b_c1_s12002_ee7p5_reeq \
+  --output examples/KG_Assoc/percolation_search/C1/C1_down_12002_ee7p5.json
+```
+
+The parent prefixes must name the actual final Ee=8 restart pair selected for
+the two independent chains. A generated request uses 10,000-step synchronized
+topology/COM frames by default, two 100,000-step re-equilibration blocks before
+admission, and a configurable 320,000-step measurement stage; these are
+protocol defaults, not completed work or a claim of sufficiency.
+
 Inputs are matching production prefixes with `.events`, `.topology`, and
 `.com_trajectory`. The analyzer validates every topology frame, groups only
 same-star changes at the same chemistry step, and outward-snaps requested COM

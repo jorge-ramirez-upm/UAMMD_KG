@@ -161,11 +161,12 @@ percolation crossover.
 
 ## P4.8b adaptive Ee search
 
-- P4.8b.1: adaptive persistent search infrastructure and trial provenance.
-- P4.8b.2: configurable Ea-invariance validation before accelerated chemistry
-  is treated as equilibrium-valid.
-- P4.8b.3: first Ee bracket for one architecture/density.
-- P4.8b.4: targeted bidirectional continuation and equilibration check.
-- P4.8b.5: extend brackets to neighboring architectures and densities.
+- P4.8b.1: adaptive persistent search infrastructure and trial provenance
+  (complete).
+- P4.8b.2: downward, piecewise-constant Ee staircase scout (next).
+- P4.8b.3: independent fixed-Ee crossover confirmation.
+- P4.8b.4: Ea-invariance validation near the crossover.
+- P4.8b.5: accelerated-search validation.
+- P4.8b.6: neighboring architecture/density mapping.
 
 No P4.8b.2 simulation is started automatically.
