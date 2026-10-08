@@ -18,6 +18,7 @@ from analyze_e2_stationarity import COLUMNS, read_state
 
 BLOCK_STEPS = 100000
 REEQUILIBRATION_BLOCKS = 5
+MAX_REEQUILIBRATION_BLOCKS = 10
 MEASUREMENT_STEPS = 320000
 
 
@@ -72,7 +73,8 @@ def new_state(arguments):
     }
 
 
-def runner_command(state, parent, parent_ee, target_ee, output, steps, stage, switch):
+def runner_command(state, parent, parent_ee, target_ee, output, steps, stage, switch,
+                   reequilibration_steps):
     protocol = state['protocol']
     command = [state['runner'], '--restart-prefix', parent, '--output', output,
                '--steps', str(steps), '--temperature', str(protocol['temperature']),
@@ -83,7 +85,7 @@ def runner_command(state, parent, parent_ee, target_ee, output, steps, stage, sw
                '--progress-every', str(BLOCK_STEPS), '--topology-only',
                '--continuation-parent', parent, '--continuation-direction', 'downward',
                '--continuation-stage', stage,
-               '--reequilibration-steps', str(BLOCK_STEPS * REEQUILIBRATION_BLOCKS),
+               '--reequilibration-steps', str(reequilibration_steps),
                '--measurement-steps', str(MEASUREMENT_STEPS)]
     if switch:
         command += ['--Ee', str(target_ee), '--continuation-ee-parent', str(parent_ee),
@@ -125,8 +127,8 @@ def pwrap_any_from_summary(summary):
 
 def late_stationarity(blocks, tolerance):
     """Gate only the final three windows; early switching transients are retained."""
-    if len(blocks) != REEQUILIBRATION_BLOCKS:
-        raise ValueError('expected exactly five re-equilibration windows')
+    if len(blocks) < REEQUILIBRATION_BLOCKS:
+        raise ValueError('at least five re-equilibration windows are required')
     return stationarity(blocks[-3:], {
         'min_reequilibration_blocks': 3,
         'max_reequilibration_blocks': 3,
@@ -147,44 +149,90 @@ def ensure_analysis_fresh(prefix):
                          'choose a new output directory'.format(prefix))
 
 
+def reequilibration_prefix(output_dir, chain, target, block):
+    return str(Path(output_dir) / '{}_ee{}_reeq_block{}'.format(
+        chain['id'], str(target).replace('.', 'p'), block))
+
+
+def verified_restart(prefix):
+    required = (Path(prefix + '.restart.lammpsdat'), Path(prefix + '.assoc_restart'))
+    if not all(path.is_file() for path in required):
+        raise ValueError('missing verified restart for {}; cannot resume safely'.format(prefix))
+    return prefix
+
+
+def run_reequilibration(state, chain, target, output_dir, blocks, enabled):
+    """Run only missing windows, with one bounded five-window extension."""
+    protocol = state['protocol']
+    if len(blocks) > MAX_REEQUILIBRATION_BLOCKS:
+        raise ValueError('too many recorded re-equilibration windows')
+    parent = chain['restart']
+    if blocks:
+        parent = verified_restart(reequilibration_prefix(output_dir, chain, target, len(blocks)))
+    if not enabled:
+        final_block = MAX_REEQUILIBRATION_BLOCKS if blocks else REEQUILIBRATION_BLOCKS
+        for block in range(len(blocks) + 1, final_block + 1):
+            output = reequilibration_prefix(output_dir, chain, target, block)
+            total_steps = (REEQUILIBRATION_BLOCKS if block <= REEQUILIBRATION_BLOCKS
+                           else MAX_REEQUILIBRATION_BLOCKS) * BLOCK_STEPS
+            execute(runner_command(state, parent, chain['Ee'], target, output, BLOCK_STEPS,
+                                   'reequilibration', block == 1, total_steps), False)
+            parent = output
+        return blocks, parent
+    while len(blocks) < MAX_REEQUILIBRATION_BLOCKS:
+        if len(blocks) >= REEQUILIBRATION_BLOCKS:
+            if late_stationarity(blocks, protocol['relative_drift_tolerance']) == 'ADMITTED':
+                return blocks, parent
+        block = len(blocks) + 1
+        output = reequilibration_prefix(output_dir, chain, target, block)
+        if enabled:
+            ensure_fresh(output)
+        total_steps = (REEQUILIBRATION_BLOCKS if block <= REEQUILIBRATION_BLOCKS
+                       else MAX_REEQUILIBRATION_BLOCKS) * BLOCK_STEPS
+        execute(runner_command(state, parent, chain['Ee'], target, output, BLOCK_STEPS,
+                               'reequilibration', block == 1, total_steps), enabled)
+        if enabled:
+            metrics = window_state_observables(output)
+            block_summary = analyze(state, [output], output + '_p48', enabled)
+            metrics['P_wrap_any'] = pwrap_any_from_summary(block_summary)
+            blocks.append(metrics)
+        parent = output
+    if enabled and late_stationarity(blocks, protocol['relative_drift_tolerance']) == 'ADMITTED':
+        return blocks, parent
+    raise RuntimeError('EQUILIBRATION_NOT_ESTABLISHED after 1000000 steps')
+
+
 def run_plateau(state, output_dir, enabled):
-    if state['status'] != 'READY':
+    if state['status'] not in ('READY', 'EQUILIBRATION_NOT_ESTABLISHED'):
         raise ValueError('driver is not ready: {}'.format(state['status']))
     target = state['chains'][0]['Ee'] - state['protocol']['delta_Ee']
     if not math.isclose(state['chains'][1]['Ee'], state['chains'][0]['Ee'], abs_tol=1e-12):
         raise ValueError('chains are at different Ee; fail closed')
     output_dir = Path(output_dir)
-    reeq_blocks = {}
+    reeq_blocks = state.get('failed_blocks', {}).copy()
     measurement_prefixes = []
+    admitted_parents = {}
     for chain in state['chains']:
-        parent = chain['restart']
-        blocks = []
-        for block in range(1, REEQUILIBRATION_BLOCKS + 1):
-            output = str(output_dir / '{}_ee{}_reeq_block{}'.format(
-                chain['id'], str(target).replace('.', 'p'), block))
-            if enabled:
-                ensure_fresh(output)
-            execute(runner_command(state, parent, chain['Ee'], target, output,
-                                   BLOCK_STEPS, 'reequilibration', block == 1), enabled)
-            if enabled:
-                metrics = window_state_observables(output)
-                block_summary = analyze(state, [output], output + '_p48', enabled)
-                metrics['P_wrap_any'] = pwrap_any_from_summary(block_summary)
-                blocks.append(metrics)
-            parent = output
-        if enabled:
+        blocks = reeq_blocks.get(chain['id'], [])
+        try:
+            blocks, parent = run_reequilibration(state, chain, target, output_dir, blocks, enabled)
+        except RuntimeError:
+            state['status'] = 'EQUILIBRATION_NOT_ESTABLISHED'
             reeq_blocks[chain['id']] = blocks
-            gate = late_stationarity(blocks, state['protocol']['relative_drift_tolerance'])
-            if gate != 'ADMITTED':
-                state['status'] = 'EQUILIBRATION_NOT_ESTABLISHED'
-                state['failed_blocks'] = reeq_blocks
-                return
+            state['failed_blocks'] = reeq_blocks
+            return
+        reeq_blocks[chain['id']] = blocks
+        admitted_parents[chain['id']] = (parent, len(blocks))
+
+    for chain in state['chains']:
+        parent, block_count = admitted_parents[chain['id']]
         measurement = str(output_dir / '{}_ee{}_measurement'.format(
             chain['id'], str(target).replace('.', 'p')))
         if enabled:
             ensure_fresh(measurement)
         command = runner_command(state, parent, target, target, measurement,
-                                 MEASUREMENT_STEPS, 'measurement', False)
+                                 MEASUREMENT_STEPS, 'measurement', False,
+                                 block_count * BLOCK_STEPS)
         execute(command, enabled)
         measurement_prefixes.append(measurement)
     if not enabled:
@@ -200,6 +248,7 @@ def run_plateau(state, output_dir, enabled):
         chain['history'].append(record)
     if record['clearly_high_both_chains']:
         state['status'] = 'READY'
+        state.pop('failed_blocks', None)
     else:
         state['status'] = 'STOPPED_NOT_HIGH'
         state['bracket'] = {'Ee_low': target,
@@ -213,14 +262,19 @@ def self_test():
                               '--analyzer', 'analyzer', '--parent1', 'a', '--parent2', 'b'])
     state = new_state(args)
     command = runner_command(state, 'a', 8.0, 7.5, 'out', BLOCK_STEPS,
-                             'reequilibration', True)
+                             'reequilibration', True, 500000)
     assert '--continuation-ee-target' in command and command[command.index('--Ee') + 1] == '7.5'
     assert state['protocol']['reequilibration_steps'] == 500000
     same_ee = runner_command(state, 'out', 7.5, 7.5, 'next', BLOCK_STEPS,
-                             'reequilibration', False)
+                             'reequilibration', False, 500000)
     assert '--continuation-ee-target' not in same_ee
+    extension = runner_command(state, 'block5', 7.5, 7.0, 'block6', BLOCK_STEPS,
+                               'reequilibration', False, 1000000)
+    assert extension[extension.index('--restart-prefix') + 1] == 'block5'
+    assert '--continuation-ee-target' not in extension
+    assert extension[extension.index('--reequilibration-steps') + 1] == '1000000'
     measurement = runner_command(state, 'out', 7.5, 7.5, 'measurement',
-                                 MEASUREMENT_STEPS, 'measurement', False)
+                                 MEASUREMENT_STEPS, 'measurement', False, 1000000)
     assert '--continuation-stage' in measurement and 'measurement' in measurement
     stable = [{name: 1.0 for name in OBSERVABLES} for _ in range(5)]
     stable[0]['temporary_bonds'] = 20.0
@@ -228,6 +282,9 @@ def self_test():
     assert late_stationarity(stable, .05) == 'ADMITTED'
     stable[-1]['temporary_bonds'] = 2.0
     assert late_stationarity(stable, .05) == 'NONSTATIONARY'
+    assert late_stationarity(stable + [{name: 1.0 for name in OBSERVABLES}] * 5,
+                           .05) == 'ADMITTED'
+    assert late_stationarity(stable * 2, .05) == 'NONSTATIONARY'
     assert pwrap_any_from_summary({'replica_summaries': [{'P_wrap_any': .6}]}) == .6
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / 'window.state'

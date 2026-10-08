@@ -309,7 +309,9 @@ This is the primary host-side P4.8b scout driver. It replaces manual block,
 stationarity, measurement, and wrapping-analysis handoffs. Initialize two
 independent Ee=8 parent restart prefixes, then use `run-next --execute` on the
 dedicated host. A run consists of exactly five topology-only 100,000-step
-re-equilibration windows (500,000 steps total), evaluates the existing P4.8a
+re-equilibration windows (500,000 steps total). If that gate fails, exactly one
+additional five-window extension is allowed (hard cap 1,000,000 steps per
+chain/Ee). It evaluates the existing P4.8a
 wrapping analyzer for each window, and admits measurement only if the final
 three windows of both chains pass the deterministic stationarity gate. It then
 runs a 320,000-step measurement and
@@ -320,7 +322,9 @@ The driver descends by 0.5 only if both chain-level P_wrap values and the
 two-replica lower CI are above 0.5. Otherwise it writes a non-final scout
 bracket and stops. It fails closed on unequal chain Ee values, existing partial
 output/analysis, missing output,
-or nonstationarity. Its JSON state retains restart parents, commands, block
+or nonstationarity after the hard cap. `run-next` safely resumes a recorded
+five-window failure from its verified block-5 restart; it never reruns those
+windows. Its JSON state retains restart parents, commands, block
 observables, P4.8a summaries, and the stop/bracket status.
 
 Inputs are matching production prefixes with `.events`, `.topology`, and

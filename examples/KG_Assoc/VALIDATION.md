@@ -1640,10 +1640,11 @@ replica-level crossover estimate. An optional upward staircase is a convergence
 check; disagreement is first reported as insufficient equilibration.
 
 The automated driver requires five fixed 100,000-step topology-only
-re-equilibration windows at each Ee (500,000 steps total). It records all five
+re-equilibration windows at each Ee (500,000 steps total). A failed gate permits
+one further five-window extension, with a hard 1,000,000-step cap. It records all windows
 windows but evaluates stationarity from final-three window means, allowing
 early post-switch transients. It uses the named E2 `.state` parser and
 uses the existing periodic-wrapping analyzer rather than reimplementing the
-wrapping criterion. It only measures after admission. The two chains must both
+wrapping criterion. It only measures after both chains admit. The two chains must both
 be clearly high-wrapping before the next 0.5 Ee descent; otherwise it stops and
 records a scout bracket.
