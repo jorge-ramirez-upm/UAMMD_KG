@@ -12,9 +12,6 @@ import numpy as np
 import correlator
 
 
-STUDENT_T_95_DF4 = 2.776445
-
-
 def fail(path, message):
     raise ValueError('{}: {}'.format(path, message))
 
@@ -80,6 +77,101 @@ def read_com_trajectory(path):
     return np.asarray(steps), np.asarray(times), np.asarray(frames, dtype=np.float64)
 
 
+def validate_replica_ensemble(replicas):
+    """Require independent, self-contained segments on one relative COM grid."""
+    if len(replicas) < 2:
+        raise ValueError('at least two independent COM trajectories are required')
+    first = replicas[0]
+    for replica in replicas[1:]:
+        if (replica['positions'].shape != first['positions'].shape or
+                not np.array_equal(replica['steps'] - replica['steps'][0],
+                                   first['steps'] - first['steps'][0]) or
+                not np.allclose(replica['times'] - replica['times'][0],
+                                first['times'] - first['times'][0])):
+            fail(replica['path'], 'replica COM grid or star count differs')
+    return first
+
+
+def _beta_continued_fraction(a, b, x):
+    """Evaluate the incomplete-beta continued fraction (Numerical Recipes)."""
+    maximum_iterations = 200
+    minimum = 3.0e-300
+    tolerance = 3.0e-14
+    qab = a + b
+    qap = a + 1.0
+    qam = a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    if abs(d) < minimum:
+        d = minimum
+    d = 1.0 / d
+    result = d
+    for iteration in range(1, maximum_iterations + 1):
+        double_iteration = 2 * iteration
+        coefficient = (iteration * (b - iteration) * x /
+                       ((qam + double_iteration) * (a + double_iteration)))
+        d = 1.0 + coefficient * d
+        if abs(d) < minimum:
+            d = minimum
+        c = 1.0 + coefficient / c
+        if abs(c) < minimum:
+            c = minimum
+        d = 1.0 / d
+        result *= d * c
+        coefficient = (-(a + iteration) * (qab + iteration) * x /
+                       ((a + double_iteration) * (qap + double_iteration)))
+        d = 1.0 + coefficient * d
+        if abs(d) < minimum:
+            d = minimum
+        c = 1.0 + coefficient / c
+        if abs(c) < minimum:
+            c = minimum
+        d = 1.0 / d
+        change = d * c
+        result *= change
+        if abs(change - 1.0) < tolerance:
+            return result
+    raise RuntimeError('incomplete-beta continued fraction did not converge')
+
+
+def _regularized_incomplete_beta(a, b, x):
+    if not 0.0 <= x <= 1.0:
+        raise ValueError('incomplete-beta argument is outside [0, 1]')
+    if x == 0.0 or x == 1.0:
+        return x
+    front = math.exp(
+        math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) +
+        a * math.log(x) + b * math.log1p(-x))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * _beta_continued_fraction(a, b, x) / a
+    return 1.0 - front * _beta_continued_fraction(b, a, 1.0 - x) / b
+
+
+def student_t_95_two_sided_critical(degrees_of_freedom):
+    """Numerically invert Student-t CDF at 0.975 without adding scipy."""
+    if degrees_of_freedom < 1:
+        raise ValueError('Student-t degrees of freedom must be positive')
+    degrees_of_freedom = float(degrees_of_freedom)
+
+    def cdf(value):
+        beta_argument = degrees_of_freedom / (degrees_of_freedom + value * value)
+        tail_probability = .5 * _regularized_incomplete_beta(
+            degrees_of_freedom / 2.0, .5, beta_argument)
+        return 1.0 - tail_probability
+
+    lower = 0.0
+    upper = 1.0
+    while cdf(upper) < .975:
+        upper *= 2.0
+    for _ in range(80):
+        midpoint = (lower + upper) / 2.0
+        if cdf(midpoint) < .975:
+            lower = midpoint
+        else:
+            upper = midpoint
+    return (lower + upper) / 2.0
+
+
 def multi_tau_msd(positions):
     """Average the installed one-vector multi-tau estimator over star IDs."""
     lag_reference = None
@@ -139,6 +231,42 @@ def validate_synthetic_correlator():
         np.arange(8.0), np.array([np.nan, 1.01, .97, 1.04, .96, .8, .9, np.nan]), .05, 4)
     if regions != [{'start_time': 1.0, 'end_time': 4.0, 'lag_points': 4}]:
         raise AssertionError('diffusive-region detection mismatch')
+
+
+def validate_replica_statistics():
+    five_replicas_degrees_of_freedom = 5 - 1
+    if not math.isclose(student_t_95_two_sided_critical(five_replicas_degrees_of_freedom),
+                        2.7764451052,
+                        rel_tol=0.0, abs_tol=1.0e-10):
+        raise AssertionError('five-replica Student-t critical value mismatch')
+    three_replicas_degrees_of_freedom = 3 - 1
+    if not math.isclose(student_t_95_two_sided_critical(three_replicas_degrees_of_freedom),
+                        4.3026527299,
+                        rel_tol=0.0, abs_tol=1.0e-9):
+        raise AssertionError('three-replica Student-t critical value mismatch')
+
+    reference = {
+        'path': 'reference',
+        'steps': np.array([100, 200]),
+        'times': np.array([1.0, 2.0]),
+        'positions': np.zeros((2, 1, 3)),
+    }
+    try:
+        validate_replica_ensemble([reference])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('single replica was accepted')
+
+    unequal_grid = dict(reference)
+    unequal_grid['path'] = 'unequal-grid'
+    unequal_grid['times'] = np.array([1.0, 3.0])
+    try:
+        validate_replica_ensemble([reference, unequal_grid])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('unequal COM grids were accepted')
 
 
 def validate_correlator(actual_positions):
@@ -201,11 +329,11 @@ def parse_windows(text):
     return windows
 
 
-def student_statistics(values):
+def student_statistics(values, student_t_critical_value):
     mean = statistics.mean(values)
     sample_std = statistics.stdev(values)
     sem = sample_std / math.sqrt(len(values))
-    half_width = STUDENT_T_95_DF4 * sem
+    half_width = student_t_critical_value * sem
     return mean, sample_std, sem, mean - half_width, mean + half_width
 
 
@@ -241,12 +369,13 @@ def main():
     arguments = parser.parse_args()
     if arguments.self_test:
         validate_synthetic_correlator()
+        validate_replica_statistics()
         print('P4.4 COM DIFFUSION SELF_TEST PASS')
         return
     if not arguments.output_prefix:
         parser.error('--output-prefix is required')
-    if len(arguments.com_files) != 5:
-        parser.error('the C1 P4.4 analysis requires exactly five independent COM trajectories')
+    if len(arguments.com_files) < 2:
+        parser.error('at least two independent COM trajectories are required')
     if arguments.alpha_tolerance <= 0.0:
         parser.error('--alpha-tolerance must be positive')
     if arguments.min_diffusive_bins < 2:
@@ -260,15 +389,14 @@ def main():
     for path in arguments.com_files:
         steps, times, positions = read_com_trajectory(path)
         replicas.append({'path': path, 'steps': steps, 'times': times, 'positions': positions})
-    first = replicas[0]
-    for replica in replicas[1:]:
-        if (replica['positions'].shape != first['positions'].shape or
-                not np.array_equal(replica['steps'] - replica['steps'][0],
-                                   first['steps'] - first['steps'][0]) or
-                not np.allclose(replica['times'] - replica['times'][0],
-                                first['times'] - first['times'][0])):
-            fail(replica['path'], 'replica COM grid or star count differs')
+    try:
+        first = validate_replica_ensemble(replicas)
+    except ValueError as error:
+        parser.error(str(error))
     validate_correlator(first['positions'])
+    student_t_degrees_of_freedom = len(replicas) - 1
+    student_t_critical_value = student_t_95_two_sided_critical(
+        student_t_degrees_of_freedom)
 
     replica_rows = []
     lag_frames = None
@@ -317,7 +445,8 @@ def main():
             diffusion.append(value)
             fit_rows.append({'window_start': start, 'window_end': end, 'replica': replica_index,
                              'diffusion': value, 'intercept': intercept, 'lag_points': points})
-        mean, sample_std, sem, ci_low, ci_high = student_statistics(diffusion)
+        mean, sample_std, sem, ci_low, ci_high = student_statistics(
+            diffusion, student_t_critical_value)
         fit_summaries.append({
             'window_start': start, 'window_end': end, 'mean_d': mean,
             'sample_std': sample_std, 'sem': sem, 'ci_low': ci_low, 'ci_high': ci_high,
@@ -350,7 +479,8 @@ def main():
         'recommended_window': recommended if diffusive_regions else None,
         'diffusion_estimate_adequate': bool(diffusive_regions),
         'cutoff_sensitivity_max_absolute_change': sensitivity,
-        'student_t_critical_value': STUDENT_T_95_DF4,
+        'student_t_degrees_of_freedom': student_t_degrees_of_freedom,
+        'student_t_critical_value': student_t_critical_value,
         'validation': 'synthetic and C1 short-slice selected-lag checks passed',
     }
     paths = write_outputs(arguments.output_prefix, replica_rows, mean_rows, fit_rows, summary)

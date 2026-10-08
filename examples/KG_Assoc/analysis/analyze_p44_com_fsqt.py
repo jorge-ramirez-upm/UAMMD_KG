@@ -10,7 +10,7 @@ import numpy as np
 
 import correlator
 
-from analyze_p44_com_diffusion import read_com_trajectory
+from analyze_p44_com_diffusion import read_com_trajectory, validate_replica_ensemble
 
 
 Q_VALUES = np.array([
@@ -155,14 +155,7 @@ def main():
     for path in arguments.com_files:
         steps, times, positions = read_com_trajectory(path)
         replicas.append({'path': path, 'steps': steps, 'times': times, 'positions': positions})
-    first = replicas[0]
-    for replica in replicas[1:]:
-        if (replica['positions'].shape != first['positions'].shape or
-                not np.array_equal(replica['steps'] - replica['steps'][0],
-                                   first['steps'] - first['steps'][0]) or
-                not np.allclose(replica['times'] - replica['times'][0],
-                                first['times'] - first['times'][0])):
-            raise ValueError('{}: replica COM grid or star count differs'.format(replica['path']))
+    first = validate_replica_ensemble(replicas)
     validate_synthetic_fsqt()
     validate_real_slice(first['positions'])
 

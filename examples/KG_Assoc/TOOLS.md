@@ -115,8 +115,10 @@ Example: `python3.11 examples/KG_Assoc/analysis/analyze_p44_com_diffusion.py \
 
 Outputs: `<prefix>.diffusion.replicas.csv`, `<prefix>.diffusion.mean.csv`, fit
 CSV, and JSON summary. It validates ordered IDs and a uniform segment-local COM grid. Origin
-counts are support only; independent segment replicas define uncertainty. The
-present 32M C1 segments are not terminally diffusive.
+counts are support only; independent segment replicas define uncertainty. It accepts any
+independent ensemble of at least two self-contained COM segments, including continuation
+ensembles; never provide a parent segment and its continuation as one stitched trajectory.
+The present 32M C1 segments are not terminally diffusive.
 
 ### `analysis/analyze_p44_com_fsqt.py`
 
@@ -129,7 +131,8 @@ Example: `python3.11 examples/KG_Assoc/analysis/analyze_p44_com_fsqt.py \
 Outputs: `<prefix>.fsqt.replicas.csv`, `<prefix>.fsqt.mean.csv`, and JSON
 diagnostics/crossing times. It uses `correlator.SqtCorrelatorIsotropicManyQ`, evaluating
 `mean[sinc(q |Delta R|)]` over stars at selected multi-tau lags. It is a self,
-not collective, correlator. High-q relaxation may occur before the first
+not collective, correlator. It likewise accepts any independent self-contained COM
+ensemble with at least two segments and rejects unequal relative COM grids. High-q relaxation may occur before the first
 100-time-unit COM lag in the current 32M data.
 
 ## Network topology
