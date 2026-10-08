@@ -101,7 +101,13 @@ systems are required before making cross-system mechanistic claims.
 
 ## P4.8a periodic wrapping
 
-The periodic wrapping analyzer is implemented and its C1 production command
-is documented, but the five-replica C1 wrapping analysis remains pending
-offline. A giant component will not be interpreted as percolation without a
-nonzero periodic winding vector.
+For C1, five independent 320000-time-unit replicas each supplied 3200
+synchronized topology/COM frames. Every frame wrapped in x, y, and z:
+`P_wrap_any = P_wrap_x = P_wrap_y = P_wrap_z = P_wrap_xyz = 1` for every
+replica. There were no nonwrapping frames. The mean fraction of stars in
+wrapping components was approximately 0.99474.
+
+Thus C1 is robustly periodically percolated over the sampled frames. This is
+stronger than the earlier giant-component observation: it is based on a
+nonzero periodic winding criterion, not connectivity alone. The finite-box
+wrapping crossover location remains unknown.
