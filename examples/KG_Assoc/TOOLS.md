@@ -157,6 +157,8 @@ python3 examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py \
 ```
 
 The analyzer rejects mixed requested durations before ensemble statistics.
+Long runs print progress to stderr every 100 frames by default; adjust with
+`--progress-interval N`.
 The primary comparison is in `.mobility_by_half_window.csv`: each event's
 squared displacement is divided by the unconditional MSD at that event's
 same replica and actual snapped `total_lag`, then grouped by requested
@@ -164,6 +166,35 @@ same replica and actual snapped `total_lag`, then grouped by requested
 lag matching to q90/q95/q99 thresholds. Actual-lag distributions and tails
 remain secondary diagnostics. Metadata uses separate `total_density` and
 `polymer_density` fields.
+
+### `analysis/analyze_p48_percolation.py`
+
+Purpose: detect periodic wrapping of synchronized star-level inter-star
+clusters. It uses the same simple graph as P4.5/P4.7, wrapped star COMs, and
+periodic lattice-offset BFS; a giant component alone is not called
+percolating.
+
+Example:
+
+```bash
+python3 examples/KG_Assoc/analysis/analyze_p48_percolation.py \
+  --system examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat \
+  --output-prefix p48_c1_percolation \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000 \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12003_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12004_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12005_t40000
+```
+
+Outputs are `.frames.csv`, `.replicas.csv`, and `.summary.json`. The edge
+convention is `r_j + n_ij L - r_i` for the minimum-image displacement. The
+analyzer uses wrapped star COMs because synchronized sticker coordinates are
+not present in the topology stream. Exact half-box ties use an antisymmetric
+sign rule. Parallel edges with inconsistent translations and topology/COM
+mismatches fail closed.
+Progress is printed to stderr every 100 synchronized frames by default and is
+controlled with `--progress-interval N`.
 
 Inputs are matching production prefixes with `.events`, `.topology`, and
 `.com_trajectory`. The analyzer validates every topology frame, groups only

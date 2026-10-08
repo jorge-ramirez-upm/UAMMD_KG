@@ -1578,3 +1578,31 @@ The corrected C1 ensemble must use the two `run.MBA5fA` prefixes for seeds
 12001--12002 and the three `run.RqADk7` prefixes for seeds 12003--12005.
 The analyzer rejects unequal requested durations, including a mixed 10,000 /
 320,000-time-unit ensemble, before calculating ensemble statistics.
+The corrected C1 provenance is five replicas of duration 320000.0 with 1000
+stars, 4 arms of length 10, 4 stickers per star, total density
+0.849995628364, polymer density 0.799986703462, `Ea=4`, `Ee=8`, `nu0=20`,
+`Nevery=100`, `r_assoc=1.25`, `T=1`, `dt=0.01`, and box lengths
+`[37.145, 37.145, 37.145]`.
+
+### P4.8a periodic wrapping validation
+
+P4.8a uses vertices equal to stars and simple inter-star neighbor edges;
+parallel sticker bonds are deduplicated only when their lattice translations
+agree. For an oriented edge `i -> j`, `n_ij` is chosen so that
+`r_j + n_ij L - r_i` is the minimum-image displacement. BFS image labels add
+`n_ij`; a nonzero cycle discrepancy is a periodic winding vector. Exact
+half-box ties choose the sign away from zero, so reverse orientations remain
+antisymmetric.
+
+The analyzer consumes topology and COM frames with identical step/time and
+fails closed on mismatches, inconsistent star IDs, invalid box geometry, or
+inconsistent parallel-edge translations. Its finite-cluster susceptibility is
+`sum(s^2 n_s) / sum(s n_s)` after excluding every wrapping component. Frames
+are descriptive support; uncertainty is across independent replicas.
+
+`analyze_p48_percolation.py --self-test` covers open chains, positive and
+negative winding, independent x/y/z winding, ordinary loops, parallel-edge
+deduplication/rejection, and replica statistics. Real C1 execution is kept
+offline because it reads the existing large topology streams.
+Both long-running analyzers report replica, frame/origin progress and sampled
+simulation time to stderr; progress output does not alter CSV or JSON files.

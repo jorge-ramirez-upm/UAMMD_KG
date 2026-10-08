@@ -145,7 +145,16 @@ per-replica displacement quantiles and empirical tails, censoring-aware hop
 survival, duration/displacement bins, and provenance metadata for later
 cross-system comparison. Ensemble input durations are now fail-closed, and
 the primary mobility/tail summaries use requested half-windows with event-wise
-actual-lag matching. The corrected five 32M C1 prefixes remain to be executed
-offline; no new MD is required. The next scientific question after that report
-is repeating the same analysis for a second architecture or
-interaction/kinetic condition with its metadata preserved.
+actual-lag matching. P4.7b is closed using the corrected five 32M C1 results;
+no new MD was required. The next scientific question is repeating the same
+analysis for a second architecture or interaction/kinetic condition with its
+metadata preserved.
+
+## P4.8a status
+
+The periodic wrapping analyzer and deterministic graph tests are implemented.
+It reports winding by Cartesian direction, wrapping-cluster fractions,
+non-wrapping component sizes, and finite-cluster susceptibility. The five
+existing C1 trajectories remain to be processed offline. P4.8b should use
+`P_wrap`, rather than giant-component fraction alone, to compare systems and
+bracket a finite-size percolation crossover.

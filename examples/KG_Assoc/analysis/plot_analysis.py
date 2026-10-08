@@ -392,6 +392,35 @@ def plot_p47(plt, arguments):
     return figures
 
 
+def plot_p48(plt, arguments):
+    frames = read_csv(arguments.file, ('time', 'any_wrap', 'n_wrap_dimensions',
+                                       'largest_component_fraction'))
+    figures = []
+    figure, axis = plt.subplots()
+    axis.plot(column(frames, 'time'), column(frames, 'n_wrap_dimensions'))
+    axis.set(xlabel='time', ylabel='wrapping dimensions', yticks=(0, 1, 2, 3),
+             title='Periodic wrapping state')
+    axis.grid(True, alpha=.25); figures.append(figure)
+
+    figure, axis = plt.subplots()
+    axis.plot(column(frames, 'time'), column(frames, 'largest_component_fraction'))
+    axis.set(xlabel='time', ylabel='largest-component fraction',
+             title='Largest component and periodic wrapping')
+    axis.grid(True, alpha=.25); figures.append(figure)
+
+    summary_path = Path(arguments.file).with_name(Path(arguments.file).name.replace('.frames', '.summary'))
+    with open(summary_path, encoding='utf-8') as source:
+        summary = json.load(source)
+    values = summary['ensemble_replica_statistics']
+    names = ('P_wrap_any', 'P_wrap_x', 'P_wrap_y', 'P_wrap_z', 'P_wrap_xyz')
+    figure, axis = plt.subplots()
+    axis.bar(names, [values[name]['mean'] for name in names])
+    axis.set(ylabel='fraction of frames', title='Periodic wrapping probabilities')
+    axis.tick_params(axis='x', rotation=30)
+    figures.append(figure)
+    return figures
+
+
 def self_test():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -509,6 +538,8 @@ def main():
     common_options(p47_parser, 'linear', 'linear')
     p47_parser.add_argument('--lag', type=float)
     p47_parser.add_argument('--threshold', choices=('q90', 'q95', 'q99'), default='q95')
+    p48_parser = commands.add_parser('p48')
+    common_options(p48_parser, 'linear', 'linear')
     arguments = parser.parse_args()
     if arguments.self_test:
         self_test()
@@ -528,6 +559,8 @@ def main():
             figures = plot_diffusion(plt, arguments)
         elif arguments.command == 'p47':
             figures = plot_p47(plt, arguments)
+        elif arguments.command == 'p48':
+            figures = plot_p48(plt, arguments)
         else:
             figures, output_suffixes = plot_topology(plt, arguments)
             save_or_show(plt, figures, arguments.output, arguments.no_show, arguments.dpi,

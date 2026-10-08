@@ -66,12 +66,42 @@ other association strengths remain open.
 
 ## Topology-defined walking and hopping
 
-The earlier P4.7 quantitative paragraph is withdrawn pending re-analysis. The
-documented five-replica command accidentally mixed two short 10,000-time-unit
-segments with three 32M segments, so those numbers are not a valid C1 ensemble
-result. The corrected analyzer rejects such mixed-duration input.
+For C1, the corrected five-replica analysis used five equal 320000-time-unit
+segments. Walking events occurred about 208 times more frequently than hops
+(mean rates 3.64353375 and 0.017556875 per time unit, respectively; the
+multiplicity-only rate was 0.197208125).
 
-The corrected C1 analysis will use requested half-windows as its primary
-comparison and normalize each event by the unconditional MSD at its own
-replica's actual snapped total lag. No corrected C1 conclusions are recorded
-until the five true 32M replicas have been analyzed and inspected.
+The primary mobility statistic is event-wise
+`distance_squared / unconditional_MSD(replica, actual_total_lag)`, grouped by
+requested half-window. For C1, walking mobility was essentially ordinary
+matched-lag motion: 1.0025, 1.0035, 1.0069, and 1.0135 at half-windows 100,
+200, 500, and 1000. Hop mobility was enhanced and increased across the same
+windows: 1.1771, 1.2250, 1.3169, and 1.4095. Multiplicity-only enhancement
+was modest: 1.0272, 1.0336, 1.0399, and 1.0525. Uncertainties are replica-level
+95% Student-t half-widths, not event-count errors.
+
+| requested half-window | multiplicity-only | walking | hopping |
+| ---: | ---: | ---: | ---: |
+| 100 | 1.027243 +/- 0.007115 | 1.002533 +/- 0.000893 | 1.177068 +/- 0.007022 |
+| 200 | 1.033633 +/- 0.003583 | 1.003488 +/- 0.001036 | 1.225049 +/- 0.016282 |
+| 500 | 1.039925 +/- 0.009491 | 1.006923 +/- 0.002094 | 1.316885 +/- 0.004794 |
+| 1000 | 1.052454 +/- 0.005034 | 1.013542 +/- 0.002875 | 1.409472 +/- 0.008477 |
+
+For C1, completed hop durations were broad: median 25.8 +/- 1.36, p75
+123.35 +/- 3.05, p90 410.64 +/- 34.70, p95 913.82 +/- 139.93, and p99
+3584.31 +/- 501.48 time units. Rare completed hops exceeded 1e5 time units in
+one replica; the maximum is not treated as a characteristic timescale.
+
+For C1, hops were enriched among large COM displacements, but walking still
+provided most large-displacement events because walking was overwhelmingly
+more frequent. These overlapping event windows are descriptive and do not
+decompose the total diffusion coefficient. These conclusions are specific to
+this C1 architecture, density, Ea, Ee, and production condition; other
+systems are required before making cross-system mechanistic claims.
+
+## P4.8a periodic wrapping
+
+The periodic wrapping analyzer is implemented and its C1 production command
+is documented, but the five-replica C1 wrapping analysis remains pending
+offline. A giant component will not be interpreted as percolation without a
+nonzero periodic winding vector.

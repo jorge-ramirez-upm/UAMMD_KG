@@ -8,6 +8,7 @@ import csv
 import json
 import math
 import statistics
+import sys
 import tempfile
 from pathlib import Path
 
@@ -18,7 +19,7 @@ QUANTILES = (0.50, 0.75, 0.90, 0.95, 0.99, 0.995)
 KINDS = ('multiplicity_only', 'walking', 'hop')
 
 
-def read_com(path):
+def read_com(path, progress=None):
     frames = collections.defaultdict(dict)
     with open(path, encoding='utf-8') as source:
         if source.readline().strip() != '# step time molecule_id com_x com_y com_z':
@@ -26,6 +27,9 @@ def read_com(path):
         for line in source:
             step, time, star, x, y, z = line.split()
             frames[int(step)][int(star)] = (float(time), float(x), float(y), float(z))
+            if progress and len(frames) % progress[0] == 0 and star == min(frames[int(step)]):
+                print('{}: COM frames={} step={} time={:.6g}'.format(
+                    progress[1], len(frames), step, float(time)), file=sys.stderr, flush=True)
     steps = sorted(frames)
     if not steps or any(set(frames[s]) != set(frames[steps[0]]) for s in steps):
         raise ValueError('{}: incomplete COM frames'.format(path))
@@ -45,14 +49,17 @@ def displacement(steps, frames, star, event_step, half_window, dt):
     return before, after, first[0], second[0], math.sqrt(squared), squared
 
 
-def lag_statistics(steps, frames, lag, stars, dt, reservoir_size=100000):
+def lag_statistics(steps, frames, lag, stars, dt, reservoir_size=100000, progress=None):
     """Stream exact-lag COM displacements, retaining only a bounded quantile sample."""
     step_lag = round(lag / dt)
     step_set = set(steps)
     count = 0
     squared_sum = 0.0
     reservoir = []
-    for step in steps:
+    for index, step in enumerate(steps, 1):
+        if progress and index % progress[0] == 0:
+            print('{}: lag={} origins={}/{}'.format(progress[1], lag, index, len(steps)),
+                  file=sys.stderr, flush=True)
         if step + step_lag not in step_set:
             continue
         for star in stars:
@@ -184,12 +191,12 @@ def system_metadata(system_path, event_metadata, system):
     return result
 
 
-def classify(prefix, system, half_windows):
+def classify(prefix, system, half_windows, progress=None):
     metadata, events = read_events(prefix + '.events', system)
     restart = metadata['input_file'].replace('.restart.lammpsdat', '.assoc_restart')
     initial = read_restart(restart, system, metadata)
     validate_topology(prefix + '.topology', initial, events, system)
-    steps, frames = read_com(prefix + '.com_trajectory')
+    steps, frames = read_com(prefix + '.com_trajectory', progress)
     neighbors, multiplicity = initialize(initial, system)
     grouped = collections.defaultdict(list)
     for event in events:
@@ -330,10 +337,11 @@ def kaplan_meier(durations):
     return result
 
 
-def analyze(prefix, system, half_windows):
-    metadata, episodes, event_rows, steps, frames = classify(prefix, system, half_windows)
+def analyze(prefix, system, half_windows, progress=None):
+    metadata, episodes, event_rows, steps, frames = classify(prefix, system, half_windows, progress)
     lags = sorted({row['total_lag'] for row in event_rows})
-    unconditional = {lag: lag_statistics(steps, frames, lag, system['stars'], metadata['dt'])
+    unconditional = {lag: lag_statistics(steps, frames, lag, system['stars'], metadata['dt'],
+                                         progress=progress)
                      for lag in lags}
     provenance_path = metadata['input_file'].replace('.restart.lammpsdat', '.restart.lammpsdat')
     return metadata, episodes, event_rows, unconditional, system_metadata(provenance_path, metadata, system)
@@ -393,6 +401,7 @@ def main():
     parser.add_argument('--system')
     parser.add_argument('--output-prefix')
     parser.add_argument('--windows', type=float, nargs='+', default=(100, 200, 500, 1000))
+    parser.add_argument('--progress-interval', type=int, default=100)
     parser.add_argument('--self-test', action='store_true')
     parser.add_argument('prefixes', nargs='*')
     arguments = parser.parse_args()
@@ -401,6 +410,8 @@ def main():
         return
     if not arguments.system or not arguments.output_prefix or not arguments.prefixes:
         parser.error('--system, --output-prefix, and prefixes are required')
+    if arguments.progress_interval <= 0:
+        parser.error('--progress-interval must be positive')
     system = read_system(arguments.system, 2)
     all_events, all_displacements = [], []
     unconditional_rows, unconditional_quantiles = [], collections.defaultdict(list)
@@ -408,7 +419,11 @@ def main():
     duration_records = []
     quantiles_by_replica = collections.defaultdict(dict)
     for replica, prefix in enumerate(arguments.prefixes, 1):
-        metadata, episodes, event_rows, unconditional, provenance = analyze(prefix, system, arguments.windows)
+        progress = (arguments.progress_interval, 'P4.7b replica {}/{}'.format(
+            replica, len(arguments.prefixes)))
+        print('{}: starting {}'.format(progress[1], prefix), file=sys.stderr, flush=True)
+        metadata, episodes, event_rows, unconditional, provenance = analyze(
+            prefix, system, arguments.windows, progress)
         duration = (metadata['total_requested_steps'] - metadata['start_step']) * metadata['dt']
         duration_records.append((replica, duration))
         validate_replica_durations(duration_records)
