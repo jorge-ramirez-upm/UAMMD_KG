@@ -152,9 +152,20 @@ metadata preserved.
 
 ## P4.8a status
 
-The periodic wrapping analyzer and deterministic graph tests are implemented.
-It reports winding by Cartesian direction, wrapping-cluster fractions,
-non-wrapping component sizes, and finite-cluster susceptibility. The five
-existing C1 trajectories remain to be processed offline. P4.8b should use
-`P_wrap`, rather than giant-component fraction alone, to compare systems and
-bracket a finite-size percolation crossover.
+P4.8a is closed: the five existing C1 trajectories wrap in all three
+directions in every sampled frame. The analyzer reports winding by Cartesian
+direction, wrapping-cluster fractions, non-wrapping component sizes, and
+finite-cluster susceptibility. P4.8b should use `P_wrap`, rather than
+giant-component fraction alone, to compare systems and bracket a finite-size
+percolation crossover.
+
+## P4.8b adaptive Ee search
+
+- P4.8b.1: adaptive persistent search infrastructure and trial provenance.
+- P4.8b.2: configurable Ea-invariance validation before accelerated chemistry
+  is treated as equilibrium-valid.
+- P4.8b.3: first Ee bracket for one architecture/density.
+- P4.8b.4: targeted bidirectional continuation and equilibration check.
+- P4.8b.5: extend brackets to neighboring architectures and densities.
+
+No P4.8b.2 simulation is started automatically.

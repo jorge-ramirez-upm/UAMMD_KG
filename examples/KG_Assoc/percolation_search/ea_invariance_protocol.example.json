@@ -1,0 +1,30 @@
+{
+  "purpose": "Validate that accelerated chemistry changes kinetics without changing equilibrium topology.",
+  "system_label": "replace-me",
+  "Ee": "choose near the finite-box wrapping crossover",
+  "nu0": 20.0,
+  "Ea_values": [2.0, 4.0, 6.0],
+  "Ea_values_are_configurable_not_mandatory": true,
+  "replica_count": "configure",
+  "equilibrium_observables": [
+    "P_wrap_any",
+    "P_wrap_x",
+    "P_wrap_y",
+    "P_wrap_z",
+    "P_wrap_xyz",
+    "mean_wrapping_fraction",
+    "mean_largest_component_fraction",
+    "temporary_bonds",
+    "inter_bond_fraction",
+    "intra_bond_fraction",
+    "mean_k_neighbor",
+    "isolated_star_fraction",
+    "finite_cluster_susceptibility"
+  ],
+  "kinetic_diagnostics": [
+    "temporary_bond_lifetime_scale",
+    "accepted_reaction_rate"
+  ],
+  "pass_interpretation": "Static/network observables are compatible within replica uncertainty while kinetic diagnostics may differ.",
+  "failure_interpretation": "Systematic Ea dependence in static topology means accelerated-Ea search is scientifically unvalidated."
+}

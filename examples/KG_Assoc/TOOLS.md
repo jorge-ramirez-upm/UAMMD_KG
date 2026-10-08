@@ -196,6 +196,51 @@ mismatches fail closed.
 Progress is printed to stderr every 100 synchronized frames by default and is
 controlled with `--progress-interval N`.
 
+### `analysis/plan_p48b_percolation_search.py`
+
+Purpose: persistent, non-executing adaptive Ee bracketing for the finite-box
+wrapping crossover `P_wrap_any ~= 0.5`. It never launches MD. A trial is only
+admitted to a bracket when its equilibration/stationarity status is
+`ADMITTED`; replica-level uncertainty, not pooled frame counts, determines
+whether it is clearly below, clearly above, intermediate, or insufficient.
+
+Inspect the C1 high-side reference and current next action:
+
+```bash
+python3 examples/KG_Assoc/analysis/plan_p48b_percolation_search.py report \
+  --state examples/KG_Assoc/percolation_search/C1/search_state.json \
+  --index examples/KG_Assoc/percolation_search/search_index.csv
+```
+
+Create a new search state with `init`, ingest a completed P4.8a summary with
+`register --summary`, and use `write-request` to create a non-executing JSON
+trial request. The request retains `Ea_search`, `Ea_physical`, `nu0`, run
+class, continuation parent, mandatory re-equilibration, and stationarity
+observables. The existing restart-production script preserves restart
+parameters, so this planner deliberately does not pretend it can switch Ee
+for a continuation run without an approved Ee-switch driver.
+
+For example, after a state exists:
+
+```bash
+python3 examples/KG_Assoc/analysis/plan_p48b_percolation_search.py write-request \
+  --state examples/KG_Assoc/percolation_search/C1/search_state.json \
+  --output examples/KG_Assoc/percolation_search/C1/next_trial_request.json
+```
+
+This produces a provenance/configuration request, not an executable MD job.
+
+`percolation_search/ea_invariance_protocol.example.json` is a configurable
+future Ea-invariance protocol. Mark an accelerated-Ea search as `PASS` only
+after static/network observables are compatible across Ea at replica-level
+uncertainty; kinetic rates/lifetimes may change.
+
+`analysis/compare_p48b_ea_invariance.py` converts a user-prepared JSON list
+of per-Ea replica summaries into a static/kinetic comparison report. It
+reports confidence-interval compatibility and deliberately returns a
+`PASS_CANDIDATE`, not an automatic scientific approval; record the final
+decision with `set-ea-validation` in the search state.
+
 Inputs are matching production prefixes with `.events`, `.topology`, and
 `.com_trajectory`. The analyzer validates every topology frame, groups only
 same-star changes at the same chemistry step, and outward-snaps requested COM

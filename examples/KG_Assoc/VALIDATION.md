@@ -1606,3 +1606,26 @@ deduplication/rejection, and replica statistics. Real C1 execution is kept
 offline because it reads the existing large topology streams.
 Both long-running analyzers report replica, frame/origin progress and sampled
 simulation time to stderr; progress output does not alter CSV or JSON files.
+
+The completed five-replica C1 P4.8a analysis used 3200 synchronized frames
+per replica. All replicas had `P_wrap_any = P_wrap_x = P_wrap_y = P_wrap_z =
+P_wrap_xyz = 1`, with no nonwrapping frames and mean wrapping-cluster fraction
+approximately 0.99474. This validates robust periodic wrapping for this C1
+condition only; it does not locate a crossover in Ee.
+
+### P4.8b adaptive finite-box wrapping search
+
+For fixed architecture, polymer density, temperature, and reaction geometry,
+P4.8b defines `Ee_50` operationally by `P_wrap_any ~= 0.5`. It is a
+finite-box dynamic crossover, not a thermodynamic critical point. The planner
+uses independent replicas as uncertainty units; correlated topology frames are
+only within-replica descriptive support and stationarity diagnostics.
+
+`Ea_search` and `Ea_physical` are distinct state fields. Accelerated-Ea
+screening remains scientifically unvalidated until a configurable same-Ee,
+same-`nu0` comparison shows static topology compatible across Ea while kinetic
+diagnostics may differ. Continuations retain their parent provenance but are
+initializations only: every target Ee requires re-equilibration and block
+stationarity checks before it may update a bracket. Bidirectional continuation
+near a crossover is a convergence check; path dependence first means
+`EQUILIBRATION_NOT_ESTABLISHED`, not thermodynamic hysteresis.

@@ -1,0 +1,73 @@
+{
+  "initial_bounds": {
+    "Ee_high": 8.0,
+    "Ee_low": null
+  },
+  "notes": [
+    "C1 Ee=8 is a high-percolation reference only; it does not locate Ee_50.",
+    "Ee_50 is a finite-box operational P_wrap crossing, not a critical point."
+  ],
+  "protocol": {
+    "Ea_physical": 4.0,
+    "Ea_search": 4.0,
+    "delta_ee_target": 0.5,
+    "ea_invariance_status": "NOT_REQUIRED",
+    "ea_validation_values": [],
+    "expansion_step": 1.0,
+    "max_evaluations": 20,
+    "min_replicas": 2,
+    "nu0": 20.0,
+    "probability_tolerance": 0.05,
+    "reaction_geometry": "r_assoc=1.25; shifted FENE R0=1.5",
+    "run_classes": {
+      "screening": {
+        "production_steps": 0,
+        "replicas": 2,
+        "topology_every": 10000
+      },
+      "threshold": {
+        "production_steps": 0,
+        "replicas": 5,
+        "topology_every": 10000
+      }
+    },
+    "target_probability": 0.5
+  },
+  "schema_version": 1,
+  "system": {
+    "arm_length": 10,
+    "arms_per_star": 4,
+    "box_generation_protocol": "C1 restart-bank / P4.2 production segment",
+    "number_of_stars": 1000,
+    "polymer_density": 0.799986703462,
+    "system_label": "C1",
+    "temperature": 1.0,
+    "total_density": 0.849995628364
+  },
+  "trials": [
+    {
+      "Ee": 8.0,
+      "P_wrap_any": 1.0,
+      "P_wrap_any_ci95_half_width": 0.0,
+      "P_wrap_xyz": 1.0,
+      "analysis_summary": "P4.8a corrected five-replica C1 result",
+      "classification": "CLEARLY_PERCOLATED",
+      "equilibration_status": "ADMITTED",
+      "mean_finite_cluster_susceptibility": null,
+      "mean_largest_component_fraction": null,
+      "mean_wrapping_fraction": 0.99474,
+      "production_duration": 320000.0,
+      "provenance_paths": [
+        "p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000",
+        "p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000",
+        "p42_rheology_pilot/run.RqADk7/C1_e2_s12003_t40000",
+        "p42_rheology_pilot/run.RqADk7/C1_e2_s12004_t40000",
+        "p42_rheology_pilot/run.RqADk7/C1_e2_s12005_t40000"
+      ],
+      "replica_count": 5,
+      "run_class": "threshold",
+      "source": "fresh",
+      "stationarity_blocks": null
+    }
+  ]
+}

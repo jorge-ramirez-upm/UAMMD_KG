@@ -1,0 +1,2 @@
+system_label,arms_per_star,arm_length,polymer_density,Ee_low,Ee_high,Ee_50_estimate,status,state_path
+C1,4,10,0.799986703462,,8.0,,HIGH_SIDE_REFERENCE,examples/KG_Assoc/percolation_search/C1/search_state.json
