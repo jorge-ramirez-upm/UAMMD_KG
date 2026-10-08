@@ -8,6 +8,7 @@ import csv
 import json
 import math
 import statistics
+import tempfile
 from pathlib import Path
 
 from analyze_p45_topology import read_system, topology_frames
@@ -144,7 +145,8 @@ def system_metadata(system_path, event_metadata, system):
         'arm_length': int(values['narm']) if 'narm' in values else None,
         'stickers_per_star': (len(system['stickers']) // len(system['stars'])
                               if system['stars'] else None),
-        'total_polymer_density': None,
+        'total_density': None,
+        'polymer_density': None,
         'Ea': float(event_metadata['Ea']) if 'Ea' in event_metadata else None,
         'Ee': float(event_metadata['Ee']) if 'Ee' in event_metadata else None,
         'nu0': float(event_metadata['nu0']) if 'nu0' in event_metadata else None,
@@ -171,7 +173,14 @@ def system_metadata(system_path, event_metadata, system):
         box = [bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4]]
         result['box_size'] = box
         if 'total_particles' in event_metadata:
-            result['total_polymer_density'] = int(event_metadata['total_particles']) / math.prod(box)
+            volume = math.prod(box)
+            result['total_density'] = int(event_metadata['total_particles']) / volume
+            arms = result['arms_per_star']
+            arm_length = result['arm_length']
+            if arms is not None and arm_length is not None:
+                polymer_particles = result['number_of_stars'] * (1 + arms * arm_length)
+                result['polymer_particles'] = polymer_particles
+                result['polymer_density'] = polymer_particles / volume
     return result
 
 
@@ -261,6 +270,40 @@ def replica_statistics(values):
             'sem': std / math.sqrt(len(values)), 'ci95_half_width': critical * std / math.sqrt(len(values))}
 
 
+def validate_replica_durations(durations):
+    """Reject mixed-duration ensembles before any ensemble statistic is formed."""
+    if not durations:
+        return
+    reference = durations[0][1]
+    inconsistent = [(replica, duration) for replica, duration in durations
+                    if not math.isclose(duration, reference, rel_tol=0.0, abs_tol=1e-9)]
+    if inconsistent:
+        details = ', '.join('replica {}: {}'.format(replica, duration)
+                            for replica, duration in durations)
+        raise ValueError('incompatible replica durations; expected {}: {}'.format(reference, details))
+
+
+def mobility_by_half_window(rows):
+    grouped = collections.defaultdict(list)
+    for row in rows:
+        grouped[(row['replica'], row['type'], row['half_window'])].append(row)
+    result = []
+    for (replica, kind, half_window), values in sorted(grouped.items()):
+        normalized = [row['normalized_squared_displacement'] for row in values
+                      if row['normalized_squared_displacement'] is not None]
+        squared = [row['distance_squared'] for row in values]
+        lags = [row['total_lag'] for row in values]
+        result.append({'replica': replica, 'type': kind, 'half_window': half_window,
+                       'count': len(values), 'actual_lag_min': min(lags),
+                       'actual_lag_max': max(lags), 'mean_r2': statistics.mean(squared),
+                       'mean_normalized_r2': statistics.mean(normalized),
+                       'median_normalized_r2': quantile(normalized, .5),
+                       'q90_normalized_r2': quantile(normalized, .9),
+                       'q95_normalized_r2': quantile(normalized, .95),
+                       'q99_normalized_r2': quantile(normalized, .99)})
+    return result
+
+
 def write_csv(path, rows):
     fields = sorted({key for row in rows for key in row})
     with open(path, 'w', newline='', encoding='utf-8') as output:
@@ -300,6 +343,12 @@ def self_test():
     frames = {0: {1: (0, 0, 0, 0)}, 10: {1: (1, 1, 0, 0)}, 20: {1: (2, 3, 0, 0)}}
     assert displacement([0, 10, 20], frames, 1, 10, 5, 1)[-2:] == (3.0, 9.0)
     assert displacement([0, 10, 20], frames, 1, 0, 10, 1) is None
+    assert displacement([0, 100, 200, 300],
+                        {step: {1: (step, step, 0, 0)} for step in (0, 100, 200, 300)},
+                        1, 100, 100, 1)[0:2] == (0, 200)
+    assert displacement([0, 100, 200, 300],
+                        {step: {1: (step, step, 0, 0)} for step in (0, 100, 200, 300)},
+                        1, 150, 100, 1)[0:2] == (0, 300)
     ballistic = {step: {1: (step, step, 0, 0)} for step in range(4)}
     assert lag_statistics([0, 1, 2, 3], ballistic, 1, (1,), 1)['msd'] == 1.0
     constant = {step: {1: (step, 4, 5, 6)} for step in range(3)}
@@ -307,6 +356,35 @@ def self_test():
     assert quantile([1, 2, 3, 4], .5) == 2.5
     assert empirical_ccdf([1, 2, 3], [1, 2, 4]) == [1.0, 2 / 3, 0.0]
     assert kaplan_meier([(1, True), (2, False)])[-1]['survival'] == 0.5
+    validate_replica_durations([(1, 320000.0), (2, 320000.0)])
+    try:
+        validate_replica_durations([(1, 10000.0), (2, 320000.0)])
+    except ValueError as error:
+        assert 'incompatible replica durations' in str(error)
+    else:
+        raise AssertionError('mixed durations were accepted')
+    mobility = mobility_by_half_window([
+        {'replica': 1, 'type': 'walking', 'half_window': 100.0, 'total_lag': 200.0,
+         'distance_squared': 1.0, 'normalized_squared_displacement': 1.0},
+        {'replica': 1, 'type': 'walking', 'half_window': 100.0, 'total_lag': 300.0,
+         'distance_squared': 2.0, 'normalized_squared_displacement': 2.0}])
+    assert mobility[0]['mean_normalized_r2'] == 1.5
+    assert lag_statistics([0, 10], {0: {1: (0, 0, 0, 0)}, 10: {1: (1, 1, 0, 0)}},
+                          20, (1,), 1)['count'] == 0
+    assert abs(sum((.2, .3, .5)) - 1.0) < 1e-12
+    with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8') as source:
+        source.write('-18.5725 18.5725 xlo xhi\n')
+        source.write('-18.5725 18.5725 ylo yhi\n')
+        source.write('-18.5725 18.5725 zlo zhi\n')
+        source.flush()
+        metadata = system_metadata(source.name,
+                                   {'input_file': 'C1/C1.restart.lammpsdat', 'arms': '4',
+                                    'narm': '10', 'total_particles': '43563', 'Ea': '4',
+                                    'Ee': '8', 'nu0': '20', 'Nevery': '100',
+                                    'r_assoc': '1.25', 'T': '1', 'dt': .01, 'seed': 1},
+                                   {'stars': tuple(range(1000)), 'stickers': set(range(4000))})
+        assert math.isclose(metadata['total_density'], 0.849995628364, rel_tol=1e-8)
+        assert math.isclose(metadata['polymer_density'], 0.799986703462, rel_tol=1e-8)
     print('P4.7B SELF_TEST PASS')
 
 
@@ -327,8 +405,13 @@ def main():
     all_events, all_displacements = [], []
     unconditional_rows, unconditional_quantiles = [], collections.defaultdict(list)
     summaries, metadata_by_replica, survival_rows = [], {}, []
+    duration_records = []
+    quantiles_by_replica = collections.defaultdict(dict)
     for replica, prefix in enumerate(arguments.prefixes, 1):
         metadata, episodes, event_rows, unconditional, provenance = analyze(prefix, system, arguments.windows)
+        duration = (metadata['total_requested_steps'] - metadata['start_step']) * metadata['dt']
+        duration_records.append((replica, duration))
+        validate_replica_durations(duration_records)
         for row in episodes:
             row.update(replica=replica)
         for row in event_rows:
@@ -342,11 +425,26 @@ def main():
             unconditional_quantiles[lag].append({
                 'q90': quantile(distances, .9), 'q95': quantile(distances, .95),
                 'q99': quantile(distances, .99)})
+            quantiles_by_replica[replica][lag] = {
+                'q90': quantile(distances, .9), 'q95': quantile(distances, .95),
+                'q99': quantile(distances, .99)}
+        for row in event_rows:
+            baseline = unconditional.get(row['total_lag'])
+            if baseline is None or not baseline['msd']:
+                row['normalized_squared_displacement'] = None
+                row['unconditional_q90'] = None
+                row['unconditional_q95'] = None
+                row['unconditional_q99'] = None
+            else:
+                row['normalized_squared_displacement'] = row['distance_squared'] / baseline['msd']
+                thresholds = quantiles_by_replica[replica][row['total_lag']]
+                row['unconditional_q90'] = thresholds['q90']
+                row['unconditional_q95'] = thresholds['q95']
+                row['unconditional_q99'] = thresholds['q99']
         all_events.extend(episodes)
         all_displacements.extend(event_rows)
         metadata_by_replica[replica] = provenance
-        summary = {'replica': replica,
-                   'duration': (metadata['total_requested_steps'] - metadata['start_step']) * metadata['dt']}
+        summary = {'replica': replica, 'duration': duration}
         for kind in KINDS:
             kind_rows = [row for row in episodes if row['type'] == kind]
             summary[kind + '_count'] = len(kind_rows)
@@ -373,6 +471,15 @@ def main():
     write_csv(arguments.output_prefix + '.episodes.csv', all_events)
     write_csv(arguments.output_prefix + '.displacements.csv', all_displacements)
     write_csv(arguments.output_prefix + '.unconditional.csv', unconditional_rows)
+    mobility_rows = mobility_by_half_window(all_displacements)
+    mobility_ensemble = {}
+    for kind in KINDS:
+        for half_window in arguments.windows:
+            values = [row['mean_normalized_r2'] for row in mobility_rows
+                      if row['type'] == kind and row['half_window'] == half_window]
+            if values:
+                mobility_ensemble['{}_{}'.format(kind, half_window)] = replica_statistics(values)
+    write_csv(arguments.output_prefix + '.mobility_by_half_window.csv', mobility_rows)
     quantile_rows = []
     lags = sorted({row['total_lag'] for row in all_displacements})
     for replica in range(1, len(summaries) + 1):
@@ -436,21 +543,45 @@ def main():
     displacements_by_lag_kind = collections.defaultdict(list)
     for row in all_displacements:
         displacements_by_lag_kind[(row['total_lag'], row['type'])].append(row)
-    for lag in lags:
-        thresholds = {name: statistics.mean(row[name] for row in unconditional_quantiles[lag])
-                      for name in ('q90', 'q95', 'q99')}
-        classified = [row for kind in KINDS for row in displacements_by_lag_kind[(lag, kind)]]
-        for threshold_name, threshold in thresholds.items():
-            tail = [row for row in classified if row['distance'] > threshold]
-            for kind in KINDS:
-                kind_all = displacements_by_lag_kind[(lag, kind)]
-                tail_kind = [row for row in kind_all if row['distance'] > threshold]
-                tail_rows.append({'total_lag': lag, 'threshold': threshold_name, 'threshold_radius': threshold,
-                                  'type': kind, 'class_count': len(kind_all), 'tail_count': len(tail_kind),
-                                  'P_tail_given_class': len(tail_kind) / len(kind_all) if kind_all else None,
-                                  'fraction_of_tail': len(tail_kind) / len(tail) if tail else None,
-                                  'tail_count_all_classes': len(tail)})
+    for replica in range(1, len(summaries) + 1):
+        for lag in sorted({row['total_lag'] for row in all_displacements if row['replica'] == replica}):
+            thresholds = quantiles_by_replica[replica][lag]
+            classified = [row for kind in KINDS for row in displacements_by_lag_kind[(lag, kind)]
+                          if row['replica'] == replica]
+            for threshold_name, threshold in thresholds.items():
+                tail = [row for row in classified if row['distance'] > threshold]
+                for kind in KINDS:
+                    kind_all = [row for row in classified if row['type'] == kind]
+                    tail_kind = [row for row in kind_all if row['distance'] > threshold]
+                    tail_rows.append({'replica': replica, 'total_lag': lag,
+                                      'threshold': threshold_name, 'threshold_radius': threshold,
+                                      'type': kind, 'class_count': len(kind_all),
+                                      'tail_count': len(tail_kind),
+                                      'P_tail_given_class': len(tail_kind) / len(kind_all) if kind_all else None,
+                                      'fraction_of_tail': len(tail_kind) / len(tail) if tail else None,
+                                      'tail_count_all_classes': len(tail)})
     write_csv(arguments.output_prefix + '.displacement_tail.csv', tail_rows)
+
+    requested_tail_rows = []
+    for replica in range(1, len(summaries) + 1):
+        for half_window in arguments.windows:
+            events = [row for row in all_displacements
+                      if row['replica'] == replica and row['half_window'] == half_window]
+            for threshold_name in ('q90', 'q95', 'q99'):
+                tail = [row for row in events
+                        if row['distance'] > row['unconditional_' + threshold_name]]
+                for kind in KINDS:
+                    kind_all = [row for row in events if row['type'] == kind]
+                    tail_kind = [row for row in kind_all
+                                 if row['distance'] > row['unconditional_' + threshold_name]]
+                    requested_tail_rows.append({
+                        'replica': replica, 'half_window': half_window,
+                        'threshold': threshold_name, 'type': kind,
+                        'class_count': len(kind_all), 'tail_count': len(tail_kind),
+                        'P_tail_given_class': len(tail_kind) / len(kind_all) if kind_all else None,
+                        'fraction_of_tail': len(tail_kind) / len(tail) if tail else None,
+                        'tail_count_all_classes': len(tail)})
+    write_csv(arguments.output_prefix + '.tail_by_half_window.csv', requested_tail_rows)
     all_distances = [row['distance'] for row in all_displacements]
     if all_distances:
         radius_min, radius_max = min(all_distances), max(all_distances)
@@ -472,10 +603,12 @@ def main():
     ensemble = {key: replica_statistics([row[key] for row in summaries])
                 for key in summaries[0] if key not in ('replica', 'duration')}
     summary = {'replica_summaries': summaries, 'ensemble_replica_statistics': ensemble,
+               'mobility_enhancement_ensemble_statistics': mobility_ensemble,
                'system_metadata': metadata_by_replica,
                'grouping': 'same star and chemistry step only',
                'half_window_definition': 'event_step +/- half_window, outward-snapped to sampled COM frames',
                'total_lag_definition': 'after_time - before_time; no interpolation or restart stitching',
+               'primary_mobility_definition': 'event-wise distance_squared / unconditional MSD at the same replica and actual total_lag, grouped by requested half_window',
                'uncertainty': 'replica-level Student-t intervals; event rows are descriptive support',
                'topology_validation': 'all synchronized frames'}
     with open(arguments.output_prefix + '.summary.json', 'w', encoding='utf-8') as output:

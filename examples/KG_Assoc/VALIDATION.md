@@ -1573,3 +1573,8 @@ The analyzer self-test covers half-window semantics, ballistic and constant
 COM trajectories, exact-lag lookup, quantiles, CCDF/tail accounting,
 right-censoring, and replica-level uncertainty conventions. Five-replica C1
 execution is an allowed analysis step, not an MD simulation.
+
+The corrected C1 ensemble must use the two `run.MBA5fA` prefixes for seeds
+12001--12002 and the three `run.RqADk7` prefixes for seeds 12003--12005.
+The analyzer rejects unequal requested durations, including a mixed 10,000 /
+320,000-time-unit ensemble, before calculating ensemble statistics.

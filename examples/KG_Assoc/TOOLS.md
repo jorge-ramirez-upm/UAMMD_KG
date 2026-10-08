@@ -143,6 +143,28 @@ reconnection) before joining them to a segment-local COM trajectory.
 Example: `python3 examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py \
 --system SYSTEM --output-prefix p47 RUN_PREFIX ...`
 
+Correct five-replica C1 command:
+
+```bash
+python3 examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py \
+  --system examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat \
+  --output-prefix p47_c1_p47b_32m \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000 \
+  p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12003_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12004_t40000 \
+  p42_rheology_pilot/run.RqADk7/C1_e2_s12005_t40000
+```
+
+The analyzer rejects mixed requested durations before ensemble statistics.
+The primary comparison is in `.mobility_by_half_window.csv`: each event's
+squared displacement is divided by the unconditional MSD at that event's
+same replica and actual snapped `total_lag`, then grouped by requested
+`half_window`. `.tail_by_half_window.csv` applies the same event-wise actual
+lag matching to q90/q95/q99 thresholds. Actual-lag distributions and tails
+remain secondary diagnostics. Metadata uses separate `total_density` and
+`polymer_density` fields.
+
 Inputs are matching production prefixes with `.events`, `.topology`, and
 `.com_trajectory`. The analyzer validates every topology frame, groups only
 same-star changes at the same chemistry step, and outward-snaps requested COM
@@ -154,7 +176,8 @@ windows to valid frames. `half_window=100` means the event-centered interval
 P4.7b also writes compact per-replica `.unconditional.csv`,
 `.displacement_quantiles.csv`,
 `.displacement_tail.csv`, `.hop_duration_survival.csv`,
-`.hop_duration_quantiles.csv`, and `.hop_duration_displacement.csv`.
+`.hop_duration_quantiles.csv`, `.hop_duration_displacement.csv`,
+`.mobility_by_half_window.csv`, and `.tail_by_half_window.csv`.
 Replica uncertainty is calculated across independent prefixes; event rows are
 descriptive support only. The JSON `system_metadata` block records available
 architecture, interaction, kinetic, integration, box, density, and seed

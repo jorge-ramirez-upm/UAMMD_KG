@@ -66,20 +66,12 @@ other association strengths remain open.
 
 ## Topology-defined walking and hopping
 
-Grouping only transitions of the same star in the same chemistry step, walking
-events occur at about 3.6 whole-system star-events per time unit, compared with
-about 0.20 multiplicity-only events and 0.0175 hops. Hops are therefore about
-0.45% of classified transitions. Completed hop durations have median 25--27
-time units but a broad long tail. At symmetric, outward-snapped COM windows,
-hops have larger mean squared displacement than walking (about 3.2 versus 2.7
-at 100 and 13.3 versus 9.6 at 1000). These are event-conditioned descriptive
-means; five independent segments, not millions of correlated events, define
-scientific uncertainty.
+The earlier P4.7 quantitative paragraph is withdrawn pending re-analysis. The
+documented five-replica command accidentally mixed two short 10,000-time-unit
+segments with three 32M segments, so those numbers are not a valid C1 ensemble
+result. The corrected analyzer rejects such mixed-duration input.
 
-These windows are half-windows: the measured total lag is
-`after_time-before_time`, normally twice the half-window for the current COM
-sampling. The P4.7b matched-lag unconditional baseline, displacement tails,
-and censoring-aware duration/displacement analysis are implemented but have
-not been executed in this checkout because the existing multi-million-row COM
-inputs exceed the interactive execution budget. No new C1 scientific
-conclusions are recorded here until that offline execution is inspected.
+The corrected C1 analysis will use requested half-windows as its primary
+comparison and normalize each event by the unconditional MSD at its own
+replica's actual snapped total lag. No corrected C1 conclusions are recorded
+until the five true 32M replicas have been analyzed and inspected.

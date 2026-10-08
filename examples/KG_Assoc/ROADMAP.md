@@ -143,7 +143,9 @@ The analyzer and lightweight `plot_analysis.py p47` mode now support explicit
 half-window/total-lag semantics, matched-lag unconditional COM baselines,
 per-replica displacement quantiles and empirical tails, censoring-aware hop
 survival, duration/displacement bins, and provenance metadata for later
-cross-system comparison. The existing five 32M C1 prefixes remain to be
-executed offline; no new MD is required. The next scientific question after
-that report is repeating the same analysis for a second architecture or
+cross-system comparison. Ensemble input durations are now fail-closed, and
+the primary mobility/tail summaries use requested half-windows with event-wise
+actual-lag matching. The corrected five 32M C1 prefixes remain to be executed
+offline; no new MD is required. The next scientific question after that report
+is repeating the same analysis for a second architecture or
 interaction/kinetic condition with its metadata preserved.

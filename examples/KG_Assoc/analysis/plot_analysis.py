@@ -337,26 +337,32 @@ def plot_topology(plt, arguments):
 def plot_p47(plt, arguments):
     summary_path = Path(arguments.file)
     prefix = summary_path.with_suffix('.summary.json') if summary_path.suffix != '.json' else summary_path
-    with open(prefix, encoding='utf-8') as source:
-        summary = json.load(source)
-    stats = summary['ensemble_replica_statistics']
-    lags = sorted(float(key.rsplit('_', 1)[1]) for key in stats if key.startswith('unconditional_msd_'))
     figures = []
+    mobility_path = prefix.with_name(prefix.name.replace('.summary', '.mobility_by_half_window'))
+    mobility = read_csv(mobility_path, ('replica', 'type', 'half_window', 'mean_normalized_r2'))
     figure, axis = plt.subplots()
     for kind, label in (('multiplicity_only', 'multiplicity-only'), ('walking', 'walking'), ('hop', 'hopping')):
-        values = [stats['{}_msd_{}'.format(kind, int(lag))]['mean'] for lag in lags]
-        axis.plot(lags, values, marker='o', label=label)
-    axis.plot(lags, [stats['unconditional_msd_{}'.format(int(lag))]['mean'] for lag in lags],
-              marker='o', label='unconditional')
-    axis.set(xlabel='total lag', ylabel='conditioned COM MSD', title='P4.7b conditioned motion')
+        group = [row for row in mobility if row['type'] == kind and row['replica'] != 'ensemble']
+        if group:
+            axis.plot(column(group, 'half_window'), column(group, 'mean_normalized_r2'),
+                      marker='o', label=label)
+    axis.axhline(1.0, color='0.5', linestyle='--')
+    axis.set(xlabel='requested half-window', ylabel='mobility enhancement',
+             title='P4.7b mobility by requested half-window')
     axis.legend(); axis.grid(True, alpha=.25); figures.append(figure)
 
+    tail_path = prefix.with_name(prefix.name.replace('.summary', '.tail_by_half_window'))
+    tail = read_csv(tail_path, ('replica', 'type', 'half_window', 'threshold',
+                                'P_tail_given_class'))
+    threshold = arguments.threshold
     figure, axis = plt.subplots()
     for kind, label in (('multiplicity_only', 'multiplicity-only'), ('walking', 'walking'), ('hop', 'hopping')):
-        values = [stats['{}_ratio_{}'.format(kind, int(lag))]['mean'] for lag in lags]
-        axis.plot(lags, values, marker='o', label=label)
-    axis.axhline(1.0, color='0.5', linestyle='--')
-    axis.set(xlabel='total lag', ylabel='ratio to unconditional MSD', title='P4.7b motion ratios')
+        group = [row for row in tail if row['type'] == kind and row['threshold'] == threshold]
+        if group:
+            axis.plot(column(group, 'half_window'), column(group, 'P_tail_given_class'),
+                      marker='o', label=label)
+    axis.set(xlabel='requested half-window', ylabel='P(large displacement | class)',
+             title='P4.7b {} tail enrichment'.format(threshold))
     axis.legend(); axis.grid(True, alpha=.25); figures.append(figure)
 
     displacement_path = prefix.with_name(prefix.name.replace('.summary', '.displacements'))
@@ -502,6 +508,7 @@ def main():
     p47_parser = commands.add_parser('p47')
     common_options(p47_parser, 'linear', 'linear')
     p47_parser.add_argument('--lag', type=float)
+    p47_parser.add_argument('--threshold', choices=('q90', 'q95', 'q99'), default='q95')
     arguments = parser.parse_args()
     if arguments.self_test:
         self_test()
