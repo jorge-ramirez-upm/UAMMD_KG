@@ -163,7 +163,8 @@ percolation crossover.
 
 - P4.8b.1: adaptive persistent search infrastructure and trial provenance
   (complete).
-- P4.8b.2: downward, piecewise-constant Ee staircase scout (next).
+- P4.8b.2: automated downward, piecewise-constant Ee staircase scout (next;
+  five-window fail-closed re-equilibration gate).
 - P4.8b.3: independent fixed-Ee crossover confirmation.
 - P4.8b.4: Ea-invariance validation near the crossover.
 - P4.8b.5: accelerated-search validation.
