@@ -137,3 +137,13 @@ Later work: offline COM MSD, offline COM `S(q,t)`, bond dynamics,
 topology/percolation, and C5/C6.
 
 Do not start long production before P4.0/P4.1 validation.
+## P4.7b status
+
+The analyzer and lightweight `plot_analysis.py p47` mode now support explicit
+half-window/total-lag semantics, matched-lag unconditional COM baselines,
+per-replica displacement quantiles and empirical tails, censoring-aware hop
+survival, duration/displacement bins, and provenance metadata for later
+cross-system comparison. The existing five 32M C1 prefixes remain to be
+executed offline; no new MD is required. The next scientific question after
+that report is repeating the same analysis for a second architecture or
+interaction/kinetic condition with its metadata preserved.

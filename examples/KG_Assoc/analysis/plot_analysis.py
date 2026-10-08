@@ -3,6 +3,7 @@
 
 import argparse
 import csv
+import json
 import math
 import tempfile
 from pathlib import Path
@@ -333,6 +334,58 @@ def plot_topology(plt, arguments):
     return plot_topology_distribution(plt, rows, kind, arguments)
 
 
+def plot_p47(plt, arguments):
+    summary_path = Path(arguments.file)
+    prefix = summary_path.with_suffix('.summary.json') if summary_path.suffix != '.json' else summary_path
+    with open(prefix, encoding='utf-8') as source:
+        summary = json.load(source)
+    stats = summary['ensemble_replica_statistics']
+    lags = sorted(float(key.rsplit('_', 1)[1]) for key in stats if key.startswith('unconditional_msd_'))
+    figures = []
+    figure, axis = plt.subplots()
+    for kind, label in (('multiplicity_only', 'multiplicity-only'), ('walking', 'walking'), ('hop', 'hopping')):
+        values = [stats['{}_msd_{}'.format(kind, int(lag))]['mean'] for lag in lags]
+        axis.plot(lags, values, marker='o', label=label)
+    axis.plot(lags, [stats['unconditional_msd_{}'.format(int(lag))]['mean'] for lag in lags],
+              marker='o', label='unconditional')
+    axis.set(xlabel='total lag', ylabel='conditioned COM MSD', title='P4.7b conditioned motion')
+    axis.legend(); axis.grid(True, alpha=.25); figures.append(figure)
+
+    figure, axis = plt.subplots()
+    for kind, label in (('multiplicity_only', 'multiplicity-only'), ('walking', 'walking'), ('hop', 'hopping')):
+        values = [stats['{}_ratio_{}'.format(kind, int(lag))]['mean'] for lag in lags]
+        axis.plot(lags, values, marker='o', label=label)
+    axis.axhline(1.0, color='0.5', linestyle='--')
+    axis.set(xlabel='total lag', ylabel='ratio to unconditional MSD', title='P4.7b motion ratios')
+    axis.legend(); axis.grid(True, alpha=.25); figures.append(figure)
+
+    displacement_path = prefix.with_name(prefix.name.replace('.summary', '.displacements'))
+    rows = read_csv(displacement_path, ('type', 'total_lag', 'distance'))
+    lag = arguments.lag or max(float(row['total_lag']) for row in rows)
+    selected = [row for row in rows if math.isclose(float(row['total_lag']), lag)]
+    figure, axis = plt.subplots()
+    for kind, label in (('multiplicity_only', 'multiplicity-only'), ('walking', 'walking'), ('hop', 'hopping')):
+        values = sorted(float(row['distance']) for row in selected if row['type'] == kind)
+        if values:
+            axis.step(values, [(len(values) - index) / len(values) for index in range(len(values))],
+                      where='post', label=label)
+    axis.set(xlabel='|Delta R|', ylabel='P(|Delta R| >= r)', yscale='log',
+             title='P4.7b displacement CCDF, total lag {}'.format(lag))
+    axis.legend(); axis.grid(True, alpha=.25); figures.append(figure)
+
+    survival_path = prefix.with_name(prefix.name.replace('.summary', '.hop_duration_survival'))
+    survival = read_csv(survival_path, ('duration', 'survival', 'replica'))
+    figure, axis = plt.subplots()
+    for replica in sorted(set(row['replica'] for row in survival)):
+        group = [row for row in survival if row['replica'] == replica]
+        axis.step(column(group, 'duration'), column(group, 'survival'), where='post',
+                  label='replica {}'.format(replica))
+    axis.set(xlabel='hop isolation duration', ylabel='survival', xscale='log', yscale='log',
+             title='P4.7b hop-duration survival')
+    axis.legend(); axis.grid(True, alpha=.25); figures.append(figure)
+    return figures
+
+
 def self_test():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -446,13 +499,16 @@ def main():
     topology_parser.add_argument('--kind', choices=('frames',) + tuple(TOPOLOGY_DISTRIBUTIONS))
     topology_parser.add_argument('--metric', nargs='+')
     topology_parser.add_argument('--counts', action='store_true')
+    p47_parser = commands.add_parser('p47')
+    common_options(p47_parser, 'linear', 'linear')
+    p47_parser.add_argument('--lag', type=float)
     arguments = parser.parse_args()
     if arguments.self_test:
         self_test()
         print('PLOT_ANALYSIS SELF_TEST PASS')
         return
     if not arguments.command:
-        parser.error('choose fsqt, rheology, diffusion, or topology')
+        parser.error('choose fsqt, rheology, diffusion, topology, or p47')
     if arguments.dpi <= 0:
         parser.error('--dpi must be positive')
     try:
@@ -463,6 +519,8 @@ def main():
             figures = plot_rheology(plt, arguments)
         elif arguments.command == 'diffusion':
             figures = plot_diffusion(plt, arguments)
+        elif arguments.command == 'p47':
+            figures = plot_p47(plt, arguments)
         else:
             figures, output_suffixes = plot_topology(plt, arguments)
             save_or_show(plt, figures, arguments.output, arguments.no_show, arguments.dpi,

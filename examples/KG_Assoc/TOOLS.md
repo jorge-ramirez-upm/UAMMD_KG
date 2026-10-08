@@ -146,7 +146,19 @@ Example: `python3 examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py \
 Inputs are matching production prefixes with `.events`, `.topology`, and
 `.com_trajectory`. The analyzer validates every topology frame, groups only
 same-star changes at the same chemistry step, and outward-snaps requested COM
-windows to valid frames. Never stitch restart segments.
+windows to valid frames. `half_window=100` means the event-centered interval
+`event_time-100` to `event_time+100`; `total_lag` is the actual
+`after_time-before_time` (normally 200 for the current sampling). The legacy
+`window` column is retained as an alias. Never stitch restart segments.
+
+P4.7b also writes compact per-replica `.unconditional.csv`,
+`.displacement_quantiles.csv`,
+`.displacement_tail.csv`, `.hop_duration_survival.csv`,
+`.hop_duration_quantiles.csv`, and `.hop_duration_displacement.csv`.
+Replica uncertainty is calculated across independent prefixes; event rows are
+descriptive support only. The JSON `system_metadata` block records available
+architecture, interaction, kinetic, integration, box, density, and seed
+metadata without guessing unavailable values.
 
 ### `analysis/analyze_p46_bond_dynamics.py`
 

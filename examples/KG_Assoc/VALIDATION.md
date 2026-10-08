@@ -1542,3 +1542,34 @@ The existing E2 diagnostic analyzer remains descriptive and fail-closed; no
 automatic equilibrium threshold is implied by this closure. C5/C6 E2 remain
 unvalidated. Rigorous PBC wrapping/percolation and production observables
 remain pending.
+### P4.7b walking/hopping validation conventions
+
+The P4.7b event displacement is symmetric about the event. A requested
+half-window is not a total lag: the output reports both `half_window` and the
+actual sampled `total_lag = after_time - before_time`. COM frames are outward
+snapped independently on each side, with no interpolation and no restart
+stitching. The unconditional baseline uses every valid star and segment-local
+time origin at exactly the same sampled lag.
+
+Its MSD and support count are accumulated exactly in one pass. The
+unconditional q90/q95/q99 thresholds use a deterministic bounded reservoir
+(100,000 distances per lag) rather than retaining every star/origin row; this
+keeps memory bounded while making the approximation reproducible. Event-
+conditioned quantiles use the retained event records.
+
+Displacement quantiles and tail probabilities are empirical descriptions.
+Their uncertainty is summarized across independent replicas, never inferred
+from the number of correlated event rows. Tail tables report both
+`P_tail_given_class` and `fraction_of_tail`, which answer different questions.
+
+Hop isolation survival uses Kaplan--Meier bookkeeping: completed episodes are
+events and terminal isolated episodes are right-censored observations retained
+in the risk set. Censored durations are excluded from completed-duration
+quantiles and maxima. Duration/displacement tables use logarithmic bins and
+the same outward-snapped event displacement convention; they do not imply
+continuous-time resolution or a fitted scaling law.
+
+The analyzer self-test covers half-window semantics, ballistic and constant
+COM trajectories, exact-lag lookup, quantiles, CCDF/tail accounting,
+right-censoring, and replica-level uncertainty conventions. Five-replica C1
+execution is an allowed analysis step, not an MD simulation.

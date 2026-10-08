@@ -75,3 +75,11 @@ hops have larger mean squared displacement than walking (about 3.2 versus 2.7
 at 100 and 13.3 versus 9.6 at 1000). These are event-conditioned descriptive
 means; five independent segments, not millions of correlated events, define
 scientific uncertainty.
+
+These windows are half-windows: the measured total lag is
+`after_time-before_time`, normally twice the half-window for the current COM
+sampling. The P4.7b matched-lag unconditional baseline, displacement tails,
+and censoring-aware duration/displacement analysis are implemented but have
+not been executed in this checkout because the existing multi-million-row COM
+inputs exceed the interactive execution budget. No new C1 scientific
+conclusions are recorded here until that offline execution is inspected.
