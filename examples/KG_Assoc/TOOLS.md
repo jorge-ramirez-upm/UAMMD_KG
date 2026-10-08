@@ -310,14 +310,16 @@ stationarity, measurement, and wrapping-analysis handoffs. Initialize two
 independent Ee=8 parent restart prefixes, then use `run-next --execute` on the
 dedicated host. A run consists of exactly five topology-only 100,000-step
 re-equilibration windows (500,000 steps total), evaluates the existing P4.8a
-wrapping analyzer for each window, admits measurement only if both chains pass
-the deterministic stationarity gate, then runs a 320,000-step measurement and
+wrapping analyzer for each window, and admits measurement only if the final
+three windows of both chains pass the deterministic stationarity gate. It then
+runs a 320,000-step measurement and
 the existing two-replica P4.8a analysis. Without `--execute`, it prints the
 commands only and starts no subprocesses.
 
 The driver descends by 0.5 only if both chain-level P_wrap values and the
 two-replica lower CI are above 0.5. Otherwise it writes a non-final scout
-bracket and stops. It fails closed on unequal chain Ee values, missing output,
+bracket and stops. It fails closed on unequal chain Ee values, existing partial
+output/analysis, missing output,
 or nonstationarity. Its JSON state retains restart parents, commands, block
 observables, P4.8a summaries, and the stop/bracket status.
 

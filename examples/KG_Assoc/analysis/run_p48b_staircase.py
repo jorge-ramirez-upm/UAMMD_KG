@@ -5,14 +5,15 @@ MD is run only with --execute.  The default prints the next action.
 """
 
 import argparse
-import csv
 import json
 import math
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from plan_p48b_staircase_scout import OBSERVABLES, save_json, stationarity
+from analyze_e2_stationarity import COLUMNS, read_state
 
 
 BLOCK_STEPS = 100000
@@ -29,17 +30,21 @@ def command_text(command):
     return ' '.join(command)
 
 
-def final_state_observables(prefix):
+def window_state_observables(prefix):
+    """Return means over one output segment using named E2 state fields.
+
+    E2 mean_degree is the simple inter-star graph degree, hence P4.5/P4.8's
+    mean_k_neighbor (parallel sticker bonds are not additional neighbors).
+    """
     path = Path(prefix + '.state')
-    with open(path, encoding='utf-8') as source:
-        rows = [line.split() for line in source if line and not line.startswith('#')]
-    if not rows:
-        raise ValueError('{} has no state rows'.format(path))
-    row = rows[-1]
+    _, rows = read_state(path)
     return {
-        'temporary_bonds': float(row[3]), 'intra_bonds': float(row[6]),
-        'inter_bonds': float(row[7]), 'mean_k_neighbor': float(row[13]),
-        'largest_component_fraction': float(row[12]),
+        'temporary_bonds': sum(row['bonds'] for row in rows) / len(rows),
+        'intra_bonds': sum(row['intra'] for row in rows) / len(rows),
+        'inter_bonds': sum(row['inter'] for row in rows) / len(rows),
+        'mean_k_neighbor': sum(row['mean_degree'] for row in rows) / len(rows),
+        'largest_component_fraction': sum(
+            row['largest_cluster_fraction'] for row in rows) / len(rows),
     }
 
 
@@ -67,21 +72,22 @@ def new_state(arguments):
     }
 
 
-def runner_command(state, parent, parent_ee, target_ee, output, block, switch):
+def runner_command(state, parent, parent_ee, target_ee, output, steps, stage, switch):
     protocol = state['protocol']
     command = [state['runner'], '--restart-prefix', parent, '--output', output,
-               '--steps', str(BLOCK_STEPS), '--temperature', str(protocol['temperature']),
+               '--steps', str(steps), '--temperature', str(protocol['temperature']),
                '--Ea', str(protocol['Ea']), '--nu0', str(protocol['nu0']),
                '--Nevery', str(protocol['Nevery']), '--r-assoc', str(protocol['r_assoc']),
                '--dt', str(protocol['dt']), '--diagnostic-every', str(protocol['topology_every']),
                '--com-every', str(protocol['topology_every']), '--frame-every', str(protocol['topology_every']),
-               '--progress-every', str(BLOCK_STEPS), '--topology-only']
+               '--progress-every', str(BLOCK_STEPS), '--topology-only',
+               '--continuation-parent', parent, '--continuation-direction', 'downward',
+               '--continuation-stage', stage,
+               '--reequilibration-steps', str(BLOCK_STEPS * REEQUILIBRATION_BLOCKS),
+               '--measurement-steps', str(MEASUREMENT_STEPS)]
     if switch:
         command += ['--Ee', str(target_ee), '--continuation-ee-parent', str(parent_ee),
-                    '--continuation-ee-target', str(target_ee), '--continuation-parent', parent,
-                    '--continuation-direction', 'downward', '--continuation-stage', 'reequilibration',
-                    '--reequilibration-steps', str(BLOCK_STEPS * REEQUILIBRATION_BLOCKS),
-                    '--measurement-steps', str(MEASUREMENT_STEPS)]
+                    '--continuation-ee-target', str(target_ee)]
     return command
 
 
@@ -92,6 +98,8 @@ def execute(command, enabled):
 
 
 def analyze(state, prefixes, output_prefix, enabled):
+    if enabled:
+        ensure_analysis_fresh(output_prefix)
     command = [sys.executable, state['analyzer'], '--system', state['system'],
                '--output-prefix', output_prefix, *prefixes]
     execute(command, enabled)
@@ -105,6 +113,38 @@ def clearly_high(summary):
     ensemble = summary['ensemble_replica_statistics']['P_wrap_any']
     return all(row['P_wrap_any'] > .5 for row in rows) and (
         ensemble['mean'] - ensemble['ci95_half_width'] > .5)
+
+
+def pwrap_any_from_summary(summary):
+    """Use P4.8's frame-average replica observable without reimplementing it."""
+    rows = summary['replica_summaries']
+    if len(rows) != 1:
+        raise ValueError('a re-equilibration window must have exactly one replica summary')
+    return rows[0]['P_wrap_any']
+
+
+def late_stationarity(blocks, tolerance):
+    """Gate only the final three windows; early switching transients are retained."""
+    if len(blocks) != REEQUILIBRATION_BLOCKS:
+        raise ValueError('expected exactly five re-equilibration windows')
+    return stationarity(blocks[-3:], {
+        'min_reequilibration_blocks': 3,
+        'max_reequilibration_blocks': 3,
+        'relative_drift_tolerance': tolerance})
+
+
+def ensure_fresh(prefix):
+    if any(Path(prefix + suffix).exists() for suffix in
+           ('.state', '.assoc_restart', '.topology', '.com_trajectory')):
+        raise ValueError('existing output {}: interrupted runs require manual recovery; '
+                         'choose a new output directory'.format(prefix))
+
+
+def ensure_analysis_fresh(prefix):
+    if any(Path(prefix + suffix).exists() for suffix in
+           ('.frames.csv', '.replicas.csv', '.summary.json')):
+        raise ValueError('existing analysis {}: interrupted runs require manual recovery; '
+                         'choose a new output directory'.format(prefix))
 
 
 def run_plateau(state, output_dir, enabled):
@@ -122,27 +162,29 @@ def run_plateau(state, output_dir, enabled):
         for block in range(1, REEQUILIBRATION_BLOCKS + 1):
             output = str(output_dir / '{}_ee{}_reeq_block{}'.format(
                 chain['id'], str(target).replace('.', 'p'), block))
-            execute(runner_command(state, parent, chain['Ee'], target, output, block, block == 1), enabled)
             if enabled:
-                metrics = final_state_observables(output)
+                ensure_fresh(output)
+            execute(runner_command(state, parent, chain['Ee'], target, output,
+                                   BLOCK_STEPS, 'reequilibration', block == 1), enabled)
+            if enabled:
+                metrics = window_state_observables(output)
                 block_summary = analyze(state, [output], output + '_p48', enabled)
-                metrics['P_wrap_any'] = block_summary['replica_summaries'][0]['P_wrap_any']
+                metrics['P_wrap_any'] = pwrap_any_from_summary(block_summary)
                 blocks.append(metrics)
             parent = output
         if enabled:
             reeq_blocks[chain['id']] = blocks
-            gate = stationarity(blocks, {
-                'min_reequilibration_blocks': REEQUILIBRATION_BLOCKS,
-                'max_reequilibration_blocks': REEQUILIBRATION_BLOCKS,
-                'relative_drift_tolerance': state['protocol']['relative_drift_tolerance']})
+            gate = late_stationarity(blocks, state['protocol']['relative_drift_tolerance'])
             if gate != 'ADMITTED':
                 state['status'] = 'EQUILIBRATION_NOT_ESTABLISHED'
                 state['failed_blocks'] = reeq_blocks
                 return
         measurement = str(output_dir / '{}_ee{}_measurement'.format(
             chain['id'], str(target).replace('.', 'p')))
-        command = runner_command(state, parent, target, target, measurement, 0, False)
-        command[command.index('--steps') + 1] = str(MEASUREMENT_STEPS)
+        if enabled:
+            ensure_fresh(measurement)
+        command = runner_command(state, parent, target, target, measurement,
+                                 MEASUREMENT_STEPS, 'measurement', False)
         execute(command, enabled)
         measurement_prefixes.append(measurement)
     if not enabled:
@@ -170,17 +212,50 @@ def self_test():
     args = parser.parse_args(['init', '--state', 'x', '--system', 'system', '--runner', 'runner',
                               '--analyzer', 'analyzer', '--parent1', 'a', '--parent2', 'b'])
     state = new_state(args)
-    command = runner_command(state, 'a', 8.0, 7.5, 'out', 1, True)
+    command = runner_command(state, 'a', 8.0, 7.5, 'out', BLOCK_STEPS,
+                             'reequilibration', True)
     assert '--continuation-ee-target' in command and command[command.index('--Ee') + 1] == '7.5'
     assert state['protocol']['reequilibration_steps'] == 500000
-    blocks = [{name: 1.0 for name in OBSERVABLES} for _ in range(5)]
-    assert stationarity(blocks, {'min_reequilibration_blocks': 5,
-                                 'max_reequilibration_blocks': 5,
-                                 'relative_drift_tolerance': .05}) == 'ADMITTED'
-    blocks[-1]['temporary_bonds'] = 2.0
-    assert stationarity(blocks, {'min_reequilibration_blocks': 5,
-                                 'max_reequilibration_blocks': 5,
-                                 'relative_drift_tolerance': .05}) == 'NONSTATIONARY'
+    same_ee = runner_command(state, 'out', 7.5, 7.5, 'next', BLOCK_STEPS,
+                             'reequilibration', False)
+    assert '--continuation-ee-target' not in same_ee
+    measurement = runner_command(state, 'out', 7.5, 7.5, 'measurement',
+                                 MEASUREMENT_STEPS, 'measurement', False)
+    assert '--continuation-stage' in measurement and 'measurement' in measurement
+    stable = [{name: 1.0 for name in OBSERVABLES} for _ in range(5)]
+    stable[0]['temporary_bonds'] = 20.0
+    stable[1]['temporary_bonds'] = 10.0
+    assert late_stationarity(stable, .05) == 'ADMITTED'
+    stable[-1]['temporary_bonds'] = 2.0
+    assert late_stationarity(stable, .05) == 'NONSTATIONARY'
+    assert pwrap_any_from_summary({'replica_summaries': [{'P_wrap_any': .6}]}) == .6
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / 'window.state'
+        path.write_text(
+            '# ' + COLUMNS + '\n# stickers=4 dt=1 total_requested_steps=4\n'
+            '0 0 4 0 0 0 0 0 0 2 1 .5 0 0 0 0 0 0 0 0 0\n'
+            '1 1 2 1 1 0 0 1 .5 1 2 1 1 1 0 0 0 0 0 0 0\n'
+            '2 2 0 2 2 0 1 1 1 1 2 .8 3 1 0 0 0 0 0 0 0\n'
+            '3 3 2 1 2 1 1 0 .5 2 1 .6 2 1 0 0 0 0 0 0 0\n',
+            encoding='utf-8')
+        values = window_state_observables(str(path)[:-6])
+        assert math.isclose(values['largest_component_fraction'], .725)
+        assert math.isclose(values['mean_k_neighbor'], 1.5)
+        assert math.isclose(values['temporary_bonds'], 1.0)
+        try:
+            ensure_fresh(str(path)[:-6])
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('existing partial output was accepted')
+        analysis = str(Path(directory) / 'analysis')
+        Path(analysis + '.summary.json').touch()
+        try:
+            ensure_analysis_fresh(analysis)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('existing partial analysis was accepted')
     print('P4.8B AUTOMATED STAIRCASE SELF_TEST PASS')
 
 
