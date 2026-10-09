@@ -8,7 +8,9 @@ For scientific conclusions rather than operational instructions, see `RESULTS.md
 
 For the fixed 23-system, three-replica 100M campaign, use
 `campaign/kg_assoc_campaign.py` and follow `CAMPAIGN_100M.md`. Its list, init,
-validation, preparation, and analysis dry-run operations do not launch MD.
+validation, preparation, launch dry-run, status, and analysis dry-run operations
+do not launch MD. Only an explicit `--execute` starts equilibration, production,
+or analysis. Production has no resume operation.
 
 `C1_e2_s*_t40000` denotes 40,000 **physical time units**, not 40,000 MD
 steps. COM coordinates are unwrapped only within one executable segment. Do

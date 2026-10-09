@@ -1,52 +1,39 @@
-# Associating-star 100M campaign infrastructure
+# Associating-star 100M campaign
 
-## Status and production gate
+## Production policy
 
-The fixed 23-system matrix, external dataset layout, input validator, strict
-production entry point, and exact six-channel multi-tau serialization primitive
-are implemented. Long production is **not yet authorized**. The following
-remaining items are scientific acceptance gates, not optional polish:
+Each replica is one uninterrupted 100,000,000-step trajectory at `dt=0.01`.
+Production has no checkpoint, continuation, recovery, or resume mode. The
+executable reads an E2 pair only as its initial condition and never writes a
+reloadable production state. A run is complete only when its atomically
+committed `run.complete.json` reports exactly 100,000,000 steps. Otherwise the
+campaign tools classify it as incomplete and will not resume it.
 
-1. integrate the correlator serializer, particle state, COM unwrap state, and
-   output cursors into the two-slot atomic checkpoint transaction;
-2. resolve the UAMMD NVT random-state limitation described below;
-3. add the requested decomposed thermodynamic table and full-bead trajectory;
-4. run the deterministic and short GPU validation matrix.
+Existing E1/E2 formats and loaders remain unchanged. E1 banks are shared by
+systems with the same `(f,N,rho_p)`. Accepted E2 banks are keyed by
+`(f,N,rho_p,Ee)` and may be shared across production `Ea` values only after
+equilibrium-invariance evidence is accepted. The standalone correlator
+serialization utility remains tested but is unused by campaign production.
 
-The campaign CLI therefore prepares no production automatically and currently
-has no production-launch subcommand.
+## Matrix and dataset
 
-## Frozen campaign
-
-`campaign/campaign_protocol.json` is the machine-readable source of truth. It
-expands to 15 associating conditions and eight `NONASSOC` controls. Every
-physical system has three independent replicas and exactly 100,000,000
-production steps at `dt=0.01`. The shared reference is represented once and
-retains all five applicable group labels.
-
-System IDs have the form:
-
-```text
-F04_N010_RP080_EE08_EA04
-F04_N010_RP080_NONASSOC
-```
-
-The ID describes physics, never a replica. Replicas are `r001`, `r002`, and
-`r003` below the physical system.
-
-## External inputs and dataset creation
-
-Create a new, empty external dataset root:
+`campaign/campaign_protocol.json` expands to 15 associating systems and eight
+`NONASSOC` controls, each with replicas `r001`--`r003`. List them with:
 
 ```bash
-DATASET_ROOT=/absolute/path/to/kg_assoc_100m
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py list
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py list --group association
+```
+
+Initialize a new empty external root:
+
+```bash
+export DATASET_ROOT=/absolute/path/to/kg_assoc_100m
 python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py init \
   --dataset-root "$DATASET_ROOT"
 ```
 
-This writes one exact requirements file for each of the eight distinct
-architecture/density geometries. Place the independently generated LAMMPS
-`full`-style files at:
+Place externally generated configurations at exactly:
 
 ```text
 $DATASET_ROOT/inputs/F03_N010_RP080/initial.lammpsdat
@@ -59,48 +46,70 @@ $DATASET_ROOT/inputs/F04_N040_RP080/initial.lammpsdat
 $DATASET_ROOT/inputs/F06_N010_RP080/initial.lammpsdat
 ```
 
-No tool generates a substitute when a file is absent. Validate all eight:
+No missing input is generated. Validate atom/molecule IDs, star topology,
+functionality, terminal stickers, permanent bonds, bead types, solvent count,
+box volume, and densities:
 
 ```bash
 python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py validate-inputs \
   --dataset-root "$DATASET_ROOT"
 ```
 
-The validator checks atom IDs, molecule IDs, star count, functionality, arm
-beads, terminal stickers, connected permanent topology, polymer/solvent bead
-counts, box volume, and polymer/total densities. It writes a SHA-256 validation
-record next to each input.
+## Build and equilibration
 
-Useful matrix queries are non-executing:
+UAMMD is header-based; rebuild after included `.cu`/`.cuh` changes:
 
 ```bash
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py list
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py list --group association
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py list \
-  --system F04_N010_RP080_EE08_EA04
+make -C examples/KG_Assoc \
+  kg_assoc_star_equilibrate kg_assoc_stars kg_assoc_campaign_production
 ```
 
-## E1/E2 provenance and independence
+Commands are dry-run unless `--execute` is present. Prepare three independent
+E1 histories in the shared geometry bank:
 
-Use three separately generated/configured stochastic preparations per geometry.
-Snapshots from one continuous E1 or E2 path are not independent replicas.
-Each restart-bank replica must contain:
+```bash
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py equilibrate \
+  --dataset-root "$DATASET_ROOT" --stage e1 \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3 --execute
 
-```text
-restart_bank/r001/state.restart.lammpsdat
-restart_bank/r001/state.assoc_restart        # associating systems only
-restart_bank/r001/e1_provenance.json
-restart_bank/r001/e2_provenance.json         # associating systems only
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py validate-equilibration \
+  --dataset-root "$DATASET_ROOT" --stage e1 \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3
+
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py accept-equilibration \
+  --dataset-root "$DATASET_ROOT" --stage e1 \
+  --bank-id F04_N010_RP080 --evidence /absolute/path/e1_review.md
 ```
 
-E1 may be referenced by all chemistry conditions sharing `(f,N,rho_p)`. E2
-may be shared by conditions differing only in `Ea` only after same-`Ee`
-equilibrium-invariance validation is accepted. Validated conservative E1
-Stage-4 durations exist for `f=4`, `rho_p=0.8`, and `N=10,20,40`; other
-functionality/density geometries require their own stationarity evidence.
-Only C1 currently has an accepted E2 duration. No general duration is inferred.
+The known conservative Stage-4 durations are used for `N=10,20,40`; they do
+not automatically accept new density/functionality geometries.
 
-After validated restart-bank entries are installed, prepare run manifests:
+E2 duration is explicit; no universal duration is invented. For validated C1:
+
+```bash
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py equilibrate \
+  --dataset-root "$DATASET_ROOT" --stage e2 \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3 \
+  --steps 6000000 --equilibration-ea 4 --execute
+
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py validate-equilibration \
+  --dataset-root "$DATASET_ROOT" --stage e2 \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3
+
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py accept-equilibration \
+  --dataset-root "$DATASET_ROOT" --stage e2 \
+  --bank-id F04_N010_RP080_EE08 --evidence /absolute/path/e2_review.md
+```
+
+An accelerated E2 `Ea` may be requested with `--equilibration-ea`, but its bank
+must not be accepted until same-`Ee` static/network distributions agree at
+replica-level uncertainty. E1/E2 storage and E2 state loading are equilibration
+capabilities, not production continuation.
+
+## Prepare, launch, and verify production
+
+Preparation verifies accepted banks, geometry, E2 metadata, valence-one state,
+event counters, and target `Ee`; it never starts MD:
 
 ```bash
 python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py prepare-production \
@@ -108,86 +117,102 @@ python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py prepare-production \
   --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3
 ```
 
-This command never starts MD.
-
-## Production command after the gate is closed
-
-Build whenever any included `.cu` or `.cuh` changes:
+Review the dry-run and later launch when authorized:
 
 ```bash
-make -C examples/KG_Assoc kg_assoc_campaign_production
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py launch-production \
+  --dataset-root "$DATASET_ROOT" \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3
+
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py launch-production \
+  --dataset-root "$DATASET_ROOT" \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3 --execute
 ```
 
-The eventual per-replica command is intentionally narrow:
+The direct associating command is:
 
 ```bash
 examples/KG_Assoc/kg_assoc_campaign_production \
-  --restart-prefix "$DATASET_ROOT/systems/F04_N010_RP080_EE08_EA04/restart_bank/r001/state" \
-  --output "$DATASET_ROOT/systems/F04_N010_RP080_EE08_EA04/production/r001/run" \
-  --seed 800001
+  --equilibrated-prefix "$DATASET_ROOT/banks/e2/F04_N010_RP080_EE08/r001/state" \
+  --Ea 4 --Ee 8 --seed 701001 \
+  --output "$DATASET_ROOT/systems/F04_N010_RP080_EE08_EA04/production/r001/run"
 ```
 
-For a control, use its validated permanent-only E1 state:
+A control starts from accepted E1:
 
 ```bash
 examples/KG_Assoc/kg_assoc_campaign_production \
-  --input "$DATASET_ROOT/systems/F04_N010_RP080_NONASSOC/restart_bank/r001/state.restart.lammpsdat" \
-  --arms 4 --narm 10 --seed 700001 --non-associating \
+  --input "$DATASET_ROOT/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat" \
+  --arms 4 --narm 10 --seed 701601 --non-associating \
   --output "$DATASET_ROOT/systems/F04_N010_RP080_NONASSOC/production/r001/run"
 ```
 
-These commands are recorded now for interface review; do not execute them
-until the production gate above is closed.
-
-## Restart decision requiring approval
-
-The multi-tau state can be restored exactly; its deterministic round-trip and
-continued-sampling regression test passes. UAMMD's current Verlet NVT API does
-not expose the thermostat RNG stream. Existing restart semantics therefore
-restore positions, velocities, permanent and temporary topology, absolute
-chemistry schedule and counters, but re-seed the thermostat stream. This is a
-valid new stochastic continuation from the checkpoint microstate, not a
-bitwise replay of an uninterrupted trajectory.
-
-Before checkpoint integration proceeds, approve one of:
-
-1. accept this scientifically equivalent stochastic-continuation definition,
-   with exact observable/correlator continuity; or
-2. authorize a narrowly scoped `src/*` API change exposing NVT RNG state for
-   bitwise continuation.
-
-No `src/*` change has been made.
-
-## Offline analysis
-
-The unified dispatcher is dry-run unless `--execute` is supplied:
+Status and integrity checks are:
 
 ```bash
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze topology -- ARGS
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze bond_dynamics -- ARGS
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze walking_hopping -- ARGS
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze percolation -- ARGS
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze rheology -- ARGS
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze com_msd -- ARGS
-python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze fsqt -- ARGS
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py status \
+  --dataset-root "$DATASET_ROOT" --group association
+
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py verify-production \
+  --dataset-root "$DATASET_ROOT" \
+  --system F04_N010_RP080_EE08_EA04 --replicas 1,2,3
 ```
 
-Structural `Rg` orchestration remains to be added because no existing P4
-analyzer provides that production estimator.
+An interrupted attempt is `incomplete`; there is no resume command. Preserve
+its directory for provenance and explicitly prepare a fresh attempt.
 
-## First resource envelope
+## Outputs and conventions
 
-The five C1 32M runs measured about 3.1--3.2 GPU-hours each on the dedicated
-TITAN Xp, implying roughly 9.9 GPU-hours for one 100M C1 replica before new I/O
-overhead. Particle counts span 32,938--174,250, so a linear particle-count
-projection puts the full 69-replica matrix near 1,200 GPU-hours. This is a
-planning estimate, not a benchmark; chemistry, architecture, density, and I/O
-change throughput. The required representative small/large smoke benchmarks
-must replace it before scheduling.
+For prefix `run` the executable writes:
 
-At 32 bytes per bead frame, 1,000 full-bead frames give about 167 GB across
-the full matrix. COM trajectories contribute roughly 20--25 GB before
-compression; topology, events, checkpoints, and analysis products motivate a
-conservative 250--350 GB allocation. Exact storage estimates require measuring
-the final binary schema and event rates. No performance or storage result has
-been fabricated for untested hardware.
+- `run.thermo.tsv`: 100,000 samples at 1,000-step cadence;
+- `run.stress_correlator`: six channels sampled every step with raw support;
+- `run.com_trajectory` and `run.topology`: 10,000 synchronized frames;
+- `run.beads.bin`: 1,000 full-bead frames;
+- `run.events`: every accepted event with absolute step/time and stable IDs;
+- `run.final.lammpsdat` and `run.final_associations`: archival final state;
+- `run.complete.json`: atomically committed success marker.
+
+Temporary energy is `U_FENE(r)-U_FENE(rstar)-Ee` per active bond; no WCA term
+is duplicated. Permanent energy follows the validated convention assigning the
+bonded-pair WCA correction to the permanent bonded component.
+
+`run.beads.bin` is little-endian schema version 2. Its header stores magic,
+version, atom/bond counts, box bounds, stable `(atom_id,molecule_id,type)`
+arrays, and the permanent bond list needed for graph-based PBC unwrapping.
+Frames store a marker, absolute step/time, and stable-ID-ordered wrapped
+`float32 xyz`; the box reconstructs PBC. COM coordinates are unwrapped within
+the single uninterrupted production run.
+
+## Analysis and aggregation
+
+Analyses require three complete replicas and a new version directory, which is
+never silently overwritten:
+
+```bash
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py analyze \
+  --dataset-root "$DATASET_ROOT" \
+  --system F04_N010_RP080_EE08_EA04 \
+  --analysis topology --version v1 --execute
+```
+
+Available analyses are `topology`, `bond_dynamics`, `walking_hopping`,
+`percolation`, `rheology`, `com_msd`, `fsqt`, and `structure`. The last reports
+PBC-safe star `Rg^2`. Aggregate scalar summaries with:
+
+```bash
+python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py aggregate \
+  --dataset-root "$DATASET_ROOT"
+```
+
+Replicas remain the uncertainty units; partial attempts are never stitched.
+
+## Resource envelope
+
+The 100,000-step C1 smoke took about 35 seconds on the available TITAN Xp,
+consistent with roughly 9.7 GPU-hours for one 100M C1 trajectory. Particle
+counts span about 33k--174k, so roughly 1,200 GPU-hours for 69 replicas remains
+a provisional linear estimate. Binary bead coordinates are about 65 GB;
+COM/topology/events/analysis and margin motivate 150--250 GB. Benchmark small
+and large geometries before scheduling; these are estimates, not production
+measurements.

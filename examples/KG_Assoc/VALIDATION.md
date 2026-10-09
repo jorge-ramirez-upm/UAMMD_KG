@@ -3,16 +3,31 @@
 This record contains only executed and inspected checks. Generated `.events` and
 `.summary` files are intentionally not versioned.
 
-## 100M campaign infrastructure (PARTIAL; production gated)
+## 100M campaign infrastructure
 
 The campaign matrix regression verifies 15 deduplicated associating systems,
 eight controls, 23 unique system IDs, and exactly eight geometry templates.
-The strict campaign production entry point compiles and exposes only the fixed
-production interface. The binary `CheckpointableCorrelator6` regression saves
-after 12,345 deterministic six-channel samples, reloads exactly, continues both
-instances to 25,000 samples, and verifies identical lag grids, raw counts, and
-all channel values. GPU smoke tests and checkpoint transaction/recovery tests
-have not yet run; long production remains unauthorized.
+The strict campaign entry point fixes 100M production steps and has no
+production checkpoint, continuation, or resume option. A separate 100,000-step
+C1 GPU smoke on the TITAN Xp exercised 100 thermodynamic rows, 100,000 stress
+samples, ten synchronized COM/topology frames, one schema-v2 binary bead
+frame, 3,478 events, final archives, and an atomic completion marker in 35.19
+seconds. Event reconstruction matched the final 1,781-bond topology. The
+binary header carries the permanent bonds, and the structure regression checks
+graph-based PBC unwrapping for an arm extending more than half a box. The event and
+sample formats were consumed by topology, bond-dynamics, walking/hopping,
+periodic-wrapping, COM-MSD, self-Fs, and structural-Rg analyzers; the rheology
+reader accepted the new thermodynamic companion format. This is short
+validation only; no long production or equilibration was launched.
+
+A separate 100,000-step non-associating C1 GPU smoke completed in 21.06
+seconds with zero chemistry sweeps, events, temporary bonds, temporary energy,
+creations, and ruptures. It retained permanent KG dynamics and all requested
+nonchemical outputs, and wrote no production restart files.
+
+The retained, unused `CheckpointableCorrelator6` regression saves after 12,345
+deterministic samples, reloads exactly, continues both instances to 25,000
+samples, and verifies identical lag grids, raw counts, and all six channels.
 
 For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.

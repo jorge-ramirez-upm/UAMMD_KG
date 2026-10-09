@@ -208,15 +208,16 @@ diffusion by 1e8 steps is itself an acceptable result and must not trigger an
 automatic extension. Percolation-search and equilibration runs are only as
 long as scientifically necessary and are not governed by this horizon.
 
-The immediate priority returns to designing and generating a systematic
-cross-condition associating-star dataset for comparative topology,
-bond/network dynamics, rheology, and translational-dynamics analysis. The
-parameter-space design remains to be defined.
+The immediate priority is generating the systematic cross-condition dataset
+defined below for comparative topology, bond/network dynamics, rheology, and
+translational-dynamics analysis.
 
 ## Fixed 100M cross-condition campaign
 
-The 23-system campaign matrix and external dataset/input infrastructure are
-defined in `campaign/campaign_protocol.json` and `CAMPAIGN_100M.md`. Production
-remains gated on atomic rotating-checkpoint integration, the NVT restart-state
-decision, requested thermodynamic/full-bead outputs, and short validation. The
-paused P4.8b search remains separate and is not resumed by campaign tools.
+The 23-system campaign matrix, external dataset/input infrastructure, single-run
+production executable, and analysis launcher are defined in
+`campaign/campaign_protocol.json` and `CAMPAIGN_100M.md`. Production replicas
+are uninterrupted 100M-step runs: there are no production checkpoints or
+continuations, and an interruption makes the attempt incomplete. E1/E2 state
+reuse remains intact. The paused P4.8b search remains separate and is not
+resumed by campaign tools.
