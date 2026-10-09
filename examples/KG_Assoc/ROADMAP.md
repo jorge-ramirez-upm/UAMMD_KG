@@ -159,15 +159,56 @@ finite-cluster susceptibility. P4.8b should use `P_wrap`, rather than
 giant-component fraction alone, to compare systems and bracket a finite-size
 percolation crossover.
 
-## P4.8b adaptive Ee search
+## P4.8b adaptive Ee search (PAUSED)
 
-- P4.8b.1: adaptive persistent search infrastructure and trial provenance
-  (complete).
-- P4.8b.2: automated downward, piecewise-constant Ee staircase scout (next;
-  five-window fail-closed re-equilibration gate).
-- P4.8b.3: independent fixed-Ee crossover confirmation.
-- P4.8b.4: Ea-invariance validation near the crossover.
-- P4.8b.5: accelerated-search validation.
-- P4.8b.6: neighboring architecture/density mapping.
+P4.8b.1 infrastructure is complete and P4.8b.2 reached an informative,
+but incomplete, C1 downward scout. The persistent planner, piecewise-constant
+Ee staircase, fail-closed restart switching, topology-only execution,
+synchronized COM/topology winding analysis, two independent chains, 100k
+diagnostic windows, initial 500k re-equilibration allowance, one bounded 500k
+extension, 1M-step per-chain/plateau cap, and late-window stationarity gate
+are implemented and validated. Ee switching preserves coordinates, velocities,
+permanent bonds, and instantaneous temporary topology; it does not overwrite
+state without explicit `--force`.
 
-No P4.8b.2 simulation is started automatically.
+At physical `Ea=4`, `nu0=20`, the independent C1 chains (seeds 12001 and
+12002) continued from equilibrated Ee=8 states to Ee=7.5. After adaptive
+re-equilibration, each completed a 320,000-step topology-only measurement.
+All 32 frames per seed wrapped in every Cartesian direction. Their mean
+wrapping fractions were 0.995375 and 0.9968125 (replica mean 0.99609375), so
+Ee=7.5 is clearly on the high-wrapping side.
+
+Chain 1 then reached Ee=7.0 and exhausted its ten 100,000-step
+re-equilibration windows. `P_wrap_any=1` in every window and the final window
+wrapped in x, y, and z with mean largest-component and wrapping fractions both
+0.9954. The inter-star network observables were stable, but `intra_bonds`
+failed the predefined 5% relative-range stationarity tolerance. The automated
+result is therefore `EQUILIBRATION_NOT_ESTABLISHED`: Ee=7.0 is strong
+preliminary evidence of deep wrapping, not an admitted equilibrium scout
+plateau. No Ee=7 chain-2 run or formal Ee=7 measurement was completed.
+
+No finite-box `Ee_50` has been determined and no thermodynamic percolation
+critical point is claimed. P4.8b is formally PAUSED, not complete. Retain all
+state/output artifacts, including the resumable staircase state at
+`percolation_search/C1/automated_staircase_from_7p5.json`; do not overwrite it
+or resume automatically. This pause does not block the main cross-condition
+production project.
+
+## Production policy and immediate priority
+
+For each selected scientific production condition, after adequate
+equilibration, use a common maximum horizon of 100,000,000 MD steps. This is a
+production budget, not a universal convergence claim. Analyze the available
+trajectory for static topology, temporary-bond and network-rearrangement
+dynamics (including walking/hopping where applicable), stress relaxation and
+rheology, star-COM MSD, self `F_s(q,t)`, and other already validated
+observables. Report a terminal viscosity or diffusion coefficient only when
+its predefined resolution/convergence criteria are met; lack of terminal
+diffusion by 1e8 steps is itself an acceptable result and must not trigger an
+automatic extension. Percolation-search and equilibration runs are only as
+long as scientifically necessary and are not governed by this horizon.
+
+The immediate priority returns to designing and generating a systematic
+cross-condition associating-star dataset for comparative topology,
+bond/network dynamics, rheology, and translational-dynamics analysis. The
+parameter-space design remains to be defined.

@@ -101,8 +101,11 @@ systems are required before making cross-system mechanistic claims.
 
 ## P4.8a periodic wrapping
 
-For C1, five independent 320000-time-unit replicas each supplied 3200
-synchronized topology/COM frames. Every frame wrapped in x, y, and z:
+For the C1 reference condition (`N_A=4`, arm length `N=10`, 1,000 stars,
+polymer density approximately 0.8, `T=1`, `Ea=4`, `Ee=8`, `nu0=20`,
+`Nevery=100`, and `r_assoc=1.25`), five independent 32M-step production
+replicas each supplied 3200 synchronized topology/COM frames. Every frame
+wrapped in x, y, and z:
 `P_wrap_any = P_wrap_x = P_wrap_y = P_wrap_z = P_wrap_xyz = 1` for every
 replica. There were no nonwrapping frames. The mean fraction of stars in
 wrapping components was approximately 0.99474.
@@ -112,7 +115,25 @@ stronger than the earlier giant-component observation: it is based on a
 nonzero periodic winding criterion, not connectivity alone. The finite-box
 wrapping crossover location remains unknown.
 
-P4.8b has not yet estimated an Ee crossover. The next C1 work is a
-piecewise-constant downward continuation scout from the robustly percolated
-Ee=8 reference, followed by independent fixed-Ee confirmation; no threshold
-number is claimed here.
+## P4.8b C1 Ee scout (PAUSED)
+
+At Ee=7.5, two independent physical-kinetics continuations from equilibrated
+Ee=8 states (seeds 12001 and 12002; `Ea=4`, `nu0=20`) each completed a
+320,000-step topology-only measurement after adaptive re-equilibration. Each
+of its 32 frames had `P_wrap_any = P_wrap_x = P_wrap_y = P_wrap_z =
+P_wrap_xyz = 1`. Mean wrapping fractions were 0.995375 and 0.9968125,
+respectively (replica mean 0.99609375). Ee=7.5 is therefore clearly on the
+high-wrapping side of this C1 finite box.
+
+At Ee=7.0, only chain 1 was started. It completed the 1,000,000-step
+re-equilibration cap with `P_wrap_any=1` in all ten 100,000-step windows;
+the final window also had all directional wrapping and mean largest-component
+and wrapping fractions of 0.9954. Its final-three-window inter-star
+observables were stable, but `intra_bonds` failed the predefined 5%
+relative-range stationarity gate. Thus Ee=7.0 is only strong preliminary
+evidence of deep wrapping: it was not formally admitted as an equilibrium
+scout plateau, chain 2 was not run, and no formal Ee=7 measurement exists.
+
+No finite-box `Ee_50` has been determined, and no thermodynamic percolation
+critical point is claimed. P4.8b is paused; its artifacts and persistent state
+are retained for later resumption.

@@ -1648,3 +1648,37 @@ uses the existing periodic-wrapping analyzer rather than reimplementing the
 wrapping criterion. It only measures after both chains admit. The two chains must both
 be clearly high-wrapping before the next 0.5 Ee descent; otherwise it stops and
 records a scout bracket.
+
+The validated automated infrastructure persists its adaptive plan and trial
+provenance; performs piecewise-constant Ee staircase scouting; switches Ee by
+an explicit restart with fail-closed provenance; and preserves coordinates,
+velocities, permanent bonds, and instantaneous temporary topology across a
+switch. It supports topology-only execution and synchronized COM/topology
+periodic-winding analysis, never automatically overwrites existing state, and
+requires explicit `--force` for an overwrite. The current resumable state is
+`percolation_search/C1/automated_staircase_from_7p5.json`.
+
+The executed Ee=7.5 scout used two independent chains, seeds 12001 and 12002,
+continued from equilibrated Ee=8 C1 states at physical `Ea=4`, `nu0=20`. After
+adaptive re-equilibration, each passed to a 320,000-step topology-only
+measurement containing 32 frames. For seed 12001, all five wrapping
+probabilities were one and the mean wrapping fraction was 0.995375; for seed
+12002, they were likewise one and the mean was 0.9968125. The replica mean was
+0.99609375. This establishes Ee=7.5 as high-wrapping for C1.
+
+The Ee=7.0 continuation was deliberately fail-closed. Chain 1 used the full
+ten 100,000-step re-equilibration windows (1,000,000 MD steps); every window
+had `P_wrap_any=1`. Over the last three windows, temporary bonds were
+1648.3636, 1656.0909, and 1660.6364; inter-star bonds 1572.4545, 1574.8182,
+and 1591.4545; mean neighbor degree 3.07145, 3.07745, and 3.10345; and
+largest-component fractions 0.994909, 0.996364, and 0.995818. Intra-star
+bonds (75.9091, 81.2727, 69.1818) exceeded the defined 5% relative-range
+tolerance, so the result is `EQUILIBRATION_NOT_ESTABLISHED` despite stable
+inter-star observables. The final 100k window had all directional wrapping,
+mean largest-component fraction 0.9954, and mean wrapping fraction 0.9954.
+No chain-2 Ee=7 run or formal Ee=7 measurement was completed.
+
+P4.8b is formally PAUSED. These results do not determine finite-box `Ee_50`
+and make no thermodynamic critical-point claim. All P4.8 artifacts are to be
+retained for resumability; the search does not block main cross-condition
+production work.
