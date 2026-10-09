@@ -3,6 +3,17 @@
 This record contains only executed and inspected checks. Generated `.events` and
 `.summary` files are intentionally not versioned.
 
+## 100M campaign infrastructure (PARTIAL; production gated)
+
+The campaign matrix regression verifies 15 deduplicated associating systems,
+eight controls, 23 unique system IDs, and exactly eight geometry templates.
+The strict campaign production entry point compiles and exposes only the fixed
+production interface. The binary `CheckpointableCorrelator6` regression saves
+after 12,345 deterministic six-channel samples, reloads exactly, continues both
+instances to 25,000 samples, and verifies identical lag grids, raw counts, and
+all channel values. GPU smoke tests and checkpoint transaction/recovery tests
+have not yet run; long production remains unauthorized.
+
 For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
 For concise C1 scientific conclusions, see `RESULTS.md`.

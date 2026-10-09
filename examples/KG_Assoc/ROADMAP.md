@@ -212,3 +212,11 @@ The immediate priority returns to designing and generating a systematic
 cross-condition associating-star dataset for comparative topology,
 bond/network dynamics, rheology, and translational-dynamics analysis. The
 parameter-space design remains to be defined.
+
+## Fixed 100M cross-condition campaign
+
+The 23-system campaign matrix and external dataset/input infrastructure are
+defined in `campaign/campaign_protocol.json` and `CAMPAIGN_100M.md`. Production
+remains gated on atomic rotating-checkpoint integration, the NVT restart-state
+decision, requested thermodynamic/full-bead outputs, and short validation. The
+paused P4.8b search remains separate and is not resumed by campaign tools.

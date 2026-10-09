@@ -6,6 +6,10 @@ different stochastic seed for each independent realization.
 
 For scientific conclusions rather than operational instructions, see `RESULTS.md`.
 
+For the fixed 23-system, three-replica 100M campaign, use
+`campaign/kg_assoc_campaign.py` and follow `CAMPAIGN_100M.md`. Its list, init,
+validation, preparation, and analysis dry-run operations do not launch MD.
+
 `C1_e2_s*_t40000` denotes 40,000 **physical time units**, not 40,000 MD
 steps. COM coordinates are unwrapped only within one executable segment. Do
 not stitch COM trajectories across a restart without reconstructing image
