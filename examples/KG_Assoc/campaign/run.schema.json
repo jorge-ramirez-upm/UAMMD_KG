@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kg-assoc-campaign-run-v1",
+  "type": "object",
+  "required": ["schema_version", "system_id", "replica", "status", "completed_production_steps", "parent_e1", "parent_e2", "md_seed", "chemistry_seed"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "system_id": {"type": "string"},
+    "replica": {"type": "integer", "minimum": 1, "maximum": 3},
+    "status": {"enum": ["prepared", "running", "interrupted", "complete", "invalid"]},
+    "completed_production_steps": {"type": "integer", "minimum": 0, "maximum": 100000000},
+    "parent_e1": {"type": "string", "minLength": 1},
+    "parent_e2": {"type": ["string", "null"]},
+    "md_seed": {"type": "integer", "minimum": 1},
+    "chemistry_seed": {"type": "integer", "minimum": 1},
+    "checkpoint_history": {"type": "array"},
+    "segments": {"type": "array"},
+    "files": {"type": "object"}
+  },
+  "additionalProperties": true
+}
