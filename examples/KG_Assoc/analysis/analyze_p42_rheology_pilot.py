@@ -29,19 +29,21 @@ def fail(path, message):
 
 
 def read_companion_temperature(path):
-    state_path = path[:-len('.stress_correlator')] + '.state'
-    try:
-        with open(state_path, encoding='utf-8') as state_file:
-            for line in state_file:
-                if line.startswith('#'):
-                    for token in line[1:].split():
-                        if token.startswith('T='):
-                            temperature = float(token[2:])
-                            if temperature > 0.0 and math.isfinite(temperature):
-                                return temperature
-    except OSError as error:
-        raise ValueError('{}: missing companion state file {}'.format(path, state_path)) from error
-    fail(path, 'missing valid T provenance in {}'.format(state_path))
+    prefix = path[:-len('.stress_correlator')]
+    candidates = (prefix + '.state', prefix + '.thermo.tsv')
+    for state_path in candidates:
+        try:
+            with open(state_path, encoding='utf-8') as state_file:
+                for line in state_file:
+                    if line.startswith('#'):
+                        for token in line[1:].split():
+                            if token.startswith('T='):
+                                temperature = float(token[2:])
+                                if temperature > 0.0 and math.isfinite(temperature):
+                                    return temperature
+        except OSError:
+            continue
+    fail(path, 'missing valid T provenance in {}'.format(' or '.join(candidates)))
 
 
 def read_stress_correlator(path):

@@ -14,7 +14,6 @@
     "thermodynamic": 1000,
     "com_topology": 10000,
     "full_bead": 100000,
-    "checkpoint": 1000000,
     "stress": 1
   },
   "associating_axes": {

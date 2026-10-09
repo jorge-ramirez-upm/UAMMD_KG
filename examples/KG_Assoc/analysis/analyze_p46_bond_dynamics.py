@@ -12,6 +12,7 @@ from analyze_p45_topology import read_system, topology_frames
 
 
 EVENT_HEADER = 'timestep event_type sticker_i sticker_j molecule_i molecule_j'
+CAMPAIGN_EVENT_HEADER = 'step time event_type sticker_i sticker_j molecule_i molecule_j'
 
 
 def fail(path, message):
@@ -36,25 +37,41 @@ def read_events(path, system):
             if not line:
                 continue
             if line.startswith('#'):
-                if line[1:].strip() != EVENT_HEADER:
+                if line[1:].strip() not in (EVENT_HEADER, CAMPAIGN_EVENT_HEADER):
                     metadata_line(line, metadata)
                 continue
             fields = line.split()
-            if len(fields) != 6 or fields[1] not in ('C', 'B'):
+            campaign = len(fields) == 7 and fields[2] in ('C', 'B')
+            legacy = len(fields) == 6 and fields[1] in ('C', 'B')
+            if not campaign and not legacy:
                 fail(path, 'malformed event record')
-            step, first, second, first_star, second_star = map(
-                int, (fields[0], fields[2], fields[3], fields[4], fields[5]))
+            if campaign:
+                step = int(fields[0])
+                event_time = float(fields[1])
+                event_type = fields[2]
+                first, second, first_star, second_star = map(int, fields[3:])
+            else:
+                step = int(fields[0])
+                event_time = None
+                event_type = fields[1]
+                first, second, first_star, second_star = map(int, fields[2:])
             if first <= 0 or first >= second or first not in system['stickers'] or second not in system['stickers']:
                 fail(path, 'invalid ordered sticker pair')
             if (system['atom_to_star'][first], system['atom_to_star'][second]) != (first_star, second_star):
                 fail(path, 'event molecule IDs disagree with system file')
-            events.append((step, fields[1], (first, second)))
+            if event_time is not None and not math.isclose(
+                    event_time, step * float(metadata.get('dt', 'nan')),
+                    rel_tol=1e-12, abs_tol=1e-12):
+                fail(path, 'event time disagrees with absolute step and dt')
+            events.append((step, event_type, (first, second)))
     required = ('input_file', 'dt', 'seed', 'start_step', 'total_requested_steps',
                 'original_lammps_atom_ids')
     if any(key not in metadata for key in required) or metadata['original_lammps_atom_ids'] != '1_based':
         fail(path, 'missing required event provenance')
     metadata['dt'] = float(metadata['dt'])
     metadata['seed'] = int(metadata['seed'])
+    if 'initial_state_seed' in metadata:
+        metadata['initial_state_seed'] = int(metadata['initial_state_seed'])
     metadata['start_step'] = int(metadata['start_step'])
     metadata['total_requested_steps'] = int(metadata['total_requested_steps'])
     if metadata['dt'] <= 0.0 or metadata['start_step'] < 0 or metadata['total_requested_steps'] < metadata['start_step']:
@@ -74,7 +91,8 @@ def read_restart(path, system, metadata):
     values = {row[0]: row[1] for row in fields[1:] if len(row) == 2}
     if int(values.get('completed_steps', '-1')) != metadata['start_step']:
         fail(path, 'restart step disagrees with event stream')
-    if float(values.get('dt', 'nan')) != metadata['dt'] or int(values.get('seed', '-1')) != metadata['seed']:
+    expected_seed = metadata.get('initial_state_seed', metadata['seed'])
+    if float(values.get('dt', 'nan')) != metadata['dt'] or int(values.get('seed', '-1')) != expected_seed:
         fail(path, 'restart metadata disagrees with event stream')
     count = int(values.get('active_bonds', '-1'))
     start = next((index for index, row in enumerate(fields) if row[0] == 'active_bonds'), -1)
@@ -125,12 +143,15 @@ def kaplan_meier(episodes):
 
 def replica_statistics(values):
     count = len(values)
+    if count == 0:
+        return {'mean': None, 'sample_std': None, 'sem': None,
+                'ci95_half_width': None, 'replicas': 0}
     mean = statistics.mean(values)
     sample_std = statistics.stdev(values) if count > 1 else 0.0
     sem = sample_std / math.sqrt(count)
     critical = {2: 12.706, 3: 4.303, 4: 3.182, 5: 2.776}.get(count, 1.96)
     return {'mean': mean, 'sample_std': sample_std, 'sem': sem,
-            'ci95_half_width': critical * sem}
+            'ci95_half_width': critical * sem, 'replicas': count}
 
 
 def validate_topology(path, initial, events, system):

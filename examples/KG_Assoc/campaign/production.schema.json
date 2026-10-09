@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kg-assoc-campaign-production-v1",
+  "type": "object",
+  "required": ["schema_version", "steps", "dt", "temperature", "total_density", "nu0", "Nevery", "r_assoc", "cadence_steps", "continuation"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "steps": {"const": 100000000},
+    "dt": {"const": 0.01},
+    "temperature": {"const": 1.0},
+    "total_density": {"const": 0.85},
+    "nu0": {"const": 20.0},
+    "Nevery": {"const": 100},
+    "r_assoc": {"const": 1.25},
+    "continuation": {"const": false},
+    "cadence_steps": {
+      "type": "object",
+      "required": ["thermodynamic", "com_topology", "full_bead", "stress"],
+      "properties": {
+        "thermodynamic": {"const": 1000},
+        "com_topology": {"const": 10000},
+        "full_bead": {"const": 100000},
+        "stress": {"const": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
