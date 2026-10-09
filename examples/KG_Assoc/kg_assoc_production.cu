@@ -8,6 +8,7 @@
 #include "kg_assoc_star_runtime.cuh"
 
 #include <chrono>
+#include <cstdint>
 #include <cmath>
 #include <cstdio>
 #include <functional>
@@ -321,6 +322,22 @@ RestartMetadata readRestartMetadata(const std::string& path) {
 }
 
 void validateRestartRequest(const Parameters& request, const RestartMetadata& restart) {
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+  if (request.eeExplicit && !near(request.ee, restart.parameters.ee)) {
+    throw std::runtime_error("production Ee does not match equilibrated E2 state");
+  }
+  if (!near(request.dt, restart.parameters.dt) ||
+      !near(request.temperature, restart.parameters.temperature) ||
+      !near(request.nu0, restart.parameters.nu0) ||
+      request.every != restart.parameters.every ||
+      !near(request.rAssoc, restart.parameters.rAssoc) ||
+      !near(request.damping, restart.parameters.damping) ||
+      !near(request.feneK, restart.parameters.feneK) ||
+      !near(request.feneR0, restart.parameters.feneR0)) {
+    throw std::runtime_error("equilibrated E2 state does not match frozen production physics");
+  }
+  return;
+#endif
   if (request.rAssocExplicit && !near(request.rAssoc, restart.parameters.rAssoc)) {
     throw std::runtime_error("--r-assoc does not match restart metadata");
   }
@@ -629,6 +646,169 @@ class StarComWriter {
   std::map<int, uammd::real3> unwrappedCom_;
 };
 
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+class FullBeadTrajectoryWriter {
+ public:
+  FullBeadTrajectoryWriter(const std::string& path, const kg::LammpsData& data)
+      : output_(path, std::ios::binary), data_(data) {
+    if (!output_) {
+      throw std::runtime_error("cannot open full-bead trajectory");
+    }
+    const char magic[16] = "KG_BEADS_BIN_V2";
+    output_.write(magic, sizeof(magic));
+    writeValue(std::uint32_t(2));
+    writeValue(std::uint64_t(data.natoms));
+    writeValue(std::uint64_t(data.bonds.size()));
+    writeValue(data.xlo);
+    writeValue(data.xhi);
+    writeValue(data.ylo);
+    writeValue(data.yhi);
+    writeValue(data.zlo);
+    writeValue(data.zhi);
+    for (int id = 0; id < data.natoms; ++id) {
+      writeValue(std::int32_t(id + 1));
+      writeValue(std::int32_t(data.mol.at(id)));
+      writeValue(std::int32_t(data.type.at(id)));
+    }
+    for (const auto& bond : data.bonds) {
+      writeValue(std::int32_t(bond.first));
+      writeValue(std::int32_t(bond.second));
+    }
+  }
+
+  void write(long long step, double time,
+             std::shared_ptr<uammd::ParticleData> particles) {
+    writeValue(std::uint32_t(0x4652414d));
+    writeValue(std::int64_t(step));
+    writeValue(time);
+    auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
+    auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
+    const double xShift = 0.5 * (data_.xlo + data_.xhi);
+    const double yShift = 0.5 * (data_.ylo + data_.yhi);
+    const double zShift = 0.5 * (data_.zlo + data_.zhi);
+    for (int id = 0; id < data_.natoms; ++id) {
+      const uammd::real4 position = positions[idToIndex[id]];
+      writeValue(static_cast<float>(position.x + xShift));
+      writeValue(static_cast<float>(position.y + yShift));
+      writeValue(static_cast<float>(position.z + zShift));
+    }
+    if (!output_) {
+      throw std::runtime_error("failed to write full-bead trajectory frame");
+    }
+  }
+
+  void finish() {
+    output_.flush();
+    if (!output_) {
+      throw std::runtime_error("failed to finalize full-bead trajectory");
+    }
+    output_.close();
+  }
+
+ private:
+  template <class Value>
+  void writeValue(const Value& value) {
+    output_.write(reinterpret_cast<const char*>(&value), sizeof(value));
+  }
+
+  std::ofstream output_;
+  const kg::LammpsData& data_;
+};
+
+void writeCampaignFinalSnapshot(
+    const std::string& path,
+    long long step,
+    const kg::LammpsData& data,
+    std::shared_ptr<uammd::ParticleData> particles) {
+  std::ofstream output(path);
+  if (!output) {
+    throw std::runtime_error("cannot write final campaign configuration");
+  }
+  output << std::setprecision(17);
+  auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
+  auto velocities = particles->getVel(uammd::access::cpu, uammd::access::read);
+  auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
+  const double xShift = 0.5 * (data.xlo + data.xhi);
+  const double yShift = 0.5 * (data.ylo + data.yhi);
+  const double zShift = 0.5 * (data.zlo + data.zhi);
+  output << "LAMMPS archival data from kg_assoc_campaign_production, step "
+         << step << "\n\n" << data.natoms << " atoms\n"
+         << data.bonds.size() << " bonds\n\n" << data.atomTypes
+         << " atom types\n1 bond types\n\n"
+         << data.xlo << ' ' << data.xhi << " xlo xhi\n"
+         << data.ylo << ' ' << data.yhi << " ylo yhi\n"
+         << data.zlo << ' ' << data.zhi << " zlo zhi\n\nMasses\n\n";
+  for (int type = 1; type <= data.atomTypes; ++type) {
+    output << type << " 1.0\n";
+  }
+  output << "\nAtoms # bond\n\n";
+  for (int id = 0; id < data.natoms; ++id) {
+    const int index = idToIndex[id];
+    const uammd::real4 position = positions[index];
+    output << id + 1 << ' ' << data.mol.at(id) << ' ' << data.type.at(id) << ' '
+           << position.x + xShift << ' ' << position.y + yShift << ' '
+           << position.z + zShift << '\n';
+  }
+  output << "\nVelocities\n\n";
+  for (int id = 0; id < data.natoms; ++id) {
+    const uammd::real3 velocity = velocities[idToIndex[id]];
+    output << id + 1 << ' ' << velocity.x << ' ' << velocity.y << ' '
+           << velocity.z << '\n';
+  }
+  output << "\nBonds\n\n";
+  for (std::size_t bond = 0; bond < data.bonds.size(); ++bond) {
+    output << bond + 1 << " 1 " << data.bonds[bond].first << ' '
+           << data.bonds[bond].second << '\n';
+  }
+}
+
+void writeCampaignThermo(
+    std::ostream& output,
+    long long step,
+    const Parameters& parameters,
+    const kg::LammpsData& data,
+    const kg::SimulationBox& simulationBox,
+    std::shared_ptr<uammd::Integrator> integrator,
+    std::shared_ptr<uammd::ParticleData> particles,
+    std::shared_ptr<uammd::Interactor> wca,
+    std::shared_ptr<uammd::Interactor> permanentFene,
+    const std::shared_ptr<kg_assoc::AssociatingFENEInteractor>& associating,
+    const kg_assoc::AssociationCounts& counts,
+    long long creations,
+    long long breaks) {
+  const double kinetic = kg::detail::sumKineticEnergy(integrator, particles);
+  double pairEnergy = kg::detail::sumInteractorEnergy(wca, particles);
+  double permanentEnergy = kg::detail::sumInteractorEnergy(permanentFene, particles);
+  const double temporaryEnergy = parameters.nu0 > 0.0
+      ? kg::detail::sumInteractorEnergy(associating, particles) : 0.0;
+  const auto correction = kg::computeBondedWCACorrection(
+      data, particles, simulationBox, 1.0, 1.0);
+  pairEnergy -= correction.energy;
+  permanentEnergy += correction.energy;
+
+  const double volume = static_cast<double>(simulationBox.box.getVolume());
+  const double pairVirial = kg::detail::sumInteractorVirial(wca, particles);
+  const double permanentVirial =
+      kg::detail::sumInteractorVirial(permanentFene, particles);
+  double temporaryVirial = 0.0;
+  if (parameters.nu0 > 0.0) {
+    const auto stress = kg::detail::reduceInteractorStress(*associating);
+    temporaryVirial = stress.xx + stress.yy + stress.zz;
+  }
+  const double pressure = 2.0 * kinetic / (3.0 * volume) -
+      pairVirial / (6.0 * volume) +
+      (permanentVirial + temporaryVirial) / (6.0 * volume);
+  const double temperature = 2.0 * kinetic / (3.0 * data.natoms);
+  const double total = kinetic + pairEnergy + permanentEnergy + temporaryEnergy;
+  output << step << '\t' << std::setprecision(17) << step * parameters.dt << '\t'
+         << temperature << '\t' << total << '\t' << kinetic << '\t'
+         << pairEnergy << '\t' << permanentEnergy << '\t' << temporaryEnergy << '\t'
+         << pressure << '\t' << counts.bonds << '\t' << counts.intraStarBonds << '\t'
+         << counts.interStarBonds << '\t' << counts.freeStickers << '\t'
+         << creations << '\t' << breaks << '\n';
+}
+#endif
+
 void writeTopologyFrame(std::ostream& output, long long step, double time,
                         const kg::LammpsData& data,
                         const kg_assoc::StickerState& state) {
@@ -667,6 +847,10 @@ int main(int argc, char** argv) {
       validateRestartRequest(parameters, restart);
       const int requestedDiagnosticEvery = parameters.diagnosticEvery;
       const double requestedEe = parameters.ee;
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+      const double requestedEa = parameters.ea;
+      const unsigned long long requestedSeed = parameters.seed;
+#endif
       parameters.arms = restart.parameters.arms;
       parameters.beadsPerArm = restart.parameters.beadsPerArm;
       parameters.dt = restart.parameters.dt;
@@ -680,6 +864,11 @@ int main(int argc, char** argv) {
       parameters.feneK = restart.parameters.feneK;
       parameters.feneR0 = restart.parameters.feneR0;
       parameters.seed = restart.parameters.seed;
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+      parameters.ea = requestedEa;
+      parameters.ee = requestedEe;
+      parameters.seed = requestedSeed;
+#endif
       parameters.diagnosticEvery = requestedDiagnosticEvery;
       parameters.input = parameters.restartPrefix + ".restart.lammpsdat";
       initialStep = restart.completedSteps;
@@ -694,30 +883,55 @@ int main(int argc, char** argv) {
     const std::set<std::pair<int, int>> permanentBonds =
         kg_assoc::permanentBondPairs(data);
 
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    const std::string statePath = parameters.output + ".thermo.tsv";
+#else
     const std::string statePath = parameters.output + ".state";
+#endif
     const std::string eventPath = parameters.output + ".events";
     const std::string modulusPath = parameters.output + ".stress_correlator";
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
     const std::string comSamplesPath = parameters.output + ".com_samples";
+#endif
     const std::string comTrajectoryPath = parameters.output + ".com_trajectory";
     const std::string topologyPath = parameters.output + ".topology";
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    const std::string fullBeadPath = parameters.output + ".beads.bin";
+    const std::string completionPath = parameters.output + ".complete.json";
+    const std::string finalSnapshotPath = parameters.output + ".final.lammpsdat";
+    const std::string finalAssociationsPath = parameters.output + ".final_associations";
+#else
     const std::string finalSnapshotPath = parameters.output + ".final_permanent.lammpsdat";
     const std::string finalAssociationsPath = parameters.output + ".final_associations";
     const std::string restartSnapshotPath = parameters.output + ".restart.lammpsdat";
     const std::string restartMetadataPath = parameters.output + ".assoc_restart";
+#endif
     if (!parameters.force && (std::ifstream(statePath) || std::ifstream(eventPath) ||
                               std::ifstream(finalSnapshotPath) ||
-                              std::ifstream(finalAssociationsPath) ||
+                              std::ifstream(finalAssociationsPath)
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+                              || std::ifstream(fullBeadPath) ||
+                              std::ifstream(completionPath)
+#else
+                              ||
                               std::ifstream(restartSnapshotPath) ||
-                              std::ifstream(restartMetadataPath))) {
+                              std::ifstream(restartMetadataPath)
+#endif
+                              )) {
       throw std::runtime_error("output exists; choose a new --output or use --force");
     }
     std::ofstream stateFile(statePath);
     std::ofstream eventFile(eventPath);
     std::ofstream modulusFile(modulusPath);
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
     std::ofstream comSamplesFile(comSamplesPath);
+#endif
     std::ofstream comTrajectoryFile(comTrajectoryPath);
     std::ofstream topologyFile(topologyPath);
-    if (!stateFile || !eventFile || !modulusFile || !comSamplesFile ||
+    if (!stateFile || !eventFile || !modulusFile ||
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
+        !comSamplesFile ||
+#endif
         !comTrajectoryFile || !topologyFile) {
       throw std::runtime_error("cannot open S1 output files");
     }
@@ -729,9 +943,14 @@ int main(int argc, char** argv) {
     const kg_assoc::BoxLengths lengths{
         data.xhi - data.xlo, data.yhi - data.ylo, data.zhi - data.zlo};
     StarComWriter comWriter(data, lengths);
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
     comSamplesFile << "# step time molecule_id com_x com_y com_z\n";
+#endif
     comTrajectoryFile << "# step time molecule_id com_x com_y com_z\n";
     topologyFile << "# FRAME step time active_pairs; pairs: atom_i atom_j molecule_i molecule_j\n";
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    FullBeadTrajectoryWriter fullBeadWriter(fullBeadPath, data);
+#endif
     const std::string permanentBondData =
         kg::buildUammdBondDataFromLammps(data, parameters.feneK, parameters.feneR0);
 
@@ -825,29 +1044,63 @@ int main(int argc, char** argv) {
       ++stressSamplesQueued;
     };
 
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    stateFile << "# step\ttime\ttemperature\ttotal_energy\tkinetic_energy"
+                 "\tnonbonded_pair_energy\tpermanent_bonded_energy"
+                 "\ttemporary_association_energy\tpressure\ttemporary_bonds"
+                 "\tintra_star_bonds\tinter_star_bonds\tunbound_stickers"
+                 "\tcumulative_creations\tcumulative_ruptures\n";
+    stateFile << "# temporary_association_energy is shifted FENE: "
+                 "U_FENE(r)-U_FENE(rstar)-Ee per active bond\n";
+    eventFile << "# step time event_type sticker_i sticker_j molecule_i molecule_j\n";
+#else
     stateFile << "# timestep time N_free_stickers N_assoc_bonds creations breaks N_intra N_inter bound_fraction connected_components largest_cluster_size largest_cluster_fraction mean_degree second_degree_moment L1 L2 active_bond_observations max_active_bond_distance fraction_active_gt_1p25 fraction_active_gt_1p30 fraction_active_gt_1p40\n";
     eventFile << "# timestep event_type sticker_i sticker_j molecule_i molecule_j\n";
+#endif
     writeProvenance(stateFile, eventFile, parameters, data,
                     static_cast<int>(stickerIds.size()), initialStep);
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    eventFile << "# event_format=campaign_v1 production_seed=" << parameters.seed;
+    stateFile << "# production_seed=" << parameters.seed;
+    if (!parameters.restartPrefix.empty()) {
+      eventFile << " initial_state_seed=" << restart.parameters.seed;
+      stateFile << " initial_state_seed=" << restart.parameters.seed;
+    }
+    eventFile << '\n';
+    stateFile << '\n';
+#endif
 
     long long creations = restart.creations;
     long long breaks = restart.breaks;
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    const long long initialCreations = creations;
+    const long long initialBreaks = breaks;
+#endif
     long long chemistrySweeps = 0;
     long long candidatePairs = 0;
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
     kg_assoc::ActiveBondDistanceDiagnostics distanceDiagnostics;
+#endif
     kg_assoc::AssociationCounts counts = kg_assoc::checkAssociationInvariants(
         particles, data, state, permanentBonds, lengths, parameters.feneR0, creations, breaks);
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
     const kg_assoc::MolecularNetworkObservables initialNetwork =
         kg_assoc::molecularNetworkObservables(data, state);
     writeState(stateFile, initialStep, parameters, counts, initialNetwork, distanceDiagnostics,
                static_cast<int>(stickerIds.size()), creations, breaks);
+#endif
 
     const auto start = std::chrono::steady_clock::now();
     for (int step = 1; step <= parameters.steps; ++step) {
       const long long absoluteStep = initialStep + step;
       integrator->forwardTime();
-      const bool chemistryStep = absoluteStep % parameters.every == 0;
+      const bool chemistryStep = parameters.nu0 > 0.0 &&
+          absoluteStep % parameters.every == 0;
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+      const bool diagnosticStep = step % parameters.diagnosticEvery == 0;
+#else
       const bool diagnosticStep = absoluteStep % parameters.diagnosticEvery == 0;
+#endif
       if (chemistryStep || diagnosticStep) {
         CudaSafeCall(cudaStreamSynchronize(integrator->getStream()));
       }
@@ -870,7 +1123,13 @@ int main(int argc, char** argv) {
         for (const kg_assoc::Event& event : acceptedEvents) {
           const int firstLammpsId = event.first + 1;
           const int secondLammpsId = event.second + 1;
-          eventFile << event.step << ' ' << event.type << ' ' << firstLammpsId << ' '
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+          eventFile << event.step << ' ' << std::setprecision(17)
+                    << event.step * parameters.dt << ' ' << event.type << ' '
+#else
+          eventFile << event.step << ' ' << event.type << ' '
+#endif
+                    << firstLammpsId << ' '
                     << secondLammpsId << ' ' << data.mol.at(event.first) << ' '
                     << data.mol.at(event.second) << '\n';
           if (event.type == 'C') {
@@ -897,13 +1156,35 @@ int main(int argc, char** argv) {
             creations, breaks);
       }
       if (diagnosticStep) {
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+        writeCampaignThermo(
+            stateFile, absoluteStep, parameters, data, simulationBox, integrator,
+            particles, wca, permanentFene, associating, counts,
+            creations - initialCreations, breaks - initialBreaks);
+#else
         kg_assoc::observeActiveBondDistances(
             particles, state, lengths, distanceDiagnostics);
         const kg_assoc::MolecularNetworkObservables network =
             kg_assoc::molecularNetworkObservables(data, state);
         writeState(stateFile, absoluteStep, parameters, counts, network, distanceDiagnostics,
                    static_cast<int>(stickerIds.size()), creations, breaks);
+#endif
       }
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+      if (step % 100000 == 0) {
+        CudaSafeCall(cudaStreamSynchronize(samplingStream));
+        fullBeadWriter.write(absoluteStep, absoluteStep * parameters.dt, particles);
+      }
+#endif
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+      if (step % parameters.frameEvery == 0) {
+        CudaSafeCall(cudaStreamSynchronize(samplingStream));
+        comWriter.write(absoluteStep, absoluteStep * parameters.dt, particles,
+                        comTrajectoryFile);
+        writeTopologyFrame(topologyFile, absoluteStep, absoluteStep * parameters.dt,
+                           data, state);
+      }
+#else
       if (absoluteStep % parameters.comEvery == 0 ||
           absoluteStep % parameters.frameEvery == 0) {
         CudaSafeCall(cudaStreamSynchronize(samplingStream));
@@ -918,10 +1199,17 @@ int main(int argc, char** argv) {
                              data, state);
         }
       }
+#endif
       if (step % parameters.progressEvery == 0 || step == parameters.steps) {
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+        std::cerr << "campaign production step=" << step << '/'
+                  << parameters.steps << " absolute_step=" << absoluteStep
+                  << " temporary_bonds=" << counts.bonds << '\n';
+#else
         std::cerr << "P4.8b continuation " << parameters.continuationStage
                   << " Ee=" << parameters.ee << " step=" << step << '/'
                   << parameters.steps << " temporary_bonds=" << counts.bonds << '\n';
+#endif
       }
     }
 
@@ -961,6 +1249,7 @@ int main(int argc, char** argv) {
     counts = kg_assoc::checkAssociationInvariants(
         particles, data, state, permanentBonds, lengths, parameters.feneR0,
         creations, breaks);
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
     if ((initialStep + parameters.steps) % parameters.diagnosticEvery != 0) {
       kg_assoc::observeActiveBondDistances(particles, state, lengths, distanceDiagnostics);
       const kg_assoc::MolecularNetworkObservables network =
@@ -973,6 +1262,11 @@ int main(int argc, char** argv) {
               << " mean_candidate_sticker_pairs="
               << (chemistrySweeps == 0 ? 0.0 :
                   static_cast<double>(candidatePairs) / chemistrySweeps) << '\n';
+#endif
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    writeCampaignFinalSnapshot(
+        finalSnapshotPath, initialStep + parameters.steps, data, particles);
+#else
     kg::writeLAMMPSDataSnapshot(
         finalSnapshotPath, initialStep + parameters.steps, data,
         particles, "kg_assoc_e2_permanent_only");
@@ -981,12 +1275,17 @@ int main(int argc, char** argv) {
         particles, "kg_assoc_e2_restart_snapshot");
     writeRestartMetadata(restartMetadataPath, parameters, initialStep + parameters.steps,
                          creations, breaks, state);
+#endif
     std::ofstream activeBondsFile(finalAssociationsPath);
     if (!activeBondsFile) {
       throw std::runtime_error("cannot open final active-association record");
     }
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    activeBondsFile << "# Final archival temporary bonds; not a production continuation state.\n";
+#else
     activeBondsFile << "# Mirror of " << restartMetadataPath << "; use --restart-prefix "
                     << parameters.output << " to reload.\n";
+#endif
     activeBondsFile << "# atom_i atom_j molecule_i molecule_j\n";
     for (const int first : state.stickers()) {
       const int second = state.partner(first);
@@ -995,6 +1294,38 @@ int main(int argc, char** argv) {
                         << data.mol.at(first) << ' ' << data.mol.at(second) << '\n';
       }
     }
+#ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+    fullBeadWriter.finish();
+    for (std::ostream* output : std::vector<std::ostream*>{
+             &stateFile, &eventFile, &modulusFile, &comTrajectoryFile,
+             &topologyFile, &activeBondsFile}) {
+      output->flush();
+      if (!*output) {
+        throw std::runtime_error("failed to finalize production output");
+      }
+    }
+    const std::string completionTemporary = completionPath + ".tmp";
+    std::ofstream completionFile(completionTemporary);
+    if (!completionFile) {
+      throw std::runtime_error("cannot write production completion record");
+    }
+    completionFile << "{\n"
+                   << "  \"schema_version\": 1,\n"
+                   << "  \"status\": \"complete\",\n"
+                   << "  \"production_steps\": " << parameters.steps << ",\n"
+                   << "  \"initial_absolute_step\": " << initialStep << ",\n"
+                   << "  \"final_absolute_step\": "
+                   << initialStep + parameters.steps << "\n"
+                   << "}\n";
+    completionFile.flush();
+    if (!completionFile) {
+      throw std::runtime_error("cannot finalize production completion record");
+    }
+    completionFile.close();
+    if (std::rename(completionTemporary.c_str(), completionPath.c_str()) != 0) {
+      throw std::runtime_error("cannot atomically commit production completion record");
+    }
+#endif
     const double wallSeconds = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - start).count();
     std::cout << kg_assoc::formatStarTopologyReport(topology);

@@ -24,6 +24,8 @@ kg_assoc_production: kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_s
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 kg_assoc_production.cu ../KG/correlator.cpp -o $@ $(LDLIBS)
 kg_assoc_campaign_production: kg_assoc_campaign_production.cu kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 kg_assoc_campaign_production.cu ../KG/correlator.cpp -o $@ $(LDLIBS)
+kg_assoc_campaign_production_smoke: kg_assoc_campaign_production.cu kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
+	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -DKG_ASSOC_CAMPAIGN_STEPS=\"100000\" -O3 kg_assoc_campaign_production.cu ../KG/correlator.cpp -o $@ $(LDLIBS)
 kg_correlator6_counts_test: kg_correlator6_counts_test.cpp ../KG/correlator.cpp ../KG/correlator.h Makefile
 	$(CXX) -std=c++14 -O2 $< ../KG/correlator.cpp -o $@
 kg_assoc_correlator_checkpoint_test: kg_assoc_correlator_checkpoint_test.cpp kg_assoc_correlator_checkpoint.cuh ../KG/correlator.cpp ../KG/correlator.h Makefile
@@ -31,4 +33,4 @@ kg_assoc_correlator_checkpoint_test: kg_assoc_correlator_checkpoint_test.cpp kg_
 debug: kg_assoc_dimer.cu kg_assoc_cli.cuh kg_assoc_state.cuh kg_assoc_interactors.cuh kg_assoc_kinetics.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(DEBUG_LOG_LEVEL) -O0 -g -G kg_assoc_dimer.cu -o kg_assoc_dimer_debug $(LDLIBS)
 clean:
-	rm -f kg_assoc_dimer kg_assoc_dimer_debug kg_assoc_k1 kg_assoc_star_audit kg_assoc_stars kg_assoc_star_equilibrate kg_assoc_stress_test kg_assoc_production kg_assoc_campaign_production kg_correlator6_counts_test kg_assoc_correlator_checkpoint_test
+	rm -f kg_assoc_dimer kg_assoc_dimer_debug kg_assoc_k1 kg_assoc_star_audit kg_assoc_stars kg_assoc_star_equilibrate kg_assoc_stress_test kg_assoc_production kg_assoc_campaign_production kg_assoc_campaign_production_smoke kg_correlator6_counts_test kg_assoc_correlator_checkpoint_test
