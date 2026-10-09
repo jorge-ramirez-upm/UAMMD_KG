@@ -1,0 +1,122 @@
+{
+  "analyzer": "examples/KG_Assoc/analysis/analyze_p48_percolation.py",
+  "bracket": null,
+  "chains": [
+    {
+      "Ee": 7.5,
+      "history": [],
+      "id": "chain1",
+      "restart": "p48b_c1_s12001_ee7p5_measure",
+      "seed": 12001
+    },
+    {
+      "Ee": 7.5,
+      "history": [],
+      "id": "chain2",
+      "restart": "p48b_c1_s12002_ee7p5_measure",
+      "seed": 12002
+    }
+  ],
+  "failed_blocks": {
+    "chain1": [
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1570.4545454545455,
+        "intra_bonds": 91.27272727272727,
+        "largest_component_fraction": 0.9921818181818183,
+        "mean_k_neighbor": 3.0685454545454545,
+        "temporary_bonds": 1661.7272727272727
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1562.8181818181818,
+        "intra_bonds": 91.27272727272727,
+        "largest_component_fraction": 0.9941818181818181,
+        "mean_k_neighbor": 3.0654545454545454,
+        "temporary_bonds": 1654.090909090909
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1572.2727272727273,
+        "intra_bonds": 70.45454545454545,
+        "largest_component_fraction": 0.995090909090909,
+        "mean_k_neighbor": 3.0869090909090913,
+        "temporary_bonds": 1642.7272727272727
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1575.7272727272727,
+        "intra_bonds": 73.72727272727273,
+        "largest_component_fraction": 0.9953636363636362,
+        "mean_k_neighbor": 3.088545454545454,
+        "temporary_bonds": 1649.4545454545455
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1578.8181818181818,
+        "intra_bonds": 75.9090909090909,
+        "largest_component_fraction": 0.9978181818181819,
+        "mean_k_neighbor": 3.089454545454545,
+        "temporary_bonds": 1654.7272727272727
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1577.4545454545455,
+        "intra_bonds": 82.54545454545455,
+        "largest_component_fraction": 0.9945454545454545,
+        "mean_k_neighbor": 3.0823636363636364,
+        "temporary_bonds": 1660.0
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1563.5454545454545,
+        "intra_bonds": 91.0909090909091,
+        "largest_component_fraction": 0.996090909090909,
+        "mean_k_neighbor": 3.0696363636363633,
+        "temporary_bonds": 1654.6363636363637
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1572.4545454545455,
+        "intra_bonds": 75.9090909090909,
+        "largest_component_fraction": 0.9949090909090909,
+        "mean_k_neighbor": 3.0714545454545448,
+        "temporary_bonds": 1648.3636363636363
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1574.8181818181818,
+        "intra_bonds": 81.27272727272727,
+        "largest_component_fraction": 0.9963636363636365,
+        "mean_k_neighbor": 3.077454545454545,
+        "temporary_bonds": 1656.090909090909
+      },
+      {
+        "P_wrap_any": 1,
+        "inter_bonds": 1591.4545454545455,
+        "intra_bonds": 69.18181818181819,
+        "largest_component_fraction": 0.9958181818181817,
+        "mean_k_neighbor": 3.103454545454546,
+        "temporary_bonds": 1660.6363636363637
+      }
+    ]
+  },
+  "protocol": {
+    "Ea": 4.0,
+    "Nevery": 100,
+    "block_steps": 100000,
+    "delta_Ee": 0.5,
+    "dt": 0.01,
+    "measurement_steps": 320000,
+    "nu0": 20.0,
+    "r_assoc": 1.25,
+    "reequilibration_steps": 500000,
+    "relative_drift_tolerance": 0.05,
+    "temperature": 1.0,
+    "topology_every": 10000
+  },
+  "runner": "examples/KG_Assoc/kg_assoc_production",
+  "schema_version": 1,
+  "status": "EQUILIBRATION_NOT_ESTABLISHED",
+  "system": "examples/KG_Assoc/systems/restart_bank/C1/C1_e2_s12001_t40000.restart.lammpsdat"
+}
