@@ -1011,7 +1011,7 @@ int main(int argc, char** argv) {
               << " final_associating_bonds " << counts.bonds
               << " final_intra_star_bonds " << counts.intraStarBonds
               << " final_inter_star_bonds " << counts.interStarBonds << '\n';
-    if (creations == 0 || breaks == 0) {
+    if (parameters.nu0 > 0.0 && (creations == 0 || breaks == 0)) {
       throw std::runtime_error("S1 smoke requires at least one creation and one break");
     }
     std::cout << "STAR_ASSOCIATION_SMOKE PASS\n";
