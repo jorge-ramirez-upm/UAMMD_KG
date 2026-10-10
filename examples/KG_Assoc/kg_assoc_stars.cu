@@ -49,6 +49,7 @@ struct Parameters {
   double feneR0 = 1.5;
   double skin = 0.4;
   unsigned long long seed = 12345;
+  unsigned long long mdSeed = 0;
   bool force = false;
   bool selfTest = false;
   bool rAssocExplicit = false;
@@ -74,7 +75,7 @@ void printHelp() {
   std::cout << "kg_assoc_stars (--input FILE | --restart-prefix PREFIX) [options]\n"
             << "  --steps N --dt DT --temperature T --Ea E --Ee E --nu0 X\n"
             << "  --Nevery N --r-assoc R --damp D --K K --R0 R --seed S\n"
-            << "  --diagnostic-every N\n"
+            << "  --diagnostic-every N --md-seed S (fresh MD stream; chemistry seed unchanged)\n"
             << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
 }
 
@@ -118,6 +119,11 @@ Parameters parseArguments(int argc, char** argv) {
     } else if (option == "--seed") {
       parameters.seed = std::stoull(nextArgument(index, argc, argv));
       parameters.seedExplicit = true;
+    } else if (option == "--md-seed") {
+      parameters.mdSeed = std::stoull(nextArgument(index, argc, argv));
+      if (parameters.mdSeed == 0) {
+        throw std::runtime_error("--md-seed must be positive");
+      }
     } else if (option == "--output") {
       parameters.output = nextArgument(index, argc, argv);
     } else if (option == "--force") {
@@ -378,6 +384,27 @@ void runSelfTest() {
     (void)readRestartMetadata(restartTestPath);
   });
   std::remove(restartTestPath.c_str());
+  std::vector<std::string> arguments{
+      "kg_assoc_stars", "--restart-prefix", "unused", "--seed", "22001", "--md-seed", "32001"};
+  std::vector<char*> pointers;
+  for (auto& argument : arguments) {
+    pointers.push_back(&argument[0]);
+  }
+  const auto seeded = parseArguments(static_cast<int>(pointers.size()), pointers.data());
+  if (seeded.seed != 22001 || seeded.mdSeed != 32001) {
+    throw std::runtime_error("independent MD/chemistry seed parsing regression failed");
+  }
+  std::set<unsigned int> effectiveSeeds;
+  for (const auto streamSeed : {22001, 22002, 22003, 32001, 32002, 32003}) {
+    uammd::Xorshift128plus rng(streamSeed);
+    rng.next32();
+    rng.next32();
+    const auto effective = rng.next32();
+    if (!effectiveSeeds.insert(effective).second) {
+      throw std::runtime_error("MD kernel seed collision in recovery policy");
+    }
+    std::cout << "MD_SEED SELF_TEST requested=" << streamSeed << " effective=" << effective << '\n';
+  }
   std::cout << "STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants\n";
 }
 
@@ -433,6 +460,7 @@ void writeProvenance(std::ofstream& stateFile,
             << " K=" << parameters.feneK
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
+            << " md_seed=" << (parameters.mdSeed ? parameters.mdSeed : parameters.seed)
             << " start_step=" << startStep
             << " total_requested_steps=" << startStep + parameters.steps << '\n';
   stateFile.precision(previousPrecision);
@@ -454,6 +482,7 @@ void writeProvenance(std::ofstream& stateFile,
             << " K=" << parameters.feneK
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
+            << " md_seed=" << (parameters.mdSeed ? parameters.mdSeed : parameters.seed)
             << " start_step=" << startStep
             << " total_requested_steps=" << startStep + parameters.steps
             << " original_lammps_atom_ids=1_based\n";
@@ -624,6 +653,17 @@ int main(int argc, char** argv) {
     integratorParameters.friction = static_cast<uammd::real>(1.0 / parameters.damping);
     integratorParameters.dt = static_cast<uammd::real>(parameters.dt);
     integratorParameters.initVelocities = false;
+    // Reseed only MD initialization; chemistry remains keyed to its restored seed.
+    if (parameters.mdSeed != 0) {
+      system->rng().setSeed(parameters.mdSeed);
+    }
+    auto mdRng = system->rng();
+    mdRng.next32();
+    mdRng.next32();
+    const auto effectiveMdSeed = mdRng.next32();
+    system->log<uammd::System::MESSAGE>(
+        "[E2 MD stream] requested_seed=%llu effective_seed=%u internal_start_step=0",
+        parameters.mdSeed ? parameters.mdSeed : parameters.seed, effectiveMdSeed);
     const auto integrator = std::make_shared<NVT>(particles, integratorParameters);
     integrator->addInteractor(wca);
     integrator->addInteractor(permanentFene);

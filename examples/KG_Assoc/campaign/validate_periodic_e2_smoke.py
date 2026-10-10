@@ -20,12 +20,12 @@ require = analysis.require
 STEPS = 10000
 
 
-def validate(prefix, parent, replica):
-    for suffix in analysis.OUTPUTS + (".candidate_validation.tsv",):
+def validate(prefix, parent, replica, steps=STEPS, oracle=True, md_seed=None):
+    for suffix in analysis.OUTPUTS + ((".candidate_validation.tsv",) if oracle else ()):
         require(Path(str(prefix) + suffix).is_file(), "missing smoke output " + suffix)
     original, initial_pairs = analysis.restart.read_metadata(str(parent) + ".assoc_restart")
     start = int(original["completed_steps"])
-    end = start + STEPS
+    end = start + steps
     require(start == 6000000 and int(original["seed"]) == 22000 + replica,
             "unexpected C1 parent step/seed")
     metadata, rows = analysis.stationarity.read_state(str(prefix) + ".state")
@@ -36,7 +36,7 @@ def validate(prefix, parent, replica):
     require(int(metadata["seed"]) == int(original["seed"]) and
             int(metadata["start_step"]) == start and
             int(metadata["total_requested_steps"]) == end and
-            int(metadata["chemistry_sweeps"]) == STEPS // 100,
+            int(metadata["chemistry_sweeps"]) == steps // 100,
             "wrong seed, timestamps or sweep count")
     require(Path(metadata["input_file"]).resolve() ==
             Path(str(parent) + ".restart.lammpsdat").resolve(), "wrong parent configuration")
@@ -46,6 +46,8 @@ def validate(prefix, parent, replica):
     require(all(0 <= row["max_active_bond_distance"] < 1.5 for row in rows),
             "invalid sampled temporary bond geometry")
     final_snapshot = Path(str(prefix) + ".restart.lammpsdat")
+    with final_snapshot.open() as source:
+        require(source.readline().rstrip().endswith("step " + str(end)), "final snapshot timestamp mismatch")
     snapshot_check = analysis.e1.check_snapshot(final_snapshot, analysis.model())
     system = analysis.topology.read_system(str(final_snapshot), 2)
     event_metadata, events = analysis.dynamics.read_events(str(prefix) + ".events", system)
@@ -89,16 +91,25 @@ def validate(prefix, parent, replica):
     require(math.isclose(numeric[0][3], parent_temperature, rel_tol=1e-5) and
             math.isclose(numeric[-1][3], snapshot_check["final_temperature"], rel_tol=1e-5),
             "loaded/final numerical velocities disagree with configuration")
-    with Path(str(prefix) + ".candidate_validation.tsv").open() as source:
-        require(source.readline().strip() ==
-                "# step candidates oracle_verified_active_candidates", "incorrect oracle header")
-        checks = [list(map(int, line.split())) for line in source]
-    require(all(len(row) == 3 and 0 <= row[2] <= min(row[1], 2000) for row in checks) and
-            [row[0] for row in checks] == list(range(start + 100, end + 1, 100)),
-            "incomplete per-sweep oracle verification")
-    require(sum(row[1] for row in checks) == int(metadata["candidate_sticker_pairs"]),
-            "candidate accounting mismatch")
+    checks = []
+    if oracle:
+        with Path(str(prefix) + ".candidate_validation.tsv").open() as source:
+            require(source.readline().strip() ==
+                    "# step candidates oracle_verified_active_candidates", "incorrect oracle header")
+            checks = [list(map(int, line.split())) for line in source]
+        require(all(len(row) == 3 and 0 <= row[2] <= min(row[1], 2000) for row in checks) and
+                [row[0] for row in checks] == list(range(start + 100, end + 1, 100)),
+                "incomplete per-sweep oracle verification")
+        require(sum(row[1] for row in checks) == int(metadata["candidate_sticker_pairs"]),
+                "candidate accounting mismatch")
     log = (prefix.parent / "stderr.log").read_text()
+    if md_seed is not None:
+        effective = {32001: 3928609932, 32002: 3937019018, 32003: 3945428108}
+        require(int(metadata.get("md_seed", -1)) == md_seed and
+                int(event_metadata.get("md_seed", -1)) == md_seed and
+                f"[E2 MD stream] requested_seed={md_seed} effective_seed={effective[md_seed]} "
+                "internal_start_step=0" in log,
+                "fresh MD stream provenance missing or incorrect")
     for field, value in (("Temperature", "1.000000"), ("Time step", "0.010000"),
                          ("Friction", "0.500000")):
         require(f"[VerletNVT::GronbechJensen] {field}: {value}" in log,
@@ -116,6 +127,7 @@ def main():
     parser.add_argument("--output", required=True, help="new directory below aggregate/e2")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--fresh-md", action="store_true", help="test fresh MD seeds 32001..32003")
     args = parser.parse_args()
     require(not (args.execute and args.verify), "choose execution OR verification")
     root = Path(args.dataset_root).resolve()
@@ -128,6 +140,9 @@ def main():
                  "--diagnostic-every", "1000", "--seed", str(22000 + replica),
                  "--output", str(output / f"r{replica:03d}" / "state")]
                 for replica, parent in enumerate(parents, 1)]
+    if args.fresh_md:
+        for replica, command in enumerate(commands, 1):
+            command.extend(["--md-seed", str(32000 + replica)])
     if not args.execute and not args.verify:
         print(json.dumps(dict(status="dry_run_no_MD", commands=commands), indent=2))
         return
@@ -140,7 +155,8 @@ def main():
                         git_sha=subprocess.check_output(
                             ["git", "rev-parse", "HEAD"], cwd=campaign.HERE, text=True).strip(),
                         executable_sha256=campaign.sha256(executable),
-                        rng_policy="existing_reader_MD_reseed; chemistry_absolute_step_hash",
+                        rng_policy=("fresh_MD_reseed" if args.fresh_md else
+                                    "existing_reader_MD_reseed; chemistry_absolute_step_hash"),
                         md_steps_per_replica=STEPS)
         output.mkdir(parents=True, exist_ok=False)
         campaign.write_json(output / "manifest.json", manifest)
@@ -156,7 +172,9 @@ def main():
                 elapsed = time.monotonic() - start
             else:
                 elapsed = None
-            result = validate(directory / "state", parent, replica)
+            fresh = manifest["rng_policy"] == "fresh_MD_reseed"
+            result = validate(directory / "state", parent, replica,
+                              md_seed=32000 + replica if fresh else None)
             result["wall_seconds"] = elapsed
             if args.execute:
                 result["output_sha256"] = {path.name: campaign.sha256(path)

@@ -56,6 +56,18 @@ class PeriodicSmokeTests(unittest.TestCase):
             self.assertEqual(result["oracle_sweeps"], 100)
             self.assertEqual(result["accepted_events"], 2)
             self.assertEqual(result["final_bonds"], 1)
+            for suffix in (".state", ".events"):
+                path = Path(str(prefix) + suffix)
+                path.write_text(path.read_text().replace("seed=22001", "seed=22001 md_seed=32001"))
+            log = prefix.parent / "stderr.log"
+            log.write_text(log.read_text() +
+                           "\n[E2 MD stream] requested_seed=32001 effective_seed=3928609932 internal_start_step=0\n")
+            result = smoke.validate(prefix, parent, 1, steps=10000, oracle=False, md_seed=32001)
+            self.assertEqual(result["accepted_events"], 2)
+            with self.assertRaisesRegex(ValueError, "fresh MD stream"):
+                smoke.validate(prefix, parent, 1, steps=10000, oracle=False, md_seed=32002)
+            with self.assertRaisesRegex(ValueError, "sweep count"):
+                smoke.validate(prefix, parent, 1, steps=2000000, oracle=False, md_seed=32001)
             oracle.write_text(oracle.read_text().replace("6000200 2 1\n", ""))
             with self.assertRaisesRegex(ValueError, "incomplete per-sweep"):
                 smoke.validate(prefix, parent, 1)
