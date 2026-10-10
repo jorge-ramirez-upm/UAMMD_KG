@@ -72,3 +72,6 @@ build
 p47_hop_walk_analysis
 p48_percolation_results
 p48b_c1_automated/
+
+examples/KG_Assoc/kg_assoc_100m/
+
