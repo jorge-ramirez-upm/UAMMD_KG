@@ -1,5 +1,13 @@
 # Associating-star 100M campaign
 
+## Current execution gate
+
+The shared periodic reaction search has been corrected; affected binaries must
+be rebuilt. The existing C1 6M E2 banks are not scientifically accepted production
+starts, despite numerical completeness. No recovery or production launch is
+authorized. See [impact and required validation](PERIODIC_CANDIDATES.md).
+E1 and non-associating physics are unaffected by this defect.
+
 ## Production policy
 
 Each replica is one uninterrupted 100,000,000-step trajectory at `dt=0.01`.

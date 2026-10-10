@@ -1,5 +1,13 @@
 # KG_Assoc validation record
 
+## Periodic candidate completeness correction
+
+See [PERIODIC_CANDIDATES.md](PERIODIC_CANDIDATES.md) for the independently checked
+C1 counts, 24 passing offline campaign tests, affected-target rebuilds and
+explicitly pending GPU validation. Prior numerical/event-accounting successes
+did not certify candidate completeness; affected scientific results remain on
+hold. The new all-pairs oracle is restricted to test builds.
+
 This record contains only executed and inspected checks. Generated `.events` and
 `.summary` files are intentionally not versioned.
 

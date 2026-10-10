@@ -60,11 +60,26 @@ def numerics(path, rows, count):
     return parsed
 
 
-def replay(rows, events, system, network=True):
-    """Reconstruct from the explicitly unassociated E1 start, retaining event order."""
+def replay(rows, events, system, network=True, initial=None):
+    """Reconstruct ordered events; optionally seed from a chemical restart state."""
     active, partners = set(), {}
     multiplicity = collections.Counter()
     counters = collections.Counter()
+    if initial is not None:
+        counters.update(creations=initial["creations"], breaks=initial["breaks"])
+        for first, second in initial["pairs"]:
+            require(first < second and first in system["stickers"] and
+                    second in system["stickers"] and first not in partners and
+                    second not in partners, "invalid initial reciprocal partner state")
+            active.add((first, second))
+            partners[first], partners[second] = second, first
+            stars = tuple(sorted((system["atom_to_star"][first], system["atom_to_star"][second])))
+            inter = stars[0] != stars[1]
+            counters["inter" if inter else "intra"] += 1
+            if inter:
+                multiplicity[stars] += 1
+        require(counters["creations"] - counters["breaks"] == len(active),
+                "initial event counters disagree with bonds")
     event_rows = []
     event_index = 0
     for index, row in enumerate(rows):

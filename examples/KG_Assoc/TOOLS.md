@@ -1,5 +1,10 @@
 # KG_Assoc operational tools
 
+The corrected periodic reaction-search test and explicitly gated 10k GPU runner
+are documented in [PERIODIC_CANDIDATES.md](PERIODIC_CANDIDATES.md). Existing C1 E2
+banks are not cleared for production or automatic recovery; old launch commands
+below do not constitute current execution approval.
+
 Run commands from the repository root. These tools preserve provenance but do
 not make a restart time or a time origin into an independent replica: use a
 different stochastic seed for each independent realization.

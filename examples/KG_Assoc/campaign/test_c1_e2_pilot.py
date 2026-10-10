@@ -79,6 +79,25 @@ def fixture(root, replica, body):
 
 
 class PilotTests(unittest.TestCase):
+    def test_seeded_chemical_replay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            prefix = fixture(Path(directory), 1, snapshot())
+            _, rows = analysis.stationarity.read_state(str(prefix) + ".state")
+            system = analysis.topology.read_system(str(prefix) + ".restart.lammpsdat", 2)
+            _, events = analysis.dynamics.read_events(str(prefix) + ".events", system)
+            initial = dict(pairs=[(11, 52)], creations=1, breaks=0)
+            active, replayed = analysis.replay(rows[1:], events[1:], system, initial=initial)
+            self.assertEqual(active, {(11, 52)})
+            self.assertEqual(len(replayed), 2)
+            self.assertEqual(replayed[0]["neighbor_loss"], 1)
+            self.assertEqual(replayed[1]["neighbor_gain"], 1)
+            with self.assertRaisesRegex(ValueError, "initial event counters"):
+                analysis.replay(rows[1:], events[1:], system,
+                                initial=dict(pairs=[(11, 52)], creations=2, breaks=0))
+            with self.assertRaisesRegex(ValueError, "invalid initial"):
+                analysis.replay(rows[1:], events[1:], system,
+                                initial=dict(pairs=[(11, 52), (11, 93)], creations=2, breaks=0))
+
     def test_full_outputs_and_reproducible_analysis(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

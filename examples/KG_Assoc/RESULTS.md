@@ -1,5 +1,14 @@
 # C1 scientific results
 
+## Current qualification: periodic reaction-search defect
+
+Historical association-dependent conclusions below are retained records, not
+currently certified results of the intended chemistry. The candidate search
+omitted periodic neighbors with unwrapped positions, including active bonds.
+The new three-replica 6M E2 pilot is likewise not accepted for production.
+See [correction, impact inventory and recovery gate](PERIODIC_CANDIDATES.md).
+No historical data have been overwritten or retrospectively corrected.
+
 ## System/condition
 
 These conclusions apply only to the current C1 associating-star condition:

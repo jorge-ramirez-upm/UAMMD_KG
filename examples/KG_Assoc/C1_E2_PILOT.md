@@ -1,6 +1,11 @@
 # Fresh C1 E2 pilot
 
-Infrastructure prepared; **three 6M trajectories remain unexecuted**. The user
+The three 6M trajectories have completed, but **scientific acceptance is on hold**
+because the periodic candidate search omitted valid pairs and active bonds.
+The correction is documented in [PERIODIC_CANDIDATES.md](PERIODIC_CANDIDATES.md);
+recovery requires separate approval. Original pilot results remain preserved.
+
+Original preparation specification follows. The user
 scientifically accepted all 24 E1 histories with the retained N=40 qualification.
 This pilot uses only the three N=10 C1 banks, not earlier C1 E2 snapshots.
 Other E2, production and the P4.8 search remain unauthorized.
