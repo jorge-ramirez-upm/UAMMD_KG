@@ -216,14 +216,14 @@ inline double minimumImage(double displacement, double length) {
 
 inline int cellIndex(double coordinate, double length, int cells) {
   const double cellLength = length / static_cast<double>(cells);
-  int index = static_cast<int>(std::floor((coordinate + 0.5 * length) / cellLength));
-  if (index < 0) {
-    return 0;
+  // MD positions are unwrapped. Reduce only the binning coordinate, not ParticleData.
+  double periodic = std::fmod(coordinate + 0.5 * length, length);
+  if (periodic < 0.0) {
+    periodic += length;
   }
-  if (index >= cells) {
-    return cells - 1;
-  }
-  return index;
+  const int index = static_cast<int>(std::floor(periodic / cellLength));
+  // Guard roundoff at the upper face; its periodic image is the first cell.
+  return index >= cells ? 0 : index;
 }
 
 inline long long cellKey(int x, int y, int z, int cellsX, int cellsY) {

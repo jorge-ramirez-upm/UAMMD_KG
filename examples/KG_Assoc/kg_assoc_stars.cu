@@ -5,6 +5,9 @@
 #include "../KG/kg_runtime.cuh"
 #include "kg_assoc_interactors.cuh"
 #include "kg_assoc_star_runtime.cuh"
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+#include "kg_assoc_candidate_oracle.cuh"
+#endif
 
 #include <chrono>
 #include <cmath>
@@ -503,6 +506,11 @@ int main(int argc, char** argv) {
       runSelfTest();
       return 0;
     }
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+    if (parameters.steps > 10000) {
+      throw std::runtime_error("candidate-oracle smoke executable is limited to 10000 MD steps");
+    }
+#endif
 
     RestartMetadata restart;
     long long initialStep = 0;
@@ -557,9 +565,22 @@ int main(int argc, char** argv) {
                               std::ifstream(restartMetadataPath))) {
       throw std::runtime_error("output exists; choose a new --output or use --force");
     }
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+    const std::string candidatePath = parameters.output + ".candidate_validation.tsv";
+    if (std::ifstream(candidatePath)) {
+      throw std::runtime_error("candidate validation output already exists");
+    }
+#endif
     std::ofstream stateFile(statePath);
     std::ofstream eventFile(eventPath);
     std::ofstream numericsFile(numericsPath);
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+    std::ofstream candidateFile(candidatePath);
+    if (!candidateFile) {
+      throw std::runtime_error("cannot write candidate validation");
+    }
+    candidateFile << "# step candidates oracle_verified_active_candidates\n";
+#endif
     if (!stateFile || !eventFile || !numericsFile) {
       throw std::runtime_error("cannot open S1 output files");
     }
@@ -655,6 +676,11 @@ int main(int argc, char** argv) {
       if (chemistryStep) {
         std::vector<kg_assoc::Candidate> candidates = kg_assoc::findStickerCandidates(
             particles, state, lengths, parameters.rAssoc);
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+        const auto eligibleActive = kg_assoc_test::checkSweep(
+            particles, state, lengths, parameters.rAssoc, candidates);
+        candidateFile << absoluteStep << ' ' << candidates.size() << ' ' << eligibleActive << '\n';
+#endif
         candidatePairs += static_cast<long long>(candidates.size());
         ++chemistrySweeps;
         std::vector<kg_assoc::Event> acceptedEvents;

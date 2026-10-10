@@ -74,4 +74,6 @@ p48_percolation_results
 p48b_c1_automated/
 
 examples/KG_Assoc/kg_assoc_100m/
+examples/KG_Assoc/kg_assoc_candidates_test
+examples/KG_Assoc/kg_assoc_stars_candidate_smoke
 
