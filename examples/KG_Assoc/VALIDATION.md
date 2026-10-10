@@ -33,6 +33,75 @@ For the current project snapshot, frozen scientific choices, and next steps,
 start with `PROJECT_STATE.md`, `SCIENTIFIC_DECISIONS.md`, and `ROADMAP.md`.
 For concise C1 scientific conclusions, see `RESULTS.md`.
 
+## E1 RP060 seed 12002 correction (2026-10-10)
+
+At starting HEAD `137a8e0d03c20ba3277bb0bd08b6dd68c107731f`, the campaign
+requested `dt_dpd=0.01`, whereas retained successful C1/N20/N40 preparation
+histories used `0.002`. The failed RP060 r002 record reports bond 6239--6240
+at minimum-image distance 12.354460 at global step 53,900. The input contains
+this permanent bond (bond 6087, molecule 153), initially of length 0.97.
+The previous periodic sample was at 53,400; no failure-state coordinates
+were retained. Existing completed E1 states remain accepted.
+
+The correction restores campaign and executable-default DPD timestep `0.002`
+for Stages 1--3b. An E1-local DPD potential assigns an explicit
+`DefaultDissipation(4.5)` object, avoiding the shared scalar assignment
+operator that previously left effective gamma at 1. No shared UAMMD or KG
+files were changed. The amplitude ramp, periodic transition checks, FENE
+parameters and final KG timestep are unchanged. No per-step bond scan was
+added.
+
+The rebuilt E1 self-test instantiates the actual corrected potential on the
+host, verifies stored gamma and noise, and exercises timestep updates.
+Measured values at `T=1`, `dt=0.002` in single precision are:
+
+```text
+effective gamma       4.5
+stored sigma_base     31.622776
+radial_noise_amplitude 67.0820381
+noise_squared_dt      9.0000001
+```
+
+UAMMD stores `sigma_base=sqrt(2*T/dt)` and the force transverser multiplies
+it by `sqrt(gamma)` and radial weight `w(r)`. Thus the unweighted radial
+force standard deviation is `sqrt(2*gamma*T/dt)` and its squared value times
+`dt` is `2*gamma*T=9`. The regression also checks `dt=0.01` and updates to
+`0.005`; runtime segment construction and timestep updates enforce the same
+relationship using the stored potential fields. This is a parameter/formula
+regression, not a statistical GPU noise measurement.
+
+CUDA compilation, the E1 self-test, the stationarity-analyzer self-test, and
+eight campaign tests passed. The campaign tests check the RP060 r002 command
+and the short-validation parser's rejection of effective gamma 1.
+`cudaGetDeviceCount` returned "no CUDA-capable device is detected" (zero
+devices); the targeted trajectory, corrected temperature/bond histories and
+GPU performance benchmark are therefore pending.
+
+`scripts/validate_e1_rp060_short.sh` prepares the exact short GPU replay and
+retains input/executable hashes, Git SHA, command, timing, logs, diagnostics
+and summary in a fresh temporary directory. It ends after the established
+WCA ramp and 1,000-step promotions at `0.005` and `0.01`. It checks all 16
+DPD segment records, 40 Stage-3b samples, and WCA promotion success.
+
+For comparison, retained successful Stage-3b sampled maxima were 1.38335 and
+1.36433 in legacy C1 seeds 12001/12002, 1.35667 in N20 seed 12001, and
+1.37133 in N40 seed 12002 (all `dt_dpd=0.002`). Campaign RP060 r001 completed
+at `0.01` with sampled maximum 1.40473. These historical runs used the old
+effective friction and do not establish stability of the corrected gamma.
+
+For a performance comparison, use the same GPU, input, diagnostics and step
+counts with executables built from the starting and corrected SHAs, retaining
+both timings separately. Use `--stage3b-steps 2000` together with
+`--stage4-entry-diagnostic-only` for a common shorter interval ending before
+the historical failure; time the DPD stages separately if the old executable
+fails on WCA entry. A failed baseline must not be compared as if it completed
+the full corrected test. No new operation was added to the per-step loop;
+parameter validation runs only at segment construction/timestep setup.
+The unchanged DPD step counts represent one fifth of the former elapsed
+preparation time: at equal physical duration `0.002` requires five times as
+many steps, but at the fixed validated counts a fivefold wall-time increase
+is not expected. No timing result is claimed without GPU execution.
+
 ## P4.1 — production instrumentation (CLOSED)
 
 `kg_assoc_production` is a separate production-oriented executable. Its

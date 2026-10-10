@@ -84,6 +84,27 @@ python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py accept-equilibration \
 The known conservative Stage-4 durations are used for `N=10,20,40`; they do
 not automatically accept new density/functionality geometries.
 
+New E1 preparation uses `dt_dpd=0.002` throughout Stages 1--3b and effective
+DPD gamma `4.5`, target temperature `1`, with the existing amplitude ramp.
+Final KG integration stays at `dt_wca=0.01`. The E1 executable records and
+checks the stored DPD gamma and stochastic-force amplitude for each segment.
+The periodic transition diagnostics remain mandatory; no per-step bond scan
+has been added. Existing completed banks remain accepted and retain their
+original preparation histories.
+
+Before restarting the failed RP060 seed 12002, run the isolated short test on
+a GPU host:
+
+```bash
+bash examples/KG_Assoc/scripts/validate_e1_rp060_short.sh
+```
+
+It retains all outputs and timing in a new `/tmp/kg_e1_rp060_s12002.*`
+directory, runs 71,400 DPD preparation steps and 4,500 WCA ramp/promotion
+steps, and writes no E1 bank. Inspect its diagnostics and compare timing
+before scheduling more E1 work. GPU trajectory validation and benchmarking
+of the corrected gamma remain pending on the development host.
+
 E2 duration is explicit; no universal duration is invented. For validated C1:
 
 ```bash
