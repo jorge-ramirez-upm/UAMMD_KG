@@ -52,6 +52,11 @@ topology-based up to `R0=1.5`, independent of the WCA neighbor-list range.
 
 ### P3.1 — C1 E2 chemical/topological equilibration (CLOSED)
 
+The newly accepted 24-history E1 campaign is separate from this historical
+closure. A fresh three-history C1 6M-step E2 pilot is prepared but unexecuted;
+see `C1_E2_PILOT.md`. Historical E2 values are comparison evidence, not reused
+initial states or exact targets. Other E2 and production remain gated.
+
 P3.1/C1 E2 is closed for `A=4`, `Narm=10`, `Nstars=1000`,
 `rho_total=.85`, `rho_poly=.8`, `T=1`, `dt=.01`, `Ea=4`, `Ee=8`, `nu0=20`,
 `Nevery=100`, `r_assoc=1.25`, and diagnostics every 1000 MD steps. Two

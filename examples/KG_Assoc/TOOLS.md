@@ -6,6 +6,13 @@ different stochastic seed for each independent realization.
 
 For scientific conclusions rather than operational instructions, see `RESULTS.md`.
 
+For the fresh three-history C1 E2 pilot use `C1_E2_PILOT.md` and
+`campaign/kg_assoc_c1_e2.py`: plan/prepare/dry-run never launch MD; only explicit
+`launch --execute` does. `analysis/analyze_c1_e2_pilot.py` reconstructs all
+completed networks/events and writes versioned dataset `aggregate/e2/` review
+outputs. Numerical completion never grants scientific acceptance. The separate
+`campaign/validate_c1_e2_smoke.py` is fixed to short 10k-step GPU checks.
+
 For the fixed 23-system, three-replica 100M campaign, use
 `campaign/kg_assoc_campaign.py` and follow `CAMPAIGN_100M.md`. Its list, init,
 validation, preparation, launch dry-run, status, and analysis dry-run operations

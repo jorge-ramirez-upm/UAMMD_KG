@@ -5,6 +5,32 @@ This record contains only executed and inspected checks. Generated `.events` and
 
 ## 100M campaign infrastructure
 
+### Fresh C1 E2 pilot infrastructure (2026-10-10)
+
+Starting HEAD: `b27081b4515604e370b703b8dbb316b9f74e5552`, branch KremerGrest.
+`kg_assoc_stars` was rebuilt with CUDA 12.8 / GCC 11.2; its host self-test
+passed. The dimer actual-interactor/static-kinetics, existing E2 stationarity,
+P4.5 topology, P4.6 bond-dynamics and C1 restart-bank self-tests passed.
+Campaign and E1 regression suites each passed eight tests. Six new offline
+pilot tests passed: frozen CLI, dry-run/nonoverwrite gates, immediate fail-stop,
+accepted-event conservation, ordered molecular-neighbor reconstruction including
+parallel bonds/triangles, exact window boundaries, complete synchronized streams
+and reproducible analysis tables/plots. Python compilation and diff checks passed.
+The inherited restart-parser self-test emits benign unclosed-file ResourceWarnings;
+these do not represent scientific failures. Matplotlib used a temporary cache.
+
+The launch plan independently validated three distinct current C1 E1 snapshots
+with velocities and seeds 12001–12003. New E2 seeds are 22001–22003, fresh
+temporary states, 6M steps, standard KG NVT and frozen C1 chemistry. The only
+simulation-executable change adds periodic numerical diagnostics; force,
+thermostat, reaction algorithms and restart loading remain unchanged.
+
+GPU trajectory validation is **pending**: `nvidia-smi` cannot communicate with
+the driver on this implementation host. No MD was launched. The short dedicated
+host tool and exact gated pilot commands are in `C1_E2_PILOT.md`. All three full
+pilots remain unexecuted; numerical completion will still require scientific
+chemical/network stationarity review. No existing E1/E2 bank was changed.
+
 The campaign matrix regression verifies 15 deduplicated associating systems,
 eight controls, 23 unique system IDs, and exactly eight geometry templates.
 The strict campaign entry point fixes 100M production steps and has no

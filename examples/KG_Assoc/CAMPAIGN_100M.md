@@ -165,7 +165,11 @@ Completed historical states retain their original protocol and provenance;
 they are never rerun automatically. Review reports identify outstanding banks
 and numerical issues without replacing existing reports or accepting banks.
 
-E2 duration is explicit; no universal duration is invented. For validated C1:
+E2 duration is explicit; no universal duration is invented. For the fresh
+three-history C1 pilot use the gated commands and versioned scientific analysis
+in [`C1_E2_PILOT.md`](C1_E2_PILOT.md), not the generic runner. Its 6M trajectories
+remain unexecuted until explicit authorization. For other separately authorized
+equilibration tasks the generic interface is:
 
 ```bash
 python3 examples/KG_Assoc/campaign/kg_assoc_campaign.py equilibrate \
