@@ -35,6 +35,53 @@ For concise C1 scientific conclusions, see `RESULTS.md`.
 
 ## E1 RP060 seed 12002 correction (2026-10-10)
 
+### Dedicated-host result and safe continuation preparation
+
+The user subsequently reported a successful targeted GPU validation for
+RP060 seed 12002: 71,400 DPD and 4,500 WCA steps, effective `dt_dpd=0.002`,
+gamma 4.5 and a passing fluctuation-dissipation check. The maximum sampled
+Stage-3b bond was 1.3463; temperature decreased from 3.0058 to 2.0143; WCA
+transition completed; wall time was 236.62 seconds. These are user-reported
+dedicated-host measurements, not a GPU replay executed by Codex.
+
+At starting SHA `3eb832cd9241c9cb500c0dc78a19a51f2eb66171`, inventory found
+10 completed banks, one failed RP060/r002 bank, and 13 pending banks:
+
+| Geometry | r001 | r002 | r003 |
+|---|---|---|---|
+| F03_N010_RP080 | completed | completed | completed |
+| F04_N010_RP020 | completed | completed | completed |
+| F04_N010_RP040 | completed | completed | completed |
+| F04_N010_RP060 | completed | failed | pending |
+| F04_N010_RP080 | pending | pending | pending |
+| F04_N020_RP080 | pending | pending | pending |
+| F04_N040_RP080 | pending | pending | pending |
+| F06_N010_RP080 | pending | pending | pending |
+
+Read-only review of all ten completed states passed finite-coordinate and
+velocity checks, architecture/density validation, permanent-bond checks and
+KG diagnostic parsing. Late KG temperature means were 0.979445--0.988524,
+with relative half differences at most 0.000251. Structural half differences
+were at most 0.002748 for mean Rg2 and 0.004103 for center-terminal R2. Final
+maximum bond lengths were 1.10754--1.14976. These measured summaries do not
+invalidate previously accepted states or introduce a new automatic
+stationarity criterion. Full blocks, trends and autocorrelation are retained
+in the generated per-replica reports.
+
+`campaign/kg_assoc_e1.py` provides status, a read-only dry-run plan, explicit
+isolated retries, sequential E1-only execution and versioned review tables.
+Dry-run validation produced 14 outstanding commands and skipped all ten
+completed states. The original failed files were not changed. Tests cover
+inventory, dry-run immutability, explicit retry requirements, stopping before
+the next entry on a mocked failed process, reference resolution, effective
+parameters, exact final step/seed checks and rejection of nonfinite/overextended
+states. All 16 campaign/runner regression tests and the stationarity self-test
+passed. Only scripts and offline checks were run; the actual campaign was not
+launched. The remaining 14 banks require execution on the dedicated host;
+the final 24-bank scientific review remains pending.
+
+### Original correction validation
+
 At starting HEAD `137a8e0d03c20ba3277bb0bd08b6dd68c107731f`, the campaign
 requested `dt_dpd=0.01`, whereas retained successful C1/N20/N40 preparation
 histories used `0.002`. The failed RP060 r002 record reports bond 6239--6240

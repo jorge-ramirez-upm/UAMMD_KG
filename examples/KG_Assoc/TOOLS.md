@@ -12,6 +12,13 @@ validation, preparation, launch dry-run, status, and analysis dry-run operations
 do not launch MD. Only an explicit `--execute` starts equilibration, production,
 or analysis. Production has no resume operation.
 
+For an existing E1 campaign, use `campaign/kg_assoc_e1.py status`, `run`, and
+`review` as documented in `CAMPAIGN_100M.md`. `run` is a read-only dry-run
+unless `--execute` is supplied, skips completed states, and requires explicit
+`--retry GEOMETRY/rNNN` for failed entries. Retries preserve original bank
+directories and publish validated initial-state references separately. This
+runner launches E1 only and generates a 24-entry scientific-review table.
+
 `C1_e2_s*_t40000` denotes 40,000 **physical time units**, not 40,000 MD
 steps. COM coordinates are unwrapped only within one executable segment. Do
 not stitch COM trajectories across a restart without reconstructing image

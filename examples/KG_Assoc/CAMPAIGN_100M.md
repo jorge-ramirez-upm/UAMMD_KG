@@ -102,8 +102,68 @@ bash examples/KG_Assoc/scripts/validate_e1_rp060_short.sh
 It retains all outputs and timing in a new `/tmp/kg_e1_rp060_s12002.*`
 directory, runs 71,400 DPD preparation steps and 4,500 WCA ramp/promotion
 steps, and writes no E1 bank. Inspect its diagnostics and compare timing
-before scheduling more E1 work. GPU trajectory validation and benchmarking
-of the corrected gamma remain pending on the development host.
+before scheduling more E1 work. The user reports that this exact short
+validation passed on the dedicated GPU host (236.62 seconds); see the
+validation record for the reported temperature and bond measurements.
+
+### Continue only outstanding E1 banks
+
+Use the E1-only runner for an existing campaign. It skips every completed
+state and requires an explicit selection for each failed entry. These commands
+inspect or print plans and do not launch simulations:
+
+```bash
+export DATASET_ROOT=/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m
+python3 examples/KG_Assoc/campaign/kg_assoc_e1.py status \
+  --dataset-root "$DATASET_ROOT"
+python3 examples/KG_Assoc/campaign/kg_assoc_e1.py run \
+  --dataset-root "$DATASET_ROOT" --retry F04_N010_RP060/r002
+```
+
+The failed original `banks/e1/F04_N010_RP060/r002` remains untouched. Its
+retry writes to `banks/e1_retries/F04_N010_RP060/r002/attempt001`. Further
+explicit retries use new attempt numbers. After numerical validation, the
+runner publishes a relative reference in `banks/e1/active_states.json`;
+equilibration validation and later initial-state readers resolve that
+reference without copying over original files.
+
+On the dedicated host only, after reviewing the plan:
+
+```bash
+make -C examples/KG_Assoc kg_assoc_star_equilibrate
+python3 examples/KG_Assoc/campaign/kg_assoc_e1.py run \
+  --dataset-root "$DATASET_ROOT" --retry F04_N010_RP060/r002 --execute
+```
+
+This invokes E1 only, sequentially. It preflights the corrected executable and
+inputs, pins the existing 71,400 DPD-step schedule, uses `dt_dpd=0.002` and
+effective gamma `4.5`, and retains the established Stage-4 durations. DPD
+step counts are not multiplied by five. A process or numerical-validation
+failure stops the runner immediately, retaining all artifacts. An exclusive
+campaign lock prevents concurrent runner launches; a lock left by a killed
+runner must be investigated on its recorded host before manual removal.
+
+Each new state is checked for finite positions/velocities, geometry/density,
+permanent FENE lengths, effective DPD parameters, finite KG diagnostics and
+positive structural observables. The validated stationarity analyzer reports
+late temperature and pressure, structural half comparisons, trends, blocks
+and autocorrelation. These diagnostics support scientific review rather
+than inventing an automatic equilibrium threshold. No bank is automatically
+scientifically accepted and no E2 or production command is issued.
+
+After a successful runner invocation, a fresh 24-entry CSV and per-replica
+JSON reports are written under `aggregate/e1/review_TIMESTAMP`. To review
+existing completed states separately, use a new output directory:
+
+```bash
+python3 examples/KG_Assoc/campaign/kg_assoc_e1.py review \
+  --dataset-root "$DATASET_ROOT" \
+  --report-dir "$DATASET_ROOT/aggregate/e1/manual_review_001"
+```
+
+Completed historical states retain their original protocol and provenance;
+they are never rerun automatically. Review reports identify outstanding banks
+and numerical issues without replacing existing reports or accepting banks.
 
 E2 duration is explicit; no universal duration is invented. For validated C1:
 
