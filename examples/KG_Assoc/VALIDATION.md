@@ -1,5 +1,11 @@
 # KG_Assoc validation record
 
+## Prepared C1 recovery
+
+See [C1_E2_RECOVERY.md](C1_E2_RECOVERY.md) for the restart/RNG audit, 31 passing
+offline tests, retained GPU-smoke revalidation and pending fresh-MD GPU test.
+No new MD or 2M recovery was run. Original E1/E2 hashes are unchanged.
+
 ## Periodic candidate completeness correction
 
 See [PERIODIC_CANDIDATES.md](PERIODIC_CANDIDATES.md) for the independently checked

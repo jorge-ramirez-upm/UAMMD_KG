@@ -1,5 +1,8 @@
 # Fresh C1 E2 pilot
 
+For separately gated corrected-chemistry recovery from the original 6M endpoints,
+see [C1_E2_RECOVERY.md](C1_E2_RECOVERY.md). Smoke endpoints are not recovery parents.
+
 The three 6M trajectories have completed, but **scientific acceptance is on hold**
 because the periodic candidate search omitted valid pairs and active bonds.
 The correction is documented in [PERIODIC_CANDIDATES.md](PERIODIC_CANDIDATES.md);

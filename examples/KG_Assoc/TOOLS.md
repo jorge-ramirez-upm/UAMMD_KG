@@ -1,5 +1,9 @@
 # KG_Assoc operational tools
 
+Prepared C1 recovery: `campaign/kg_assoc_c1_recovery.py` and
+`analysis/analyze_c1_recovery.py`; exact non-executing preparation and future gated
+commands are in [C1_E2_RECOVERY.md](C1_E2_RECOVERY.md). Full runs remain unauthorized.
+
 The corrected periodic reaction-search test and explicitly gated 10k GPU runner
 are documented in [PERIODIC_CANDIDATES.md](PERIODIC_CANDIDATES.md). Existing C1 E2
 banks are not cleared for production or automatic recovery; old launch commands

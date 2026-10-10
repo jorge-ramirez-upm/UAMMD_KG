@@ -1,5 +1,10 @@
 # Periodic reaction-candidate correction and recovery gate
 
+Recovery launcher, seeded segment validation, fresh-MD policy and four-window
+analysis are now prepared in [C1_E2_RECOVERY.md](C1_E2_RECOVERY.md). The old plan
+below is retained as the correction-stage record; its missing-runner/MD-reseed
+gates are superseded by the new workflow, not by execution authorization.
+
 Starting HEAD: `c4d310f6b33c601de881a6086bcc2e375600d3b3`, branch `KremerGrest`.
 This correction does not authorize recovery equilibration or production.
 
