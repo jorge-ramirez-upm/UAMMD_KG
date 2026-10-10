@@ -131,7 +131,8 @@ def expected_geometry(system):
 
 def parse_lammps_data(path):
     lines = Path(path).read_text(encoding="utf-8").splitlines()
-    result = {"atoms": {}, "bonds": [], "counts": {}, "bounds": {}}
+    result = {"atoms": {}, "bonds": [], "counts": {}, "bounds": {},
+              "positions": {}, "velocities": {}}
     section = None
     for raw in lines:
         line = raw.split("#", 1)[0].strip()
@@ -155,6 +156,9 @@ def parse_lammps_data(path):
             if atom_id in result["atoms"]:
                 raise ValueError(f"duplicate atom ID {atom_id}")
             result["atoms"][atom_id] = (molecule, atom_type)
+            result["positions"][atom_id] = tuple(map(float, words[3:6]))
+        elif section == "Velocities" and words[0].isdigit():
+            result["velocities"][int(words[0])] = tuple(map(float, words[1:4]))
         elif section == "Bonds" and words[0].isdigit():
             if len(words) < 4:
                 raise ValueError("malformed Bonds row")
@@ -332,6 +336,35 @@ def selected_bank_systems(args):
     return unique
 
 
+def e1_bank_path(root, identifier, replica):
+    pointers = root / "banks" / "e1" / "active_states.json"
+    key = f"{identifier}/r{replica:03d}"
+    references = load_json(pointers) if pointers.exists() else {}
+    if key in references:
+        path = (root / references[key]).resolve()
+        try:
+            path.relative_to(root.resolve())
+        except ValueError:
+            raise ValueError("E1 active state points outside the dataset")
+        return path
+    return root / "banks" / "e1" / identifier / f"r{replica:03d}"
+
+
+def e1_command(root, system, replica, bank):
+    stage4_steps = {10: 2000000, 20: 2000000, 40: 8000000}[system["N"]]
+    return [str(HERE.parent / "kg_assoc_star_equilibrate"), "--input",
+            str(root / "inputs" / geometry_id(system) / "initial.lammpsdat"),
+            "--output", str(bank / "state.e1.lammpsdat"),
+            "--diagnostics", str(bank / "diagnostics.tsv"),
+            "--arms", str(system["f"]), "--narm", str(system["N"]),
+            "--seed", str(12000 + replica), "--stage1-loops", "4", "--stage1-steps", "100",
+            "--stage2-steps", "50000", "--stage3-loops", "10", "--stage3-steps", "100",
+            "--stage3b-steps", "20000",
+            "--wca-ramp", "--wca-ramp-steps", "500",
+            "--stage4-steps", str(stage4_steps), "--dt-dpd", "0.002",
+            "--dt-wca", "0.01", "--conformation-every", "1000"]
+
+
 def command_equilibrate(args):
     root = Path(args.dataset_root).resolve()
     executable = HERE.parent / ("kg_assoc_star_equilibrate" if args.stage == "e1"
@@ -344,15 +377,7 @@ def command_equilibrate(args):
                 diagnostics = bank / "diagnostics.tsv"
                 if output.exists() or diagnostics.exists():
                     raise ValueError(f"E1 output already exists: {bank}")
-                stage4_steps = {10: 2000000, 20: 2000000, 40: 8000000}[system["N"]]
-                command = [str(executable), "--input",
-                           str(root / "inputs" / geometry_id(system) / "initial.lammpsdat"),
-                           "--output", str(output), "--diagnostics", str(diagnostics),
-                           "--arms", str(system["f"]), "--narm", str(system["N"]),
-                           "--seed", str(12000 + replica), "--stage3b-steps", "20000",
-                           "--wca-ramp", "--wca-ramp-steps", "500",
-                           "--stage4-steps", str(stage4_steps), "--dt-dpd", "0.002",
-                           "--dt-wca", "0.01", "--conformation-every", "1000"]
+                command = e1_command(root, system, replica, bank)
             else:
                 if args.steps is None:
                     raise ValueError("E2 requires --steps chosen from stationarity evidence")
@@ -360,8 +385,8 @@ def command_equilibrate(args):
                 if any(bank.glob("state.*")):
                     raise ValueError(f"E2 output already exists: {bank}")
                 command = [str(executable), "--input",
-                           str(root / "banks" / "e1" / geometry_id(system) /
-                               f"r{replica:03d}" / "state.e1.lammpsdat"),
+                           str(e1_bank_path(root, geometry_id(system), replica) /
+                               "state.e1.lammpsdat"),
                            "--output", str(output_prefix), "--arms", str(system["f"]),
                            "--narm", str(system["N"]), "--steps", str(args.steps),
                            "--dt", "0.01", "--temperature", "1", "--Ea", str(args.equilibration_ea),
@@ -389,6 +414,8 @@ def command_validate_equilibration(args):
         reports = []
         for replica in replicas(args.replicas):
             bank = root / "banks" / args.stage / bank_id / f"r{replica:03d}"
+            if args.stage == "e1":
+                bank = e1_bank_path(root, bank_id, replica)
             source = bank / ("diagnostics.tsv" if args.stage == "e1" else "state.state")
             if not source.is_file():
                 raise ValueError(f"missing equilibration diagnostics: {source}")
@@ -437,6 +464,8 @@ def command_prepare_production(args):
             if run_path.exists():
                 raise ValueError(f"production replica already prepared: {run_path}")
             parent = root / "banks" / bank_stage / bank_id / f"r{replica:03d}"
+            if bank_stage == "e1":
+                parent = e1_bank_path(root, bank_id, replica)
             particle = parent / ("state.restart.lammpsdat" if system["associating"]
                                  else "state.e1.lammpsdat")
             chemistry = parent / "state.assoc_restart"
@@ -454,8 +483,8 @@ def command_prepare_production(args):
             write_json(run_path, {
                 "schema_version": 1, "system_id": system["system_id"], "replica": replica,
                 "status": "prepared", "completed_production_steps": 0,
-                "parent_e1": str(root / "banks" / "e1" / geometry_id(system) /
-                                 f"r{replica:03d}" / "state.e1.lammpsdat"),
+                "parent_e1": str(e1_bank_path(root, geometry_id(system), replica) /
+                                 "state.e1.lammpsdat"),
                 "parent_e2": str(parent / "state") if system["associating"] else None,
                 "md_seed": seed, "chemistry_seed": seed, "attempt": 1,
                 "command": [], "exit_code": None, "validation": {}, "files": {},

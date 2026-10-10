@@ -67,6 +67,9 @@ class CampaignTest(unittest.TestCase):
             self.assertEqual("0.01", command[command.index("--dt-wca") + 1])
             self.assertEqual("12002", command[command.index("--seed") + 1])
             self.assertEqual("20000", command[command.index("--stage3b-steps") + 1])
+            self.assertEqual("50000", command[command.index("--stage2-steps") + 1])
+            self.assertEqual("10", command[command.index("--stage3-loops") + 1])
+            self.assertEqual("100", command[command.index("--stage3-steps") + 1])
             self.assertFalse(runner.call_args.args[1])
 
     def test_short_e1_validator_rejects_incorrect_effective_gamma(self):
