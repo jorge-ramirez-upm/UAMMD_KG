@@ -365,10 +365,19 @@ def e1_command(root, system, replica, bank):
             "--dt-wca", "0.01", "--conformation-every", "1000"]
 
 
+def e2_command(root, system, replica, bank, steps, ea=4):
+    return [str(HERE.parent / "kg_assoc_stars"), "--input",
+            str(e1_bank_path(root, geometry_id(system), replica) / "state.e1.lammpsdat"),
+            "--output", str(bank / "state"), "--arms", str(system["f"]),
+            "--narm", str(system["N"]), "--steps", str(steps),
+            "--dt", "0.01", "--temperature", "1", "--Ea", str(ea),
+            "--Ee", str(system["Ee"]), "--nu0", "20", "--Nevery", "100",
+            "--r-assoc", "1.25", "--damp", "2", "--K", "30", "--R0", "1.5",
+            "--seed", str(22000 + replica), "--diagnostic-every", "1000"]
+
+
 def command_equilibrate(args):
     root = Path(args.dataset_root).resolve()
-    executable = HERE.parent / ("kg_assoc_star_equilibrate" if args.stage == "e1"
-                                else "kg_assoc_stars")
     for bank_id, system in selected_bank_systems(args).items():
         for replica in replicas(args.replicas):
             bank = root / "banks" / args.stage / bank_id / f"r{replica:03d}"
@@ -381,18 +390,14 @@ def command_equilibrate(args):
             else:
                 if args.steps is None:
                     raise ValueError("E2 requires --steps chosen from stationarity evidence")
-                output_prefix = bank / "state"
-                if any(bank.glob("state.*")):
+                if bank.exists() and any(bank.iterdir()):
                     raise ValueError(f"E2 output already exists: {bank}")
-                command = [str(executable), "--input",
-                           str(e1_bank_path(root, geometry_id(system), replica) /
-                               "state.e1.lammpsdat"),
-                           "--output", str(output_prefix), "--arms", str(system["f"]),
-                           "--narm", str(system["N"]), "--steps", str(args.steps),
-                           "--dt", "0.01", "--temperature", "1", "--Ea", str(args.equilibration_ea),
-                           "--Ee", str(system["Ee"]), "--nu0", "20", "--Nevery", "100",
-                           "--r-assoc", "1.25", "--seed", str(22000 + replica),
-                           "--diagnostic-every", "1000"]
+                command = e2_command(root, system, replica, bank, args.steps, args.equilibration_ea)
+                if not args.execute:
+                    run_or_print(command, False)
+                    continue
+                validate_geometry(Path(command[command.index("--input") + 1]),
+                                  expected_geometry(system))
             write_json(bank / "command.json", {
                 "schema_version": 1, "stage": args.stage, "bank_id": bank_id,
                 "replica": replica, "command": command, "git_sha": git_sha(),

@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <set>
 #include <stdexcept>
@@ -456,6 +457,39 @@ void writeProvenance(std::ofstream& stateFile,
   eventFile.precision(previousPrecision);
 }
 
+void writeNumerics(std::ofstream& output,
+                   long long step,
+                   const Parameters& parameters,
+                   const kg::LammpsData& data,
+                   std::shared_ptr<uammd::ParticleData> particles,
+                   std::shared_ptr<uammd::Integrator> integrator,
+                   const kg_assoc::BoxLengths& lengths) {
+  const double kinetic = kg::detail::sumKineticEnergy(integrator, particles);
+  const double temperature = 2.0 * kinetic / (3.0 * data.natoms);
+  double minimum = std::numeric_limits<double>::infinity();
+  double maximum = 0.0;
+  auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
+  auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
+  for (const auto& bond : data.bonds) {
+    const auto first = positions[idToIndex[bond.first - 1]];
+    const auto second = positions[idToIndex[bond.second - 1]];
+    const double dx = kg_assoc::minimumImage(second.x - first.x, lengths.x);
+    const double dy = kg_assoc::minimumImage(second.y - first.y, lengths.y);
+    const double dz = kg_assoc::minimumImage(second.z - first.z, lengths.z);
+    const double distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+    if (!std::isfinite(distance) || distance <= 0.0 || distance >= parameters.feneR0) {
+      throw std::runtime_error("E2 diagnostic found invalid permanent FENE bond");
+    }
+    minimum = std::min(minimum, distance);
+    maximum = std::max(maximum, distance);
+  }
+  if (!std::isfinite(kinetic) || !std::isfinite(temperature)) {
+    throw std::runtime_error("E2 diagnostic found nonfinite kinetic energy");
+  }
+  output << std::setprecision(17) << step << ' ' << step * parameters.dt << ' '
+         << kinetic << ' ' << temperature << ' ' << minimum << ' ' << maximum << '\n';
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -510,11 +544,13 @@ int main(int argc, char** argv) {
 
     const std::string statePath = parameters.output + ".state";
     const std::string eventPath = parameters.output + ".events";
+    const std::string numericsPath = parameters.output + ".numerics.tsv";
     const std::string finalSnapshotPath = parameters.output + ".final_permanent.lammpsdat";
     const std::string finalAssociationsPath = parameters.output + ".final_associations";
     const std::string restartSnapshotPath = parameters.output + ".restart.lammpsdat";
     const std::string restartMetadataPath = parameters.output + ".assoc_restart";
     if (!parameters.force && (std::ifstream(statePath) || std::ifstream(eventPath) ||
+                              std::ifstream(numericsPath) ||
                               std::ifstream(finalSnapshotPath) ||
                               std::ifstream(finalAssociationsPath) ||
                               std::ifstream(restartSnapshotPath) ||
@@ -523,7 +559,8 @@ int main(int argc, char** argv) {
     }
     std::ofstream stateFile(statePath);
     std::ofstream eventFile(eventPath);
-    if (!stateFile || !eventFile) {
+    std::ofstream numericsFile(numericsPath);
+    if (!stateFile || !eventFile || !numericsFile) {
       throw std::runtime_error("cannot open S1 output files");
     }
 
@@ -592,6 +629,9 @@ int main(int argc, char** argv) {
         kg_assoc::molecularNetworkObservables(data, state);
     writeState(stateFile, initialStep, parameters, counts, initialNetwork, distanceDiagnostics,
                static_cast<int>(stickerIds.size()), creations, breaks);
+    numericsFile << "# step time kinetic_energy temperature min_permanent_bond "
+                    "max_permanent_bond\n";
+    writeNumerics(numericsFile, initialStep, parameters, data, particles, integrator, lengths);
 
     const auto start = std::chrono::steady_clock::now();
     for (int step = 1; step <= parameters.steps; ++step) {
@@ -644,6 +684,7 @@ int main(int argc, char** argv) {
             kg_assoc::molecularNetworkObservables(data, state);
         writeState(stateFile, absoluteStep, parameters, counts, network, distanceDiagnostics,
                    static_cast<int>(stickerIds.size()), creations, breaks);
+        writeNumerics(numericsFile, absoluteStep, parameters, data, particles, integrator, lengths);
       }
     }
 
@@ -663,6 +704,8 @@ int main(int argc, char** argv) {
           kg_assoc::molecularNetworkObservables(data, state);
       writeState(stateFile, initialStep + parameters.steps, parameters, counts, network,
                  distanceDiagnostics, static_cast<int>(stickerIds.size()), creations, breaks);
+      writeNumerics(numericsFile, initialStep + parameters.steps, parameters, data,
+                    particles, integrator, lengths);
     }
     stateFile << "# chemistry_sweeps=" << chemistrySweeps
               << " candidate_sticker_pairs=" << candidatePairs
