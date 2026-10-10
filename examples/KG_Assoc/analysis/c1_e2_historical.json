@@ -1,0 +1,19 @@
+{
+  "source": "examples/KG_Assoc/VALIDATION.md, P3.1 C1 E2 closure",
+  "source_commit": "b27081b4515604e370b703b8dbb316b9f74e5552",
+  "window": "second half of 6M steps: approximately (3M,6M]",
+  "comparison_only": true,
+  "late_event_window_duration": 30000,
+  "late_accepted_events": [{"seed": 12001, "creations": 37770, "breaks": 37786},
+                           {"seed": 12002, "creations": 37760, "breaks": 37767}],
+  "iat_physical_time": [{"seed": 12001, "intra": 1741.06, "L1": 2104.03, "L2": 473.79},
+                        {"seed": 12002, "intra": 2772.68, "L1": 1720.92, "L2": 671.43}],
+  "replicas": [
+    {"seed": 12001, "bound_fraction": 0.8861278333, "intra": 99.1056667,
+     "inter": 1673.15, "L1": 43.4816667, "L2": 33.1753333,
+     "largest_cluster_fraction": 0.9972976667, "mean_degree": 3.260016},
+    {"seed": 12002, "bound_fraction": 0.886436, "intra": 105.323,
+     "inter": 1667.549, "L1": 43.0906667, "L2": 32.038,
+     "largest_cluster_fraction": 0.9969376667, "mean_degree": 3.249748}
+  ]
+}
