@@ -57,7 +57,7 @@ struct Parameters {
   int promotionSteps = 1000;
   int wcaRampSteps = 500;
   int conformationEvery = 1000;
-  double dtDpd = 0.01;
+  double dtDpd = 0.002;
   double dtWca = 0.01;
   std::uint64_t seed = 0;
   bool hasSeed = false;
@@ -668,13 +668,70 @@ std::string formatDiagnosticsRow(long long step,
   return output.str();
 }
 
+class E1DpdPotential : public kg::DPDWithConservativeEnergy {
+ public:
+  E1DpdPotential(double timestep, double amplitude)
+      : kg::DPDWithConservativeEnergy(makeParameters(timestep, amplitude)) {
+    validateEffectiveParameters();
+  }
+
+  double effectiveGamma() const {
+    return static_cast<double>(gamma.gamma);
+  }
+
+  double effectiveNoiseAmplitude() const {
+    return static_cast<double>(sigma) * std::sqrt(effectiveGamma());
+  }
+
+  void updateTimeStep(uammd::real timestep) override {
+    kg::DPDWithConservativeEnergy::updateTimeStep(timestep);
+    validateEffectiveParameters();
+  }
+
+  void logEffectiveParameters() const {
+    uammd::System::log<uammd::System::MESSAGE>(
+        "[E1 DPD effective] dt=%.9g temperature=%.9g gamma=%.9g amplitude=%.9g "
+        "cutoff=%.9g sigma_base=%.9g radial_noise_amplitude=%.9g noise_squared_dt=%.9g",
+        static_cast<double>(dt), static_cast<double>(temperature), effectiveGamma(),
+        static_cast<double>(A), static_cast<double>(rcut), static_cast<double>(sigma),
+        effectiveNoiseAmplitude(), effectiveNoiseAmplitude() * effectiveNoiseAmplitude() * dt);
+  }
+
+ private:
+  static Parameters makeParameters(double timestep, double amplitude) {
+    Parameters parameters;
+    parameters.temperature = static_cast<uammd::real>(kDPDTemperature);
+    // Scalar assignment in DefaultDissipation does not update the stored gamma.
+    parameters.gamma = uammd::Potential::DefaultDissipation(
+        static_cast<uammd::real>(kDPDGamma));
+    parameters.A = static_cast<uammd::real>(amplitude);
+    parameters.cutOff = static_cast<uammd::real>(kDPDCutOff);
+    parameters.dt = static_cast<uammd::real>(timestep);
+    return parameters;
+  }
+
+  void validateEffectiveParameters() const {
+    const double noise = effectiveNoiseAmplitude();
+    const double measured = noise * noise * static_cast<double>(dt);
+    const double expected = 2.0 * kDPDTemperature * kDPDGamma;
+    if (effectiveGamma() != kDPDGamma || !std::isfinite(measured) ||
+        std::abs(measured - expected) > 1.0e-5 * expected) {
+      throw std::runtime_error("E1 effective DPD parameters violate gamma or noise relation");
+    }
+  }
+};
+
 DpdBundle makeDpdSegment(std::shared_ptr<uammd::ParticleData> particles,
                          const kg::SimulationBox& box,
                          const std::string& bondData,
                          double dt,
                          double amplitude) {
-  auto dpd = kg::createDPDInteractor(particles, box.box, kDPDTemperature, kDPDGamma,
-                                     amplitude, kDPDCutOff, dt);
+  auto potential = std::make_shared<E1DpdPotential>(dt, amplitude);
+  potential->logEffectiveParameters();
+  using DpdInteractor = uammd::PairForces<E1DpdPotential>;
+  DpdInteractor::Parameters dpdParameters;
+  dpdParameters.box = box.box;
+  auto dpd = std::make_shared<DpdInteractor>(particles, dpdParameters, potential);
   auto fene = kg::createFENEInteractor(particles, box.box, bondData);
   uammd::VerletNVE::Parameters integratorParameters;
   integratorParameters.dt = static_cast<uammd::real>(dt);
@@ -1165,6 +1222,20 @@ void expectReject(const std::string& label, const Function& function) {
 }
 
 void runSelfTest() {
+  for (const double timestep : {0.002, 0.01}) {
+    E1DpdPotential potential(timestep, 1000.0);
+    expectNear("effective DPD gamma", potential.effectiveGamma(), 4.5);
+    const auto checkNoise = [&](double dt) {
+      const double noise = potential.effectiveNoiseAmplitude();
+      if (std::abs(noise * noise * dt - 9.0) > 1.0e-5 * 9.0) {
+        throw std::runtime_error("DPD fluctuation-dissipation regression failed");
+      }
+      potential.logEffectiveParameters();
+    };
+    checkNoise(timestep);
+    potential.updateTimeStep(static_cast<uammd::real>(0.005));
+    checkNoise(0.005);
+  }
   kg::LammpsData data;
   data.natoms = 3;
   data.nbonds = 2;
@@ -1300,6 +1371,8 @@ void runSelfTest() {
   }
   const Parameters normalParsed = parseArguments(
       static_cast<int>(normalCliArguments.size()), normalCliArguments.data());
+  expectNear("default DPD timestep", normalParsed.dtDpd, 0.002);
+  expectNear("default KG timestep", normalParsed.dtWca, 0.01);
   if (normalParsed.stage4PromotionTest || normalParsed.wcaRamp) {
     throw std::runtime_error("normal-mode CLI self-test failed");
   }

@@ -3,8 +3,11 @@
 import importlib.util
 from pathlib import Path
 import struct
+import subprocess
+import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 MODULE_PATH = Path(__file__).with_name("kg_assoc_campaign.py")
@@ -51,6 +54,47 @@ class CampaignTest(unittest.TestCase):
         self.assertIn("--equilibrated-prefix", command)
         self.assertNotIn("--restart-prefix", command)
         self.assertFalse(any("checkpoint" in word or "resume" in word for word in command))
+
+    def test_e1_launcher_uses_validated_dpd_timestep(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            arguments = CAMPAIGN.build_parser().parse_args([
+                "equilibrate", "--dataset-root", temporary, "--stage", "e1",
+                "--system", "F04_N010_RP060_EE08_EA04", "--replicas", "2"])
+            with mock.patch.object(CAMPAIGN, "run_or_print", return_value=0) as runner:
+                CAMPAIGN.command_equilibrate(arguments)
+            command = runner.call_args.args[0]
+            self.assertEqual("0.002", command[command.index("--dt-dpd") + 1])
+            self.assertEqual("0.01", command[command.index("--dt-wca") + 1])
+            self.assertEqual("12002", command[command.index("--seed") + 1])
+            self.assertEqual("20000", command[command.index("--stage3b-steps") + 1])
+            self.assertFalse(runner.call_args.args[1])
+
+    def test_short_e1_validator_rejects_incorrect_effective_gamma(self):
+        script = MODULE_PATH.parents[1] / "scripts" / "validate_e1_rp060_short.sh"
+        validator = script.read_text().split("<<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "stdout.log").write_text("E1_PROMOTION PASS\n")
+            log_line = ("[E1 DPD effective] dt=0.002 gamma=4.5 "
+                        "noise_squared_dt=9 radial_noise_amplitude=67.0820381\n")
+            (root / "stderr.log").write_text(log_line * 16)
+            (root / "timing.txt").write_text("10 1 1 1000\n")
+            (root / "diagnostics.tsv").write_text("".join(
+                "# [E1 transition] label=during_stage3b_relaxation_hold "
+                f"step={51400 + local} temperature=1 max_speed=5 "
+                "min_permanent_bond=0.7 max_permanent_bond=1.35\n"
+                for local in range(500, 20001, 500)))
+            result = subprocess.run([sys.executable, "-c", validator, temporary],
+                                    capture_output=True, text=True)
+            self.assertEqual(0, result.returncode, result.stderr)
+            summary = CAMPAIGN.load_json(root / "summary.json")
+            self.assertEqual("passed", summary["status"])
+            self.assertEqual(75900, summary["dpd_steps"] + summary["wca_steps"])
+            (root / "stderr.log").write_text(log_line.replace("gamma=4.5", "gamma=1") * 16)
+            result = subprocess.run([sys.executable, "-c", validator, temporary],
+                                    capture_output=True, text=True)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("gamma/noise validation failed", result.stderr)
 
     def test_structure_reader_reconstructs_pbc_safe_rg(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -351,7 +351,7 @@ def command_equilibrate(args):
                            "--arms", str(system["f"]), "--narm", str(system["N"]),
                            "--seed", str(12000 + replica), "--stage3b-steps", "20000",
                            "--wca-ramp", "--wca-ramp-steps", "500",
-                           "--stage4-steps", str(stage4_steps), "--dt-dpd", "0.01",
+                           "--stage4-steps", str(stage4_steps), "--dt-dpd", "0.002",
                            "--dt-wca", "0.01", "--conformation-every", "1000"]
             else:
                 if args.steps is None:
