@@ -344,6 +344,23 @@ def review_segment(root, attempt, window_steps):
     return scientific_report(output, attempt, window_steps)
 
 
+def recovered_review(root, attempt, window):
+    for receipt in sorted((root / 'aggregate/e2').glob('review_*/review_complete.json')):
+        config = campaign.load_json(receipt.parent / 'analysis_config.json')
+        if config.get('attempt') != str(attempt) or config.get('window_steps') != window:
+            continue
+        record = campaign.load_json(receipt)
+        require(record['plan_sha256'] == campaign.sha256(attempt / 'plan.json') and
+                config.get('plan_sha256') == record['plan_sha256'] and
+                set(config['source_sha256']) == {str(attempt / f'r{r:03d}/complete.json') for r in (1, 2, 3)} and
+                record['scientific_status'] == 'review_required' and
+                record['automatic_acceptance'] is False, 'existing recovery review differs')
+        e2.check_hashes(record['report_sha256'])
+        e2.check_hashes(config['source_sha256'])
+        return receipt.parent / 'SCIENTIFIC_REVIEW.md'
+    return review_segment(root, attempt, window)
+
+
 def parser():
     result = argparse.ArgumentParser(description=__doc__)
     commands = result.add_subparsers(dest='action', required=True)
@@ -356,6 +373,8 @@ def parser():
     child.add_argument('--steps', required=True, type=int)
     child.add_argument('--window-steps', type=int, help='automatic review partition; 500k for 2M')
     child.add_argument('--extend', action='store_true', help='explicitly extend latest verified E2 segment')
+    child = commands.add_parser('recover', help='recover the original segment; run only missing histories')
+    child.add_argument('--system', required=True)
     child = commands.add_parser('review', help='validate/analyze completed E2; does not accept equilibrium')
     child.add_argument('--system', required=True)
     child.add_argument('--window-steps', type=int)
@@ -385,7 +404,21 @@ def run(args, root, invocation):
                           host=socket.gethostname(), pid=os.getpid()))
         results = []
         try:
-            if args.action == 'review':
+            if args.action == 'recover':
+                import kg_assoc_e2_recover as recovery_runner
+                attempt = recovery_runner.select_attempt(root, system)
+                recovery = new_path(root / 'banks/e2_recoveries' / campaign.e2_bank_id(system), 'recover')
+                result = dict(system=system['system_id'], status='recovery_pending',
+                              attempt=str(attempt), recovery=str(recovery))
+                results.append(result)
+                plan, receipts = recovery_runner.recover(root, attempt, recovery, invocation, journal)
+                window = review_window(plan['steps'])
+                report = recovered_review(root, attempt, window)
+                result.update(status='scientific_review_required', report=str(report),
+                              histories=receipts, review_window_steps=window)
+                print('RECOVERED: 3/3 histories validated; MD executed only for missing histories; '
+                      + str(plan['steps'] // window) + ' review windows.', flush=True)
+            elif args.action == 'review':
                 segments = completed_segments(root, system)
                 require(segments, 'no completed ordinary E2 segments to review')
                 for attempt, plan in segments:

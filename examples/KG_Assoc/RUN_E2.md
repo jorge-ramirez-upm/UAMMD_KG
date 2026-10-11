@@ -130,3 +130,53 @@ mandatory production acceptance registries remain in force. Reports and request
 records are stored under `aggregate/e2/workflow/`; all output names are generated.
 There is no production subcommand. Physics, integrators and production parameters
 are unchanged. Details of scientific validation remain in [E2_G1.md](E2_G1.md).
+
+## Recover the interrupted dilute 2M checkpoint
+
+After updating the clean `KremerGrest` checkout to the recovery implementation,
+run exactly:
+
+```bash
+python3 examples/KG_Assoc/campaign/run_e2.py recover --system F04_N010_RP020_EE08_EA04
+```
+
+The command discovers the unique ordinary attempt for this condition. It requires
+its original plan-bound approval, pinned E1 parents, geometry, chemistry and MD
+seeds, full physical parameters, scientific source hashes, executable/build-log
+hashes and matching completed smoke evidence. Unrelated documentation, catalog,
+or administrative runner/test changes can have a different Git SHA; changes to
+physics, integrators, validators, scientific analysis or frozen manifests fail
+closed. The original plan commit must be an ancestor of the recovery checkout.
+Recovery never rebuilds executables or launches replacement smokes.
+
+It fully revalidates r001 and the preserved r002 outputs before any missing MD.
+An orphaned endpoint needs the original authenticated start, all required outputs,
+the executable PASS marker and full numerical/event/network/conformation validation;
+PASS alone is insufficient. Only the unstarted r003 runs, sequentially, using its
+exact original command, parents and seeds. Incomplete MD payloads are refused;
+they are never overwritten or restarted from E1. An interruption before MD may
+leave empty logs/administrative receipts: these are preserved, with new recovery
+logs allocated separately. Completed recovery MD gets its own hash-bound endpoint
+receipt before post-MD validation so subsequent recovery never repeats it.
+
+Each invocation creates exclusive authorization and validation receipts under
+`banks/e2_recoveries/` and a wrapper journal under `aggregate/e2/workflow/`. The
+records bind the original plan/approval, preserved file hashes, original and
+recovery code commits, user request and per-history operation. The original
+plan, approval, r001 completion, old failure receipts and all existing outputs
+remain byte-identical. Missing completion records are added exclusively after
+validation; they point to the recovery authorization. Original wall time is
+unknown for an orphaned endpoint and is not fabricated.
+
+After all three histories validate, the original scientific analyzer produces
+four 500k-step windows and prints `SCIENTIFIC_REVIEW.md`. Repeated invocation
+revalidates completions, runs no completed MD, and reuses a hash-bound compatible
+review. Failed invocations retain their journals/output evidence; they return a
+nonzero exit code. Multiple ordinary attempts are ambiguous and cause a safe
+stop rather than timestamp-based selection. No extensions, other conditions,
+equilibrium acceptance or production are authorized.
+
+This operation was implemented in an isolated worktree starting at
+`5084f44a1ab3c0e98052761a91bcfd42d706ccf7`. Regression tests use deterministic
+GPU-process mocks. No recovery GPU calculation was run in the coding environment;
+the command above is the required GPU-host execution check.
