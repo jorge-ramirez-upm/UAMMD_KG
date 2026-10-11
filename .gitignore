@@ -77,3 +77,6 @@ examples/KG_Assoc/kg_assoc_100m/
 examples/KG_Assoc/kg_assoc_candidates_test
 examples/KG_Assoc/kg_assoc_stars_candidate_smoke
 
+
+# Derived immutable campaign catalog snapshots
+examples/KG_Assoc/catalog_output/
