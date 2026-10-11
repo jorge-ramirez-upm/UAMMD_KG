@@ -1,5 +1,7 @@
 # Associating-star 100M campaign
 
+For terminal use, see [RUN_E2.md](RUN_E2.md): `run_e2.py smoke-all` automates the administrative workflow.
+
 For new E2 segments and corrected C1 8M selection, use the authenticated
 [E2-G1 infrastructure](E2_G1.md). Associating production preparation now requires
 an explicit immutable `--e2-registry`; the historical generic E2 execution route

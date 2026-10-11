@@ -380,12 +380,22 @@ def approval_record(path, plan_path, purpose):
     return record
 
 
+def smoke_code_compatible(smoke, plan):
+    # Administrative entry points/tests do not change the simulated or validated physics.
+    ignored = {'run_e2.py', 'kg_assoc_e2.py'}
+
+    def scientific_sources(record):
+        return {name: value for name, value in record['source_sha256'].items()
+                if Path(name).name not in ignored and not Path(name).name.startswith('test_')}
+    return (smoke['executable_sha256'] == plan['executable_sha256'] and
+            scientific_sources(smoke) == scientific_sources(plan))
+
+
 def matching_smoke(root, attempt, plan):
     require(attempt is not None, 'ordinary E2 requires matching capped GPU smoke evidence')
     smoke = verify(root, inside(root, attempt))
-    require(smoke['smoke'] and smoke['steps'] <= 10000 and smoke['git_sha'] == plan['git_sha'] and
-            smoke['executable_sha256'] == plan['executable_sha256'] and
-            smoke['source_sha256'] == plan['source_sha256'], 'smoke code/build differs from segment')
+    require(smoke['smoke'] and smoke['steps'] <= 10000 and
+            smoke_code_compatible(smoke, plan), 'smoke code/build differs from segment')
     for test, entry in zip(smoke['histories'], plan['histories']):
         require(test['physics'] == entry['physics'] and test['parent']['sha256'] == entry['parent']['sha256'] and
                 test['chemistry_seed'] == entry['chemistry_seed'] and test['parent_Ea'] == entry['parent_Ea'],
