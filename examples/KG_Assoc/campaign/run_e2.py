@@ -245,6 +245,105 @@ def status(root):
         print('FAILED WORKFLOW ' + failure.parent.name + ': ' + campaign.load_json(failure)['error'])
 
 
+def review_window(steps, requested=None):
+    window = requested if requested is not None else (
+        500000 if steps >= 500000 and steps % 500000 == 0 else
+        steps // 2 if steps >= 8000 and steps % 2000 == 0 else steps)
+    require(window >= 4000 and window % 1000 == 0 and steps % window == 0,
+            'review windows must be at least 4000, align to 1000 and partition the segment')
+    return window
+
+
+def scientific_report(output, attempt, window_steps):
+    """Render the validated analyzer's numbers; no new acceptance or statistical rules."""
+    summary = campaign.load_json(output / 'summary.json')
+    config = campaign.load_json(output / 'analysis_config.json')
+    plan = campaign.load_json(attempt / 'plan.json')
+    require(config['plan_sha256'] == campaign.sha256(attempt / 'plan.json') and
+            config['window_steps'] == window_steps, 'review plan/window provenance mismatch')
+    require(summary['scientific_status'] == 'review_required' and
+            summary['automatic_acceptance'] is False and len(summary['records']) == 3,
+            'analysis is not a three-history scientific review')
+    def number(value):
+        return 'unresolved' if value is None else format(value, '.7g')
+
+    lines = ['# E2 scientific checkpoint', '',
+             'System: `' + plan['system']['system_id'] + '`.',
+             'Numerical, accepted-event, network and conformation validation passed.',
+             '**Scientific review required. This checkpoint does not accept equilibrium.**', '',
+             f"Segment: {plan['histories'][0]['start_step']}–{plan['histories'][0]['end_step']} MD steps; "
+             f'{window_steps}-step windows; three original independent histories.',
+             'Physics: `' + str(plan['histories'][0]['physics']) + '`.',
+             'Attempt: `' + str(attempt) + '`.',
+             'Plan SHA256: `' + config['plan_sha256'] + '`.', '',
+             'All transients are retained. No extensions or production are launched.',
+             'Rates use physical time; neighbor gains/losses count distinct inter-star edges, not bonds.',
+             'L1 counts parallel inter-star bond pairs; L2 counts distinct-star triangles.',
+             'Rg² and center-terminal R² use permanent-bond minimum-image unwrapping.', '',
+             '## Replica-level comparisons', '',
+             'Window means and paired last-minus-previous differences use Student-t 95% intervals (df=2).',
+             'A wide interval or a difference compatible with zero does not establish stationarity.', '',
+             '| Category | Observable | Window | Mean | 95% half-width |',
+             '|---|---|---|---:|---:|']
+    for item in summary['comparisons']:
+        lines.append(f"| {item['category']} | {item['observable']} | {item['window']} | "
+                     f"{number(item['mean'])} | {number(item['ci95_half_width'])} |")
+    warnings = 0
+    for record in summary['records']:
+        lines += ['', f"## History r{record['replica']:03d}", '']
+        for index, window in enumerate(record['windows'], 1):
+            lines += [f"### Window {index}: ({window['start_step_exclusive']}, "
+                      f"{window['end_step_inclusive']}]", '',
+                      '| Category | Observable | Mean | IAT SEM | τ time | Effective samples | Slope/time | Review flag |',
+                      '|---|---|---:|---:|---:|---:|---:|---|']
+            for category in ('metrics', 'activity'):
+                for name, item in window[category].items():
+                    flags = []
+                    if item.get('constant_not_mixing_evidence'):
+                        flags.append('constant: no mixing evidence')
+                    if item.get('resolution_warning'):
+                        flags.append('correlation/resolution')
+                    warnings += bool(flags)
+                    lines.append(f"| {category} | {name} | {number(item['mean'])} | "
+                                 f"{number(item['sem_estimate'])} | {number(item['tau_time'])} | "
+                                 f"{number(item['effective_samples_estimate'])} | {number(item['slope'])} | "
+                                 + '; '.join(flags) + ' |')
+            lines += ['', '| Accepted activity | Count | Rate/time | Rate/star/time |',
+                      '|---|---:|---:|---:|']
+            for name, count in window['event_counts'].items():
+                lines.append(f"| {name} | {count} | {number(window['event_rates_per_time'][name])} | "
+                             f"{number(window['event_rates_per_star_time'][name])} |")
+            lines += ['', 'Exact event-integrated exposures: `' + str(window['exposure']) + '`.',
+                      'Population-normalized rates: `' + str(window['population_normalized_rates']) + '`.',
+                      '5/10/20-block SEM sensitivity is retained in [summary.json](summary.json).']
+    lines += ['', '## Review decision remains open', '',
+              f'{warnings} observable/window entries carry mixing or correlation-resolution flags.',
+              'Inspect population and intra/inter drift, reaction/neighbor exchange, connectivity,',
+              'L1/L2, shape relaxation, autocorrelation resolution and agreement between histories together.',
+              'Compare the windows and paired late-window changes; retain the initial unbound transient.',
+              'No automatic stop/extend/accept decision is made.', '',
+              '[Full statistics](summary.json) · [Replica comparisons](replica_comparisons.csv) · '
+              '[Authenticated analysis configuration](analysis_config.json)', '']
+    report = output / 'SCIENTIFIC_REVIEW.md'
+    with report.open('x') as stream:
+        stream.write('\n'.join(lines))
+    e2.exclusive_json(output / 'review_complete.json', dict(
+        scientific_status='review_required', automatic_acceptance=False,
+        plan_sha256=campaign.sha256(attempt / 'plan.json'),
+        report_sha256=e2.hash_files([report, output / 'summary.json', output / 'analysis_config.json',
+                                   output / 'replica_comparisons.csv']),
+        renderer_git_sha=campaign.git_sha(), window_steps=window_steps, warning_entries=warnings))
+    return report
+
+
+def review_segment(root, attempt, window_steps):
+    import analyze_e2_segment
+    output = new_path(root / 'aggregate/e2', 'review')
+    print('REVIEW reconstructing events and statistics; ' + str(window_steps) + '-step windows', flush=True)
+    analyze_e2_segment.analyze(root, attempt, output, window_steps)
+    return scientific_report(output, attempt, window_steps)
+
+
 def parser():
     result = argparse.ArgumentParser(description=__doc__)
     commands = result.add_subparsers(dest='action', required=True)
@@ -255,6 +354,7 @@ def parser():
     child = commands.add_parser('equilibrate', help='authorize ONLY the named E2 segment')
     child.add_argument('--system', required=True)
     child.add_argument('--steps', required=True, type=int)
+    child.add_argument('--window-steps', type=int, help='automatic review partition; 500k for 2M')
     child.add_argument('--extend', action='store_true', help='explicitly extend latest verified E2 segment')
     child = commands.add_parser('review', help='validate/analyze completed E2; does not accept equilibrium')
     child.add_argument('--system', required=True)
@@ -272,26 +372,28 @@ def run(args, root, invocation):
                 'fresh E2 requires an Ea04 system; accepted C1 needs no further equilibration')
         require(args.steps >= 4000 and args.steps % 1000 == 0,
                 'E2 steps must be at least 4000 and a multiple of 1000 for review')
+        review_window(args.steps, args.window_steps)
     with workflow_lock(root):
         journal = new_path(root / 'aggregate/e2/workflow', args.action)
         e2.exclusive_json(journal / 'request.json', dict(invocation=invocation, action=args.action,
                           system=system, steps=getattr(args, 'steps', None),
-                          extend=getattr(args, 'extend', False), requested_at=e2.timestamp(),
+                          extend=getattr(args, 'extend', False),
+                          review_window_steps=review_window(args.steps, args.window_steps)
+                          if args.action == 'equilibrate' else getattr(args, 'window_steps', None),
+                          requested_at=e2.timestamp(),
                           git_sha=campaign.git_sha(), user=getpass.getuser(),
                           host=socket.gethostname(), pid=os.getpid()))
         results = []
         try:
             if args.action == 'review':
-                import analyze_e2_segment
                 segments = completed_segments(root, system)
                 require(segments, 'no completed ordinary E2 segments to review')
                 for attempt, plan in segments:
                     steps = plan['steps']
-                    window = args.window_steps or (steps // 2 if steps % 2000 == 0 and steps >= 8000 else steps)
-                    output = new_path(root / 'aggregate/e2', 'review')
-                    analyze_e2_segment.analyze(root, attempt, output, window)
+                    window = review_window(steps, args.window_steps)
+                    report = review_segment(root, attempt, window)
                     results.append(dict(system=system['system_id'], status='scientific_review_required',
-                                        attempt=str(attempt), report=str(output / 'REPORT.md')))
+                                        attempt=str(attempt), report=str(report)))
             else:
                 subprocess.check_output(['nvidia-smi', '--query-gpu=name,uuid,driver_version',
                                          '--format=csv,noheader'], text=True)
@@ -315,7 +417,15 @@ def run(args, root, invocation):
                     # This exact-parent capped prerequisite is covered by the explicit equilibration command.
                     smoke_one(root, system, build, invocation, journal, parent)
                     path = execute_segment(root, system, args.steps, build, invocation, journal, False, parent)
-                    results.append(dict(system=system['system_id'], status='scientific_review_required', attempt=str(path)))
+                    window = review_window(args.steps, args.window_steps)
+                    result = dict(system=system['system_id'], status='numerically_valid_review_pending',
+                                  attempt=str(path), steps_per_history=args.steps,
+                                  validated_histories=3, review_window_steps=window)
+                    results.append(result)
+                    report = review_segment(root, path, window)
+                    result.update(status='scientific_review_required', report=str(report))
+                    print(f'CHECKPOINT: 3/3 histories validated; {args.steps} steps/history; '
+                          f'{args.steps // window} review windows of {window} steps.', flush=True)
         except BaseException as error:
             e2.exclusive_json(journal / 'failed.json', dict(error=str(error), results=results, at=e2.timestamp()))
             raise

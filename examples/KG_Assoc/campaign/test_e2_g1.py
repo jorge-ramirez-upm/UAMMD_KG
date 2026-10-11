@@ -320,6 +320,18 @@ class E2G1Tests(unittest.TestCase):
                 summary = campaign.load_json(first/'summary.json')
                 self.assertFalse(summary['automatic_acceptance'])
                 self.assertEqual(summary['comparisons'][0]['replicas'], 3)
+                import run_e2
+                report = run_e2.scientific_report(first, attempt, 4000)
+                text = report.read_text()
+                for name in ('bound_fraction', 'intra', 'inter', 'neighbor_gains', 'neighbor_losses',
+                             'L1', 'L2', 'components', 'mean_rg2', 'mean_center_terminal_r2',
+                             'last_minus_previous', 'Effective samples', 'mixing evidence'):
+                    self.assertIn(name, text)
+                proof = campaign.load_json(first/'review_complete.json')
+                self.assertFalse(proof['automatic_acceptance'])
+                runner.check_hashes(proof['report_sha256'])
+                with self.assertRaises(FileExistsError):
+                    run_e2.scientific_report(first, attempt, 4000)
                 self.assertTrue(summary['records'][0]['windows'][0]['metrics']['mean_rg2']['constant_not_mixing_evidence'])
                 with self.assertRaisesRegex(ValueError, 'already exists'):
                     review.analyze(root, attempt, first, 4000)

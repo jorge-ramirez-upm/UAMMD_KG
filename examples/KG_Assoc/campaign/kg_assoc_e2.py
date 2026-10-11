@@ -114,13 +114,25 @@ def build(root, output):
         raise
 
 
+def scientific_source_hashes(hashes):
+    # Administrative entry points/tests do not change simulation or validation semantics.
+    ignored = {'run_e2.py', 'kg_assoc_e2.py'}
+    return {name: value for name, value in hashes.items()
+            if Path(name).name not in ignored and not Path(name).name.startswith('test_')}
+
+
 def check_build(path):
     require(path is not None, 'prepare requires explicit --build-evidence from forced build action')
     manifest_path = Path(path) / 'manifest.json'
     record = campaign.load_json(manifest_path)
-    require(record['schema_version'] == 1 and record['status'] == 'built' and
-            record['git_sha'] == campaign.git_sha() and record['source_sha256'] == sources(),
-            'build evidence differs from current committed sources')
+    current_sha = campaign.git_sha()
+    ancestor = record['git_sha'] == current_sha or subprocess.run(
+        ['git', 'merge-base', '--is-ancestor', record['git_sha'], current_sha],
+        cwd=campaign.REPOSITORY_ROOT, stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL).returncode == 0
+    require(record['schema_version'] == 1 and record['status'] == 'built' and ancestor and
+            scientific_source_hashes(record['source_sha256']) == scientific_source_hashes(sources()),
+            'build evidence differs from current committed scientific sources/history')
     check_hashes(record['executable_sha256'])
     check_hashes(record['build_log_sha256'])
     require(set(record['executable_sha256']) == {str((HERE.parent / target).resolve()) for target in BUILD_TARGETS},
@@ -381,14 +393,9 @@ def approval_record(path, plan_path, purpose):
 
 
 def smoke_code_compatible(smoke, plan):
-    # Administrative entry points/tests do not change the simulated or validated physics.
-    ignored = {'run_e2.py', 'kg_assoc_e2.py'}
-
-    def scientific_sources(record):
-        return {name: value for name, value in record['source_sha256'].items()
-                if Path(name).name not in ignored and not Path(name).name.startswith('test_')}
     return (smoke['executable_sha256'] == plan['executable_sha256'] and
-            scientific_sources(smoke) == scientific_sources(plan))
+            scientific_source_hashes(smoke['source_sha256']) ==
+            scientific_source_hashes(plan['source_sha256']))
 
 
 def matching_smoke(root, attempt, plan):

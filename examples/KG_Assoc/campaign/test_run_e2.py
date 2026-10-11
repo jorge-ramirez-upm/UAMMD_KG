@@ -69,6 +69,27 @@ class WorkflowTests(unittest.TestCase):
             build.assert_called_once_with(self.root, new)
             self.assertTrue((old / 'manifest.json').exists())
 
+    def test_build_reuse_across_administrative_commits_keeps_original_provenance(self):
+        path = self.root/'build'
+        original = dict(schema_version=1, status='built', git_sha='ancestor',
+                        source_sha256={'model.cuh': 'same', 'run_e2.py': 'old'},
+                        executable_sha256={str((E.HERE.parent/n).resolve()): 'same' for n in E.BUILD_TARGETS},
+                        build_log_sha256={'log': 'same'})
+        E.exclusive_json(path/'manifest.json', original)
+        current = {'model.cuh': 'same', 'run_e2.py': 'new', 'test_new.py': 'new'}
+        with mock.patch.object(C, 'git_sha', return_value='current'), \
+                mock.patch.object(E, 'sources', return_value=current), \
+                mock.patch.object(E, 'check_hashes'), \
+                mock.patch.object(E.subprocess, 'run', return_value=mock.Mock(returncode=0)):
+            self.assertEqual(E.check_build(path)[0], original)
+            self.assertEqual(C.load_json(path/'manifest.json'), original)
+            with mock.patch.object(E, 'sources', return_value=dict(current, **{'model.cuh': 'changed'})):
+                with self.assertRaisesRegex(ValueError, 'scientific'):
+                    E.check_build(path)
+            with mock.patch.object(E.subprocess, 'run', return_value=mock.Mock(returncode=1)):
+                with self.assertRaisesRegex(ValueError, 'history'):
+                    E.check_build(path)
+
     def test_exclusive_directories_lock_and_no_overwrite(self):
         one = cli.new_path(self.root, 'attempt')
         E.exclusive_json(one / 'plan.json', {'one': 1})
@@ -226,11 +247,13 @@ class WorkflowTests(unittest.TestCase):
         with mock.patch.object(cli.subprocess, 'check_output'), mock.patch.object(cli, 'ensure_build'), \
                 mock.patch.object(cli, 'completed_segments', return_value=[]), \
                 mock.patch.object(cli, 'smoke_one') as smoke, \
-                mock.patch.object(cli, 'execute_segment', return_value=self.root/'segment') as launch:
+                mock.patch.object(cli, 'execute_segment', return_value=self.root/'segment') as launch, \
+                mock.patch.object(cli, 'review_segment', return_value=self.root/'report.md') as review:
             self.assertEqual(cli.run(cli.parser().parse_args(arguments), self.root, arguments), 0)
             launch.assert_called_once()
             self.assertEqual(launch.call_args.args[1:3], (self.system, 12000))
             self.assertFalse(launch.call_args.args[6])
+            review.assert_called_once_with(self.root, self.root/'segment', 6000)
             smoke.assert_called_once()
             self.assertEqual(smoke.call_args.args[1], self.system)
         attempt = self.root/'explicit'
@@ -242,12 +265,56 @@ class WorkflowTests(unittest.TestCase):
     def test_review_automatically_analyzes_without_launching(self):
         arguments = ['review', '--system', self.system['system_id']]
         with mock.patch.object(cli, 'completed_segments', return_value=[(self.root/'segment', {'steps': 12000})]), \
-                mock.patch('analyze_e2_segment.analyze') as analyze, \
+                mock.patch.object(cli, 'review_segment', return_value=self.root/'report.md') as analyze, \
                 mock.patch.object(cli, 'execute_segment') as launch:
             self.assertEqual(cli.run(cli.parser().parse_args(arguments), self.root, arguments), 0)
             analyze.assert_called_once()
             self.assertEqual(analyze.call_args.args[-1], 6000)
             launch.assert_not_called()
+
+    def test_wave_a_checkpoint_default_four_windows_and_no_extension(self):
+        arguments = ['equilibrate', '--system', self.system['system_id'], '--steps', '2000000']
+        with mock.patch.object(cli.subprocess, 'check_output'), mock.patch.object(cli, 'ensure_build'), \
+                mock.patch.object(cli, 'completed_segments', return_value=[]), \
+                mock.patch.object(cli, 'smoke_one') as smoke, \
+                mock.patch.object(cli, 'execute_segment', return_value=self.root/'segment') as launch, \
+                mock.patch.object(cli, 'review_segment', return_value=self.root/'report.md') as review:
+            self.assertEqual(cli.run(cli.parser().parse_args(arguments), self.root, arguments), 0)
+            self.assertEqual(launch.call_args.args[1:3], (self.system, 2000000))
+            self.assertIsNone(launch.call_args.args[-1])
+            launch.assert_called_once()
+            smoke.assert_called_once()
+            review.assert_called_once_with(self.root, self.root/'segment', 500000)
+        request = C.load_json(next(self.root.glob('aggregate/e2/workflow/*/request.json')))
+        self.assertEqual(request['review_window_steps'], 500000)
+        self.assertFalse(request['extend'])
+        report = C.load_json(next(self.root.glob('aggregate/e2/workflow/*/report.json')))
+        self.assertFalse(report['scientific_acceptance'])
+        self.assertEqual(report['results'][0]['report'], str(self.root/'report.md'))
+
+    def test_invalid_review_window_fails_before_md_and_analysis_failure_is_retained(self):
+        args = cli.parser().parse_args(['equilibrate', '--system', self.system['system_id'],
+                                       '--steps', '2000000', '--window-steps', '600000'])
+        with mock.patch.object(cli, 'execute_segment') as launch:
+            with self.assertRaisesRegex(ValueError, 'partition'):
+                cli.run(args, self.root, ['invalid'])
+            launch.assert_not_called()
+        with self.assertRaisesRegex(ValueError, 'partition'):
+            cli.review_window(2000000, 0)
+        args.window_steps = 500000
+        with mock.patch.object(cli.subprocess, 'check_output'), mock.patch.object(cli, 'ensure_build'), \
+                mock.patch.object(cli, 'completed_segments', return_value=[]), \
+                mock.patch.object(cli, 'smoke_one'), \
+                mock.patch.object(cli, 'execute_segment', return_value=self.root/'segment') as launch, \
+                mock.patch.object(cli, 'review_segment', side_effect=ValueError('analysis failed')):
+            with self.assertRaisesRegex(ValueError, 'analysis failed'):
+                cli.run(args, self.root, ['equilibrate'])
+            launch.assert_called_once()
+        failure = C.load_json(next(self.root.glob('aggregate/e2/workflow/*/failed.json')))
+        self.assertIn('analysis failed', failure['error'])
+        self.assertEqual(failure['results'][0]['attempt'], str(self.root/'segment'))
+        self.assertEqual(failure['results'][0]['status'], 'numerically_valid_review_pending')
+        self.assertFalse(any(self.root.glob('aggregate/e2/workflow/*/report.json')))
 
     def test_pending_failed_and_running_status(self):
         attempt = self.root/'status'
