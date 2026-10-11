@@ -32,8 +32,8 @@ def estimate(values, times):
                 resolution_warning=tau * (times[1] - times[0]) >= (times[-1] - times[0]) / 10)
 
 
-def window(rows, events, start, end):
-    result = analysis.describe_window(rows, events, start, end)
+def window(rows, events, start, end, stickers=4000, dt=.01, stars=1000, metrics=analysis.METRICS):
+    result = analysis.describe_window(rows, events, start, end, metrics=metrics, dt=dt, stars=stars)
     require((end - start) % 1000 == 0, "window must align to diagnostics")
     bins = {key: [0] * ((end - start) // 1000) for key in ACTIVITY}
     boundary = next(row for row in rows if row["step"] == start)
@@ -44,8 +44,8 @@ def window(rows, events, start, end):
         step = event["step"]
         if not start < step <= end:
             continue
-        interval = (step - previous) * .01
-        free_exposure += (4000 - 2 * active) * interval
+        interval = (step - previous) * dt
+        free_exposure += (stickers - 2 * active) * interval
         bond_exposure += active * interval
         index = (step - start - 1) // 1000
         bins["creations" if event["type"] == "C" else "breaks"][index] += 1
@@ -53,11 +53,11 @@ def window(rows, events, start, end):
         bins["neighbor_losses"][index] += event["neighbor_loss"]
         active += 1 if event["type"] == "C" else -1
         previous = step
-    interval = (end - previous) * .01
-    free_exposure += (4000 - 2 * active) * interval
+    interval = (end - previous) * dt
+    free_exposure += (stickers - 2 * active) * interval
     bond_exposure += active * interval
-    times = [(start + (index + .5) * 1000) * .01 for index in range(len(bins["creations"]))]
-    result["activity"] = {key: estimate([count / 10 for count in counts], times)
+    times = [(start + (index + .5) * 1000) * dt for index in range(len(bins["creations"]))]
+    result["activity"] = {key: estimate([count / (1000 * dt) for count in counts], times)
                           for key, counts in bins.items()}
     result["exposure"] = dict(free_sticker_time=free_exposure, active_bond_time=bond_exposure)
     result["population_normalized_rates"] = dict(
@@ -66,7 +66,7 @@ def window(rows, events, start, end):
         rupture_events_per_active_bond_time=(result["event_counts"]["breaks"] / bond_exposure
                                             if bond_exposure else None))
     selected = [row for row in rows if start < row["step"] <= end]
-    for key in analysis.METRICS:
+    for key in metrics:
         result["metrics"][key].update(estimate([row[key] for row in selected],
                                                [row["time"] for row in selected]))
     for key in ("temperature", "min_permanent_bond", "max_permanent_bond"):

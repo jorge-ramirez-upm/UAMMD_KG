@@ -6,6 +6,7 @@
 #include "../KG/kg_runtime.cuh"
 #include "kg_assoc_interactors.cuh"
 #include "kg_assoc_star_runtime.cuh"
+#include "kg_assoc_ea_switch.cuh"
 
 #include <chrono>
 #include <cstdint>
@@ -56,6 +57,8 @@ struct Parameters {
   bool topologyOnly = false;
   bool eeExplicit = false;
   bool eaExplicit = false;
+  bool switchEa = false;
+  double switchEaFrom = 0.0;
   bool nu0Explicit = false;
   bool everyExplicit = false;
   bool dtExplicit = false;
@@ -121,6 +124,9 @@ Parameters parseArguments(int argc, char** argv) {
     } else if (option == "--Ea") {
       parameters.ea = std::stod(nextArgument(index, argc, argv));
       parameters.eaExplicit = true;
+    } else if (option == "--switch-ea-from") {
+      parameters.switchEaFrom = std::stod(nextArgument(index, argc, argv));
+      parameters.switchEa = true;
     } else if (option == "--Ee") {
       parameters.ee = std::stod(nextArgument(index, argc, argv));
       parameters.eeExplicit = true;
@@ -181,6 +187,14 @@ Parameters parseArguments(int argc, char** argv) {
       throw std::runtime_error("unknown argument: " + option);
     }
   }
+  if (parameters.switchEa && (parameters.restartPrefix.empty() || !parameters.eaExplicit)) {
+    throw std::runtime_error("Ea switching requires --restart-prefix and --Ea");
+  }
+#ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
+  if (parameters.switchEa) {
+    throw std::runtime_error("Ea switching is supported only by authenticated campaign production");
+  }
+#endif
   if (parameters.continuationEeSwitch &&
       (parameters.continuationParent.empty() ||
        (parameters.continuationDirection != "downward" &&
@@ -323,6 +337,8 @@ RestartMetadata readRestartMetadata(const std::string& path) {
 
 void validateRestartRequest(const Parameters& request, const RestartMetadata& restart) {
 #ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
+  kg_assoc::restartEa(restart.parameters.ea, request.ea, request.eaExplicit,
+                      request.switchEa, request.switchEaFrom);
   if (request.eeExplicit && !near(request.ee, restart.parameters.ee)) {
     throw std::runtime_error("production Ee does not match equilibrated E2 state");
   }
@@ -541,6 +557,8 @@ void writeProvenance(std::ofstream& stateFile,
             << " permanent_bonds=" << data.nbonds
             << " T=" << parameters.temperature
             << " dt=" << parameters.dt
+            << " ea_switch=" << parameters.switchEa
+            << " parent_Ea=" << (parameters.switchEa ? parameters.switchEaFrom : parameters.ea)
             << " Ea=" << parameters.ea
             << " Ee=" << parameters.ee
             << " nu0=" << parameters.nu0
@@ -572,6 +590,8 @@ void writeProvenance(std::ofstream& stateFile,
             << " permanent_bonds=" << data.nbonds
             << " T=" << parameters.temperature
             << " dt=" << parameters.dt
+            << " ea_switch=" << parameters.switchEa
+            << " parent_Ea=" << (parameters.switchEa ? parameters.switchEaFrom : parameters.ea)
             << " Ea=" << parameters.ea
             << " Ee=" << parameters.ee
             << " nu0=" << parameters.nu0

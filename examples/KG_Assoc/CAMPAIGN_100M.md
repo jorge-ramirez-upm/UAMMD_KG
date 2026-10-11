@@ -1,5 +1,10 @@
 # Associating-star 100M campaign
 
+For new E2 segments and corrected C1 8M selection, use the authenticated
+[E2-G1 infrastructure](E2_G1.md). Associating production preparation now requires
+an explicit immutable `--e2-registry`; the historical generic E2 execution route
+is disabled. The commands below describe the earlier campaign workflow.
+
 ## Current execution gate
 
 The shared periodic reaction search has been corrected; affected binaries must

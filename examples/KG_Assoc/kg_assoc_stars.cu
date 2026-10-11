@@ -5,6 +5,8 @@
 #include "../KG/kg_runtime.cuh"
 #include "kg_assoc_interactors.cuh"
 #include "kg_assoc_star_runtime.cuh"
+#include "kg_assoc_conformation.cuh"
+#include "kg_assoc_ea_switch.cuh"
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
 #include "kg_assoc_candidate_oracle.cuh"
 #endif
@@ -54,6 +56,10 @@ struct Parameters {
   bool selfTest = false;
   bool rAssocExplicit = false;
   bool seedExplicit = false;
+  bool eaExplicit = false;
+  bool eeExplicit = false;
+  bool switchEa = false;
+  double switchEaFrom = 0.0;
 };
 
 struct RestartMetadata {
@@ -76,6 +82,8 @@ void printHelp() {
             << "  --steps N --dt DT --temperature T --Ea E --Ee E --nu0 X\n"
             << "  --Nevery N --r-assoc R --damp D --K K --R0 R --seed S\n"
             << "  --diagnostic-every N --md-seed S (fresh MD stream; chemistry seed unchanged)\n"
+            << "  --switch-ea-from E --Ea E (explicit restart kinetics switch)\n"
+            << "  --md-seed-info S (host-only effective kernel seed)\n"
             << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
 }
 
@@ -99,8 +107,13 @@ Parameters parseArguments(int argc, char** argv) {
       parameters.temperature = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--Ea") {
       parameters.ea = std::stod(nextArgument(index, argc, argv));
+      parameters.eaExplicit = true;
+    } else if (option == "--switch-ea-from") {
+      parameters.switchEaFrom = std::stod(nextArgument(index, argc, argv));
+      parameters.switchEa = true;
     } else if (option == "--Ee") {
       parameters.ee = std::stod(nextArgument(index, argc, argv));
+      parameters.eeExplicit = true;
     } else if (option == "--nu0") {
       parameters.nu0 = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--Nevery") {
@@ -136,6 +149,9 @@ Parameters parseArguments(int argc, char** argv) {
     } else {
       throw std::runtime_error("unknown argument: " + option);
     }
+  }
+  if (parameters.switchEa && (parameters.restartPrefix.empty() || !parameters.eaExplicit)) {
+    throw std::runtime_error("Ea switching requires --restart-prefix and --Ea");
   }
   if (parameters.selfTest) {
     return parameters;
@@ -394,6 +410,45 @@ void runSelfTest() {
   if (seeded.seed != 22001 || seeded.mdSeed != 32001) {
     throw std::runtime_error("independent MD/chemistry seed parsing regression failed");
   }
+  if (kg_assoc::restartEa(4.0, 8.0, true, true, 4.0) != 8.0 ||
+      kg_assoc::restartEa(6.0, 4.0, false, false, 0.0) != 6.0) {
+    throw std::runtime_error("explicit Ea switching regression failed");
+  }
+  expectReject("unmarked Ea switch", []() {
+    kg_assoc::restartEa(4.0, 8.0, true, false, 0.0);
+  });
+  expectReject("wrong parent Ea", []() {
+    kg_assoc::restartEa(4.0, 8.0, true, true, 6.0);
+  });
+  kg::LammpsData shape;
+  shape.natoms = 4;
+  shape.type = {1, 2, 2, 2};
+  shape.mol = {1, 1, 1, 1};
+  shape.bonds = {{1, 2}, {1, 3}, {1, 4}};
+  const auto shapeTopology = kg_assoc::conformationTopology(shape, 3);
+  const std::vector<std::array<double, 3>> shapePositions = {
+      {{3.75, 0.0, 0.0}}, {{-3.45, 0.0, 0.0}},
+      {{3.75, 0.8, 0.0}}, {{3.75, 0.0, 0.8}}};
+  const auto means = kg_assoc::conformationMeans(shapeTopology, shapePositions, {8, 8, 8});
+  if (!near(means.first, 0.36) || !near(means.second, 0.64)) {
+    throw std::runtime_error("PBC conformation regression failed");
+  }
+  auto shiftedShape = shapePositions;
+  shiftedShape[1][0] += 24.0;
+  shiftedShape[2][1] -= 16.0;
+  const auto shiftedMeans = kg_assoc::conformationMeans(shapeTopology, shiftedShape, {8, 8, 8});
+  if (!near(shiftedMeans.first, means.first) || !near(shiftedMeans.second, means.second)) {
+    throw std::runtime_error("image-invariant conformation regression failed");
+  }
+  for (const double ea : {4.0, 6.0, 8.0, 10.0}) {
+    const double q = kg_assoc::attemptProbability(20.0 * std::exp(-ea));
+    const double du = -2.0;
+    const double ratio = q * kg_assoc::metropolisFactor(du, 1.0, true) /
+        (q * kg_assoc::metropolisFactor(du, 1.0, false));
+    if (!near(ratio, std::exp(-du))) {
+      throw std::runtime_error("common attempt-factor ratio regression failed");
+    }
+  }
   std::set<unsigned int> effectiveSeeds;
   for (const auto streamSeed : {22001, 22002, 22003, 32001, 32002, 32003}) {
     uammd::Xorshift128plus rng(streamSeed);
@@ -460,6 +515,8 @@ void writeProvenance(std::ofstream& stateFile,
             << " K=" << parameters.feneK
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
+            << " ea_switch=" << parameters.switchEa
+            << " parent_Ea=" << (parameters.switchEa ? parameters.switchEaFrom : parameters.ea)
             << " md_seed=" << (parameters.mdSeed ? parameters.mdSeed : parameters.seed)
             << " start_step=" << startStep
             << " total_requested_steps=" << startStep + parameters.steps << '\n';
@@ -482,11 +539,29 @@ void writeProvenance(std::ofstream& stateFile,
             << " K=" << parameters.feneK
             << " R0=" << parameters.feneR0
             << " seed=" << parameters.seed
+            << " ea_switch=" << parameters.switchEa
+            << " parent_Ea=" << (parameters.switchEa ? parameters.switchEaFrom : parameters.ea)
             << " md_seed=" << (parameters.mdSeed ? parameters.mdSeed : parameters.seed)
             << " start_step=" << startStep
             << " total_requested_steps=" << startStep + parameters.steps
             << " original_lammps_atom_ids=1_based\n";
   eventFile.precision(previousPrecision);
+}
+
+void writeConformation(std::ofstream& output, long long step, const Parameters& parameters,
+                       std::shared_ptr<uammd::ParticleData> particles,
+                       const kg_assoc::ConformationTopology& topology,
+                       const kg_assoc::BoxLengths& lengths) {
+  auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
+  auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
+  std::vector<std::array<double, 3>> ordered(topology.parent.size());
+  for (size_t id = 0; id < ordered.size(); ++id) {
+    const auto position = positions[idToIndex[id]];
+    ordered[id] = {{position.x, position.y, position.z}};
+  }
+  const auto means = kg_assoc::conformationMeans(topology, ordered, lengths);
+  output << std::setprecision(17) << step << ' ' << step * parameters.dt << ' '
+         << means.first << ' ' << means.second << '\n';
 }
 
 void writeNumerics(std::ofstream& output,
@@ -526,6 +601,14 @@ void writeNumerics(std::ofstream& output,
 
 int main(int argc, char** argv) {
   try {
+    if (argc == 3 && std::string(argv[1]) == "--md-seed-info") {
+      const auto seed = std::stoull(argv[2]);
+      uammd::Xorshift128plus rng(seed);
+      rng.next32();
+      rng.next32();
+      std::cout << rng.next32() << '\n';
+      return 0;
+    }
     Parameters parameters = parseArguments(argc, argv);
     if (parameters.selfTest) {
       if (!parameters.rAssocExplicit &&
@@ -551,12 +634,18 @@ int main(int argc, char** argv) {
       if (parameters.seedExplicit && parameters.seed != restart.parameters.seed) {
         throw std::runtime_error("--seed does not match restart metadata");
       }
+      const double requestedEa = kg_assoc::restartEa(
+          restart.parameters.ea, parameters.ea, parameters.eaExplicit,
+          parameters.switchEa, parameters.switchEaFrom);
+      if (parameters.eeExplicit && parameters.ee != restart.parameters.ee) {
+        throw std::runtime_error("--Ee does not match restart metadata");
+      }
       const int requestedDiagnosticEvery = parameters.diagnosticEvery;
       parameters.arms = restart.parameters.arms;
       parameters.beadsPerArm = restart.parameters.beadsPerArm;
       parameters.dt = restart.parameters.dt;
       parameters.temperature = restart.parameters.temperature;
-      parameters.ea = restart.parameters.ea;
+      parameters.ea = requestedEa;
       parameters.ee = restart.parameters.ee;
       parameters.nu0 = restart.parameters.nu0;
       parameters.every = restart.parameters.every;
@@ -582,12 +671,14 @@ int main(int argc, char** argv) {
     const std::string statePath = parameters.output + ".state";
     const std::string eventPath = parameters.output + ".events";
     const std::string numericsPath = parameters.output + ".numerics.tsv";
+    const std::string conformationPath = parameters.output + ".conformation.tsv";
     const std::string finalSnapshotPath = parameters.output + ".final_permanent.lammpsdat";
     const std::string finalAssociationsPath = parameters.output + ".final_associations";
     const std::string restartSnapshotPath = parameters.output + ".restart.lammpsdat";
     const std::string restartMetadataPath = parameters.output + ".assoc_restart";
     if (!parameters.force && (std::ifstream(statePath) || std::ifstream(eventPath) ||
                               std::ifstream(numericsPath) ||
+                              std::ifstream(conformationPath) ||
                               std::ifstream(finalSnapshotPath) ||
                               std::ifstream(finalAssociationsPath) ||
                               std::ifstream(restartSnapshotPath) ||
@@ -603,6 +694,7 @@ int main(int argc, char** argv) {
     std::ofstream stateFile(statePath);
     std::ofstream eventFile(eventPath);
     std::ofstream numericsFile(numericsPath);
+    std::ofstream conformationFile(conformationPath);
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
     std::ofstream candidateFile(candidatePath);
     if (!candidateFile) {
@@ -610,7 +702,7 @@ int main(int argc, char** argv) {
     }
     candidateFile << "# step candidates oracle_verified_active_candidates\n";
 #endif
-    if (!stateFile || !eventFile || !numericsFile) {
+    if (!stateFile || !eventFile || !numericsFile || !conformationFile) {
       throw std::runtime_error("cannot open S1 output files");
     }
 
@@ -618,6 +710,7 @@ int main(int argc, char** argv) {
     system->rng().setSeed(parameters.seed);
     const kg::SimulationBox simulationBox = kg::makeSimulationBox(data);
     const auto particles = kg::createParticleDataFromLammps(data, system, simulationBox);
+    const auto conformationTopology = kg_assoc::conformationTopology(data, parameters.arms);
     const kg_assoc::BoxLengths lengths{
         data.xhi - data.xlo, data.yhi - data.ylo, data.zhi - data.zlo};
     const std::string permanentBondData =
@@ -693,6 +786,9 @@ int main(int argc, char** argv) {
     numericsFile << "# step time kinetic_energy temperature min_permanent_bond "
                     "max_permanent_bond\n";
     writeNumerics(numericsFile, initialStep, parameters, data, particles, integrator, lengths);
+    conformationFile << "# step time mean_rg2 mean_center_terminal_r2\n";
+    writeConformation(conformationFile, initialStep, parameters, particles,
+                      conformationTopology, lengths);
 
     const auto start = std::chrono::steady_clock::now();
     for (int step = 1; step <= parameters.steps; ++step) {
@@ -751,6 +847,8 @@ int main(int argc, char** argv) {
         writeState(stateFile, absoluteStep, parameters, counts, network, distanceDiagnostics,
                    static_cast<int>(stickerIds.size()), creations, breaks);
         writeNumerics(numericsFile, absoluteStep, parameters, data, particles, integrator, lengths);
+        writeConformation(conformationFile, absoluteStep, parameters, particles,
+                          conformationTopology, lengths);
       }
     }
 
@@ -772,6 +870,8 @@ int main(int argc, char** argv) {
                  distanceDiagnostics, static_cast<int>(stickerIds.size()), creations, breaks);
       writeNumerics(numericsFile, initialStep + parameters.steps, parameters, data,
                     particles, integrator, lengths);
+      writeConformation(conformationFile, initialStep + parameters.steps, parameters, particles,
+                        conformationTopology, lengths);
     }
     stateFile << "# chemistry_sweeps=" << chemistrySweeps
               << " candidate_sticker_pairs=" << candidatePairs

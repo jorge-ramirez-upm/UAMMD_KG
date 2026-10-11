@@ -234,12 +234,13 @@ def verify_outputs(prefix, steps=STEPS, seed=None, network=False):
             "files": {suffix: campaign.sha256(Path(str(prefix) + suffix)) for suffix in OUTPUTS}}
 
 
-def describe_window(rows, events, start, end):
+def describe_window(rows, events, start, end, metrics=METRICS, dt=.01, stars=1000):
     selected = [row for row in rows if start < row["step"] <= end]
     require(len(selected) >= 4, "too few window samples")
     times = [row["time"] for row in selected]
+    names = metrics
     metrics = {}
-    for name in METRICS:
+    for name in names:
         values = [row[name] for row in selected]
         tau, effective = stationarity.iat(values, times)
         variance = statistics.pvariance(values)
@@ -250,7 +251,7 @@ def describe_window(rows, events, start, end):
                          "blocks": stationarity.block_means(values, 10),
                          "slope": stationarity.slope(times, values)}
     accepted = [event for event in events if start < event["step"] <= end]
-    duration = (end - start) * 0.01
+    duration = (end - start) * dt
     counts = {key: sum(event["type"] == code for event in accepted)
               for key, code in (("creations", "C"), ("breaks", "B"))}
     counts.update(neighbor_gains=sum(event["neighbor_gain"] for event in accepted),
@@ -258,7 +259,7 @@ def describe_window(rows, events, start, end):
     return {"start_step_exclusive": start, "end_step_inclusive": end,
             "duration": duration, "metrics": metrics, "event_counts": counts,
             "event_rates_per_time": {key: value / duration for key, value in counts.items()},
-            "event_rates_per_star_time": {key: value / (1000 * duration) for key, value in counts.items()}}
+            "event_rates_per_star_time": {key: value / (stars * duration) for key, value in counts.items()}}
 
 
 def write_csv(path, rows):

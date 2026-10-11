@@ -10,7 +10,7 @@ LDLIBS=-lz
 all: kg_assoc_dimer kg_assoc_k1 kg_assoc_star_audit kg_assoc_stars kg_assoc_star_equilibrate kg_assoc_stress_test kg_assoc_production kg_assoc_campaign_production
 kg_assoc_candidates_test: kg_assoc_candidates_test.cu kg_assoc_candidate_oracle.cuh kg_assoc_star_runtime.cuh kg_assoc_kinetics.cuh kg_assoc_state.cuh kg_assoc_star_topology.cuh ../KG/kg_runtime.cuh ../KG/kg_lammps_io.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -O3 $< -o $@ $(LDLIBS)
-kg_assoc_stars_candidate_smoke: kg_assoc_stars.cu kg_assoc_candidate_oracle.cuh kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
+kg_assoc_stars_candidate_smoke: kg_assoc_stars.cu kg_assoc_conformation.cuh kg_assoc_ea_switch.cuh kg_assoc_candidate_oracle.cuh kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -DKG_ASSOC_VALIDATE_CANDIDATES -O3 $< -o $@ $(LDLIBS)
 kg_assoc_dimer: kg_assoc_dimer.cu kg_assoc_cli.cuh kg_assoc_cutoff_audit.cuh kg_assoc_state.cuh kg_assoc_interactors.cuh kg_assoc_kinetics.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 $< -o $@ $(LDLIBS)
@@ -18,17 +18,17 @@ kg_assoc_k1: kg_assoc_k1.cu kg_assoc_cutoff_audit.cuh kg_assoc_state.cuh kg_asso
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 $< -o $@ $(LDLIBS)
 kg_assoc_star_audit: kg_assoc_star_audit.cu kg_assoc_star_topology.cuh ../KG/kg_lammps_io.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 $< -o $@ $(LDLIBS)
-kg_assoc_stars: kg_assoc_stars.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
+kg_assoc_stars: kg_assoc_stars.cu kg_assoc_conformation.cuh kg_assoc_ea_switch.cuh kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 $< -o $@ $(LDLIBS)
 kg_assoc_star_equilibrate: kg_assoc_star_equilibrate.cu kg_assoc_star_topology.cuh ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 $< -o $@ $(LDLIBS)
 kg_assoc_stress_test: kg_assoc_stress_test.cu kg_assoc_interactors.cuh kg_assoc_state.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 $< -o $@ $(LDLIBS)
-kg_assoc_production: kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
+kg_assoc_production: kg_assoc_ea_switch.cuh kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 kg_assoc_production.cu ../KG/correlator.cpp -o $@ $(LDLIBS)
-kg_assoc_campaign_production: kg_assoc_campaign_production.cu kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
+kg_assoc_campaign_production: kg_assoc_ea_switch.cuh kg_assoc_campaign_production.cu kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -O3 kg_assoc_campaign_production.cu ../KG/correlator.cpp -o $@ $(LDLIBS)
-kg_assoc_campaign_production_smoke: kg_assoc_campaign_production.cu kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
+kg_assoc_campaign_production_smoke: kg_assoc_ea_switch.cuh kg_assoc_campaign_production.cu kg_assoc_production.cu kg_assoc_star_runtime.cuh kg_assoc_star_topology.cuh kg_assoc_state.cuh kg_assoc_kinetics.cuh kg_assoc_interactors.cuh ../KG/correlator.cpp ../KG/correlator.h ../KG/kg_lammps_io.cuh ../KG/kg_runtime.cuh ../KG/kg_interactors.cuh Makefile
 	$(NVCC) $(COMMON_NVCCFLAGS) -DMAXLOGLEVEL=$(LOG_LEVEL) -DKG_ASSOC_CAMPAIGN_STEPS=\"100000\" -O3 kg_assoc_campaign_production.cu ../KG/correlator.cpp -o $@ $(LDLIBS)
 kg_correlator6_counts_test: kg_correlator6_counts_test.cpp ../KG/correlator.cpp ../KG/correlator.h Makefile
 	$(CXX) -std=c++14 -O2 $< ../KG/correlator.cpp -o $@

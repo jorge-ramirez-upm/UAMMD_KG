@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
   try {
     std::string input;
     std::string equilibratedPrefix;
+    std::string switchEaFrom;
     std::string output;
     std::string arms;
     std::string armLength;
@@ -35,6 +36,7 @@ int main(int argc, char** argv) {
     std::string ea;
     std::string ee;
     bool nonAssociating = false;
+    bool validateOnly = false;
     for (int index = 1; index < argc; ++index) {
       const std::string option = argv[index];
       if (option == "--input") {
@@ -51,15 +53,19 @@ int main(int argc, char** argv) {
         seed = nextCampaignArgument(index, argc, argv);
       } else if (option == "--Ea") {
         ea = nextCampaignArgument(index, argc, argv);
+      } else if (option == "--switch-ea-from") {
+        switchEaFrom = nextCampaignArgument(index, argc, argv);
       } else if (option == "--Ee") {
         ee = nextCampaignArgument(index, argc, argv);
       } else if (option == "--non-associating") {
         nonAssociating = true;
+      } else if (option == "--validate-initial-state") {
+        validateOnly = true;
       } else if (option == "--help") {
         std::cout << "kg_assoc_campaign_production "
                      "(--input FILE --arms F --narm N --non-associating | "
-                     "--equilibrated-prefix PREFIX --Ea E --Ee E) "
-                     "--output PREFIX --seed SEED\n";
+                     "--equilibrated-prefix PREFIX --Ea E --Ee E [--switch-ea-from E]) "
+                     "--output PREFIX --seed SEED [--validate-initial-state]\n";
         return 0;
       } else {
         throw std::runtime_error("unsupported campaign option: " + option);
@@ -86,6 +92,12 @@ int main(int argc, char** argv) {
         "--Nevery", "100", "--r-assoc", "1.25", "--diagnostic-every", "1000",
         "--com-every", "10000", "--frame-every", "10000",
         "--progress-every", "100000", "--output", output, "--seed", seed};
+    if (!switchEaFrom.empty()) {
+      if (equilibratedPrefix.empty()) {
+        throw std::runtime_error("Ea switching requires an accepted E2 parent");
+      }
+      arguments.insert(arguments.end(), {"--switch-ea-from", switchEaFrom});
+    }
     if (input.empty()) {
       arguments.insert(arguments.end(), {"--restart-prefix", equilibratedPrefix});
     } else {
@@ -95,6 +107,19 @@ int main(int argc, char** argv) {
     std::vector<char*> rawArguments;
     for (std::string& argument : arguments) {
       rawArguments.push_back(&argument[0]);
+    }
+    if (validateOnly) {
+      const auto request = parseArguments(static_cast<int>(rawArguments.size()), rawArguments.data());
+      if (request.restartPrefix.empty()) {
+        throw std::runtime_error("initial-state validation requires an associating E2 parent");
+      }
+      const auto restart = readRestartMetadata(request.restartPrefix + ".assoc_restart");
+      validateRestartRequest(request, restart);
+      std::cout << "PRODUCTION_INITIAL_STATE PASS parent_Ea=" << restart.parameters.ea
+                << " target_Ea=" << request.ea << " Ee=" << request.ee
+                << " completed_steps=" << restart.completedSteps
+                << " active_bonds=" << restart.activeBonds.size() << '\n';
+      return 0;
     }
     return kg_assoc_validated_production_main(
         static_cast<int>(rawArguments.size()), rawArguments.data());

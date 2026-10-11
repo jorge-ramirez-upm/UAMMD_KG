@@ -377,6 +377,8 @@ def e2_command(root, system, replica, bank, steps, ea=4):
 
 
 def command_equilibrate(args):
+    if args.stage == "e2" and args.execute:
+        raise ValueError("use authenticated kg_assoc_e2.py; generic E2 execution is disabled")
     root = Path(args.dataset_root).resolve()
     for bank_id, system in selected_bank_systems(args).items():
         for replica in replicas(args.replicas):
@@ -461,7 +463,8 @@ def command_prepare_production(args):
         bank_stage = "e2" if system["associating"] else "e1"
         bank_id = e2_bank_id(system) if system["associating"] else geometry_id(system)
         validation_path = root / "banks" / bank_stage / bank_id / "validation.json"
-        if not validation_path.is_file() or load_json(validation_path).get("status") != "accepted":
+        if not system["associating"] and (not validation_path.is_file() or
+                load_json(validation_path).get("status") != "accepted"):
             raise ValueError(f"equilibration bank is not accepted: {validation_path}")
         for replica in replicas(args.replicas):
             run_root = root / "systems" / system["system_id"] / "production" / f"r{replica:03d}"
@@ -469,11 +472,18 @@ def command_prepare_production(args):
             if run_path.exists():
                 raise ValueError(f"production replica already prepared: {run_path}")
             parent = root / "banks" / bank_stage / bank_id / f"r{replica:03d}"
+            active_e2 = None
             if bank_stage == "e1":
                 parent = e1_bank_path(root, bank_id, replica)
+            else:
+                import kg_assoc_e2_registry as registry
+                active_e2 = registry.resolve(root, getattr(args, "e2_registry", None), system, replica)
+                parent = Path(active_e2["prefix"]).parent
             particle = parent / ("state.restart.lammpsdat" if system["associating"]
                                  else "state.e1.lammpsdat")
-            chemistry = parent / "state.assoc_restart"
+            if active_e2 is not None:
+                particle = Path(active_e2["prefix"] + ".restart.lammpsdat")
+            chemistry = Path(active_e2["prefix"] + ".assoc_restart") if active_e2 else parent / "state.assoc_restart"
             required = [particle] + ([chemistry] if system["associating"] else [])
             if any(not path.is_file() for path in required):
                 raise ValueError("missing validated restart-bank parent: " + str(parent))
@@ -490,7 +500,8 @@ def command_prepare_production(args):
                 "status": "prepared", "completed_production_steps": 0,
                 "parent_e1": str(e1_bank_path(root, geometry_id(system), replica) /
                                  "state.e1.lammpsdat"),
-                "parent_e2": str(parent / "state") if system["associating"] else None,
+                "parent_e2": active_e2["prefix"] if active_e2 else None,
+                "active_e2": active_e2,
                 "md_seed": seed, "chemistry_seed": seed, "attempt": 1,
                 "command": [], "exit_code": None, "validation": {}, "files": {},
                 "git_sha": git_sha(), "production_continuation": False,
@@ -508,6 +519,9 @@ def production_command(root, system, run):
     if system["associating"]:
         command += ["--equilibrated-prefix", run["parent_e2"], "--Ea", str(system["Ea"]),
                     "--Ee", str(system["Ee"])]
+        active = run.get("active_e2")
+        if active is not None and active["parent_Ea"] != system["Ea"]:
+            command += ["--switch-ea-from", str(active["parent_Ea"])]
     else:
         command += ["--input", run["parent_e1"], "--arms", str(system["f"]),
                     "--narm", str(system["N"]), "--non-associating"]
@@ -524,6 +538,14 @@ def command_launch_production(args):
             run = load_json(run_path)
             if run["status"] != "prepared":
                 raise ValueError(f"only a prepared replica may launch: {run_path}")
+            if system["associating"]:
+                import kg_assoc_e2_registry as registry
+                active = run.get("active_e2")
+                if active is None:
+                    raise ValueError("production plan lacks authenticated active E2 selection")
+                current = registry.resolve(root, Path(active["registry"]), system, replica)
+                if current != active or current["prefix"] != run["parent_e2"]:
+                    raise ValueError("active E2 provenance changed since production preparation")
             command = production_command(root, system, run)
             print(" ".join(command))
             if not args.execute:
@@ -983,6 +1005,7 @@ def build_parser():
     child.add_argument("--dataset-root", required=True)
     child.set_defaults(function=command_init)
     child = subparsers.add_parser("prepare-production")
+    child.add_argument("--e2-registry", type=Path, help="required immutable active E2 registry")
     child.add_argument("--dataset-root", required=True)
     child.add_argument("--system", action="append")
     child.add_argument("--group", choices=sorted(load_json(PROTOCOL_PATH)["groups"]))
