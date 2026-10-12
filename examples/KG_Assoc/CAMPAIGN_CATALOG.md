@@ -144,3 +144,20 @@ changed or represented as passing. No CUDA source changed, no rebuild is require
 for this catalog, and no GPU/MD test was launched. A real graphical browser was
 not available for interactive UI testing; static rendering and escaping are
 covered by the regression suite.
+
+## Documented joint-review decisions
+
+The catalog also reads version-one `reviews/*/decision.json` records with stage
+`E2_scientific_review_decision` and `formal_acceptance: false`. These are documented
+assessments, never active-registry or `E2_acceptance` entries. A recorded material
+drift hold appears as `review_hold_material_drift`; conflicting registered
+acceptance is diagnosed without replacing any registry selection. The system
+page links the decision and its bounded metadata/report evidence. Fast catalog
+refresh still distinguishes recorded payload-validation evidence from payloads
+newly authenticated by the catalog.
+
+An original incomplete receipt remains visible when a later completion records
+recovery. The catalog reconciles its execution status only when the valid
+completion binds both that failure receipt and a plan-bound approved recovery
+authorization by metadata hashes. Changed or missing bindings retain conflicting
+status; scientific acceptance is never inferred from recovery completion.

@@ -318,6 +318,7 @@ class Catalog:
         self.registry_views = []
         self.selected_registry = None
         self.registries()
+        self.scientific_decisions()
         # Authenticate only previously recognized, bounded metadata; payloads stay deferred.
         for record in list(r.records.values()):
             data = record['data']
@@ -452,13 +453,31 @@ class Catalog:
             failed = self.get(str(base.relative_to(r.dataset) / 'incomplete.json'))
             started = self.get(str(base.relative_to(r.dataset) / 'started.json'))
             valid_binding = complete.get('plan_sha256') == record['sha256']
-            if complete and (not valid_binding or complete.get('end_step') != history.get('end_step')):
+            if complete and (not valid_binding or complete.get('end_step') != history.get('end_step') or
+                             complete.get('status') != 'validated'):
                 r.issue('completion_plan_mismatch', record['id'], replica)
             num = numerical(complete)
-            if complete and (not valid_binding or complete.get('end_step') != history.get('end_step')):
+            if complete and (not valid_binding or complete.get('end_step') != history.get('end_step') or
+                             complete.get('status') != 'validated'):
                 num = 'stale_mismatched'
             if started and started.get('plan_sha256') != record['sha256']:
                 r.issue('start_plan_mismatch', record['id'], replica)
+            historical_failure = None
+            if complete and failed and valid_binding and num == 'recorded_pass' and complete.get('status') == 'validated' and complete.get('end_step') == history.get('end_step'):
+                authorization_path = r.resolve(complete.get('recovery_authorization'))
+                authorization = r.read(authorization_path, 'E2-recovery-authorization-v1') if authorization_path else None
+                failure_record = r.read(base / 'incomplete.json')
+                declared = {str(r.resolve(path)): digest for path, digest in complete.get('output_sha256', {}).items()}
+                if (authorization and authorization['supported'] and failure_record and
+                    authorization['data'].get('purpose') == 'e2_recovery' and
+                    authorization['data'].get('approved') is True and
+                    authorization['data'].get('plan_sha256') == record['sha256'] and
+                    declared.get(str(authorization_path)) == authorization['sha256'] and
+                    declared.get(str(base / 'incomplete.json')) == failure_record['sha256']):
+                    historical_failure = dict(source=failure_record['id'], data=failed,
+                        disposition='preserved_failure_followed_by_hash_bound_recovery_completion',
+                        recovery_authorization=authorization['id'])
+                    failed = {}
             physics = history.get('physics', {})
             system = plan.get('system', {})
             for pfield, sfield in [('arms', 'f'), ('narm', 'N'), ('Ee', 'Ee'), ('dt', 'dt'),
@@ -475,7 +494,7 @@ class Catalog:
                 preparation_Ea=physics.get('Ea'), parent_Ea=history.get('parent_Ea'),
                 source_sha256=plan.get('source_sha256'), build=plan.get('build'),
                 completion=complete_record['id'] if complete_record else None,
-                completion_data=complete, started=started, failure=failed,
+                completion_data=complete, started=started, failure=failed, historical_failure=historical_failure,
                 parent_attempt=plan.get('parent_attempt'), segment_index=plan.get('segment_index'))
             switch_from = history.get('parent_Ea')
             if switch_from != physics.get('Ea'):
@@ -678,6 +697,45 @@ class Catalog:
         for parent, branches in children.items():
             if len(branches) > 1:
                 r.issue('lineage_fork', parent, ', '.join(branches))
+
+    def scientific_decisions(self):
+        # Repository review decisions are documented evidence, never formal registry entries.
+        r = self.reader
+        for path in sorted((r.repository / 'examples/KG_Assoc/reviews').glob('*/decision.json')):
+            record = r.read(path, 'documented-scientific-review-v1')
+            if not record or not record['supported']:
+                continue
+            data = record['data']
+            if data.get('stage') != 'E2_scientific_review_decision' or data.get('formal_acceptance') is not False:
+                r.issue('unsupported_review_decision', record['id'], 'Cannot establish formal acceptance')
+                continue
+            evidence_hashes = data.get('evidence_sha256', {})
+            if not isinstance(evidence_hashes, dict):
+                r.issue('invalid_review_decision', record['id'], 'evidence hashes must be an object')
+                continue
+            for value, digest in evidence_hashes.items():
+                target = r.resolve(value)
+                if target and target.suffix == '.json':
+                    r.read(target)
+                r.reference(value, digest, record['id'])
+            if not isinstance(data.get('systems'), dict):
+                r.issue('invalid_review_decision', record['id'], 'systems must be an object')
+                continue
+            for sid, decision in data['systems'].items():
+                if not isinstance(decision, dict):
+                    r.issue('invalid_review_decision', record['id'], sid)
+                    continue
+                system = next((s for s in self.graph['systems'] if s['system_id'] == sid), None)
+                if not system:
+                    r.issue('unknown_review_condition', record['id'], sid)
+                    continue
+                system.setdefault('documented_reviews', []).append(dict(source=record['id'], **decision))
+                if decision.get('status') == 'acceptance_deferred_material_drift':
+                    if system['scientific'].startswith('formal_acceptance'):
+                        r.issue('documented_hold_conflicts_with_registered_acceptance', record['id'], sid)
+                    else:
+                        system['scientific'] = 'review_hold_material_drift'
+
 
     def registries(self):
         r = self.reader

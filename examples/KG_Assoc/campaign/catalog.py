@@ -107,6 +107,11 @@ def render_system(graph, sid, page):
     body += '<p class="notice">Recorded metadata only. Payload authentication deferred. '
     body += 'Smokes are not equilibrium data. Production authorization is a separate gate.</p>'
     body += detail('Parameters and separate readiness gates', view['system'])
+    for decision in view['system'].get('documented_reviews', []):
+        body += '<p>' + source_link(records[decision['source']]['path'], page, 'Documented scientific review decision; not registered acceptance') + '</p>'
+        for link in graph['references']:
+            if link['source'] == decision['source']:
+                body += '<p>' + source_link(link['path'], page, link['original']) + '</p>'
     body += '<h2>Three independent histories</h2>'
     for history in view['histories']:
         body += detail(history['id'] + ' — shared E1 reference and lineage', history)

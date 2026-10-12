@@ -1,0 +1,411 @@
+{
+  "dilute": [
+    {
+      "system": "F04_N010_RP020_EE08_EA04",
+      "replica": 1,
+      "start": 0,
+      "end": 2000000,
+      "chemistry_seed": 420101,
+      "md_seed": 520034,
+      "effective_md_seed": 425768537,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json",
+      "source_plan_sha256": "c1eae082bd74b9d100cef157b3069e3d82f7f3c4e3b7b59bab98e2339229bfb5",
+      "original_git_sha": "862e604d2c9bab193cae03b31ed14d8ea7c7e039",
+      "scientific_sources_matched": 330,
+      "validation": {
+        "numerical_status": "valid",
+        "scientific_status": "review_required",
+        "samples": 2001,
+        "accepted_events": 60485,
+        "final_bonds": 1561,
+        "oracle_sweeps": 0,
+        "output_sha256": {
+          ".state": "b299ef1afd4bb6a00654a315c2b90f5f38acad7b435238774a33c21403339997",
+          ".events": "5cb18ede727c38df1000b074b88e58c72c10eba14771153efdd532d3dbc09fc5",
+          ".numerics.tsv": "0de98990fea2c3d8019f8fcc92ec755c5fcce91f317b28591c5730310deb2172",
+          ".restart.lammpsdat": "ce69e85cf2636409351f470e01a21d8a373f453f946d6e7aa2e80d720ebb6116",
+          ".assoc_restart": "76603490165cd8c90b41e0dc80f88b6edbce2352c3688430cd7837f81eaa57f2",
+          ".final_permanent.lammpsdat": "079672a970e05d6f7fc0c48bf8491e572ddcb56fc956eca8f1db535ce3b7db8d",
+          ".final_associations": "fcbc85a917c3fee9aaf491115dff49695c57ce45f827c96f0c33623ca6909e35",
+          ".conformation.tsv": "ea4b51c5e2b90e2e961c6d3b956e3ea3d660bf39586731ed26c16a9d34b944e7"
+        }
+      },
+      "restart_sha256": "ce69e85cf2636409351f470e01a21d8a373f453f946d6e7aa2e80d720ebb6116",
+      "sidecar_sha256": "76603490165cd8c90b41e0dc80f88b6edbce2352c3688430cd7837f81eaa57f2"
+    },
+    {
+      "system": "F04_N010_RP020_EE08_EA04",
+      "replica": 2,
+      "start": 0,
+      "end": 2000000,
+      "chemistry_seed": 420102,
+      "md_seed": 520035,
+      "effective_md_seed": 417400409,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json",
+      "source_plan_sha256": "c1eae082bd74b9d100cef157b3069e3d82f7f3c4e3b7b59bab98e2339229bfb5",
+      "original_git_sha": "862e604d2c9bab193cae03b31ed14d8ea7c7e039",
+      "scientific_sources_matched": 330,
+      "validation": {
+        "numerical_status": "valid",
+        "scientific_status": "review_required",
+        "samples": 2001,
+        "accepted_events": 60511,
+        "final_bonds": 1563,
+        "oracle_sweeps": 0,
+        "output_sha256": {
+          ".state": "c9231848158d1e6fe1742b62251cd135b7ccd388014d9c8ba63d4188e5f8be52",
+          ".events": "17275d137e8f0f3161eac9323b578dbbe7ab58b7cfcb15f04cda7837b6b22f93",
+          ".numerics.tsv": "e880d74261fc495dbd893cf3927fb3870f9e17fd0db61cbb4cf899554cb65a2f",
+          ".restart.lammpsdat": "52e23cd30627b37363fd98ffc6c0cfa9fb80078bde370873d7f419d71d4f25e8",
+          ".assoc_restart": "fe950e37ef84833220723ed0905d7e6d668183321924bdd6fb19bb9eb90d0c65",
+          ".final_permanent.lammpsdat": "a825053c105979f29050cba91ae172c4a9a1eb01d819d663bf905bc8cd15fb2a",
+          ".final_associations": "6ca4c12c29f3905907e290ea980af877ef7141d97ad767c16f636f9aee54ff97",
+          ".conformation.tsv": "3ff684614a79ace1717d029bceef4e3190dcd29a42e8874f5d1d00a36094378f"
+        }
+      },
+      "restart_sha256": "52e23cd30627b37363fd98ffc6c0cfa9fb80078bde370873d7f419d71d4f25e8",
+      "sidecar_sha256": "fe950e37ef84833220723ed0905d7e6d668183321924bdd6fb19bb9eb90d0c65"
+    },
+    {
+      "system": "F04_N010_RP020_EE08_EA04",
+      "replica": 3,
+      "start": 0,
+      "end": 2000000,
+      "chemistry_seed": 420103,
+      "md_seed": 520036,
+      "effective_md_seed": 442521177,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json",
+      "source_plan_sha256": "c1eae082bd74b9d100cef157b3069e3d82f7f3c4e3b7b59bab98e2339229bfb5",
+      "original_git_sha": "862e604d2c9bab193cae03b31ed14d8ea7c7e039",
+      "scientific_sources_matched": 330,
+      "validation": {
+        "numerical_status": "valid",
+        "scientific_status": "review_required",
+        "samples": 2001,
+        "accepted_events": 60116,
+        "final_bonds": 1566,
+        "oracle_sweeps": 0,
+        "output_sha256": {
+          ".state": "79c22fc758eef2e31196fb9989fa51007dda7a38dfd77c0ad4e5126f52e83c61",
+          ".events": "37cf7175a6f21819ebc545949bc9f8afb4620aae0d227da79b6d3268e1f4a1a6",
+          ".numerics.tsv": "d9fbd26aaf0f27701d68232446de27c1b209cd5f4592ac5fa7571dc2ae4b96c9",
+          ".restart.lammpsdat": "5b35dc9b677df324cfdedd85dd2cf2a9a424da5f2068a24dd1b0ef81ce03358a",
+          ".assoc_restart": "9785806ae3e8c6e3c205d1fe8023ac8762bb1636843d749fb0aa12cec147877c",
+          ".final_permanent.lammpsdat": "873d216d5cbaa507d2becc30f9932e17d351bf9b22e61dfce20ad60b4e365516",
+          ".final_associations": "4b9d81566f1bac576688ea50ebc1417b0e4f8d16350bd0b0500cce82e435bb73",
+          ".conformation.tsv": "82d73429acf739d45095d8e8efecf72cfd86b2d1c9e1f0b67d4ef3b461698cd7"
+        }
+      },
+      "restart_sha256": "5b35dc9b677df324cfdedd85dd2cf2a9a424da5f2068a24dd1b0ef81ce03358a",
+      "sidecar_sha256": "9785806ae3e8c6e3c205d1fe8023ac8762bb1636843d749fb0aa12cec147877c"
+    },
+    {
+      "system": "F04_N010_RP020_EE08_EA04",
+      "replica": 1,
+      "start": 2000000,
+      "end": 4000000,
+      "chemistry_seed": 420101,
+      "md_seed": 520040,
+      "effective_md_seed": 342070873,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json",
+      "source_plan_sha256": "a8db921d6bd5c73c7188d3e28bd82c066d07a81391a3520fd89ade98c04787ff",
+      "original_git_sha": "b7e5dbcd05ccb02fc9f7d1c79d4f4371ca8622a7",
+      "scientific_sources_matched": 330,
+      "validation": {
+        "numerical_status": "valid",
+        "scientific_status": "review_required",
+        "samples": 2001,
+        "accepted_events": 59286,
+        "final_bonds": 1575,
+        "oracle_sweeps": 0,
+        "output_sha256": {
+          ".state": "4291801131aadb82bffd60965b0c6a1c6362782083fbab2bb35926f9d74ae083",
+          ".events": "64ec6cd24d373a39b047bb1bdd39b68b8ed4d8a2a98ecb6b5c00148597369bfb",
+          ".numerics.tsv": "4fcbf1157df5e864d444bd157ff4acfb87b9b28475c67c5bcb8cdd3b089062f8",
+          ".restart.lammpsdat": "608ce739d704de8491f9495bf54290f98d139dec9a497fcfab68d4d3d43f445a",
+          ".assoc_restart": "3fccacb2124c65e72e299e5df56b38e01437d4371db113c51c4d6eb1195df01e",
+          ".final_permanent.lammpsdat": "fad92c356365bc8c2eb85321570c61a481f63347adc7f218420cc27f19845c41",
+          ".final_associations": "7b45c3ce519d3e247bb2adafe660a49f0289e3fb8ec9ddf6499edbd3beb15fb2",
+          ".conformation.tsv": "83cc1cd5ab2ae06c5f16dc12ee80a7d20b579fab1bb40900af351f373a695917"
+        }
+      },
+      "restart_sha256": "608ce739d704de8491f9495bf54290f98d139dec9a497fcfab68d4d3d43f445a",
+      "sidecar_sha256": "3fccacb2124c65e72e299e5df56b38e01437d4371db113c51c4d6eb1195df01e"
+    },
+    {
+      "system": "F04_N010_RP020_EE08_EA04",
+      "replica": 2,
+      "start": 2000000,
+      "end": 4000000,
+      "chemistry_seed": 420102,
+      "md_seed": 520041,
+      "effective_md_seed": 333702745,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json",
+      "source_plan_sha256": "a8db921d6bd5c73c7188d3e28bd82c066d07a81391a3520fd89ade98c04787ff",
+      "original_git_sha": "b7e5dbcd05ccb02fc9f7d1c79d4f4371ca8622a7",
+      "scientific_sources_matched": 330,
+      "validation": {
+        "numerical_status": "valid",
+        "scientific_status": "review_required",
+        "samples": 2001,
+        "accepted_events": 59128,
+        "final_bonds": 1601,
+        "oracle_sweeps": 0,
+        "output_sha256": {
+          ".state": "cd87d5ba03ff8913d9a9208b295685bdc314d32b696f85f25409f2fb38bb594a",
+          ".events": "0892d7005b1f44c4e7bf35a18e1f4374039b28a0e80bb9d86a812278cf893b92",
+          ".numerics.tsv": "5c848586c76283cc27e1f5e3fac75291cf53a9fcc9b16e7f6c70cc703fda1855",
+          ".restart.lammpsdat": "a024ec03732dbeab603fa8823e8c1e62eb1008ca415e23f26d86fc5179b053ca",
+          ".assoc_restart": "125f84d9c1bdd8eebcda9d463ab8ccf481874e9dae9a6e6b6a5c4b04eaf82be0",
+          ".final_permanent.lammpsdat": "7acdc9f1aa25be452ff054c29ed3c9660ab9a55df745e78697398f8071578146",
+          ".final_associations": "c9b92211cf62f3e0b14b6a57884ac093c146f02be6a29529dbb552c0dea934d8",
+          ".conformation.tsv": "f93e4960fb435a834c5b26a96013807564cd0f80cefa7f6989466909ebe5b74e"
+        }
+      },
+      "restart_sha256": "a024ec03732dbeab603fa8823e8c1e62eb1008ca415e23f26d86fc5179b053ca",
+      "sidecar_sha256": "125f84d9c1bdd8eebcda9d463ab8ccf481874e9dae9a6e6b6a5c4b04eaf82be0"
+    },
+    {
+      "system": "F04_N010_RP020_EE08_EA04",
+      "replica": 3,
+      "start": 2000000,
+      "end": 4000000,
+      "chemistry_seed": 420103,
+      "md_seed": 520042,
+      "effective_md_seed": 358823513,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json",
+      "source_plan_sha256": "a8db921d6bd5c73c7188d3e28bd82c066d07a81391a3520fd89ade98c04787ff",
+      "original_git_sha": "b7e5dbcd05ccb02fc9f7d1c79d4f4371ca8622a7",
+      "scientific_sources_matched": 330,
+      "validation": {
+        "numerical_status": "valid",
+        "scientific_status": "review_required",
+        "samples": 2001,
+        "accepted_events": 59305,
+        "final_bonds": 1601,
+        "oracle_sweeps": 0,
+        "output_sha256": {
+          ".state": "a41bebb4e82886f21dd26579b3ef77c5ce158133cb049ec063b0d8a247c045c1",
+          ".events": "c9f8f090ba84f6ff33e74375bd78a0f9dca6e4748552fd8ec40f07370b413123",
+          ".numerics.tsv": "ea643cfc01aecc70d185c94f7c0d622d3688b19532da02ed0c958cf2c63aa5c0",
+          ".restart.lammpsdat": "df71dce93cbc553456c373a94f8a98259b3566319fee965cb12e22896fb08540",
+          ".assoc_restart": "a365cded36012287f97110ba8959283cfad3f1bd4456728f8264e3d8d2aef96c",
+          ".final_permanent.lammpsdat": "3db51813f3ef82a48200d6b5cdd9474b142af4edb369fc3305e46e4b66234399",
+          ".final_associations": "70172638b7d88d8c332d38ac4983683b4182488a00e8e456dea0dca1aa31a090",
+          ".conformation.tsv": "600d1e7b56e98acd5df5d761ec3cff46fcddc522f6ab6c8ee51ecf304115fda2"
+        }
+      },
+      "restart_sha256": "df71dce93cbc553456c373a94f8a98259b3566319fee965cb12e22896fb08540",
+      "sidecar_sha256": "a365cded36012287f97110ba8959283cfad3f1bd4456728f8264e3d8d2aef96c"
+    }
+  ],
+  "recovery_authorization_sha256": "62d083ebf40af0c9550e99e89a3fab593cfdef5b1c6b297ec7233eb526b7a095",
+  "weak_c1_full_validation": {
+    "weak": true,
+    "C1": true,
+    "head": "b7e5dbcd05ccb02fc9f7d1c79d4f4371ca8622a7"
+  },
+  "weak": [
+    {
+      "replica": 1,
+      "end_step": 2000000,
+      "chemistry_seed": 420401,
+      "md_seed": 520031,
+      "effective_md_seed": 518770261,
+      "physics": {
+        "Ea": 4,
+        "Ee": 4,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json",
+      "source_plan_sha256": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+      "git_sha": "862e604d2c9bab193cae03b31ed14d8ea7c7e039",
+      "restart_sha256": "af78ae760e81e2e9a436777255429ce9f6051bce21f8db9fcf50b0f9ee5682ce",
+      "sidecar_sha256": "8435a62de80304ed5299e740af5f11ef840854047590648d7fca1fd44af82366"
+    },
+    {
+      "replica": 2,
+      "end_step": 2000000,
+      "chemistry_seed": 420402,
+      "md_seed": 520032,
+      "effective_md_seed": 409015897,
+      "physics": {
+        "Ea": 4,
+        "Ee": 4,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json",
+      "source_plan_sha256": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+      "git_sha": "862e604d2c9bab193cae03b31ed14d8ea7c7e039",
+      "restart_sha256": "bfe2b5c5a00ac9a1cf646eefd978814cb8589c18dc9ea1768fc86483cb0623e6",
+      "sidecar_sha256": "4c2b81096d98ec27245e763eaa5bd732a954b0a2161edfc9e940a68199a4b147"
+    },
+    {
+      "replica": 3,
+      "end_step": 2000000,
+      "chemistry_seed": 420403,
+      "md_seed": 520033,
+      "effective_md_seed": 400647769,
+      "physics": {
+        "Ea": 4,
+        "Ee": 4,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json",
+      "source_plan_sha256": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+      "git_sha": "862e604d2c9bab193cae03b31ed14d8ea7c7e039",
+      "restart_sha256": "09b6e0e8f4117b231467ce75d5528ae29ac992092684381f376a63d903fb1214",
+      "sidecar_sha256": "540e7b6b4e36e62a43d7bf0982a989896abdf0ac54b2e20848d91d1e00cc7c42"
+    }
+  ],
+  "C1": {
+    "corrected_git_sha": "c70111a88c2a1084fb8839322ae4ee2a237fed31",
+    "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+    "source_plan_sha256": "57bd09e15368d945341f17fe02eb45dab0a59beaa6025c8ed4415a677b39790d",
+    "historical_executable_declared_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_candidates_test": "ee0d6923e3364244cbfcefa2e6f2331ae19d958c138411398746611111244507",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars": "0117e6221940b9db7c5f284e47b9000a124d62d55206d76ff94cb4e18a91f722",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars_candidate_smoke": "9a931e587233b8930d322d7a85f56e245db12ac0e05d3486115357df7ccdccb3"
+    },
+    "histories": [
+      {
+        "replica": 1,
+        "end_step": 8000000,
+        "chemistry_seed": 22001,
+        "restart_sha256": "09e1a9f5329a2be06e28112c5bc53e399f54c7aba74369684f12968f68d6b21b",
+        "sidecar_sha256": "9eb4e566d96f0080d9a03677e5d23d231ce389193c71a57f68c58f22035e9ecc",
+        "status_sha256": "a79e9e51216a1806cb0b1aa40d43cf5445e4163db0a666dace25ddbc92a0d43e"
+      },
+      {
+        "replica": 2,
+        "end_step": 8000000,
+        "chemistry_seed": 22002,
+        "restart_sha256": "ae1599f3d2ffcfd333058b2867bbc7ba897b7dccd84e8b2e7a2996aaa6df3c5b",
+        "sidecar_sha256": "7fd18a27d4d989881397b33b94ffe92de21a05c1e318f8236586b737ee697674",
+        "status_sha256": "50445b5e4dfe31f3e91d2aaf3f1eca0301dcc1ce31898e3fd85f6ca1edbf13da"
+      },
+      {
+        "replica": 3,
+        "end_step": 8000000,
+        "chemistry_seed": 22003,
+        "restart_sha256": "10a7885b6e704258dee322e4c310f26bfe921b586e769a477600d515ef888e2a",
+        "sidecar_sha256": "8a260fd5a6e5b3408ba71e10ccb2e47437cf61691036e5c82fcf1c9ac058427c",
+        "status_sha256": "23851c17262a3200d6ffc73c9ee1c2edcdb75e50710cf61553bc3fbb652e1ea0"
+      }
+    ],
+    "limitation": "Historical executable bytes are not archived locally; recorded digests are preserved, the commit/Makefile and pinned outputs were authenticated and corrected payloads independently revalidated.",
+    "historical_commit_object_authenticated": true,
+    "Makefile_digest_matches_recorded_commit": true
+  }
+}

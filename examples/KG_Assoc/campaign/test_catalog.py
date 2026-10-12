@@ -424,5 +424,65 @@ class CatalogTests(unittest.TestCase):
         self.assertTrue({'plan_condition_mismatch', 'physics_mismatch', 'E1_parent_not_selected'} <= self.codes(self.scan()))
 
 
+    def test_documented_joint_hold_never_registers_formal_acceptance(self):
+        sid = 'F04_N010_RP020_EE08_EA04'
+        evidence = self.repo / 'examples/KG_Assoc/reviews/joint/summary.json'
+        digest = self.write(evidence, {'scientific_status': 'review_required'})
+        self.write(evidence.parent / 'decision.json', dict(schema_version=1,
+            stage='E2_scientific_review_decision', formal_acceptance=False,
+            evidence_sha256={'examples/KG_Assoc/reviews/joint/summary.json': digest},
+            systems={sid: dict(status='acceptance_deferred_material_drift', qualification='initialization only')}))
+        graph = self.scan()
+        system = catalog.system_record(graph, sid)['system']
+        self.assertEqual(system['scientific'], 'review_hold_material_drift')
+        self.assertEqual(system['selection'], 'missing')
+        self.assertEqual(system['production_authorization'], 'absent')
+        self.assertFalse(graph['acceptances'])
+        self.assertTrue(system['documented_reviews'])
+        self.write(evidence, {'changed': True})
+        self.assertIn('changed_metadata', self.codes(self.scan()))
+
+    def test_documented_review_cannot_masquerade_as_formal_acceptance(self):
+        path = self.repo / 'examples/KG_Assoc/reviews/review/decision.json'
+        self.write(path, dict(schema_version=1, stage='E2_acceptance', formal_acceptance=True,
+                             systems={WEAK: {'status': 'accepted'}}))
+        graph = self.scan()
+        self.assertIn('unsupported_review_decision', self.codes(graph))
+        self.assertFalse(graph['acceptances'])
+
+    def test_documented_hold_does_not_silently_replace_registry_selection(self):
+        directory = self.plan()
+        acceptance, digest = self.acceptance(directory)
+        self.write(self.root / 'banks/e2_registry/one.json', dict(schema_version=1, stage='E2_active_registry',
+            systems={WEAK: dict(acceptance=str(acceptance), sha256=digest)}))
+        self.write(self.repo / 'examples/KG_Assoc/reviews/review/decision.json', dict(schema_version=1,
+            stage='E2_scientific_review_decision', formal_acceptance=False,
+            systems={WEAK: dict(status='acceptance_deferred_material_drift')}))
+        graph = self.scan()
+        self.assertEqual(catalog.system_record(graph, WEAK)['system']['selection'], 'selected_metadata_payload_deferred')
+        self.assertIn('documented_hold_conflicts_with_registered_acceptance', self.codes(graph))
+
+
+    def test_recovered_completion_retains_and_authenticates_historical_failure(self):
+        directory = self.plan()
+        failure = directory / 'r002/incomplete.json'
+        failure_hash = self.write(failure, {'error': 'prepared code SHA changed'})
+        auth = self.root / 'banks/e2_recoveries/recovery/authorization.json'
+        auth_hash = self.write(auth, dict(schema_version=1, approved=True, purpose='e2_recovery',
+            plan_sha256=hashlib.sha256((directory / 'plan.json').read_bytes()).hexdigest()))
+        path = directory / 'r002/complete.json'
+        completion = json.loads(path.read_text())
+        completion.update(recovery_authorization=str(auth), output_sha256={str(failure): failure_hash, str(auth): auth_hash})
+        self.write(path, completion)
+        graph = self.scan()
+        recovered = next(a for a in graph['attempts'] if a['replica'] == 2)
+        self.assertEqual(recovered['execution'], 'completed_receipt')
+        self.assertEqual(recovered['historical_failure']['data']['error'], 'prepared code SHA changed')
+        self.write(auth, {'approved': False})
+        graph = self.scan()
+        recovered = next(a for a in graph['attempts'] if a['replica'] == 2)
+        self.assertEqual(recovered['execution'], 'conflicting_evidence')
+
+
 if __name__ == '__main__':
     unittest.main()

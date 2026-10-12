@@ -1,0 +1,37 @@
+{
+  "evidence_sha256": {
+    "examples/KG_Assoc/reviews/e2_acceptance_20261012/DECISION.md": "cac265463b6322ffc046dbe772f7bf8ce05c964f9e3e74fa71c12e77d88d072e",
+    "examples/KG_Assoc/reviews/e2_acceptance_20261012/joint4m_checked/REPORT.md": "e3f9b7fababddd0a8904bf94c3feb165d730b54a996b0a89f0cbff30ca55a63e",
+    "examples/KG_Assoc/reviews/e2_acceptance_20261012/joint4m_checked/analysis_config.json": "919320a5894dfceea01cb700e1057d3bc9859a3ac11a38382687a1f09d481f00",
+    "examples/KG_Assoc/reviews/e2_acceptance_20261012/joint4m_checked/summary.json": "f0a440fe5ec0ab4fba5f64c2bd4a2e58e109aee9718ff5b42a05c44df91643cd",
+    "examples/KG_Assoc/reviews/e2_acceptance_20261012/provenance.json": "04330e4dc5f5e0510f96cb7f9a8cf74e419c3553a242939cfd635edc7314cc98"
+  },
+  "formal_acceptance": false,
+  "reviewed_at": "2026-10-12T11:59:52.270404+00:00",
+  "reviewer": "Codex read-only review in response to user task",
+  "schema_version": 1,
+  "scope": "documented scientific assessment; no registry activation or production authorization",
+  "source_commit": "b7e5dbcd05ccb02fc9f7d1c79d4f4371ca8622a7",
+  "stage": "E2_scientific_review_decision",
+  "systems": {
+    "F04_N010_RP020_EE08_EA04": {
+      "end_step": 4000000,
+      "qualification": "Coherent unresolved L2 shift; assess initialization bias before formal registration. No production authorization.",
+      "replicas": 3,
+      "status": "acceptance_deferred_material_drift"
+    },
+    "F04_N010_RP080_EE04_EA04": {
+      "end_step": 2000000,
+      "qualification": "Earlier user recommendation retained after full numerical revalidation; slow topology not proven fully decorrelated; initialization only.",
+      "replicas": 3,
+      "status": "qualified_acceptance_recommended_not_registered"
+    },
+    "F04_N010_RP080_EE08_EA04": {
+      "end_step": 8000000,
+      "provenance_kind": "corrected_C1_8M",
+      "qualification": "Earlier qualified decision retained; historical PBC-defective 6M branches remain ineligible; slow topology not proven fully decorrelated; initialization only.",
+      "replicas": 3,
+      "status": "documented_qualified_initialization_decision_not_registered"
+    }
+  }
+}
