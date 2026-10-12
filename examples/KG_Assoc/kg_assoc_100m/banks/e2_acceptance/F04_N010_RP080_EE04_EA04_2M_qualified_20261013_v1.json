@@ -1,0 +1,118 @@
+{
+  "bank_id": "F04_N010_RP080_EE04",
+  "evidence": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_acceptance_20261012/DECISION.md",
+  "evidence_sha256": "cac265463b6322ffc046dbe772f7bf8ce05c964f9e3e74fa71c12e77d88d072e",
+  "histories": [
+    {
+      "chemistry_seed": 420401,
+      "end_step": 2000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 4,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state",
+      "replica": 1,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/complete.json": "d3715fbd864b3468375970483ae5faaf42a05d928b491025ea4e0ef7cd396c45",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.assoc_restart": "8435a62de80304ed5299e740af5f11ef840854047590648d7fca1fd44af82366",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.conformation.tsv": "47ffda34692caa18f232949aeb7a155b30fbc1884ec26be1ede28d619b9f0bb9",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.events": "7cc7c881f1ecfe8fb5fc39b83f23e60915c52577dd5388a8802331c25ddd03d8",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.final_associations": "420dbfc6a5f343ae8e024b9d8350c3cc3c7a302983601aa00190e4432a5a8deb",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.final_permanent.lammpsdat": "b324e470bf15e2843d4880af084f4f925b511047f1553b425bcf0bd7749275e5",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.numerics.tsv": "5d31f9c88cf8c9c834d5efbb2a977e217bb93d8ae6bffa0be89fcb4071bc0b14",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.restart.lammpsdat": "af78ae760e81e2e9a436777255429ce9f6051bce21f8db9fcf50b0f9ee5682ce",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.state": "20e3e8e8fa30fd0c0b248e5d90709e7f8e8d768c53d5e882a24be375c46eb13b"
+      }
+    },
+    {
+      "chemistry_seed": 420402,
+      "end_step": 2000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 4,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state",
+      "replica": 2,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/complete.json": "385247f0c2425e434137bb560083ed38da32698f9cb5cbd68dd4aada5c8155c7",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.assoc_restart": "4c2b81096d98ec27245e763eaa5bd732a954b0a2161edfc9e940a68199a4b147",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.conformation.tsv": "bd70b6560c889961a0f7d9401a77bd04c12a18c8b1c734fc746cb794c20df8d1",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.events": "727a81235080b38feb91de45a5f3362b20d49fe0348894a4d5666ebfa33374c7",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.final_associations": "bbcd3848e9c46d19e4fcd052b1d46798b656cee88098ab2bdcd2388de55c6ac8",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.final_permanent.lammpsdat": "99259cb1659091f25e46448614110206c917edae3183f6ce6303164354e05348",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.numerics.tsv": "e9cc1e719d02602cfe9fcdf34c6a66c33e1c210eee11d5bd2c4a0acc1e136dcd",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.restart.lammpsdat": "bfe2b5c5a00ac9a1cf646eefd978814cb8589c18dc9ea1768fc86483cb0623e6",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.state": "24486c43b18b9c4ffbfb2c4a3fb623c31172c36b74e9ef9910ee7ca9f9dc8135"
+      }
+    },
+    {
+      "chemistry_seed": 420403,
+      "end_step": 2000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 4,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state",
+      "replica": 3,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/complete.json": "7bd13751eb94df32cae2f14dcb22d64ca06551a25362832602fdc13a30b52680",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.assoc_restart": "540e7b6b4e36e62a43d7bf0982a989896abdf0ac54b2e20848d91d1e00cc7c42",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.conformation.tsv": "c97ec606940c48ac07137e7026e05b252b40b677f9f7cf68293e64c39d924513",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.events": "28a1f9061736cb714f6afda0955e602ee216be9bf7c77cce128b068449b9cdeb",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.final_associations": "60f5bad50f0f1edfea529b839d4ff40c7dd5ac0934a7e71e0412e6125dffe0c8",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.final_permanent.lammpsdat": "ae98b2a129981d423bb6931073fed9c20d6e18db619731434625fbb0f52846af",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.numerics.tsv": "00d6d9e1a54ab4d0608a0ea1757bdb7c5e526091df53fe25510887f3cc2bd2e4",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.restart.lammpsdat": "09b6e0e8f4117b231467ce75d5528ae29ac992092684381f376a63d903fb1214",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.state": "2bc4ec8740b214333c4f91c9f26dda390cdd9ce1d3a6edd4dec04e58f9cab31d"
+      }
+    }
+  ],
+  "numerical_qualification": "q cancels in fixed-configuration forward/reverse ratio; exact coupled integrator invariance unproven",
+  "permitted_systems": [
+    "F04_N010_RP080_EE04_EA04"
+  ],
+  "permitted_use": "production_initial_state",
+  "provenance_kind": "E2_G1_segment",
+  "publisher_git_sha": "eaaef7b8dffb57c11b9749021ecf9ede7e3a1a3f",
+  "qualification": "User-approved qualified scientific acceptance for production initialization only. Slow network-topology decorrelation has not been fully demonstrated. No registry activation or production launch authorization. Historical executable bytes unavailable; preserved build/source/log records and declared executable identities authenticated.",
+  "reviewed_at": "2026-10-12T22:25:10.056584+00:00",
+  "reviewer": "User: explicit approval in formal acceptance preparation request (2026-10-13); prepared by Codex",
+  "schema_version": 1,
+  "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json",
+  "source_plan_sha256": "32827a561a328e323c8737b6354d00df1502e00a37cbdcf23e410e60e79bd401",
+  "stage": "E2_acceptance",
+  "status": "accepted_with_qualification"
+}

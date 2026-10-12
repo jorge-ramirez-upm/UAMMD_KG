@@ -221,6 +221,29 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(system['production_authorization'], 'absent')
         self.assertEqual(catalog.system_record(selected, C1)['system']['scientific'], 'absent')
 
+    def test_formal_acceptance_without_registry_is_not_an_active_start(self):
+        path, _ = self.acceptance(self.plan())
+        graph = self.scan()
+        system = catalog.system_record(graph, WEAK)['system']
+        self.assertEqual(system['scientific'], 'formal_acceptance_recorded_payload_deferred')
+        self.assertEqual(len(system['formal_acceptance_records']), 1)
+        self.assertEqual(system['selection'], 'missing')
+        self.assertEqual(system['production_authorization'], 'absent')
+        self.assertEqual(system['production_eligibility'], 'blocked_missing_or_invalid_registered_selection')
+        self.assertIsNone(graph['selected_registry'])
+        self.assertEqual(graph['selections'], [])
+        self.assertEqual(catalog.system_record(graph, C1)['system']['formal_acceptance_records'], [])
+
+    def test_acceptance_of_a_different_endpoint_fails_metadata_identity(self):
+        path, _ = self.acceptance(self.plan())
+        data = json.loads(path.read_text())
+        data['histories'][0]['end_step'] -= 1000
+        self.write(path, data)
+        graph = self.scan()
+        self.assertFalse(graph['acceptances'][0]['metadata_eligible'])
+        self.assertIn('acceptance_accepted_endpoint_mismatch', self.codes(graph))
+        self.assertEqual(catalog.system_record(graph, WEAK)['system']['formal_acceptance_records'], [])
+
     def test_smoke_formal_acceptance_rejected(self):
         acceptance, digest = self.acceptance(self.plan(smoke=True))
         self.write(self.root / 'banks/e2_registry/one.json', dict(schema_version=1, stage='E2_active_registry',

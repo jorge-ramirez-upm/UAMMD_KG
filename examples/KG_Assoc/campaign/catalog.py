@@ -58,10 +58,11 @@ def context(graph):
 
 def status(graph):
     print(context(graph))
-    print('\nSYSTEM                            SMOKE           E2 / SCIENCE / SELECTION')
+    print('\nSYSTEM                            SMOKE           E2 / SCIENCE / SELECTION / PRODUCTION AUTH')
     for system in graph['systems']:
         print(f"{system['system_id']:33} {system['smoke']:15} "
-              f"{system['execution']} / {system['scientific']} / {system['selection']}")
+              f"{system['execution']} / {system['scientific']} / {system['selection']} / "
+              f"{system['production_authorization']}")
     if len(graph['registry_views']) > 1 and not graph['selected_registry']:
         print('\nMultiple registry views; choose --registry PATH explicitly:')
         print('\n'.join(graph['registry_views']))
@@ -142,7 +143,8 @@ def render_system(graph, sid, page):
 
 def render_index(graph, directory):
     page = directory / 'index.html'
-    fields = ['geometry', 'role', 'Ee', 'target_Ea', 'smoke', 'execution', 'numerical', 'scientific', 'selection', 'integrity']
+    fields = ['geometry', 'role', 'Ee', 'target_Ea', 'smoke', 'execution', 'numerical',
+              'scientific', 'selection', 'production_authorization', 'integrity']
     body = '<p class="notice">Local metadata observation; giant payloads are not read or hashed. '
     body += 'Missing local records do not establish what exists on another host. '
     body += 'No acceptance or production authorization is created.</p>'
@@ -207,7 +209,8 @@ def publish(graph, repository, include_html=True):
     (staging / 'catalog.json').write_text(dump(graph) + '\n', encoding='utf-8')
     write_csv(staging / 'systems.csv', graph['systems'],
               ['system_id', 'parameters', 'geometry', 'bank', 'execution', 'smoke', 'numerical', 'scientific',
-               'selection', 'production_eligibility', 'production_authorization', 'integrity'])
+               'selection', 'formal_acceptance_records', 'production_eligibility',
+               'production_authorization', 'integrity'])
     write_csv(staging / 'histories.csv', graph['histories'],
               ['id', 'system_id', 'replica', 'selected_e1', 'e1_sha256', 'attempts'])
     write_csv(staging / 'attempts.csv', graph['attempts'],

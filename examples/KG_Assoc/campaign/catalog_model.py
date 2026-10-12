@@ -278,6 +278,7 @@ class Catalog:
                 Ee=str(system['Ee']) if bank else 'not_applicable',
                 target_Ea=str(system['Ea']) if bank else 'not_applicable',
                 numerical='absent', scientific='absent' if bank else 'E1_acceptance_unknown',
+                formal_acceptance_records=[],
                 selection='missing' if bank else 'E2_not_applicable',
                 production_authorization='absent', production_eligibility='unknown_payload_deferred',
                 documented_decision=None, execution='not_available_here', smoke='absent',
@@ -871,6 +872,7 @@ class Catalog:
             formal = [a for a in self.graph['acceptances'] if a['metadata_eligible'] and
                       system['system_id'] in a['data'].get('permitted_systems', []) and
                       system['bank'] == a['data'].get('bank_id')]
+            system['formal_acceptance_records'] = [a['source'] for a in formal]
             if formal:
                 system['scientific'] = 'formal_acceptance_recorded_payload_deferred'
             registry = next((p for p in registries if p['id'] == self.selected_registry), None)

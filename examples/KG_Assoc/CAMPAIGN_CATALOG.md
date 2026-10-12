@@ -172,3 +172,11 @@ The 6M dilute reassessment is documented in
 Its recommendation appears as `qualified_acceptance_recommended_not_registered`.
 It creates no formal acceptance, active initialization selection or production
 authorization. Version-two joint summaries remain derived review evidence.
+
+The separately approved formal acceptances are documented in
+[reviews/e2_formal_acceptance_20261013/README.md](reviews/e2_formal_acceptance_20261013/README.md).
+Valid records appear in each system's `formal_acceptance_records` and give
+`formal_acceptance_recorded_payload_deferred` scientific status. An acceptance
+record alone leaves active `selection` missing and production eligibility blocked.
+Terminal/HTML status and JSON/CSV exports retain production authorization as a
+separate field. No catalog command activates a registry or authorizes execution.
