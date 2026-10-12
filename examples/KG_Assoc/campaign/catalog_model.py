@@ -118,7 +118,10 @@ class Reader:
             record = dict(id=key, path=str(safe), adapter=adapter, data=value,
                           sha256=hashlib.sha256(payload).hexdigest(),
                           stat=dict(size=after.st_size, mtime_ns=after.st_mtime_ns),
-                          supported=value.get('schema_version', 1) == 1)
+                          supported=(value.get('schema_version', 1) == 1 or
+                              value.get('schema_version') == 2 and
+                              value.get('stage') == 'E2_joint_review_summary' and
+                              value.get('automatic_acceptance') is False))
             if original_array is not None:
                 record['original_data'] = original_array
             self.records[key] = record
@@ -699,8 +702,9 @@ class Catalog:
                 r.issue('lineage_fork', parent, ', '.join(branches))
 
     def scientific_decisions(self):
-        # Repository review decisions are documented evidence, never formal registry entries.
+        # Documented reviews form an explicit graph; dates never select or activate states.
         r = self.reader
+        decisions = []
         for path in sorted((r.repository / 'examples/KG_Assoc/reviews').glob('*/decision.json')):
             record = r.read(path, 'documented-scientific-review-v1')
             if not record or not record['supported']:
@@ -709,32 +713,56 @@ class Catalog:
             if data.get('stage') != 'E2_scientific_review_decision' or data.get('formal_acceptance') is not False:
                 r.issue('unsupported_review_decision', record['id'], 'Cannot establish formal acceptance')
                 continue
-            evidence_hashes = data.get('evidence_sha256', {})
-            if not isinstance(evidence_hashes, dict):
-                r.issue('invalid_review_decision', record['id'], 'evidence hashes must be an object')
+            hashes = data.get('evidence_sha256', {})
+            if not isinstance(hashes, dict) or not isinstance(data.get('systems'), dict):
+                r.issue('invalid_review_decision', record['id'], 'Evidence and systems must be objects')
                 continue
-            for value, digest in evidence_hashes.items():
+            for value, digest in hashes.items():
                 target = r.resolve(value)
                 if target and target.suffix == '.json':
                     r.read(target)
                 r.reference(value, digest, record['id'])
-            if not isinstance(data.get('systems'), dict):
-                r.issue('invalid_review_decision', record['id'], 'systems must be an object')
-                continue
             for sid, decision in data['systems'].items():
-                if not isinstance(decision, dict):
+                system = next((s for s in self.graph['systems'] if s['system_id'] == sid), None)
+                if not system or not isinstance(decision, dict):
                     r.issue('invalid_review_decision', record['id'], sid)
                     continue
-                system = next((s for s in self.graph['systems'] if s['system_id'] == sid), None)
-                if not system:
-                    r.issue('unknown_review_condition', record['id'], sid)
-                    continue
-                system.setdefault('documented_reviews', []).append(dict(source=record['id'], **decision))
-                if decision.get('status') == 'acceptance_deferred_material_drift':
-                    if system['scientific'].startswith('formal_acceptance'):
-                        r.issue('documented_hold_conflicts_with_registered_acceptance', record['id'], sid)
-                    else:
-                        system['scientific'] = 'review_hold_material_drift'
+                item = dict(source=record['id'], **decision)
+                system.setdefault('documented_reviews', []).append(item)
+                decisions.append((sid, item, record))
+        for sid, item, record in decisions:
+            reference = item.get('supersedes_documented_review')
+            if not reference:
+                continue
+            target = r.resolve(reference.get('path')) if isinstance(reference, dict) else None
+            previous = next(((old, source) for condition, old, source in decisions if
+                condition == sid and target and source['path'] == str(target)), None)
+            if (not previous or previous[1]['sha256'] != reference.get('sha256') or
+                type(previous[0].get('end_step')) is not int or type(item.get('end_step')) is not int or
+                previous[0]['end_step'] >= item['end_step']):
+                r.issue('invalid_documented_review_supersession', record['id'], reference)
+                item['invalid_supersession'] = True
+                continue
+            previous[0].setdefault('superseded_by_documented_reviews', []).append(item['source'])
+        for system in self.graph['systems']:
+            active = [d for d in system.get('documented_reviews', []) if
+                      not d.get('superseded_by_documented_reviews')]
+            statuses = {d.get('status') for d in active}
+            if any(d.get('invalid_supersession') for d in active) and 'acceptance_deferred_material_drift' not in statuses:
+                if not system['scientific'].startswith('formal_acceptance'):
+                    system['scientific'] = 'documented_review_decision_unresolved'
+                continue
+            if system['scientific'].startswith('formal_acceptance'):
+                if 'acceptance_deferred_material_drift' in statuses:
+                    r.issue('documented_hold_conflicts_with_registered_acceptance',
+                            system['system_id'], 'Registered selection retained; conflicting documented hold')
+            elif 'acceptance_deferred_material_drift' in statuses:
+                system['scientific'] = 'review_hold_material_drift'
+            elif statuses == {'qualified_acceptance_recommended_not_registered'}:
+                system['scientific'] = 'qualified_acceptance_recommended_not_registered'
+            elif len(statuses) > 1:
+                system['scientific'] = 'documented_review_decision_ambiguous'
+
 
 
     def registries(self):

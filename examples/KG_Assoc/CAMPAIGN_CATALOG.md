@@ -161,3 +161,14 @@ recovery. The catalog reconciles its execution status only when the valid
 completion binds both that failure receipt and a plan-bound approved recovery
 authorization by metadata hashes. Changed or missing bindings retain conflicting
 status; scientific acceptance is never inferred from recovery completion.
+
+A later recommendation may supersede a documented hold only through an explicit
+`supersedes_documented_review` reference to the prior decision path and SHA256,
+for the same system with an increased absolute endpoint step. Timestamps never
+choose a newer decision. The old hold remains linked and visible as superseded;
+missing, changed or unrelated bindings retain a hold or unresolved status.
+The 6M dilute reassessment is documented in
+[reviews/e2_reassessment6m_20261013/DECISION.md](reviews/e2_reassessment6m_20261013/DECISION.md).
+Its recommendation appears as `qualified_acceptance_recommended_not_registered`.
+It creates no formal acceptance, active initialization selection or production
+authorization. Version-two joint summaries remain derived review evidence.

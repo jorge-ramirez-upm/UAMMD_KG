@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Read-only paired, correlation-aware review across authenticated E2 segments."""
 import argparse
+import copy
+import hashlib
+import itertools
+import subprocess
 import json
 from pathlib import Path
 import sys
@@ -13,18 +17,42 @@ require = runner.require
 campaign = runner.campaign
 
 
+def authenticate_sources(hashes, commit):
+    for name, digest in runner.scientific_source_hashes(hashes).items():
+        # This read-only driver evolves between reviews; authenticate its recorded version.
+        if Path(name).parts[-4:] == ('examples', 'KG_Assoc', 'analysis', 'analyze_joint_e2.py'):
+            archived = subprocess.check_output(['git', 'show', commit +
+                ':examples/KG_Assoc/analysis/analyze_joint_e2.py'], cwd=campaign.REPOSITORY_ROOT)
+            require(hashlib.sha256(archived).hexdigest() == digest, 'recorded review driver differs from commit')
+        else:
+            runner.check_hashes({name: digest})
+
+
 def authenticate(root, attempts):
     segments = []
-    for attempt in attempts:
-        attempt = runner.inside(root, attempt)
-        plan = runner.check_plan(root, attempt)
+    attempts = [runner.inside(root, attempt) for attempt in attempts]
+    plans = [runner.check_plan(root, attempt) for attempt in attempts]
+    latest_end = max(plan['histories'][0]['end_step'] for plan in plans)
+    for attempt, plan in zip(attempts, plans):
         require(plan['smoke'] is False, 'smokes are not equilibrium histories')
         runner.approval_record(attempt / 'approval.json', attempt / 'plan.json', 'e2_segment')
-        runner.check_hashes(runner.scientific_source_hashes(plan['source_sha256']))
-        runner.check_hashes(plan['executable_sha256'])
-        if plan.get('build'):
-            runner.check_hashes(plan['build']['executable_sha256'])
-            runner.check_hashes(plan['build']['build_log_sha256'])
+        authenticate_sources(plan['source_sha256'], plan['git_sha'])
+        build = plan.get('build')
+        require(build and build['status'] == 'built', 'authenticated build record required')
+        manifests = [Path(path) for path in plan['evidence_sha256'] if
+                     Path(path).name == 'manifest.json' and Path(path).parent.parent == root / 'builds']
+        require(len(manifests) == 1 and campaign.load_json(manifests[0]) == build,
+                'embedded build differs from plan-bound manifest')
+        authenticate_sources(build['source_sha256'], build['git_sha'])
+        runner.check_hashes(build['build_log_sha256'])
+        require(all(build['executable_sha256'].get(path) == digest for path, digest in
+                    plan['executable_sha256'].items()), 'plan executable identity differs from build')
+        latest = plan['histories'][0]['end_step'] == latest_end
+        if latest:
+            runner.check_hashes(plan['executable_sha256'])
+            runner.check_hashes(build['executable_sha256'])
+        build_scope = ('current_binary_hashes_authenticated' if latest else
+                       'historical_build_and_source_authenticated; binary_bytes_not_reauthenticated')
         histories = []
         for entry in plan['histories']:
             receipt_path = Path(entry['output_prefix']).parent / 'complete.json'
@@ -35,8 +63,32 @@ def authenticate(root, attempts):
             runner.check_hashes(receipt['output_sha256'])
             rows, events, result = runner.validation.validate(entry)
             histories.append(dict(entry=entry, rows=rows, events=events, validation=result))
-        segments.append(dict(attempt=str(attempt), plan=plan, histories=histories))
-    return segments
+        segments.append(dict(attempt=str(attempt), plan=plan, histories=histories,
+                             build_authentication_scope=build_scope))
+        print('VALIDATED ' + attempt.name + ': three original histories', flush=True)
+    return check_lineage(segments)
+
+
+def load_prior_review(directory, segments):
+    directory = Path(directory).resolve()
+    summary_path = directory / 'summary.json'
+    decision = campaign.load_json(directory.parent / 'decision.json')
+    relative = str(summary_path.relative_to(campaign.REPOSITORY_ROOT))
+    require(decision.get('formal_acceptance') is False and
+            decision.get('stage') == 'E2_scientific_review_decision' and
+            decision['evidence_sha256'].get(relative) == campaign.sha256(summary_path),
+            'prior summary lacks immutable documented-review binding')
+    runner.check_hashes({str(campaign.REPOSITORY_ROOT / path): digest
+                         for path, digest in decision['evidence_sha256'].items()})
+    config = campaign.load_json(directory / 'analysis_config.json')
+    runner.check_hashes(config['source_sha256'])
+    covered = [s for s in segments if s['attempt'] in config['attempts']]
+    expected = [Path(s['attempt']) / name for s in covered for name in
+                ('plan.json', 'approval.json', 'r001/complete.json', 'r002/complete.json', 'r003/complete.json')]
+    require(len(covered) == len(config['attempts']) and set(map(str, expected)) == set(config['source_sha256']),
+            'prior review source coverage differs')
+    return dict(summary=campaign.load_json(summary_path), path=str(summary_path),
+                sha256=campaign.sha256(summary_path))
 
 
 def check_lineage(segments):
@@ -71,7 +123,7 @@ def compare(records, category, name, early, late):
                 excludes_zero=abs(statistics['mean']) > statistics['ci95_half_width'])
 
 
-def summarize(segments, window_steps=1000000):
+def summarize(segments, window_steps=1000000, prior=None):
     segments = check_lineage(segments)
     records = []
     for index, replica in enumerate((1, 2, 3)):
@@ -82,9 +134,22 @@ def summarize(segments, window_steps=1000000):
             require(entry['replica'] == replica and (entry['end_step'] - entry['start_step']) % window_steps == 0,
                     'window/replica coverage mismatch')
             for start in range(entry['start_step'], entry['end_step'], window_steps):
-                window = segment.review.window(history['rows'], history['events'], start, start + window_steps,
-                    stickers=entry['system']['f'] * entry['system']['number_of_stars'],
-                    dt=entry['physics']['dt'], stars=entry['system']['number_of_stars'], metrics=segment.METRICS)
+                cached = []
+                if prior:
+                    require(prior['summary']['system'] == source['plan']['system'] and
+                            prior['summary']['windows_steps'] == window_steps, 'prior review physics/cadence differs')
+                    prior_record = prior['summary']['records'][index]
+                    require(prior_record['replica'] == replica, 'prior replica identity differs')
+                    cached = [w for w in prior_record['windows'] if w['segment'] == source['attempt'] and
+                              w['start_step_exclusive'] == start and w['end_step_inclusive'] == start + window_steps]
+                require(len(cached) <= 1, 'duplicate prior window')
+                if cached:
+                    window = copy.deepcopy(cached[0])
+                    window['statistics_source'] = dict(path=prior['path'], sha256=prior['sha256'])
+                else:
+                    window = segment.review.window(history['rows'], history['events'], start, start + window_steps,
+                        stickers=entry['system']['f'] * entry['system']['number_of_stars'],
+                        dt=entry['physics']['dt'], stars=entry['system']['number_of_stars'], metrics=segment.METRICS)
                 window['segment'] = source['attempt']
                 for category in ('metrics', 'activity'):
                     for metric in window[category].values():
@@ -94,27 +159,54 @@ def summarize(segments, window_steps=1000000):
                 windows.append(window)
         records.append(dict(replica=replica, windows=windows))
     count = len(records[0]['windows'])
-    require(count == 4, 'joint checkpoint requires exactly four analysis windows')
+    require(count >= 4, 'joint checkpoint requires at least four analysis windows')
     comparisons = []
     ensembles = []
     for category in ('metrics', 'activity'):
         for name in records[0]['windows'][0][category]:
-            for early, late in ((1, count - 1), (count - 2, count - 1), (1, count - 2)):
+            for early, late in itertools.combinations(range(1, count), 2):
                 comparisons.append(compare(records, category, name, early, late))
             for index in range(count):
                 means = [r['windows'][index][category][name]['mean'] for r in records]
                 ensembles.append(dict(category=category, observable=name, window=index,
                     **segment.review.analysis.dynamics.replica_statistics(means)))
-    long_windows = []
-    for index, replica in enumerate((1, 2, 3)):
-        history = segments[-1]['histories'][index]
-        entry = history['entry']
-        long_windows.append(dict(replica=replica, window=segment.review.window(
-            history['rows'], history['events'], entry['start_step'], entry['end_step'],
-            stickers=entry['system']['f'] * entry['system']['number_of_stars'], dt=entry['physics']['dt'],
-            stars=entry['system']['number_of_stars'], metrics=segment.METRICS)))
-    return dict(schema_version=1, system=segments[-1]['plan']['system'], records=records,
-                late_segment_long_windows=long_windows,
+    segment_windows = []
+    for source in segments[1:]:
+        long_records = []
+        for index, replica in enumerate((1, 2, 3)):
+            history = source['histories'][index]
+            entry = history['entry']
+            cached = (prior or {}).get('summary', {}).get('late_segment_long_windows', [])
+            match = [r for r in cached if r['replica'] == replica and
+                     r['window']['start_step_exclusive'] == entry['start_step'] and
+                     r['window']['end_step_inclusive'] == entry['end_step']]
+            if match:
+                window = copy.deepcopy(match[0]['window'])
+                window['statistics_source'] = dict(path=prior['path'], sha256=prior['sha256'])
+            else:
+                window = segment.review.window(history['rows'], history['events'], entry['start_step'], entry['end_step'],
+                    stickers=entry['system']['f'] * entry['system']['number_of_stars'], dt=entry['physics']['dt'],
+                    stars=entry['system']['number_of_stars'], metrics=segment.METRICS)
+            for category in ('metrics', 'activity'):
+                for metric in window[category].values():
+                    constant = len(set(metric['blocks'])) == 1 and metric['sem_estimate'] == 0
+                    metric['constant_not_mixing_evidence'] = constant
+                    metric['resolution_warning'] |= constant or metric['effective_samples_estimate'] < 10
+            long_records.append(dict(replica=replica, window=window))
+        segment_windows.append(dict(attempt=source['attempt'], records=long_records))
+    long_comparisons = []
+    for early, late in itertools.combinations(range(len(segment_windows)), 2):
+        paired = [dict(windows=[segment_windows[early]['records'][i]['window'],
+                               segment_windows[late]['records'][i]['window']]) for i in range(3)]
+        for category in ('metrics', 'activity'):
+            for name in paired[0]['windows'][0][category]:
+                contrast = compare(paired, category, name, 0, 1)
+                contrast.update(early_segment=segment_windows[early]['attempt'],
+                                late_segment=segment_windows[late]['attempt'])
+                long_comparisons.append(contrast)
+    return dict(schema_version=2, stage='E2_joint_review_summary', system=segments[-1]['plan']['system'], records=records,
+                late_segment_long_windows=segment_windows[-1]['records'],
+                segment_long_windows=segment_windows, segment_comparisons=long_comparisons,
                 comparisons=comparisons, ensembles=ensembles, automatic_acceptance=False,
                 scientific_status='review_required', windows_steps=window_steps,
                 transient='first window retained as transient context, not a stationary comparator',
@@ -126,20 +218,22 @@ def summarize(segments, window_steps=1000000):
 def write_report(summary, output):
     output.mkdir(parents=True, exist_ok=False)
     runner.exclusive_json(output / 'summary.json', summary)
+    windows = summary['records'][0]['windows']
+    last = len(windows) - 1
+    labels = [f"{w['start_step_exclusive']/1e6:g}–{w['end_step_inclusive']/1e6:g}M mean" for w in windows[1:]]
     lines = ['# Joint E2 review', '', 'Read-only analysis; no MD and no automatic scientific acceptance.',
              f"Three independent histories; {summary['windows_steps']}-step windows; first window includes the unbound transient.",
              'IAT and 5/10/20-block sensitivity use existing validated analysis helpers.',
              'No correlations, lifetimes or transport histories are stitched across MD reseeding.', '',
-             '| Observable | 1–2M mean | 2–3M mean | 3–4M mean | 3–4M minus 1–2M (95% half-width) | Late minus previous |',
-             '|---|---:|---:|---:|---:|---:|']
+             '| Observable | ' + ' | '.join(labels) + ' | Late minus early (95% half-width) | Late minus previous |',
+             '|---|' + '---:|' * (len(labels) + 2)]
     for category in ('metrics', 'activity'):
-        names = summary['records'][0]['windows'][1][category]
-        for name in names:
+        for name in windows[1][category]:
             means = [next(e for e in summary['ensembles'] if e['category'] == category and
-                          e['observable'] == name and e['window'] == i)['mean'] for i in (1, 2, 3)]
+                          e['observable'] == name and e['window'] == i)['mean'] for i in range(1, last + 1)]
             changes = [next(c for c in summary['comparisons'] if c['category'] == category and
-                            c['observable'] == name and c['early_window'] == i and c['late_window'] == 3)
-                       for i in (1, 2)]
+                            c['observable'] == name and c['early_window'] == i and c['late_window'] == last)
+                       for i in (1, last - 1)]
             lines.append('| ' + name + ' | ' + ' | '.join(f'{m:.7g}' for m in means) + ' | ' +
                          ' | '.join(f"{c['mean']:.7g} ± {c['ci95_half_width']:.7g}" for c in changes) + ' |')
     lines += ['', 'Intervals are exploratory, unadjusted for multiple observables. Excluding zero is a review flag,',
@@ -154,10 +248,12 @@ def main():
     parser.add_argument('--dataset-root', required=True, type=Path)
     parser.add_argument('--attempt', required=True, nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--prior-review', type=Path, help='reuse authenticated previously published window estimates')
     args = parser.parse_args()
     results = authenticate(args.dataset_root.resolve(), [p.resolve() for p in args.attempt])
     output = args.output.resolve()
-    write_report(summarize(results), output)
+    prior = load_prior_review(args.prior_review, results) if args.prior_review else None
+    write_report(summarize(results, prior=prior), output)
     sources = {}
     for result in results:
         attempt = Path(result['attempt'])

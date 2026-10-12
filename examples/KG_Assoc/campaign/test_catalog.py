@@ -484,5 +484,45 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(recovered['execution'], 'conflicting_evidence')
 
 
+    def test_explicit_documented_supersession_recommends_without_accepting(self):
+        sid = 'F04_N010_RP020_EE08_EA04'
+        previous = self.repo / 'examples/KG_Assoc/reviews/z_old/decision.json'
+        digest = self.write(previous, dict(schema_version=1, stage='E2_scientific_review_decision',
+            formal_acceptance=False, systems={sid: dict(status='acceptance_deferred_material_drift', end_step=4000000)}))
+        current = self.repo / 'examples/KG_Assoc/reviews/a_new/decision.json'
+        record = dict(schema_version=1, stage='E2_scientific_review_decision', formal_acceptance=False,
+            systems={sid: dict(status='qualified_acceptance_recommended_not_registered', end_step=6000000,
+                supersedes_documented_review=dict(path=str(previous), sha256=digest))})
+        self.write(current, record)
+        graph = self.scan()
+        system = catalog.system_record(graph, sid)['system']
+        self.assertEqual(system['scientific'], 'qualified_acceptance_recommended_not_registered')
+        self.assertEqual(system['selection'], 'missing')
+        self.assertEqual(system['production_authorization'], 'absent')
+        old = next(r for r in system['documented_reviews'] if r['status'] == 'acceptance_deferred_material_drift')
+        self.assertTrue(old['superseded_by_documented_reviews'])
+        self.assertFalse(graph['acceptances'])
+        record['systems'][sid]['supersedes_documented_review']['sha256'] = 'changed'
+        self.write(current, record)
+        self.assertEqual(catalog.system_record(self.scan(), sid)['system']['scientific'], 'review_hold_material_drift')
+
+    def test_recommendation_does_not_implicitly_supersede_old_hold(self):
+        sid = 'F04_N010_RP020_EE08_EA04'
+        for name, status in [('old', 'acceptance_deferred_material_drift'),
+                             ('new', 'qualified_acceptance_recommended_not_registered')]:
+            self.write(self.repo / f'examples/KG_Assoc/reviews/{name}/decision.json', dict(
+                schema_version=1, stage='E2_scientific_review_decision', formal_acceptance=False,
+                systems={sid: dict(status=status)}))
+        self.assertEqual(catalog.system_record(self.scan(), sid)['system']['scientific'], 'review_hold_material_drift')
+
+    def test_joint_summary_v2_is_metadata_supported_not_acceptance(self):
+        path = self.root / 'aggregate/e2/review_summary/summary.json'
+        self.write(path, dict(schema_version=2, stage='E2_joint_review_summary', automatic_acceptance=False))
+        graph = self.scan()
+        source = next(r for r in graph['records'] if r['path'] == str(path))
+        self.assertTrue(source['supported'])
+        self.assertFalse(graph['acceptances'])
+
+
 if __name__ == '__main__':
     unittest.main()

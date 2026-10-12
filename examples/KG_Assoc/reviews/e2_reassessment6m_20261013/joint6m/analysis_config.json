@@ -1,0 +1,48 @@
+{
+  "analyzer_sha256": "3bbc7fde5d23df8ab58d561150eadc9fb4d38e567ca133af5a60e0cea36bbc4f",
+  "attempts": [
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427"
+  ],
+  "build_scope": [
+    {
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae",
+      "scope": "historical_build_and_source_authenticated; binary_bytes_not_reauthenticated"
+    },
+    {
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c",
+      "scope": "historical_build_and_source_authenticated; binary_bytes_not_reauthenticated"
+    },
+    {
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427",
+      "scope": "current_binary_hashes_authenticated"
+    }
+  ],
+  "md_boundary_policy": "no IAT or lifetime stitching through 2M or 4M restart",
+  "prior_summary": {
+    "path": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_acceptance_20261012/joint4m_checked/summary.json",
+    "sha256": "f0a440fe5ec0ab4fba5f64c2bd4a2e58e109aee9718ff5b42a05c44df91643cd"
+  },
+  "schema_version": 1,
+  "scope": "nine fully revalidated segments; new 1M and 2M estimates; immutable prior window estimates reused",
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/approval.json": "90308f6094fd70bc457eac05d417c338b6c590a8f2d3428a863ea89b8782fb55",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/plan.json": "e11cd2c4c7da10892cc9f23e75ca54603551014ff68dc4ba01cc2de9a6b3e1cf",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r001/complete.json": "1161d3e4ff7784bbfbf1eda891e845472c078800b18dfe211acef34eb5330b90",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r002/complete.json": "9cf47520866f4f323d1b002dafc79474bb9eb0fcb6306a32afe6bcf38f40bb5d",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r003/complete.json": "8eb8c16899dfcc659329c73febcc609be3c55a33bbe3e93c238968b048dc913e",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/approval.json": "ffa3de6d0f921acb72e947c56ee59c57eb5f08541afe5ad93aef72841f1057f2",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json": "a8db921d6bd5c73c7188d3e28bd82c066d07a81391a3520fd89ade98c04787ff",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r001/complete.json": "dffa7f3eeaf0c3567ade0ecc4118db599adaf8f3737482444e32c3032cdf639a",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r002/complete.json": "6897f212e7e196b77b6d4812357aa70d7b3fd52cbaa60bd106d66812c4fea032",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r003/complete.json": "9355d8b54099612ea738d6dffcf95a2c0700016aef4d79125c6da22643a0b78a",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/approval.json": "4301807df0557e522a7178d62519ae0f1c5bee3f567f140dccb27c116de8b141",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json": "c1eae082bd74b9d100cef157b3069e3d82f7f3c4e3b7b59bab98e2339229bfb5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r001/complete.json": "3b482e649a22badf724fec8e76d7fe44cadcf09a7ac06b131f911eac3fd65ba7",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r002/complete.json": "2f3d7d11f7835d65454b0b7ed6bce01e40888a6b0da017ef9052b73117b45488",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r003/complete.json": "9d01a23303ca19b1975ae0157fa43cfa47cfb8f50f988e751f64eafbb092d20d"
+  },
+  "starting_git_sha": "30a8e7e415e07bfd69975cfb518e23157f791bd4",
+  "window_steps": 1000000
+}
