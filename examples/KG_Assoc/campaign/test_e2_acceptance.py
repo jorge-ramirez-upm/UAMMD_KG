@@ -128,5 +128,59 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(auth.read_bytes()).hexdigest(), index['authentication_sha256'])
 
 
+    def f6_registration(self):
+        import json
+        repo = Path(__file__).resolve().parents[3]
+        dossier = repo / 'examples/KG_Assoc/reviews/e2_f6_formal_acceptance_20261013'
+        registration = json.loads((dossier / 'REGISTRATION.json').read_text())
+        record = json.loads((repo / registration['acceptance']).read_text())
+        decision = json.loads((repo / 'examples/KG_Assoc/reviews/e2_f6_6m_20261013/decision.json').read_text())
+        return repo, registration, record, decision
+
+    def test_f6_formal_record_binds_only_the_three_approved_6m_endpoints(self):
+        import hashlib
+        repo, registration, record, decision = self.f6_registration()
+        self.assertEqual(hashlib.sha256((repo / registration['acceptance']).read_bytes()).hexdigest(),
+                         registration['acceptance_sha256'])
+        sid = 'F06_N010_RP080_EE08_EA04'
+        pins = decision['systems'][sid]['proposed_endpoints']
+        self.assertEqual(record['permitted_systems'], [sid])
+        self.assertEqual(record['permitted_use'], 'production_initial_state')
+        self.assertEqual(record['status'], 'accepted_with_qualification')
+        self.assertEqual([h['replica'] for h in record['histories']], [1, 2, 3])
+        self.assertEqual(registration['selected_endpoints'], pins)
+        for h, pin in zip(record['histories'], pins):
+            self.assertEqual(h['prefix'], pin['prefix'])
+            self.assertEqual(h['end_step'], 6000000)
+            self.assertEqual(h['chemistry_seed'], pin['chemistry_seed'])
+            self.assertTrue(all(h['sha256'].get(p) == d for p, d in pin['state_sha256'].items()))
+        for field in ('registry_activation', 'active_selection', 'production_authorization',
+                      'production_preparation', 'trajectory_launched'):
+            self.assertFalse(registration[field])
+        for phrase in ('Slow topology', 'Rg²', 'center–terminal', 'intra/inter', 'neighbor-loss'):
+            self.assertIn(phrase, record['qualification'])
+        self.assertEqual(len(registration['prior_acceptance_sha256']), 3)
+
+    def test_f6_endpoint_substitution_and_activation_without_registry_fail_closed(self):
+        _, _, record, _ = self.f6_registration()
+        system = e2.system_by_id('F06_N010_RP080_EE08_EA04')
+        source = dict(stage='E2-G1', smoke=False, histories=[dict(
+            output_prefix=h['prefix'], end_step=h['end_step'], physics=h['physics'],
+            chemistry_seed=h['chemistry_seed']) for h in record['histories']])
+        changes = [('prefix', record['histories'][1]['prefix']), ('end_step', 4000000),
+                   ('chemistry_seed', 1), ('physics', dict(record['histories'][0]['physics'], arms=4))]
+        for key, value in changes:
+            substituted = copy.deepcopy(record)
+            substituted['histories'][0][key] = value
+            with self.subTest(key=key), patch.object(e2, 'check_hashes'), \
+                    patch.object(e2.campaign, 'load_json', return_value=source):
+                with self.assertRaises(ValueError):
+                    registry.exclusive_validate(substituted, [system])
+        with self.assertRaisesRegex(ValueError, 'downstream system/use'):
+            registry.permitted(record, e2.system_by_id('F03_N010_RP080_EE08_EA04'))
+        with self.assertRaisesRegex(ValueError, 'explicit --e2-registry'):
+            registry.resolve(self.root, None, system, 1)
+
+
 if __name__ == '__main__':
     unittest.main()

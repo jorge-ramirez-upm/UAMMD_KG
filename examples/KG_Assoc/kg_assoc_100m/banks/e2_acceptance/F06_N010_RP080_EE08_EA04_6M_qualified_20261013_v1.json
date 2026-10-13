@@ -1,0 +1,118 @@
+{
+  "bank_id": "F06_N010_RP080_EE08",
+  "evidence": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_f6_6m_20261013/DECISION.md",
+  "evidence_sha256": "f6f02ff1ee7745eb2fc478314147c89317f2f709763dab8d7352759e1df6c11e",
+  "histories": [
+    {
+      "chemistry_seed": 421101,
+      "end_step": 6000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 6,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state",
+      "replica": 1,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json": "fcbe320a4cba7af129f17475f7b09d46fb69239ad6cda9d28d63c988ce765d25",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/complete.json": "94e729e01ab4f5820275b3e50d307297cd604fd622e37d4b3e2b7a3680bd2ba2",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.assoc_restart": "1f96096faf35b9d743a76e815fe4f1af75961cff5f8daa22fad8091a0e4f3992",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.conformation.tsv": "8d83c1150e7657e26289d30af112bb1ee53cd2a86d362f754fe84a419108e89e",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.events": "a786cc31652e287dcaece55d0d3668b8380ff2ae12bdb19791ef0de1fca71fe6",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.final_associations": "277794067392d45e96759e549eff92c12ad9a2cd4d312981bcb241521ace153b",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.final_permanent.lammpsdat": "d3dc0814de9b1a000deaa9e723e8f9006bd5c455185c436320bc86177580802e",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.numerics.tsv": "85c9b8e8e273f5234938ba5efe0e08e31b98efc9274703056ea1b97b4b83dd61",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.restart.lammpsdat": "8c1b89e5df342b817663d112aa2915fddf634cdd06d2c61e38c89d7584da1b52",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.state": "30a69a01218ff621528d42aa76a903eb7869399201fc55fb6f087542ecc7f430"
+      }
+    },
+    {
+      "chemistry_seed": 421102,
+      "end_step": 6000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 6,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state",
+      "replica": 2,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json": "fcbe320a4cba7af129f17475f7b09d46fb69239ad6cda9d28d63c988ce765d25",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/complete.json": "86f6f0823dd5353aaf9c56076fc3852444c29f01aaba35b689f8e0799104ec1b",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.assoc_restart": "84ef7cd2bfc58bfc7b29a8e40b4571e9d6fb734937feb44482157b9390a21a32",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.conformation.tsv": "d4e62e5e571de33fd2998aefc3ff4d93c912ca61556528c7516f5f0892cd0ff1",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.events": "77ac2c1bb41b7fd515bf4494c219aa4181d2d5e975819d7fda7200efbd6ef9a6",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.final_associations": "402e84850cc1f55633cff873ca69ce3c93c34909322be3a50947d889762e64a3",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.final_permanent.lammpsdat": "4f88b305400cb37d9eb1a2f7288dbacd417ef20ecc4d6d4dd2b5bb2356092d55",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.numerics.tsv": "5aa2e213a21603b899974958ad35e5cc0125828fc2bfd78ef291b32b0387669d",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.restart.lammpsdat": "92b67aca1dadbb241409834f1a67c21a81c314ed271b94e8313aaefa03ecf42d",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.state": "d64a0e9e81ffa9ad52c2145c426e77b6ec15fea6f080c8d4c2103846f5d132c2"
+      }
+    },
+    {
+      "chemistry_seed": 421103,
+      "end_step": 6000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 6,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 10,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state",
+      "replica": 3,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json": "fcbe320a4cba7af129f17475f7b09d46fb69239ad6cda9d28d63c988ce765d25",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/complete.json": "387bccb5adeb0e69aff7e97c2248921ebe0e40d4ba6c0f7fc0115bd822a13a33",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.assoc_restart": "b86d5585047774f0fdbd860b7709ccd384173cde152436182f4ae964cec3bb06",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.conformation.tsv": "a41f051df9e3311181ec6637aae2b0167d706a220b1a12d56963646f359a2823",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.events": "78775d0c3cbcb2feabc4f3fb23f6b4ced25919d0c7c92f984f97b261f8bb5714",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.final_associations": "d0d336a1db3ddbd539676143dd6f02edcd09b1b34c1d9a8f9c387e1f674e9472",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.final_permanent.lammpsdat": "b8601297d9ca6804a70eebd9989688a70100b25254579f79cc85a44c0998cc5c",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.numerics.tsv": "03fa1cec5c3546301be41dfe4a17640bfdd3dc4cefa4760d5a60b8b8c90007dc",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.restart.lammpsdat": "d5952541ff336fb7cc72502c58429476cdee59fd1ed72df010f18147ce72ce27",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.state": "4ffdf78415c6e2234048e3f3463ace4e7e26242dcafa984f11d71a0b6fb55fee"
+      }
+    }
+  ],
+  "numerical_qualification": "q cancels in fixed-configuration forward/reverse ratio; exact coupled integrator invariance unproven",
+  "permitted_systems": [
+    "F06_N010_RP080_EE08_EA04"
+  ],
+  "permitted_use": "production_initial_state",
+  "provenance_kind": "E2_G1_segment",
+  "publisher_git_sha": "8def60d0d789108e6ea5880e443fd6d32430faa4",
+  "qualification": "User-approved qualified scientific acceptance for production initialization only. Slow topology decorrelation is unproven; small shared increases in star Rg\u00b2 (~0.14%) and center\u2013terminal R\u00b2 (~0.22%); possible intra/inter bond redistribution; small increase in neighbor-loss activity (~0.57%). Exploratory uncertainty does not prove stationarity or full topology mixing. Exact three approved 6M endpoints only; no registry activation, active selection, production preparation or launch authorization.",
+  "reviewed_at": "2026-10-13T08:05:54.631448+00:00",
+  "reviewer": "User: explicit qualified f6 acceptance approval in registration request (2026-10-13); prepared by Codex",
+  "schema_version": 1,
+  "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json",
+  "source_plan_sha256": "fcbe320a4cba7af129f17475f7b09d46fb69239ad6cda9d28d63c988ce765d25",
+  "stage": "E2_acceptance",
+  "status": "accepted_with_qualification"
+}

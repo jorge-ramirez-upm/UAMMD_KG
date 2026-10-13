@@ -187,3 +187,10 @@ It appears as `qualified_acceptance_recommended_not_registered`, never as a four
 formal acceptance. Small late conformational and intra/inter changes remain
 explicit qualifications. No active selection or production authorization follows
 from this recommendation.
+
+The separately authorized f=6 formal registration is recorded in
+[reviews/e2_f6_formal_acceptance_20261013/README.md](reviews/e2_f6_formal_acceptance_20261013/README.md).
+The original scientific recommendation remains immutable historical evidence.
+The catalog now recognizes four formal acceptances, including only the three
+approved f=6 6M endpoints. Active endpoint selection and production authorization
+remain absent; registration does not advance the campaign into production.
