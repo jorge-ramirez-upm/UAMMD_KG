@@ -1,0 +1,11 @@
+{
+  "interpretation": "500k means only; no independent-star/frame error bars; vertical markers are analysis cuts, not restarts",
+  "mean_agreement_bound": 2.220446049250313e-16,
+  "plotting_source": "import json\nfrom pathlib import Path\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\np=Path('examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_dfe53f8405f34163ba9d344dcad5a0df/summary.json')\ns=json.loads(p.read_text())\nnames=('intra','mean_degree','mean_rg2','mean_center_terminal_r2')\nfig,axes=plt.subplots(4,3,figsize=(12,9),sharex=True,sharey='row')\nfor col,r in enumerate(s['records']):\n t=[(w['start_step_exclusive']+w['end_step_inclusive'])/2e6 for w in r['windows']]\n for row,name in enumerate(names):\n  ax=axes[row,col];ax.plot(t,[w['metrics'][name]['mean'] for w in r['windows']],'-o',ms=3)\n  ax.axvspan(0,1,color='gray',alpha=.15)\n  for step in (2,4,6):ax.axvline(step,color='gray',ls=':',lw=.7)\n  if col==0:ax.set_ylabel(name)\n  if row==0:ax.set_title(f\"r{r['replica']:03d}\")\n  if row==3:ax.set_xlabel('absolute MD steps / million')\nfig.suptitle('N=40: 500k window means; three independent histories\\nShading: initial transient. Vertical markers are analysis boundaries, not restarts.')\nfig.tight_layout();fig.savefig('/tmp/n40_paths.png',dpi=150)\n",
+  "schema_version": 1,
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_dfe53f8405f34163ba9d344dcad5a0df/summary.json": "96d00c56218949a0394fcd9df13082784f5e617613e9b776f09e14bab0563305",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_n40_8m_20261013/window_sensitivity.json": "48862f85b060381f3982510dce956a9b460f64f6152cfe61c46626862382e099"
+  },
+  "stage": "E2_review_figure_sources"
+}
