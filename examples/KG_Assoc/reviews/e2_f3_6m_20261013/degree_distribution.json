@@ -1,0 +1,2160 @@
+{
+  "independent_units": "three histories; stars and diagnostic frames are not independent replicates",
+  "long_windows": [
+    {
+      "replica": 1,
+      "windows": [
+        {
+          "end_step_inclusive": 4000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0004064915435774772,
+                "10": 0.0003823623935483195,
+                "20": 0.0002937214935776299
+              },
+              "blocks": [
+                0.0067,
+                0.00896,
+                0.006845,
+                0.007335,
+                0.00656,
+                0.007555,
+                0.006315,
+                0.006475,
+                0.00411,
+                0.006705
+              ],
+              "effective_samples_estimate": 56.6770547517547,
+              "mean": 0.006756,
+              "resolution_warning": false,
+              "sem_estimate": 0.00033832480760358186,
+              "slope": -1.0608812652203176e-07,
+              "tau_time": 176.4382437266715
+            },
+            "degree_1_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.001589300357075403,
+                "10": 0.001403401868872759,
+                "20": 0.0011830322047046821
+              },
+              "blocks": [
+                0.07729,
+                0.087805,
+                0.08073,
+                0.07682,
+                0.07777,
+                0.079305,
+                0.08294,
+                0.08786,
+                0.07664,
+                0.076465
+              ],
+              "effective_samples_estimate": 23.521390409922688,
+              "mean": 0.0803625,
+              "resolution_warning": false,
+              "sem_estimate": 0.0015470204811386678,
+              "slope": -8.145189536297389e-08,
+              "tau_time": 425.1449351302557
+            },
+            "degree_2_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0010642630666334355,
+                "10": 0.0011667036184624321,
+                "20": 0.001395419216391147
+              },
+              "blocks": [
+                0.27049,
+                0.26821,
+                0.266765,
+                0.263055,
+                0.26973,
+                0.267025,
+                0.265395,
+                0.262625,
+                0.2629,
+                0.273875
+              ],
+              "effective_samples_estimate": 102.58676165610152,
+              "mean": 0.267007,
+              "resolution_warning": false,
+              "sem_estimate": 0.0014204358567902675,
+              "slope": -7.864546966136737e-08,
+              "tau_time": 97.47846445843273
+            },
+            "degree_3_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0017280866225395184,
+                "10": 0.0018022784114065716,
+                "20": 0.001634274259499661
+              },
+              "blocks": [
+                0.64552,
+                0.6350250000000001,
+                0.64566,
+                0.65279,
+                0.6459400000000001,
+                0.646115,
+                0.64535,
+                0.6430400000000001,
+                0.65635,
+                0.642955
+              ],
+              "effective_samples_estimate": 84.25129797034003,
+              "mean": 0.6458745,
+              "resolution_warning": false,
+              "sem_estimate": 0.0016868317237167258,
+              "slope": 2.661854915463727e-07,
+              "tau_time": 118.69253341972745
+            }
+          },
+          "start_step_exclusive": 2000000
+        },
+        {
+          "end_step_inclusive": 6000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0004498509475370703,
+                "10": 0.0003885632009224639,
+                "20": 0.0003418590622187053
+              },
+              "blocks": [
+                0.007405,
+                0.008435,
+                0.006725,
+                0.00508,
+                0.006105,
+                0.00643,
+                0.0045,
+                0.006065,
+                0.00688,
+                0.00472
+              ],
+              "effective_samples_estimate": 46.87391620347487,
+              "mean": 0.0062345000000000005,
+              "resolution_warning": false,
+              "sem_estimate": 0.00037061847029138675,
+              "slope": -1.1710945427736366e-07,
+              "tau_time": 213.33826592578745
+            },
+            "degree_1_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0031723424901797708,
+                "10": 0.002187809819329723,
+                "20": 0.0016180569691031147
+              },
+              "blocks": [
+                0.086865,
+                0.085945,
+                0.078265,
+                0.07457,
+                0.07042,
+                0.069515,
+                0.066615,
+                0.07044,
+                0.07617,
+                0.07102
+              ],
+              "effective_samples_estimate": 7.721604428446221,
+              "mean": 0.0749825,
+              "resolution_warning": false,
+              "sem_estimate": 0.0034246208702095726,
+              "slope": -8.307538326884595e-07,
+              "tau_time": 1295.0676368709358
+            },
+            "degree_2_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0025069574936564037,
+                "10": 0.002455341167740242,
+                "20": 0.002064552388724848
+              },
+              "blocks": [
+                0.248995,
+                0.266365,
+                0.258865,
+                0.26979000000000003,
+                0.26954500000000003,
+                0.26647,
+                0.26101,
+                0.265385,
+                0.24813,
+                0.25965
+              ],
+              "effective_samples_estimate": 35.99134334153302,
+              "mean": 0.2614205,
+              "resolution_warning": false,
+              "sem_estimate": 0.002651585185656845,
+              "slope": -8.013294503323637e-08,
+              "tau_time": 277.844589047619
+            },
+            "degree_3_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0033583652086990267,
+                "10": 0.0027542596555154317,
+                "20": 0.002104570699441425
+              },
+              "blocks": [
+                0.6567350000000001,
+                0.639255,
+                0.656145,
+                0.65056,
+                0.65393,
+                0.657585,
+                0.667875,
+                0.65811,
+                0.66882,
+                0.66461
+              ],
+              "effective_samples_estimate": 35.02900329302908,
+              "mean": 0.6573625000000001,
+              "resolution_warning": false,
+              "sem_estimate": 0.0028175361618547833,
+              "slope": 1.0279962319990598e-06,
+              "tau_time": 285.4777201722449
+            }
+          },
+          "start_step_exclusive": 4000000
+        }
+      ]
+    },
+    {
+      "replica": 2,
+      "windows": [
+        {
+          "end_step_inclusive": 4000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0005816584049078978,
+                "10": 0.0004457742639996665,
+                "20": 0.00034532248467346083
+              },
+              "blocks": [
+                0.005525,
+                0.00653,
+                0.007795,
+                0.00946,
+                0.00688,
+                0.006045,
+                0.00419,
+                0.006035,
+                0.005745,
+                0.00665
+              ],
+              "effective_samples_estimate": 17.908575764806322,
+              "mean": 0.0064855,
+              "resolution_warning": false,
+              "sem_estimate": 0.0006194473613845226,
+              "slope": -6.188349047087259e-08,
+              "tau_time": 558.3916963208128
+            },
+            "degree_1_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.002678666109279019,
+                "10": 0.0019231629329483928,
+                "20": 0.0014133236490068736
+              },
+              "blocks": [
+                0.077795,
+                0.07951,
+                0.08513,
+                0.08274,
+                0.079955,
+                0.077075,
+                0.07009,
+                0.075125,
+                0.07199,
+                0.06496
+              ],
+              "effective_samples_estimate": 7.655431033707937,
+              "mean": 0.076437,
+              "resolution_warning": false,
+              "sem_estimate": 0.003047437446346937,
+              "slope": -7.639321909830482e-07,
+              "tau_time": 1306.2621759596027
+            },
+            "degree_2_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0032042421100784493,
+                "10": 0.0025360988468731064,
+                "20": 0.0018998483145822578
+              },
+              "blocks": [
+                0.271455,
+                0.27762,
+                0.257455,
+                0.26156,
+                0.25252,
+                0.26671500000000004,
+                0.25509,
+                0.263975,
+                0.270605,
+                0.26958
+              ],
+              "effective_samples_estimate": 30.785433955407665,
+              "mean": 0.2646575,
+              "resolution_warning": false,
+              "sem_estimate": 0.0026242841210854496,
+              "slope": -1.1163460290865085e-07,
+              "tau_time": 324.82894392474316
+            },
+            "degree_3_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.003735526820275825,
+                "10": 0.00299646884775323,
+                "20": 0.002237048807786961
+              },
+              "blocks": [
+                0.645225,
+                0.63634,
+                0.64962,
+                0.64624,
+                0.660645,
+                0.650165,
+                0.6706300000000001,
+                0.654865,
+                0.65166,
+                0.65881
+              ],
+              "effective_samples_estimate": 27.40054548691321,
+              "mean": 0.65242,
+              "resolution_warning": false,
+              "sem_estimate": 0.003113054181475158,
+              "slope": 9.37450284362572e-07,
+              "tau_time": 364.95623799811233
+            }
+          },
+          "start_step_exclusive": 2000000
+        },
+        {
+          "end_step_inclusive": 6000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0003206822804584002,
+                "10": 0.00022379827226023586,
+                "20": 0.00019428356920531874
+              },
+              "blocks": [
+                0.00494,
+                0.00542,
+                0.006715,
+                0.006535,
+                0.00669,
+                0.006675,
+                0.006765,
+                0.00727,
+                0.005845,
+                0.006365
+              ],
+              "effective_samples_estimate": 93.9376389173837,
+              "mean": 0.006322,
+              "resolution_warning": false,
+              "sem_estimate": 0.00023115455141095448,
+              "slope": 5.316316329079067e-08,
+              "tau_time": 106.45360172182743
+            },
+            "degree_1_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0025412763279501894,
+                "10": 0.0020970834310219196,
+                "20": 0.001573253128995692
+              },
+              "blocks": [
+                0.060355,
+                0.07531,
+                0.08251,
+                0.07999,
+                0.080835,
+                0.083525,
+                0.078285,
+                0.07537,
+                0.074815,
+                0.08022
+              ],
+              "effective_samples_estimate": 13.933539223645802,
+              "mean": 0.0771215,
+              "resolution_warning": false,
+              "sem_estimate": 0.002354832088610692,
+              "slope": 4.2037023009255776e-07,
+              "tau_time": 717.6927440681818
+            },
+            "degree_2_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.002764690375973415,
+                "10": 0.0023974446813221765,
+                "20": 0.001742405536214685
+              },
+              "blocks": [
+                0.27563,
+                0.26866,
+                0.267565,
+                0.267445,
+                0.26315,
+                0.252235,
+                0.255535,
+                0.26707000000000003,
+                0.265145,
+                0.276205
+              ],
+              "effective_samples_estimate": 21.724843055423758,
+              "mean": 0.265864,
+              "resolution_warning": false,
+              "sem_estimate": 0.003098282761066187,
+              "slope": -2.1157100289274985e-07,
+              "tau_time": 460.30251976910967
+            },
+            "degree_3_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0022790317297045294,
+                "10": 0.002278865367043679,
+                "20": 0.0018059470288612118
+              },
+              "blocks": [
+                0.6590750000000001,
+                0.65061,
+                0.6432100000000001,
+                0.64603,
+                0.649325,
+                0.6575650000000001,
+                0.6594150000000001,
+                0.65029,
+                0.654195,
+                0.63721
+              ],
+              "effective_samples_estimate": 35.6541011353356,
+              "mean": 0.6506925,
+              "resolution_warning": false,
+              "sem_estimate": 0.0026459115691099813,
+              "slope": -2.619623904905986e-07,
+              "tau_time": 280.47264358290977
+            }
+          },
+          "start_step_exclusive": 4000000
+        }
+      ]
+    },
+    {
+      "replica": 3,
+      "windows": [
+        {
+          "end_step_inclusive": 4000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0003170567772497538,
+                "10": 0.00031778574193594303,
+                "20": 0.00027142363469986213
+              },
+              "blocks": [
+                0.00666,
+                0.00834,
+                0.007975,
+                0.006245,
+                0.00528,
+                0.00706,
+                0.00626,
+                0.00537,
+                0.00738,
+                0.00678
+              ],
+              "effective_samples_estimate": 45.75926593763831,
+              "mean": 0.006735,
+              "resolution_warning": false,
+              "sem_estimate": 0.0003428165574691491,
+              "slope": -5.191021297755329e-08,
+              "tau_time": 218.53497417612007
+            },
+            "degree_1_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0032887750949251613,
+                "10": 0.0025673984941527437,
+                "20": 0.0019144504880128476
+              },
+              "blocks": [
+                0.0885,
+                0.097625,
+                0.088855,
+                0.07683,
+                0.0792,
+                0.07516,
+                0.08279,
+                0.07418,
+                0.073325,
+                0.07502
+              ],
+              "effective_samples_estimate": 7.2478928051231275,
+              "mean": 0.0811485,
+              "resolution_warning": false,
+              "sem_estimate": 0.003766043094315558,
+              "slope": -1.050520537630136e-06,
+              "tau_time": 1379.711354579025
+            },
+            "degree_2_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0016515182408922988,
+                "10": 0.0014401199795696024,
+                "20": 0.0013088597890409876
+              },
+              "blocks": [
+                0.26212,
+                0.25711,
+                0.263725,
+                0.265575,
+                0.26494,
+                0.2581,
+                0.26112,
+                0.26799,
+                0.26648,
+                0.27219
+              ],
+              "effective_samples_estimate": 75.06281703752701,
+              "mean": 0.26393500000000003,
+              "resolution_warning": false,
+              "sem_estimate": 0.0014859478340229532,
+              "slope": 4.4319341079835293e-07,
+              "tau_time": 133.2217520560224
+            },
+            "degree_3_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.002609625284403875,
+                "10": 0.0021809242497925845,
+                "20": 0.0018948409563865815
+              },
+              "blocks": [
+                0.6427200000000001,
+                0.636925,
+                0.639445,
+                0.65135,
+                0.65058,
+                0.65968,
+                0.64983,
+                0.65246,
+                0.652815,
+                0.64601
+              ],
+              "effective_samples_estimate": 34.38694879241593,
+              "mean": 0.6481815,
+              "resolution_warning": false,
+              "sem_estimate": 0.0024888729313014327,
+              "slope": 6.592373398093368e-07,
+              "tau_time": 290.8080056874807
+            }
+          },
+          "start_step_exclusive": 2000000
+        },
+        {
+          "end_step_inclusive": 6000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.00019871933725734884,
+                "10": 0.00031132244806095607,
+                "20": 0.00028544563497506103
+              },
+              "blocks": [
+                0.00592,
+                0.005145,
+                0.005255,
+                0.0063950000000000005,
+                0.00453,
+                0.00593,
+                0.00492,
+                0.00757,
+                0.007165,
+                0.00532
+              ],
+              "effective_samples_estimate": 52.49278374126253,
+              "mean": 0.005815,
+              "resolution_warning": false,
+              "sem_estimate": 0.0003215593306452173,
+              "slope": 4.948381237095311e-08,
+              "tau_time": 190.50237551298676
+            },
+            "degree_1_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0006296132741612111,
+                "10": 0.0009683998973105647,
+                "20": 0.000824966753716077
+              },
+              "blocks": [
+                0.0811,
+                0.074675,
+                0.074825,
+                0.078405,
+                0.076715,
+                0.07266,
+                0.0787,
+                0.070685,
+                0.075895,
+                0.074375
+              ],
+              "effective_samples_estimate": 65.81897309892582,
+              "mean": 0.0758035,
+              "resolution_warning": false,
+              "sem_estimate": 0.0008558753631027451,
+              "slope": -2.3712598428149612e-07,
+              "tau_time": 151.9318750988414
+            },
+            "degree_2_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0018372107595482892,
+                "10": 0.0018534734958989857,
+                "20": 0.0014740753747778004
+              },
+              "blocks": [
+                0.27083,
+                0.269635,
+                0.262125,
+                0.259245,
+                0.27281,
+                0.26946000000000003,
+                0.2656,
+                0.27065,
+                0.258845,
+                0.27622
+              ],
+              "effective_samples_estimate": 90.52244432727706,
+              "mean": 0.267542,
+              "resolution_warning": false,
+              "sem_estimate": 0.0014322959665788403,
+              "slope": 9.376037344009353e-08,
+              "tau_time": 110.4698406490854
+            },
+            "degree_3_fraction": {
+              "blocking_sem_sensitivity": {
+                "5": 0.0017357612523040166,
+                "10": 0.0017437672261196148,
+                "20": 0.001447293749509208
+              },
+              "blocks": [
+                0.64215,
+                0.650545,
+                0.657795,
+                0.6559550000000001,
+                0.645945,
+                0.65195,
+                0.65078,
+                0.651095,
+                0.658095,
+                0.644085
+              ],
+              "effective_samples_estimate": 110.59499730991043,
+              "mean": 0.6508395,
+              "resolution_warning": false,
+              "sem_estimate": 0.0013977167931576407,
+              "slope": 9.388179847044971e-08,
+              "tau_time": 90.42000310355719
+            }
+          },
+          "start_step_exclusive": 4000000
+        }
+      ]
+    }
+  ],
+  "method": "unchanged validated accepted-event and graph replay; capture neighbor_degree histogram at every original 1000-step diagnostic; 1M fraction means and fresh 2M IAT/block diagnostics",
+  "paired_sensitivity": {
+    "automatic_acceptance": false,
+    "comparisons": [
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0003646995233220917,
+        "early_replica_means": [
+          0.0068805,
+          0.0064585,
+          0.006691
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": true,
+        "late_replica_means": [
+          0.006491,
+          0.0058965,
+          0.0060095
+        ],
+        "late_steps": [
+          3000000,
+          5000000
+        ],
+        "mean": -0.0005443333333333333,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0003895000000000001,
+          -0.000562,
+          -0.0006814999999999998
+        ],
+        "replicas": 3,
+        "sample_std": 0.00014679946639321715,
+        "sem": 8.475471143901735e-05
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.007800749480966591,
+        "early_replica_means": [
+          0.0802015,
+          0.076198,
+          0.083069
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0799275,
+          0.073824,
+          0.0766195
+        ],
+        "late_steps": [
+          3000000,
+          5000000
+        ],
+        "mean": -0.0030325000000000026,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.00027399999999999647,
+          -0.002374000000000001,
+          -0.006449500000000011
+        ],
+        "replicas": 3,
+        "sample_std": 0.003139970819928116,
+        "sem": 0.0018128629981330679
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.00554882945255495,
+        "early_replica_means": [
+          0.2659465,
+          0.2667755,
+          0.263072
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.264538,
+          0.2668415,
+          0.2660525
+        ],
+        "late_steps": [
+          3000000,
+          5000000
+        ],
+        "mean": 0.0005460000000000279,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0014084999999999792,
+          6.60000000000105e-05,
+          0.0029805000000000526
+        ],
+        "replicas": 3,
+        "sample_std": 0.0022335241771693636,
+        "sem": 0.0012895257849302696
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0026049338510958486,
+        "early_replica_means": [
+          0.6469715,
+          0.650568,
+          0.647168
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": true,
+        "late_replica_means": [
+          0.6490435,
+          0.653438,
+          0.6513185
+        ],
+        "late_steps": [
+          3000000,
+          5000000
+        ],
+        "mean": 0.003030833333333316,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.0020719999999999628,
+          0.002869999999999928,
+          0.004150500000000057
+        ],
+        "replicas": 3,
+        "sample_std": 0.0010485423612489123,
+        "sem": 0.0006053762145237854
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0009402000296052412,
+        "early_replica_means": [
+          0.0068805,
+          0.0064585,
+          0.006691
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0062345,
+          0.006322,
+          0.005815
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.0005528333333333335,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0006460000000000007,
+          -0.00013649999999999947,
+          -0.000876
+        ],
+        "replicas": 3,
+        "sample_std": 0.00037845089950128754,
+        "sem": 0.00021849872870212438
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.01058777949112352,
+        "early_replica_means": [
+          0.0802015,
+          0.076198,
+          0.083069
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0749825,
+          0.0771215,
+          0.0758035
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.003853666666666672,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.005219000000000001,
+          0.0009234999999999938,
+          -0.007265500000000008
+        ],
+        "replicas": 3,
+        "sample_std": 0.004261810833827955,
+        "sem": 0.0024605576321458334
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.011246178076451922,
+        "early_replica_means": [
+          0.2659465,
+          0.2667755,
+          0.263072
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.2614205,
+          0.265864,
+          0.267542
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.00032249999999998485,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0045259999999999745,
+          -0.0009115000000000095,
+          0.0044700000000000295
+        ],
+        "replicas": 3,
+        "sample_std": 0.004526830541339055,
+        "sem": 0.002613566831617923
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.012954099194113571,
+        "early_replica_means": [
+          0.6469715,
+          0.650568,
+          0.647168
+        ],
+        "early_steps": [
+          1000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.6573625,
+          0.6506925000000001,
+          0.6508395
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": 0.0047290000000000205,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.010390999999999928,
+          0.00012450000000008288,
+          0.0036715000000000497
+        ],
+        "replicas": 3,
+        "sample_std": 0.005214305826282071,
+        "sem": 0.003010480872440988
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0009401497004799734,
+        "early_replica_means": [
+          0.006756,
+          0.0064855,
+          0.006735
+        ],
+        "early_steps": [
+          2000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0062345,
+          0.006322,
+          0.005815
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.0005349999999999999,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0005215000000000003,
+          -0.00016349999999999958,
+          -0.0009199999999999998
+        ],
+        "replicas": 3,
+        "sample_std": 0.0003784306409370151,
+        "sem": 0.0002184870324145883
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.008673522628587655,
+        "early_replica_means": [
+          0.0803625,
+          0.076437,
+          0.0811485
+        ],
+        "early_steps": [
+          2000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0749825,
+          0.0771215,
+          0.0758035
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.0033468333333333405,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.00538000000000001,
+          0.0006844999999999907,
+          -0.0053450000000000025
+        ],
+        "replicas": 3,
+        "sample_std": 0.0034912809373256284,
+        "sem": 0.0020156919889815607
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.01184639907342905,
+        "early_replica_means": [
+          0.267007,
+          0.2646575,
+          0.263935
+        ],
+        "early_steps": [
+          2000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.2614205,
+          0.265864,
+          0.267542
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.00025766666666665605,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.005586499999999994,
+          0.0012064999999999992,
+          0.003607000000000027
+        ],
+        "replicas": 3,
+        "sample_std": 0.004768432507998137,
+        "sem": 0.002753055792105287
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.016722473693815496,
+        "early_replica_means": [
+          0.6458745,
+          0.65242,
+          0.6481815
+        ],
+        "early_steps": [
+          2000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.6573625,
+          0.6506925000000001,
+          0.6508395
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": 0.004139500000000036,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.011487999999999943,
+          -0.001727499999999882,
+          0.002658000000000049
+        ],
+        "replicas": 3,
+        "sample_std": 0.00673115827699801,
+        "sem": 0.0038862360431827785
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0014715022730639369,
+        "early_replica_means": [
+          0.00728,
+          0.007238,
+          0.0069
+        ],
+        "early_steps": [
+          2000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.006232,
+          0.005733,
+          0.00657
+        ],
+        "late_steps": [
+          3000000,
+          4000000
+        ],
+        "mean": -0.0009609999999999997,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0010480000000000003,
+          -0.0015049999999999994,
+          -0.00032999999999999956
+        ],
+        "replicas": 3,
+        "sample_std": 0.0005923115734138578,
+        "sem": 0.00034197124635462165
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.014677784878714389,
+        "early_replica_means": [
+          0.080083,
+          0.081026,
+          0.086202
+        ],
+        "early_steps": [
+          2000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.080642,
+          0.071848,
+          0.076095
+        ],
+        "late_steps": [
+          3000000,
+          4000000
+        ],
+        "mean": -0.006242000000000002,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.0005590000000000039,
+          -0.009178000000000006,
+          -0.010107000000000005
+        ],
+        "replicas": 3,
+        "sample_std": 0.005908126691261797,
+        "sem": 0.0034110585356064115
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.004729407661777032,
+        "early_replica_means": [
+          0.26765,
+          0.264122,
+          0.262694
+        ],
+        "early_steps": [
+          2000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.266364,
+          0.265193,
+          0.265176
+        ],
+        "late_steps": [
+          3000000,
+          4000000
+        ],
+        "mean": 0.000755666666666673,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0012860000000000094,
+          0.0010709999999999886,
+          0.0024820000000000397
+        ],
+        "replicas": 3,
+        "sample_std": 0.0019036891377883674,
+        "sem": 0.0010990954361554805
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.010261079618240994,
+        "early_replica_means": [
+          0.644987,
+          0.647614,
+          0.644204
+        ],
+        "early_steps": [
+          2000000,
+          3000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.6467620000000002,
+          0.657226,
+          0.652159
+        ],
+        "late_steps": [
+          3000000,
+          4000000
+        ],
+        "mean": 0.006447333333333398,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.001775000000000193,
+          0.009611999999999954,
+          0.007955000000000045
+        ],
+        "replicas": 3,
+        "sample_std": 0.004130307050732712,
+        "sem": 0.0023846338875763407
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0018738432814057128,
+        "early_replica_means": [
+          0.006232,
+          0.005733,
+          0.00657
+        ],
+        "early_steps": [
+          3000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.005719,
+          0.006584,
+          0.006181
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": -1.7000000000000234e-05,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0005129999999999996,
+          0.0008509999999999993,
+          -0.00038900000000000046
+        ],
+        "replicas": 3,
+        "sample_std": 0.0007542625537569788,
+        "sem": 0.0004354736884512463
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.020477169750893413,
+        "early_replica_means": [
+          0.080642,
+          0.071848,
+          0.076095
+        ],
+        "early_steps": [
+          3000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.070752,
+          0.078443,
+          0.074463
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": -0.0016423333333333335,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.00989000000000001,
+          0.006595000000000004,
+          -0.0016319999999999946
+        ],
+        "replicas": 3,
+        "sample_std": 0.008242504857950248,
+        "sem": 0.004758812398534374
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.011454952390333594,
+        "early_replica_means": [
+          0.266364,
+          0.265193,
+          0.265176
+        ],
+        "early_steps": [
+          3000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.260129,
+          0.263238,
+          0.26815500000000003
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": -0.0017369999999999886,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0062349999999999905,
+          -0.0019549999999999845,
+          0.0029790000000000094
+        ],
+        "replicas": 3,
+        "sample_std": 0.004610866729802543,
+        "sem": 0.002662085147648988
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.029040556092477493,
+        "early_replica_means": [
+          0.6467620000000002,
+          0.657226,
+          0.652159
+        ],
+        "early_steps": [
+          3000000,
+          4000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.6634,
+          0.6517350000000001,
+          0.651201
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": 0.0033963333333332977,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.01663799999999982,
+          -0.005490999999999913,
+          -0.0009580000000000144
+        ],
+        "replicas": 3,
+        "sample_std": 0.011689453551527985,
+        "sem": 0.006748909154654309
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.002393544797546587,
+        "early_replica_means": [
+          0.00675,
+          0.00606,
+          0.005449
+        ],
+        "early_steps": [
+          4000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.005719,
+          0.006584,
+          0.006181
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": 7.499999999999983e-05,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.0010309999999999998,
+          0.0005239999999999993,
+          0.000732
+        ],
+        "replicas": 3,
+        "sample_std": 0.0009634536833704044,
+        "sem": 0.0005562502434456395
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.013796922044232527,
+        "early_replica_means": [
+          0.079213,
+          0.0758,
+          0.077144
+        ],
+        "early_steps": [
+          4000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.070752,
+          0.078443,
+          0.074463
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": -0.002833000000000007,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.00846100000000001,
+          0.0026429999999999926,
+          -0.002681000000000003
+        ],
+        "replicas": 3,
+        "sample_std": 0.005553560299483568,
+        "sem": 0.003206349533867657
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.008088198290237205,
+        "early_replica_means": [
+          0.262712,
+          0.26849,
+          0.266929
+        ],
+        "early_steps": [
+          4000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.260129,
+          0.263238,
+          0.26815500000000003
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": -0.002202999999999992,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          -0.002583000000000002,
+          -0.005251999999999979,
+          0.0012260000000000049
+        ],
+        "replicas": 3,
+        "sample_std": 0.0032556751987874886,
+        "sem": 0.001879664952413945
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.015398991177032436,
+        "early_replica_means": [
+          0.651325,
+          0.6496500000000002,
+          0.650478
+        ],
+        "early_steps": [
+          4000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.6634,
+          0.6517350000000001,
+          0.651201
+        ],
+        "late_steps": [
+          5000000,
+          6000000
+        ],
+        "mean": 0.004960999999999956,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 0,
+        "per_replica_changes": [
+          0.012074999999999947,
+          0.0020849999999998925,
+          0.0007230000000000292
+        ],
+        "replicas": 3,
+        "sample_std": 0.006198427865192899,
+        "sem": 0.003578663996521598
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0009369216407028583,
+        "early_replica_means": [
+          0.006491,
+          0.0058965,
+          0.0060095
+        ],
+        "early_steps": [
+          3000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0062345,
+          0.006322,
+          0.005815
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -8.500000000000117e-06,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 1000000,
+        "per_replica_changes": [
+          -0.00025650000000000065,
+          0.00042550000000000053,
+          -0.00019450000000000023
+        ],
+        "replicas": 3,
+        "sample_std": 0.0003771312768784902,
+        "sem": 0.0002177368442256236
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.010238584875446698,
+        "early_replica_means": [
+          0.0799275,
+          0.073824,
+          0.0766195
+        ],
+        "early_steps": [
+          3000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.0749825,
+          0.0771215,
+          0.0758035
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.0008211666666666692,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 1000000,
+        "per_replica_changes": [
+          -0.004945000000000005,
+          0.003297499999999995,
+          -0.0008159999999999973
+        ],
+        "replicas": 3,
+        "sample_std": 0.004121252428975121,
+        "sem": 0.0023794061992671854
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.005727476195166763,
+        "early_replica_means": [
+          0.264538,
+          0.2668415,
+          0.2660525
+        ],
+        "early_steps": [
+          3000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.2614205,
+          0.265864,
+          0.267542
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": -0.0008685000000000128,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 1000000,
+        "per_replica_changes": [
+          -0.0031174999999999953,
+          -0.00097750000000002,
+          0.001489499999999977
+        ],
+        "replicas": 3,
+        "sample_std": 0.002305433364901258,
+        "sem": 0.0013310425738244861
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.014520278046238722,
+        "early_replica_means": [
+          0.6490435,
+          0.653438,
+          0.6513185
+        ],
+        "early_steps": [
+          3000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.6573625,
+          0.6506925000000001,
+          0.6508395
+        ],
+        "late_steps": [
+          4000000,
+          6000000
+        ],
+        "mean": 0.0016981666666667043,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 1000000,
+        "per_replica_changes": [
+          0.008318999999999965,
+          -0.0027454999999998453,
+          -0.0004790000000000072
+        ],
+        "replicas": 3,
+        "sample_std": 0.005844726775763982,
+        "sem": 0.003374454577327149
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.0004189734888261395,
+        "early_replica_means": [
+          0.006754,
+          0.006343666666666667,
+          0.006306333333333333
+        ],
+        "early_steps": [
+          2000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.006233666666666667,
+          0.006125666666666666,
+          0.006066666666666666
+        ],
+        "late_steps": [
+          3000000,
+          6000000
+        ],
+        "mean": -0.0003259999999999999,
+        "observable": "degree_0_fraction",
+        "overlapping_steps": 2000000,
+        "per_replica_changes": [
+          -0.0005203333333333327,
+          -0.0002180000000000003,
+          -0.00023966666666666667
+        ],
+        "replicas": 3,
+        "sample_std": 0.00016864591440187424,
+        "sem": 9.736776407765269e-05
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.003930502330303099,
+        "early_replica_means": [
+          0.07997933333333333,
+          0.07622466666666666,
+          0.07981366666666667
+        ],
+        "early_steps": [
+          2000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.076869,
+          0.07536366666666666,
+          0.07590066666666667
+        ],
+        "late_steps": [
+          3000000,
+          6000000
+        ],
+        "mean": -0.002628111111111109,
+        "observable": "degree_1_fraction",
+        "overlapping_steps": 2000000,
+        "per_replica_changes": [
+          -0.003110333333333326,
+          -0.0008610000000000007,
+          -0.003913
+        ],
+        "replicas": 3,
+        "sample_std": 0.001582112418162407,
+        "sem": 0.0009134330305143154
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.005375732995231014,
+        "early_replica_means": [
+          0.26557533333333333,
+          0.265935,
+          0.264933
+        ],
+        "early_steps": [
+          2000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.26306833333333335,
+          0.2656403333333333,
+          0.26675333333333334
+        ],
+        "late_steps": [
+          3000000,
+          6000000
+        ],
+        "mean": -0.00032711111111109287,
+        "observable": "degree_2_fraction",
+        "overlapping_steps": 2000000,
+        "per_replica_changes": [
+          -0.0025069999999999815,
+          -0.0002946666666666653,
+          0.0018203333333333682
+        ],
+        "replicas": 3,
+        "sample_std": 0.002163849099619925,
+        "sem": 0.001249298860151293
+      },
+      {
+        "category": "metrics",
+        "ci95_half_width": 0.006259948927589233,
+        "early_replica_means": [
+          0.6476913333333333,
+          0.6514966666666666,
+          0.648947
+        ],
+        "early_steps": [
+          2000000,
+          5000000
+        ],
+        "excludes_zero": false,
+        "late_replica_means": [
+          0.653829,
+          0.6528703333333333,
+          0.6512793333333333
+        ],
+        "late_steps": [
+          3000000,
+          6000000
+        ],
+        "mean": 0.003281222222222232,
+        "observable": "degree_3_fraction",
+        "overlapping_steps": 2000000,
+        "per_replica_changes": [
+          0.006137666666666708,
+          0.0013736666666667174,
+          0.0023323333333332696
+        ],
+        "replicas": 3,
+        "sample_std": 0.0025197651860029884,
+        "sem": 0.0014547871084334728
+      }
+    ],
+    "independent_units": "three histories, Student-t df=2; overlapping comparisons are not independent evidence",
+    "schema_version": 1,
+    "stage": "E2_joint_window_sensitivity",
+    "uncertainty": "paired history means only; no combination of window SEMs or IATs; exploratory unadjusted intervals"
+  },
+  "records": [
+    {
+      "endpoint_counts": {
+        "0": 4,
+        "1": 72,
+        "2": 228,
+        "3": 696
+      },
+      "initial_counts": {
+        "0": 1000
+      },
+      "replica": 1,
+      "windows": [
+        {
+          "activity": {},
+          "end_step_inclusive": 1000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.007615
+            },
+            "degree_1_fraction": {
+              "mean": 0.080736
+            },
+            "degree_2_fraction": {
+              "mean": 0.263981
+            },
+            "degree_3_fraction": {
+              "mean": 0.647668
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 0
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 2000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.006481
+            },
+            "degree_1_fraction": {
+              "mean": 0.08032
+            },
+            "degree_2_fraction": {
+              "mean": 0.264243
+            },
+            "degree_3_fraction": {
+              "mean": 0.648956
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 1000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 3000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.00728
+            },
+            "degree_1_fraction": {
+              "mean": 0.080083
+            },
+            "degree_2_fraction": {
+              "mean": 0.26765
+            },
+            "degree_3_fraction": {
+              "mean": 0.644987
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 2000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 4000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.006232
+            },
+            "degree_1_fraction": {
+              "mean": 0.080642
+            },
+            "degree_2_fraction": {
+              "mean": 0.266364
+            },
+            "degree_3_fraction": {
+              "mean": 0.6467620000000001
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 3000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 5000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.00675
+            },
+            "degree_1_fraction": {
+              "mean": 0.079213
+            },
+            "degree_2_fraction": {
+              "mean": 0.262712
+            },
+            "degree_3_fraction": {
+              "mean": 0.651325
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 4000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 6000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.005719
+            },
+            "degree_1_fraction": {
+              "mean": 0.070752
+            },
+            "degree_2_fraction": {
+              "mean": 0.260129
+            },
+            "degree_3_fraction": {
+              "mean": 0.6634
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 5000000
+        }
+      ]
+    },
+    {
+      "endpoint_counts": {
+        "0": 7,
+        "1": 67,
+        "2": 273,
+        "3": 653
+      },
+      "initial_counts": {
+        "0": 1000
+      },
+      "replica": 2,
+      "windows": [
+        {
+          "activity": {},
+          "end_step_inclusive": 1000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.006385
+            },
+            "degree_1_fraction": {
+              "mean": 0.075303
+            },
+            "degree_2_fraction": {
+              "mean": 0.267119
+            },
+            "degree_3_fraction": {
+              "mean": 0.651193
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 0
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 2000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.005679
+            },
+            "degree_1_fraction": {
+              "mean": 0.07137
+            },
+            "degree_2_fraction": {
+              "mean": 0.26942900000000003
+            },
+            "degree_3_fraction": {
+              "mean": 0.653522
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 1000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 3000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.007238
+            },
+            "degree_1_fraction": {
+              "mean": 0.081026
+            },
+            "degree_2_fraction": {
+              "mean": 0.264122
+            },
+            "degree_3_fraction": {
+              "mean": 0.647614
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 2000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 4000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.005733
+            },
+            "degree_1_fraction": {
+              "mean": 0.071848
+            },
+            "degree_2_fraction": {
+              "mean": 0.265193
+            },
+            "degree_3_fraction": {
+              "mean": 0.657226
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 3000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 5000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.00606
+            },
+            "degree_1_fraction": {
+              "mean": 0.0758
+            },
+            "degree_2_fraction": {
+              "mean": 0.26849
+            },
+            "degree_3_fraction": {
+              "mean": 0.6496500000000001
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 4000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 6000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.0065840000000000004
+            },
+            "degree_1_fraction": {
+              "mean": 0.078443
+            },
+            "degree_2_fraction": {
+              "mean": 0.263238
+            },
+            "degree_3_fraction": {
+              "mean": 0.6517350000000001
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 5000000
+        }
+      ]
+    },
+    {
+      "endpoint_counts": {
+        "0": 5,
+        "1": 71,
+        "2": 281,
+        "3": 643
+      },
+      "initial_counts": {
+        "0": 1000
+      },
+      "replica": 3,
+      "windows": [
+        {
+          "activity": {},
+          "end_step_inclusive": 1000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.006616
+            },
+            "degree_1_fraction": {
+              "mean": 0.076219
+            },
+            "degree_2_fraction": {
+              "mean": 0.26461
+            },
+            "degree_3_fraction": {
+              "mean": 0.652555
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 0
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 2000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.006482
+            },
+            "degree_1_fraction": {
+              "mean": 0.07993600000000001
+            },
+            "degree_2_fraction": {
+              "mean": 0.26345
+            },
+            "degree_3_fraction": {
+              "mean": 0.650132
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 1000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 3000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.0069
+            },
+            "degree_1_fraction": {
+              "mean": 0.086202
+            },
+            "degree_2_fraction": {
+              "mean": 0.262694
+            },
+            "degree_3_fraction": {
+              "mean": 0.644204
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 2000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 4000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.00657
+            },
+            "degree_1_fraction": {
+              "mean": 0.076095
+            },
+            "degree_2_fraction": {
+              "mean": 0.265176
+            },
+            "degree_3_fraction": {
+              "mean": 0.652159
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 3000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 5000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.005449
+            },
+            "degree_1_fraction": {
+              "mean": 0.077144
+            },
+            "degree_2_fraction": {
+              "mean": 0.266929
+            },
+            "degree_3_fraction": {
+              "mean": 0.650478
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 4000000
+        },
+        {
+          "activity": {},
+          "end_step_inclusive": 6000000,
+          "metrics": {
+            "degree_0_fraction": {
+              "mean": 0.006181
+            },
+            "degree_1_fraction": {
+              "mean": 0.074463
+            },
+            "degree_2_fraction": {
+              "mean": 0.26815500000000003
+            },
+            "degree_3_fraction": {
+              "mean": 0.651201
+            }
+          },
+          "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c",
+          "start_step_exclusive": 5000000
+        }
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "stage": "E2_neighbor_degree_distribution"
+}

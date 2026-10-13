@@ -1,0 +1,161 @@
+{
+  "qualification": "Different functionality, sticker count and box size; C1 starts from historically defective lineage but only corrected statistics are compared; no shared equilibration criterion or endpoint promotion",
+  "records": [
+    {
+      "context": "corrected_C1_f4_6to8M",
+      "functionality": 4,
+      "replica_means": {
+        "activity": {
+          "breaks": [
+            1.82145,
+            1.8164500000000001,
+            1.81755
+          ],
+          "creations": [
+            1.82185,
+            1.8173,
+            1.81935
+          ],
+          "neighbor_gains": [
+            1.654,
+            1.64345,
+            1.65025
+          ],
+          "neighbor_losses": [
+            1.6532499999999999,
+            1.6411,
+            1.6472
+          ]
+        },
+        "metrics": {
+          "L1": [
+            41.821,
+            37.891,
+            39.225
+          ],
+          "L2": [
+            32.4135,
+            32.7625,
+            35.0055
+          ],
+          "bonds": [
+            1793.4375,
+            1794.688,
+            1793.8895
+          ],
+          "bound_fraction": [
+            0.89671875,
+            0.8973439999999999,
+            0.89694475
+          ],
+          "inter": [
+            1701.7365,
+            1691.985,
+            1701.9315
+          ],
+          "intra": [
+            91.701,
+            102.703,
+            91.958
+          ],
+          "largest_cluster_fraction": [
+            0.998114,
+            0.9972185,
+            0.9977495
+          ],
+          "mean_degree": [
+            3.320274,
+            3.309407,
+            3.326004
+          ]
+        }
+      },
+      "scope": "qualified accepted initialization context only, not an equilibrium standard; f4 uses corrected 6\u20138M only, never defective trajectory statistics",
+      "stars": 1000,
+      "stickers": 4000
+    },
+    {
+      "context": "accepted_f6_4to6M",
+      "functionality": 6,
+      "replica_means": {
+        "activity": {
+          "breaks": [
+            2.74075,
+            2.74585,
+            2.7597
+          ],
+          "creations": [
+            2.74015,
+            2.7472,
+            2.7606
+          ],
+          "neighbor_gains": [
+            2.2599,
+            2.2697,
+            2.2671
+          ],
+          "neighbor_losses": [
+            2.26185,
+            2.26755,
+            2.2693
+          ]
+        },
+        "metrics": {
+          "L1": [
+            142.679,
+            137.761,
+            142.6415
+          ],
+          "L2": [
+            164.101,
+            167.8675,
+            167.538
+          ],
+          "bonds": [
+            2692.736,
+            2694.278,
+            2692.9065
+          ],
+          "bound_fraction": [
+            0.897578666666666,
+            0.8980926666666685,
+            0.897635499999998
+          ],
+          "inter": [
+            2489.1935,
+            2486.807,
+            2481.079
+          ],
+          "intra": [
+            203.5425,
+            207.471,
+            211.8275
+          ],
+          "largest_cluster_fraction": [
+            0.999759,
+            0.999833,
+            0.999864
+          ],
+          "mean_degree": [
+            4.701215,
+            4.706651,
+            4.6861310000000005
+          ]
+        }
+      },
+      "scope": "qualified accepted initialization context only, not an equilibrium standard; f4 uses corrected 6\u20138M only, never defective trajectory statistics",
+      "stars": 1000,
+      "stickers": 6000
+    }
+  ],
+  "schema_version": 1,
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/analysis_config.json": "1e9aeb8a175789e63ade02ed944101139dea54b47be0074396a6e888c8bca276",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/summary.json": "8a7349ce54b42468fb143d0fa70c7ff0f531c19a4ab6c319b3f073e4fc12b94b",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F06_N010_RP080_EE08_EA04_6M_qualified_20261013_v1.json": "81179644b404b3ab5a492ad60bba0d3d23502d0f5d7da4d058552fa9a5e714c0",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_f6_6m_20261013/decision.json": "1c7808588c658be384cbe5a63045ff9080ad58372bc0bcc32ce73eadb114a053",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_f6_6m_20261013/joint6m/summary.json": "0ee65db751255160c60cd00669eb7e618915d77075b1cd3694da5223308ae525"
+  },
+  "stage": "E2_functionality_context"
+}

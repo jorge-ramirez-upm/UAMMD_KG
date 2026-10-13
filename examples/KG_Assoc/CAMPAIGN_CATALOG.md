@@ -194,3 +194,11 @@ The original scientific recommendation remains immutable historical evidence.
 The catalog now recognizes four formal acceptances, including only the three
 approved f=6 6M endpoints. Active endpoint selection and production authorization
 remain absent; registration does not advance the campaign into production.
+
+The f=3 6M joint assessment is documented in
+[reviews/e2_f3_6m_20261013/DECISION.md](reviews/e2_f3_6m_20261013/DECISION.md).
+Its coherent peripheral satellite-population shift remains unresolved and is
+shown as `review_hold_material_drift`; further E2 is recommended as a separately
+authorized review checkpoint. The 6M endpoints are authenticated reviewed states,
+not formally accepted initialization states. The four previous acceptances,
+registry selection and production authorization are unchanged.

@@ -1,0 +1,86 @@
+{
+  "evidence_sha256": {
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/DECISION.md": "4234fc4dc7351c64ed1177de8e85cc7374f5642a4a7f6c87db93f16848156a84",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/VALIDATION.md": "29843f3c0098c5dae2b919082c85acb38a32ed7153dca12ac32044241a90d079",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/degree_distribution.json": "f92c798784556f85c4aba7fec26b7301bd2aa5432219134d7959aeb736c53725",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/functionality_context.json": "f1a7e7cf4b07e6d0087498aaa36e852e3a55e0c272b09d230b0eb66b791c1cbe",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/joint6m/REPORT.md": "608438cc7b8d66def486385010fe075170828b20ad3baa9423bc287b863f551d",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/joint6m/analysis_config.json": "37c875402aa186747061d4f6daab100f747358d3aabe15308cae8d31f20150c3",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/joint6m/summary.json": "7b6453ff335e447c8cd0f881d50148b3f564615bc1d690a8e4550a917ca3eade",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/peripheral_population.json": "4f93f2ea298cd534067f21468ce50ece5f0b2dfd726ae5767258ae7b214f3f1a",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/provenance.json": "6ef30127622f251fae7198635de33e827d22531027f2593f06bc98319f917170",
+    "examples/KG_Assoc/reviews/e2_f3_6m_20261013/window_sensitivity.json": "6bdcd8a40cbb31a670e16780a36c656bb6960da9377dda4587bfa56b4c04e232"
+  },
+  "formal_acceptance": false,
+  "reviewed_at": "2026-10-13T10:09:09.865054+00:00",
+  "reviewer": "Codex independent CPU joint scientific assessment in response to user task",
+  "schema_version": 1,
+  "scope": "scientific hold and proposed additional review checkpoint only; no formal acceptance, registry/production authorization, extension plan or simulations",
+  "source_commit": "5640a03b22a72f6be009538dca565a2a343e66ed",
+  "stage": "E2_scientific_review_decision",
+  "systems": {
+    "F03_N010_RP080_EE08_EA04": {
+      "end_step": 6000000,
+      "qualification": "Unresolved coherent peripheral satellite-population shift (about 21%), window-dependent connectivity evolution, late exploratory L2 decrease and slow intra/inter modes; no proof of irreversible drift or requirement of full decorrelation.",
+      "recommendation": "further_equilibration_before_acceptance",
+      "replicas": 3,
+      "reviewed_endpoints": [
+        {
+          "chemistry_seed": 420001,
+          "effective_md_seed": 224804373,
+          "end_step": 6000000,
+          "md_seed": 520058,
+          "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state",
+          "replica": 1,
+          "state_sha256": {
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.assoc_restart": "070a071f7afa5209ba0d131e8818b48132f5c4ce2ef2fb342bb4ef9c7e74bfdb",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.conformation.tsv": "70048893432276548408a7c3a5f9d05ca7a5c91aac3c05a909911e6c6ad1f1eb",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.events": "a3d2063a09b0e4ab2309870a394ec29043ec768f828849f44c17efc2c037643c",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.final_associations": "238f792c060b4118c110cd921426463c83dc460469ccca1c20fd6d3c6d446627",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.final_permanent.lammpsdat": "d98585f7197621616c48093c4ec2c44218b2d62cea24b79cc7b1365f11e75926",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.numerics.tsv": "48f776f26dba6032ce10a6504ea39483590825f145f842915952e4de99be9f56",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.restart.lammpsdat": "78e0761f345384981dd693115243165a1c95123434d8727485fd17b6a29c8266",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.state": "ce9eba0afcbc2336b717fcbf831193840943400477f5226b88ba9b19f912efb2"
+          }
+        },
+        {
+          "chemistry_seed": 420002,
+          "effective_md_seed": 216436245,
+          "end_step": 6000000,
+          "md_seed": 520059,
+          "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state",
+          "replica": 2,
+          "state_sha256": {
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.assoc_restart": "aa64efd4547d9ff60b08024c96be184cf18a30077179f1306017243d7b6676de",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.conformation.tsv": "aabe8be8d772c9af9c22ff68766594ba54025a7517ed04a6b4e4c96439dc277d",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.events": "a6317bea0455b3c7f327444eebea408f7b90953c0abc96ecb95e9ba4639e27ec",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.final_associations": "e93a9d62f1d28882d0b24151ca01bd93afceea310f61502af9173d31bbd1a273",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.final_permanent.lammpsdat": "008864db492c290f54474d0a5a0dc7df35e19aa02c4037cea338404649753d70",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.numerics.tsv": "64562c3a6a921942f49a912f5b42469399bb5d68185b5c23b76ca7354252d992",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.restart.lammpsdat": "22307f458b1ff2cdecb6561a6e314a4dca4e51cdd3791582d46bc51a016911a6",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.state": "f94cd71d886bb867d493a98db3f77659282deda668c8ec4d6de63055c3172b41"
+          }
+        },
+        {
+          "chemistry_seed": 420003,
+          "effective_md_seed": 241557021,
+          "end_step": 6000000,
+          "md_seed": 520060,
+          "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state",
+          "replica": 3,
+          "state_sha256": {
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.assoc_restart": "826f6496008867c139728ebc3b39c68c2bbc5bdce6f36c6c3fa14ca3a9bda2d4",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.conformation.tsv": "6bb79aebbb31efd791aafec52ef73f1badc6a67629158a8b4005137cd8a87735",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.events": "527da60db1025541c14ae25d2e8ec7982eef6567fba43ac6249dda682b3a7e62",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.final_associations": "3e32ce49466cf8483a039d17c415ed3ae9b7dd46d6dd669fec3b63d18f0bddc1",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.final_permanent.lammpsdat": "55065647a153f976544fd0af78fd69923889654161c5626fdfd3a029c2e0c4a6",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.numerics.tsv": "d6bc9c0a9b91848f474b0cb0c34f72f6e2ae69295ccefe162da2fb9d2b91138c",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.restart.lammpsdat": "ed9d634aba94ea4af1d535891446ddb7aa1139c8f144fcf599e1ac7c1653dc3e",
+            "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.state": "d9824a169eca31f967094b876a2f2d5bdcecacde48f272b8dea0608bbd0795ee"
+          }
+        }
+      ],
+      "status": "acceptance_deferred_material_drift"
+    }
+  }
+}
