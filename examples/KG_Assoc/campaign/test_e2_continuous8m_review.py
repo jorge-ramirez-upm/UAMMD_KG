@@ -82,9 +82,10 @@ class Continuous8MTests(unittest.TestCase):
             self.assertFalse(provenance[key])
         graph = catalog_model.Catalog(root, root/'examples/KG_Assoc/kg_assoc_100m').scan()
         system = next(s for s in graph['systems'] if s['system_id'] == sid)
-        self.assertEqual(system['scientific'], selected['status'])
-        self.assertFalse(any(a.get('data', {}).get('permitted_systems') == [sid]
-                             for a in graph['acceptances']))
+        self.assertTrue(any(r['status'] == selected['status']
+                            for r in system['documented_reviews']))
+        self.assertEqual(system['scientific'], 'formal_acceptance_recorded_payload_deferred')
+        self.assertEqual(system['selection'], 'missing')
 
 
 if __name__ == '__main__':
