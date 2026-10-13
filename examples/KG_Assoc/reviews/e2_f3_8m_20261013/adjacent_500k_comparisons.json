@@ -1,0 +1,2767 @@
+{
+  "automatic_acceptance": false,
+  "comparisons": [
+    {
+      "category": "metrics",
+      "ci95_half_width": 4.060446428067786,
+      "early_replica_means": [
+        13.652,
+        13.526,
+        14.066
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        13.974,
+        11.138,
+        14.616
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.5053333333333333,
+      "observable": "L1",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.32200000000000095,
+        -2.388,
+        0.5499999999999989
+      ],
+      "replicas": 3,
+      "sample_std": 1.634417735260277,
+      "sem": 0.9436315194208195
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.3682299914715131,
+      "early_replica_means": [
+        7.552,
+        10.992,
+        10.688
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        5.644,
+        9.218,
+        8.618
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -1.9173333333333336,
+      "observable": "L2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -1.9079999999999995,
+        -1.774000000000001,
+        -2.0700000000000003
+      ],
+      "replicas": 3,
+      "sample_std": 0.1482205563791111,
+      "sem": 0.0855751781249159
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 2.448846839520438,
+      "early_replica_means": [
+        1345.26,
+        1343.438,
+        1346.488
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1342.556,
+        1342.65,
+        1344.34
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -1.8800000000000334,
+      "observable": "bonds",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -2.703999999999951,
+        -0.7880000000000109,
+        -2.1480000000001382
+      ],
+      "replicas": 3,
+      "sample_std": 0.9857139544512823,
+      "sem": 0.5691022169464184
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0016325645597463504,
+      "early_replica_means": [
+        0.8968400000000221,
+        0.8956253333333121,
+        0.897658666666666
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.895037333333318,
+        0.8951,
+        0.8962266666666721
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.0012533333333366963,
+      "observable": "bound_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0018026666667040336,
+        -0.0005253333333120613,
+        -0.0014319999999939936
+      ],
+      "replicas": 3,
+      "sample_std": 0.0006571426363274447,
+      "sem": 0.00037940147797963056
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 1.024009533420683,
+      "early_replica_means": [
+        8.536,
+        8.048,
+        8.546
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        10.038,
+        8.816,
+        9.356
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 1.0266666666666673,
+      "observable": "components",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        1.5020000000000007,
+        0.7680000000000007,
+        0.8100000000000005
+      ],
+      "replicas": 3,
+      "sample_std": 0.41218604213793236,
+      "sem": 0.2379757223845417
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.00053150904964011,
+      "early_replica_means": [
+        0.005542,
+        0.0053100000000000005,
+        0.006018
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        0.006798,
+        0.00648,
+        0.006868
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.0010919999999999999,
+      "observable": "degree_0_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0012560000000000002,
+        0.0011699999999999992,
+        0.0008500000000000001
+      ],
+      "replicas": 3,
+      "sample_std": 0.00021394391788503815,
+      "sem": 0.00012352057858240997
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.00939901855883122,
+      "early_replica_means": [
+        0.071878,
+        0.074752,
+        0.076258
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.076982,
+        0.072296,
+        0.077856
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.0014153333333333286,
+      "observable": "degree_1_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.005103999999999997,
+        -0.002456,
+        0.0015979999999999883
+      ],
+      "replicas": 3,
+      "sample_std": 0.0037833087811244433,
+      "sem": 0.0021842943432096723
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.013870091143327644,
+      "early_replica_means": [
+        0.26605,
+        0.270486,
+        0.264318
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.271134,
+        0.265288,
+        0.268032
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.0011999999999999973,
+      "observable": "degree_2_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.005083999999999977,
+        -0.00519799999999998,
+        0.003713999999999995
+      ],
+      "replicas": 3,
+      "sample_std": 0.00558301244849049,
+      "sem": 0.003223353740025016
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.022887259829051647,
+      "early_replica_means": [
+        0.65653,
+        0.649452,
+        0.653406
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.645086,
+        0.6559360000000001,
+        0.647244
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.0037073333333332847,
+      "observable": "degree_3_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.011443999999999899,
+        0.006484000000000045,
+        -0.006162000000000001
+      ],
+      "replicas": 3,
+      "sample_std": 0.00921261837553977,
+      "sem": 0.005318907699059179
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 4.897693679040918,
+      "early_replica_means": [
+        309.48,
+        313.124,
+        307.024
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        314.888,
+        314.7,
+        311.32
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 3.759999999999972,
+      "observable": "free",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        5.407999999999959,
+        1.575999999999965,
+        4.295999999999992
+      ],
+      "replicas": 3,
+      "sample_std": 1.9714279089025812,
+      "sem": 1.1382044338928463
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 12.598344338368713,
+      "early_replica_means": [
+        1300.422,
+        1295.53,
+        1296.622
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1291.228,
+        1296.478,
+        1292.442
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -4.141999999999977,
+      "observable": "inter",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -9.19399999999996,
+        0.9480000000000928,
+        -4.180000000000064
+      ],
+      "replicas": 3,
+      "sample_std": 5.0711067825476,
+      "sem": 2.927804865993194
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 10.23005829933203,
+      "early_replica_means": [
+        44.838,
+        47.908,
+        49.866
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        51.328,
+        46.172,
+        51.898
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 2.2620000000000005,
+      "observable": "intra",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        6.490000000000002,
+        -1.7360000000000042,
+        2.0320000000000036
+      ],
+      "replicas": 3,
+      "sample_std": 4.117820297196082,
+      "sem": 2.3774246570606627
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.5315090496401103,
+      "early_replica_means": [
+        5.542,
+        5.31,
+        6.018
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        6.798,
+        6.48,
+        6.868
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 1.0920000000000005,
+      "observable": "isolated_stars",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        1.2560000000000002,
+        1.1700000000000008,
+        0.8500000000000005
+      ],
+      "replicas": 3,
+      "sample_std": 0.21394391788503822,
+      "sem": 0.12352057858241001
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0018461446919178165,
+      "early_replica_means": [
+        0.989686,
+        0.990468,
+        0.990346
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.988126,
+        0.99039,
+        0.98943
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.0008513333333333151,
+      "observable": "largest_cluster_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0015600000000000058,
+        -7.80000000000225e-05,
+        -0.0009159999999999169
+      ],
+      "replicas": 3,
+      "sample_std": 0.0007431132708634093,
+      "sem": 0.0004290366469713727
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0026609103675358475,
+      "early_replica_means": [
+        1.135281331469331,
+        1.1331852173740704,
+        1.1338495637666384
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.1347444174786228,
+        1.1343386709730043,
+        1.1352973915505542
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.0006881224640471473,
+      "observable": "max_permanent_bond",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0005369139907083209,
+        0.001153453598933929,
+        0.0014478277839158338
+      ],
+      "replicas": 3,
+      "sample_std": 0.0010710741229279254,
+      "sem": 0.0006183849331944801
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.37168929317017396,
+      "early_replica_means": [
+        15.469646508727271,
+        15.570942176386279,
+        15.36684412931953
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        15.582478138606296,
+        15.40172329159535,
+        15.42518246116126
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.0006503589766087003,
+      "observable": "mean_center_terminal_r2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.11283162987902529,
+        -0.16921888479092928,
+        0.058338331841730096
+      ],
+      "replicas": 3,
+      "sample_std": 0.1496130003253788,
+      "sem": 0.08637910601212502
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.03220899536191759,
+      "early_replica_means": [
+        2.573568,
+        2.56408,
+        2.565112
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        2.554508,
+        2.57068,
+        2.555652
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.007306666666666868,
+      "observable": "mean_degree",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.019060000000000077,
+        0.006599999999999717,
+        -0.009460000000000246
+      ],
+      "replicas": 3,
+      "sample_std": 0.012964819062884403,
+      "sem": 0.007485241775951102
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.14245251103194592,
+      "early_replica_means": [
+        6.296013202632279,
+        6.336757047414134,
+        6.27572684495411
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        6.359972125139368,
+        6.288415407954988,
+        6.303663624335694
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.014518020809841955,
+      "observable": "mean_rg2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0639589225070889,
+        -0.04834163945914671,
+        0.027936779381583676
+      ],
+      "replicas": 3,
+      "sample_std": 0.05734022467420319,
+      "sem": 0.03310539415104483
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0007592110835191936,
+      "early_replica_means": [
+        0.8608316875642631,
+        0.8617434602314481,
+        0.8606630799081517
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.8607225702534639,
+        0.8611200855696779,
+        0.8605828874831617
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.00027089479918647924,
+      "observable": "min_permanent_bond",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.00010911731079921161,
+        -0.0006233746617702041,
+        -8.01924249900221e-05
+      ],
+      "replicas": 3,
+      "sample_std": 0.00030559892408195714,
+      "sem": 0.00017643762108277797
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.8067688313367373,
+      "early_replica_means": [
+        1.994,
+        1.738,
+        1.528
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        2.24,
+        1.336,
+        1.488
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.06533333333333324,
+      "observable": "satellite_components",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.24600000000000022,
+        -0.4019999999999999,
+        -0.040000000000000036
+      ],
+      "replicas": 3,
+      "sample_std": 0.3247419488352766,
+      "sem": 0.18748985157721063
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 1.855348838374187,
+      "early_replica_means": [
+        4.772,
+        4.222,
+        3.636
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        5.076,
+        3.13,
+        3.702
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.2406666666666671,
+      "observable": "satellite_stars",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.3039999999999994,
+        -1.0920000000000005,
+        0.06599999999999984
+      ],
+      "replicas": 3,
+      "sample_std": 0.746818139397627,
+      "sem": 0.4311756538169154
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.14225239788294883,
+      "early_replica_means": [
+        7.044848,
+        7.001764,
+        7.014184
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        6.967292,
+        7.036872,
+        6.97518
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": -0.02715066666666684,
+      "observable": "second_degree_moment",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0775560000000004,
+        0.03510800000000014,
+        -0.03900400000000026
+      ],
+      "replicas": 3,
+      "sample_std": 0.057259674792417094,
+      "sem": 0.03305888865511244
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0005978660669002078,
+      "early_replica_means": [
+        0.9792674676261444,
+        0.9789365245618602,
+        0.9791450256894036
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.9794719193612367,
+        0.9793161458000476,
+        0.9790488227418787
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.00016262334191822583,
+      "observable": "temperature",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.00020445173509231473,
+        0.0003796212381873554,
+        -9.620294752499259e-05
+      ],
+      "replicas": 3,
+      "sample_std": 0.00024065405623809746,
+      "sem": 0.0001389416841506409
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.06969325153387823,
+      "early_replica_means": [
+        1.3668,
+        1.344,
+        1.3416
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.3668,
+        1.3908,
+        1.3382
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.014466666666666702,
+      "observable": "breaks",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0,
+        0.04679999999999995,
+        -0.0033999999999998476
+      ],
+      "replicas": 3,
+      "sample_std": 0.028053044992180958,
+      "sem": 0.01619643307782436
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.06899307340392936,
+      "early_replica_means": [
+        1.3644,
+        1.3426,
+        1.3396
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.3672,
+        1.3916,
+        1.3388
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.016999999999999977,
+      "observable": "creations",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0027999999999999137,
+        0.04899999999999993,
+        -0.0007999999999999119
+      ],
+      "replicas": 3,
+      "sample_std": 0.027771208111999693,
+      "sem": 0.01603371447918414
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.0704384729542347,
+      "early_replica_means": [
+        1.2826,
+        1.271,
+        1.2696
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.2854,
+        1.3174,
+        1.2628
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.014133333333333331,
+      "observable": "neighbor_gains",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0028000000000001357,
+        0.0464,
+        -0.006800000000000139
+      ],
+      "replicas": 3,
+      "sample_std": 0.028353012773483784,
+      "sem": 0.01636961955710776
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.07870347893592615,
+      "early_replica_means": [
+        1.2886,
+        1.27,
+        1.2708
+      ],
+      "early_steps": [
+        6000000,
+        6500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.2844,
+        1.318,
+        1.2616
+      ],
+      "late_steps": [
+        6500000,
+        7000000
+      ],
+      "mean": 0.011533333333333395,
+      "observable": "neighbor_losses",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0041999999999999815,
+        0.04800000000000004,
+        -0.009199999999999875
+      ],
+      "replicas": 3,
+      "sample_std": 0.0316798569020337,
+      "sem": 0.01829037391027798
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 6.668121720102527,
+      "early_replica_means": [
+        13.974,
+        11.138,
+        14.616
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        14.326,
+        16.362,
+        15.452
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 2.137333333333333,
+      "observable": "L1",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.3520000000000003,
+        5.223999999999998,
+        0.8360000000000003
+      ],
+      "replicas": 3,
+      "sample_std": 2.684063585933338,
+      "sem": 1.549644833860685
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 2.423498768882524,
+      "early_replica_means": [
+        5.644,
+        9.218,
+        8.618
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        6.252,
+        7.878,
+        8.346
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.33466666666666683,
+      "observable": "L2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.6079999999999997,
+        -1.3399999999999999,
+        -0.27200000000000024
+      ],
+      "replicas": 3,
+      "sample_std": 0.9755108063642006,
+      "sem": 0.5632114266517602
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 6.348899858898344,
+      "early_replica_means": [
+        1342.556,
+        1342.65,
+        1344.34
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1343.512,
+        1344.874,
+        1341.642
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.16066666666665697,
+      "observable": "bonds",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.9559999999999036,
+        2.2239999999999327,
+        -2.6979999999998654
+      ],
+      "replicas": 3,
+      "sample_std": 2.555569864694122,
+      "sem": 1.4754589493140469
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.004232599905929565,
+      "early_replica_means": [
+        0.895037333333318,
+        0.8951,
+        0.8962266666666721
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.895674666666646,
+        0.896582666666664,
+        0.894428000000004
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.00010711111110794924,
+      "observable": "bound_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0006373333333279385,
+        0.0014826666666639676,
+        -0.0017986666666680584
+      ],
+      "replicas": 3,
+      "sample_std": 0.0017037132431283423,
+      "sem": 0.0009836392995420788
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 2.54615943359746,
+      "early_replica_means": [
+        10.038,
+        8.816,
+        9.356
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        7.884,
+        8.044,
+        9.204
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -1.0259999999999998,
+      "observable": "components",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -2.154,
+        -0.7720000000000002,
+        -0.15199999999999925
+      ],
+      "replicas": 3,
+      "sample_std": 1.0248843837233548,
+      "sem": 0.5917172748309226
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.000733150612524997,
+      "early_replica_means": [
+        0.006798,
+        0.00648,
+        0.006868
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        0.005708,
+        0.005404,
+        0.006296
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.0009126666666666663,
+      "observable": "degree_0_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0010899999999999998,
+        -0.0010759999999999997,
+        -0.0005719999999999996
+      ],
+      "replicas": 3,
+      "sample_std": 0.00029510901940356447,
+      "sem": 0.00017038127179293445
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.011961245109845432,
+      "early_replica_means": [
+        0.076982,
+        0.072296,
+        0.077856
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.072154,
+        0.076692,
+        0.075246
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.001014000000000001,
+      "observable": "degree_1_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.004827999999999999,
+        0.004395999999999997,
+        -0.002610000000000001
+      ],
+      "replicas": 3,
+      "sample_std": 0.004814660528012332,
+      "sem": 0.0027797455519045855
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.006303460768775961,
+      "early_replica_means": [
+        0.271134,
+        0.265288,
+        0.268032
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.268468,
+        0.266452,
+        0.270164
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.0002100000000000065,
+      "observable": "degree_2_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0026660000000000017,
+        0.0011639999999999984,
+        0.0021320000000000228
+      ],
+      "replicas": 3,
+      "sample_std": 0.0025372796456047267,
+      "sem": 0.0014648990863992473
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.01629591215035776,
+      "early_replica_means": [
+        0.645086,
+        0.6559360000000001,
+        0.647244
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.65367,
+        0.651452,
+        0.648294
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.0017166666666666257,
+      "observable": "degree_3_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.008583999999999925,
+        -0.0044840000000000435,
+        0.0010499999999999954
+      ],
+      "replicas": 3,
+      "sample_std": 0.006559458006065218,
+      "sem": 0.0037871048455398
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 12.697799717797261,
+      "early_replica_means": [
+        314.888,
+        314.7,
+        311.32
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        312.976,
+        310.252,
+        316.716
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.32133333333331393,
+      "observable": "free",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -1.9119999999999777,
+        -4.447999999999979,
+        5.396000000000015
+      ],
+      "replicas": 3,
+      "sample_std": 5.1111397293884755,
+      "sem": 2.9509178986282274
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 8.211224984995086,
+      "early_replica_means": [
+        1291.228,
+        1296.478,
+        1292.442
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1299.376,
+        1298.338,
+        1295.68
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 4.415333333333289,
+      "observable": "inter",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        8.14799999999991,
+        1.8599999999999,
+        3.2380000000000564
+      ],
+      "replicas": 3,
+      "sample_std": 3.3051961111760355,
+      "sem": 1.9082558645119885
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 10.058792217821875,
+      "early_replica_means": [
+        51.328,
+        46.172,
+        51.898
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        44.136,
+        46.536,
+        45.962
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -4.254666666666665,
+      "observable": "intra",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -7.192,
+        0.3640000000000043,
+        -5.936
+      ],
+      "replicas": 3,
+      "sample_std": 4.048881985602119,
+      "sem": 2.33762310430441
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.7331506125249969,
+      "early_replica_means": [
+        6.798,
+        6.48,
+        6.868
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        5.708,
+        5.404,
+        6.296
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.9126666666666668,
+      "observable": "isolated_stars",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -1.0899999999999999,
+        -1.0760000000000005,
+        -0.5720000000000001
+      ],
+      "replicas": 3,
+      "sample_std": 0.29510901940356443,
+      "sem": 0.17038127179293444
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0038396779173704024,
+      "early_replica_means": [
+        0.988126,
+        0.99039,
+        0.98943
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.990896,
+        0.990648,
+        0.989384
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.0009940000000000133,
+      "observable": "largest_cluster_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.00277000000000005,
+        0.00025799999999998047,
+        -4.599999999999049e-05
+      ],
+      "replicas": 3,
+      "sample_std": 0.0015455536224926309,
+      "sem": 0.0008923257999931217
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0008256377443628335,
+      "early_replica_means": [
+        1.1347444174786228,
+        1.1343386709730043,
+        1.1352973915505542
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.1350844754949367,
+        1.1342801443043522,
+        1.135898799734141
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.0002943131770828759,
+      "observable": "max_permanent_bond",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.00034005801631398214,
+        -5.852666865213685e-05,
+        0.0006014081835867824
+      ],
+      "replicas": 3,
+      "sample_std": 0.00033233709548756494,
+      "sem": 0.000191874911541444
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.1697664819089106,
+      "early_replica_means": [
+        15.582478138606296,
+        15.40172329159535,
+        15.42518246116126
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        15.542371020132167,
+        15.389344817134335,
+        15.514837168528441
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.012389704810679211,
+      "observable": "mean_center_terminal_r2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.040107118474129066,
+        -0.012378474461014477,
+        0.08965470736718117
+      ],
+      "replicas": 3,
+      "sample_std": 0.06833469023668506,
+      "sem": 0.039453051803139814
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.027730348228538204,
+      "early_replica_means": [
+        2.554508,
+        2.57068,
+        2.555652
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        2.5701,
+        2.563952,
+        2.560456
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.004556000000000153,
+      "observable": "mean_degree",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.015592000000000272,
+        -0.006727999999999845,
+        0.0048040000000000305
+      ],
+      "replicas": 3,
+      "sample_std": 0.011162066475344127,
+      "sem": 0.00644442208425243
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.06969740367191359,
+      "early_replica_means": [
+        6.359972125139368,
+        6.288415407954988,
+        6.303663624335694
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        6.334934627763466,
+        6.293231635512461,
+        6.33469624712096
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.0036037843222791466,
+      "observable": "mean_rg2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.02503749737590244,
+        0.0048162275574732405,
+        0.03103262278526664
+      ],
+      "replicas": 3,
+      "sample_std": 0.028054716317776424,
+      "sem": 0.016197398018106806
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0007303568745101332,
+      "early_replica_means": [
+        0.8607225702534639,
+        0.8611200855696779,
+        0.8605828874831617
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.8609627581972662,
+        0.860869248437905,
+        0.8608576546661466
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 8.803933167145228e-05,
+      "observable": "min_permanent_bond",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0002401879438023169,
+        -0.00025083713177287414,
+        0.0002747671829849141
+      ],
+      "replicas": 3,
+      "sample_std": 0.0002939844792723117,
+      "sem": 0.00016973201824544112
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 2.050428539666553,
+      "early_replica_means": [
+        2.24,
+        1.336,
+        1.488
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.176,
+        1.64,
+        1.908
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.11333333333333351,
+      "observable": "satellite_components",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -1.0640000000000003,
+        0.3039999999999998,
+        0.41999999999999993
+      ],
+      "replicas": 3,
+      "sample_std": 0.8253419493357487,
+      "sem": 0.476511396622485
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 3.4484917219438285,
+      "early_replica_means": [
+        5.076,
+        3.13,
+        3.702
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        3.396,
+        3.948,
+        4.32
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -0.0813333333333331,
+      "observable": "satellite_stars",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -1.6799999999999997,
+        0.8180000000000001,
+        0.6180000000000003
+      ],
+      "replicas": 3,
+      "sample_std": 1.3880926962322557,
+      "sem": 0.8014156918298463
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.11560636363819321,
+      "early_replica_means": [
+        6.967292,
+        7.036872,
+        6.97518
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        7.029056,
+        7.005568,
+        6.990548
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.015276000000000364,
+      "observable": "second_degree_moment",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.06176400000000015,
+        -0.031303999999999554,
+        0.015368000000000492
+      ],
+      "replicas": 3,
+      "sample_std": 0.046534068208141724,
+      "sem": 0.026866456806459032
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.00033149815660520916,
+      "early_replica_means": [
+        0.9794719193612367,
+        0.9793161458000476,
+        0.9790488227418787
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.9793186992230539,
+        0.979155587662499,
+        0.9791229627584324
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": -7.98794197258701e-05,
+      "observable": "temperature",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.00015322013818275249,
+        -0.00016055813754856096,
+        7.414001655370317e-05
+      ],
+      "replicas": 3,
+      "sample_std": 0.00013343519634107523,
+      "sem": 7.703884652689035e-05
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.06601611684803425,
+      "early_replica_means": [
+        1.3668,
+        1.3908,
+        1.3382
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.3712,
+        1.3812,
+        1.38
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.012199999999999914,
+      "observable": "breaks",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0043999999999999595,
+        -0.009600000000000053,
+        0.04179999999999984
+      ],
+      "replicas": 3,
+      "sample_std": 0.026572918545014895,
+      "sem": 0.01534188167511835
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.07360576068409637,
+      "early_replica_means": [
+        1.3672,
+        1.3916,
+        1.3388
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.3686,
+        1.3778,
+        1.3822
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.01033333333333338,
+      "observable": "creations",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0014000000000000679,
+        -0.013800000000000034,
+        0.043400000000000105
+      ],
+      "replicas": 3,
+      "sample_std": 0.029627914765189552,
+      "sem": 0.017105684565209476
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.07560283785717159,
+      "early_replica_means": [
+        1.2854,
+        1.3174,
+        1.2628
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.2934,
+        1.3,
+        1.306
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.011266666666666758,
+      "observable": "neighbor_gains",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.008000000000000007,
+        -0.01739999999999986,
+        0.04320000000000013
+      ],
+      "replicas": 3,
+      "sample_std": 0.030431781632584927,
+      "sem": 0.01756979731749282
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.07060242673062542,
+      "early_replica_means": [
+        1.2844,
+        1.318,
+        1.2616
+      ],
+      "early_steps": [
+        6500000,
+        7000000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.2952,
+        1.305,
+        1.3052
+      ],
+      "late_steps": [
+        7000000,
+        7500000
+      ],
+      "mean": 0.013799999999999887,
+      "observable": "neighbor_losses",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.01079999999999992,
+        -0.013000000000000123,
+        0.04359999999999986
+      ],
+      "replicas": 3,
+      "sample_std": 0.02841900772370491,
+      "sem": 0.016407721759383084
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 3.9501644163503475,
+      "early_replica_means": [
+        14.326,
+        16.362,
+        15.452
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        13.456,
+        18.288,
+        14.668
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.09066666666666674,
+      "observable": "L1",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.870000000000001,
+        1.926000000000002,
+        -0.7840000000000007
+      ],
+      "replicas": 3,
+      "sample_std": 1.5900268341551154,
+      "sem": 0.9180024207181844
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 4.029100288357356,
+      "early_replica_means": [
+        6.252,
+        7.878,
+        8.346
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        10.24,
+        10.082,
+        9.096
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 2.3140000000000005,
+      "observable": "L2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        3.9880000000000004,
+        2.2040000000000006,
+        0.75
+      ],
+      "replicas": 3,
+      "sample_std": 1.6218002343075426,
+      "sem": 0.9363468018492579
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 4.391255949350395,
+      "early_replica_means": [
+        1343.512,
+        1344.874,
+        1341.642
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1346.356,
+        1344.836,
+        1344.818
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 1.9939999999999902,
+      "observable": "bonds",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        2.844000000000051,
+        -0.038000000000010914,
+        3.175999999999931
+      ],
+      "replicas": 3,
+      "sample_std": 1.7675757409514263,
+      "sem": 1.0205103298513583
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.002927503966242414,
+      "early_replica_means": [
+        0.895674666666646,
+        0.896582666666664,
+        0.894428000000004
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.8975706666666841,
+        0.896557333333328,
+        0.896545333333316
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.0013293333333380304,
+      "observable": "bound_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.0018960000000380894,
+        -2.5333333335986197e-05,
+        0.002117333333311988
+      ],
+      "replicas": 3,
+      "sample_std": 0.0011783838273045002,
+      "sem": 0.0006803402199029547
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 1.76102491032517,
+      "early_replica_means": [
+        7.884,
+        8.044,
+        9.204
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        8.296,
+        8.532,
+        8.428
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.041333333333332924,
+      "observable": "components",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.41199999999999903,
+        0.48799999999999955,
+        -0.7759999999999998
+      ],
+      "replicas": 3,
+      "sample_std": 0.7088507130089753,
+      "sem": 0.40925514997099005
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0015490879684980244,
+      "early_replica_means": [
+        0.005708,
+        0.005404,
+        0.006296
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.005588,
+        0.005862,
+        0.005508
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.00015000000000000026,
+      "observable": "degree_0_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.00012000000000000031,
+        0.0004580000000000001,
+        -0.0007880000000000005
+      ],
+      "replicas": 3,
+      "sample_std": 0.0006235414982180419,
+      "sem": 0.0003600018518470891
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.007860713574324952,
+      "early_replica_means": [
+        0.072154,
+        0.076692,
+        0.075246
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.0682,
+        0.077966,
+        0.076994
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.0003106666666666628,
+      "observable": "degree_1_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.003953999999999999,
+        0.0012739999999999974,
+        0.0017480000000000134
+      ],
+      "replicas": 3,
+      "sample_std": 0.003164107667784608,
+      "sem": 0.0018267984137404025
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.010487919482141136,
+      "early_replica_means": [
+        0.268468,
+        0.266452,
+        0.270164
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.265456,
+        0.27085,
+        0.26735200000000003
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.0004753333333333276,
+      "observable": "degree_2_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.003011999999999959,
+        0.0043979999999999575,
+        -0.002811999999999981
+      ],
+      "replicas": 3,
+      "sample_std": 0.00422161501481755,
+      "sem": 0.0024373505652198783
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.01653437777238083,
+      "early_replica_means": [
+        0.65367,
+        0.651452,
+        0.648294
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.660756,
+        0.6453220000000001,
+        0.650146
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.0009360000000000109,
+      "observable": "degree_3_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.007086000000000037,
+        -0.006129999999999969,
+        0.0018519999999999648
+      ],
+      "replicas": 3,
+      "sample_std": 0.006655445589891031,
+      "sem": 0.0038425233029004946
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 8.78251189870078,
+      "early_replica_means": [
+        312.976,
+        310.252,
+        316.716
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        307.288,
+        310.328,
+        310.364
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -3.9880000000000186,
+      "observable": "free",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -5.687999999999988,
+        0.07599999999996498,
+        -6.352000000000032
+      ],
+      "replicas": 3,
+      "sample_std": 3.5351514819028496,
+      "sem": 2.0410206597027147
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 8.872132109109243,
+      "early_replica_means": [
+        1299.376,
+        1298.338,
+        1295.68
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1304.146,
+        1296.104,
+        1295.736
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.8640000000000327,
+      "observable": "inter",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        4.769999999999982,
+        -2.2339999999999236,
+        0.05600000000004002
+      ],
+      "replicas": 3,
+      "sample_std": 3.5712255599443252,
+      "sem": 2.0618480383707283
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 6.674412137333745,
+      "early_replica_means": [
+        44.136,
+        46.536,
+        45.962
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        42.21,
+        48.732,
+        49.082
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 1.129999999999998,
+      "observable": "intra",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -1.926000000000002,
+        2.195999999999998,
+        3.1199999999999974
+      ],
+      "replicas": 3,
+      "sample_std": 2.686595615272235,
+      "sem": 1.5511067016810933
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 1.549087968498024,
+      "early_replica_means": [
+        5.708,
+        5.404,
+        6.296
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        5.588,
+        5.862,
+        5.508
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.15000000000000005,
+      "observable": "isolated_stars",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.1200000000000001,
+        0.4580000000000002,
+        -0.7880000000000003
+      ],
+      "replicas": 3,
+      "sample_std": 0.6235414982180418,
+      "sem": 0.36000185184708905
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.001957900201270751,
+      "early_replica_means": [
+        0.990896,
+        0.990648,
+        0.989384
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.99041,
+        0.98988,
+        0.9901
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.00017933333333334614,
+      "observable": "largest_cluster_fraction",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.00048599999999998644,
+        -0.0007679999999999909,
+        0.0007159999999999389
+      ],
+      "replicas": 3,
+      "sample_std": 0.0007880972867186317,
+      "sem": 0.0004550081806346157
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.002176032055721365,
+      "early_replica_means": [
+        1.1350844754949367,
+        1.1342801443043522,
+        1.135898799734141
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.1343856207446181,
+        1.1343306010729248,
+        1.1342032867459915
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.000781303656631834,
+      "observable": "max_permanent_bond",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0006988547503186116,
+        5.045676857262649e-05,
+        -0.0016955129881495168
+      ],
+      "replicas": 3,
+      "sample_std": 0.0008759000881728919,
+      "sem": 0.0005057011516898361
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.2930019887838559,
+      "early_replica_means": [
+        15.542371020132167,
+        15.389344817134335,
+        15.514837168528441
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        15.398394652456522,
+        15.475587713733768,
+        15.441488934074053
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.04369390184353309,
+      "observable": "mean_center_terminal_r2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.14397636767564492,
+        0.0862428965994333,
+        -0.07334823445438765
+      ],
+      "replicas": 3,
+      "sample_std": 0.11793965403029624,
+      "sem": 0.06809249100252288
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.02434820440890364,
+      "early_replica_means": [
+        2.5701,
+        2.563952,
+        2.560456
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        2.58138,
+        2.555632,
+        2.5621359999999997
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.0015466666666665851,
+      "observable": "mean_degree",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.011279999999999735,
+        -0.008319999999999883,
+        0.0016799999999999038
+      ],
+      "replicas": 3,
+      "sample_std": 0.009800680248499569,
+      "sem": 0.005658425379712674
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.09096223949928608,
+      "early_replica_means": [
+        6.334934627763466,
+        6.293231635512461,
+        6.33469624712096
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        6.295904302757403,
+        6.321330750032137,
+        6.303892056464639
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.013911800380902525,
+      "observable": "mean_rg2",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.039030325006062405,
+        0.028099114519676505,
+        -0.030804190656321673
+      ],
+      "replicas": 3,
+      "sample_std": 0.03661427385150176,
+      "sem": 0.02113926086434722
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0009084679006366749,
+      "early_replica_means": [
+        0.8609627581972662,
+        0.860869248437905,
+        0.8608576546661466
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.8611355285471978,
+        0.8612933518741448,
+        0.8605612932542775
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.00010017079143409546,
+      "observable": "min_permanent_bond",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.00017277034993157248,
+        0.00042410343623977553,
+        -0.0002963614118690616
+      ],
+      "replicas": 3,
+      "sample_std": 0.00036567802950224383,
+      "sem": 0.0002111243087698524
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.7332852941444037,
+      "early_replica_means": [
+        1.176,
+        1.64,
+        1.908
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.708,
+        1.67,
+        1.92
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.19133333333333336,
+      "observable": "satellite_components",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.532,
+        0.030000000000000027,
+        0.01200000000000001
+      ],
+      "replicas": 3,
+      "sample_std": 0.2951632316758531,
+      "sem": 0.1704125712629337
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.6646212220147986,
+      "early_replica_means": [
+        3.396,
+        3.948,
+        4.32
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        4.002,
+        4.258,
+        4.392
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.3293333333333333,
+      "observable": "satellite_stars",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.6059999999999999,
+        0.31000000000000005,
+        0.07200000000000006
+      ],
+      "replicas": 3,
+      "sample_std": 0.26752445371093325,
+      "sem": 0.1544553153648149
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.10445686186725957,
+      "early_replica_means": [
+        7.029056,
+        7.005568,
+        6.990548
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        7.076828,
+        6.969264,
+        6.997716
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": 0.006211999999999662,
+      "observable": "second_degree_moment",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        0.04777200000000015,
+        -0.036304000000000336,
+        0.007167999999999175
+      ],
+      "replicas": 3,
+      "sample_std": 0.042046151976132366,
+      "sem": 0.02427535716180794
+    },
+    {
+      "category": "metrics",
+      "ci95_half_width": 0.0009321187311294312,
+      "early_replica_means": [
+        0.9793186992230539,
+        0.979155587662499,
+        0.9791229627584324
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        0.9787099437166178,
+        0.9790777480395593,
+        0.9792389220551674
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.0001902119442136104,
+      "observable": "temperature",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.0006087555064361316,
+        -7.78396229397238e-05,
+        0.00011595929673502425
+      ],
+      "replicas": 3,
+      "sample_std": 0.0003751980016274247,
+      "sem": 0.0002166206672390033
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.030145578543461417,
+      "early_replica_means": [
+        1.3712,
+        1.3812,
+        1.38
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.3394,
+        1.368,
+        1.344
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.026999999999999913,
+      "observable": "breaks",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.03180000000000005,
+        -0.013199999999999878,
+        -0.03599999999999981
+      ],
+      "replicas": 3,
+      "sample_std": 0.01213424904969402,
+      "sem": 0.007005711955254803
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.03957616525676962,
+      "early_replica_means": [
+        1.3686,
+        1.3778,
+        1.3822
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.3432,
+        1.37,
+        1.3426
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.02426666666666666,
+      "observable": "creations",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.02540000000000009,
+        -0.007799999999999807,
+        -0.03960000000000008
+      ],
+      "replicas": 3,
+      "sample_std": 0.01593026469752897,
+      "sem": 0.009197342611380345
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.03799115534793717,
+      "early_replica_means": [
+        1.2934,
+        1.3,
+        1.306
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": false,
+      "late_replica_means": [
+        1.2752,
+        1.2892,
+        1.2658
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.02306666666666679,
+      "observable": "neighbor_gains",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.018200000000000216,
+        -0.010800000000000143,
+        -0.040200000000000014
+      ],
+      "replicas": 3,
+      "sample_std": 0.015292263839383976,
+      "sem": 0.00882899264418712
+    },
+    {
+      "category": "activity",
+      "ci95_half_width": 0.024738819834691457,
+      "early_replica_means": [
+        1.2952,
+        1.305,
+        1.3052
+      ],
+      "early_steps": [
+        7000000,
+        7500000
+      ],
+      "excludes_zero": true,
+      "late_replica_means": [
+        1.2708,
+        1.2864,
+        1.2672
+      ],
+      "late_steps": [
+        7500000,
+        8000000
+      ],
+      "mean": -0.026999999999999913,
+      "observable": "neighbor_losses",
+      "overlapping_steps": 0,
+      "per_replica_changes": [
+        -0.024399999999999977,
+        -0.01859999999999995,
+        -0.03799999999999981
+      ],
+      "replicas": 3,
+      "sample_std": 0.009957911427603602,
+      "sem": 0.00574920284329339
+    }
+  ],
+  "independent_units": "three histories, Student-t df=2; overlapping comparisons are not independent evidence",
+  "schema_version": 1,
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_e2_window_sensitivity.py": "59dad2574d23a357dedbf4c189465cefd9fe76d9f40744cb6b5fe0db026cde6f",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_f3_8m_20261013/satellite_continuation.json": "c2087fdbe320525e8f4124cf583a0e300cc9dd3838c2cfd71d1148d56f277b1f"
+  },
+  "stage": "E2_joint_window_sensitivity",
+  "uncertainty": "paired history means only; no combination of window SEMs or IATs; exploratory unadjusted intervals"
+}
