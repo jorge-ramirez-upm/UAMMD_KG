@@ -182,5 +182,83 @@ class AcceptanceTests(unittest.TestCase):
             registry.resolve(self.root, None, system, 1)
 
 
+    def f3_registration(self):
+        import json
+        repo = Path(__file__).resolve().parents[3]
+        dossier = repo / 'examples/KG_Assoc/reviews/e2_f3_formal_acceptance_20261013'
+        registration = json.loads((dossier / 'REGISTRATION.json').read_text())
+        record = json.loads((repo / registration['acceptance']).read_text())
+        decision = json.loads((repo / 'examples/KG_Assoc/reviews/e2_f3_8m_20261013/decision.json').read_text())
+        return repo, dossier, registration, record, decision
+
+    def test_f3_8m_record_is_bound_to_approved_pins_and_only_one_system(self):
+        import hashlib
+        repo, _, registration, record, decision = self.f3_registration()
+        sid = 'F03_N010_RP080_EE08_EA04'
+        pins = decision['systems'][sid]['proposed_endpoints']
+        self.assertEqual(hashlib.sha256((repo / registration['acceptance']).read_bytes()).hexdigest(),
+                         registration['acceptance_sha256'])
+        self.assertEqual(record['permitted_systems'], [sid])
+        self.assertEqual(record['permitted_use'], 'production_initial_state')
+        self.assertEqual(record['status'], 'accepted_with_qualification')
+        self.assertEqual([h['replica'] for h in record['histories']], [1, 2, 3])
+        self.assertEqual(registration['selected_endpoints'], pins)
+        for history, pin in zip(record['histories'], pins):
+            self.assertEqual(history['prefix'], pin['prefix'])
+            self.assertIn('/equilibrate_9b51f865c4464eefb210188d802c0c5e/', history['prefix'])
+            self.assertEqual(history['end_step'], 8000000)
+            self.assertEqual(history['chemistry_seed'], pin['chemistry_seed'])
+            self.assertTrue(all(history['sha256'].get(p) == d for p, d in pin['state_sha256'].items()))
+        for phrase in ('Slow network-topology', 'stationary distribution', 'isolation',
+                       'degree-distribution', 'conformational', 'historical executable',
+                       'fresh MD seeds', 'do not stitch'):
+            self.assertIn(phrase, record['qualification'])
+
+    def test_f3_registration_preserves_four_records_and_has_no_activation(self):
+        import hashlib
+        import json
+        repo, dossier, registration, record, _ = self.f3_registration()
+        self.assertEqual(len(registration['prior_acceptance_sha256']), 4)
+        for path, digest in registration['prior_acceptance_sha256'].items():
+            relative = path.split('/examples/KG_Assoc/', 1)[1]
+            self.assertEqual(hashlib.sha256((repo / 'examples/KG_Assoc' / relative).read_bytes()).hexdigest(), digest)
+        index = json.loads((dossier / 'RECORDS.json').read_text())
+        self.assertEqual(len(index['records']), 5)
+        self.assertEqual(len({r['system'] for r in index['records']}), 5)
+        self.assertFalse(index['registry_activation'])
+        self.assertFalse(index['production_authorization'])
+        for flag in ('registry_activation', 'active_selection', 'registry_publication',
+                     'production_authorization', 'production_preparation', 'trajectory_launched'):
+            self.assertFalse(registration[flag])
+        self.assertEqual([h['entry']['start_step'] for h in registration['source_authentication'][1]['validated_histories']],
+                         [6000000] * 3)
+        self.assertEqual([h['entry']['end_step'] for h in registration['source_authentication'][1]['validated_histories']],
+                         [8000000] * 3)
+        with self.assertRaisesRegex(ValueError, 'explicit --e2-registry'):
+            registry.resolve(self.root, None, e2.system_by_id(record['permitted_systems'][0]), 1)
+
+    def test_f3_rejects_6m_smoke_step_seed_physics_and_replica_substitution(self):
+        _, _, _, record, _ = self.f3_registration()
+        system = e2.system_by_id(record['permitted_systems'][0])
+        source = dict(stage='E2-G1', smoke=False, histories=[dict(
+            output_prefix=h['prefix'], end_step=h['end_step'], physics=h['physics'],
+            chemistry_seed=h['chemistry_seed']) for h in record['histories']])
+        prefix = record['histories'][0]['prefix']
+        changes = [('prefix', prefix.replace('9b51f865c4464eefb210188d802c0c5e',
+                                            'bb4106da56cf4e7e888fb4ef8aa73e7c')),
+                   ('prefix', prefix.replace('/equilibrate_', '/smoke_')),
+                   ('end_step', 6000000), ('chemistry_seed', 1),
+                   ('physics', dict(record['histories'][0]['physics'], arms=4)), ('replica', 2)]
+        for key, value in changes:
+            substituted = copy.deepcopy(record)
+            substituted['histories'][0][key] = value
+            with self.subTest(key=key, value=value), patch.object(e2, 'check_hashes'), \
+                    patch.object(e2.campaign, 'load_json', return_value=source):
+                with self.assertRaises(ValueError):
+                    registry.exclusive_validate(substituted, [system])
+        with self.assertRaisesRegex(ValueError, 'downstream system/use'):
+            registry.permitted(record, e2.system_by_id('F06_N010_RP080_EE08_EA04'))
+
+
 if __name__ == '__main__':
     unittest.main()
