@@ -180,3 +180,10 @@ Valid records appear in each system's `formal_acceptance_records` and give
 record alone leaves active `selection` missing and production eligibility blocked.
 Terminal/HTML status and JSON/CSV exports retain production authorization as a
 separate field. No catalog command activates a registry or authorizes execution.
+
+The f=6 continuous 6M history has a separate documented joint recommendation in
+[reviews/e2_f6_6m_20261013/DECISION.md](reviews/e2_f6_6m_20261013/DECISION.md).
+It appears as `qualified_acceptance_recommended_not_registered`, never as a fourth
+formal acceptance. Small late conformational and intra/inter changes remain
+explicit qualifications. No active selection or production authorization follows
+from this recommendation.

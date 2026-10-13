@@ -123,6 +123,24 @@ class JointReviewTests(unittest.TestCase):
         self.assertIn('0.03–0.036M mean', text)
         self.assertFalse(result['automatic_acceptance'])
 
+    def test_continuous_six_window_history_has_two_stationary_long_windows(self):
+        self.add_third_segment()
+        continuous = copy.deepcopy(self.sources[0])
+        for i, history in enumerate(continuous['histories']):
+            history['rows'] += self.sources[1]['histories'][i]['rows'][1:]
+            history['rows'] += self.sources[2]['histories'][i]['rows'][1:]
+            history['events'] += self.sources[1]['histories'][i]['events']
+            history['events'] += self.sources[2]['histories'][i]['events']
+            history['entry']['end_step'] = 36000
+        summary = joint.summarize([continuous], 6000)
+        self.assertEqual(len(summary['records']), 3)
+        self.assertEqual([(w['start_step_exclusive'], w['end_step_inclusive'])
+                          for w in summary['segment_long_windows']], [(12000, 24000), (24000, 36000)])
+        self.assertTrue(all(c['replicas'] == 3 for c in summary['segment_comparisons']))
+        self.assertTrue(all(c['early_steps'] == [12000, 24000] and c['late_steps'] == [24000, 36000]
+                            for c in summary['segment_comparisons']))
+        self.assertFalse(summary['automatic_acceptance'])
+
     def test_prior_estimates_reused_without_mutating_prior_evidence(self):
         prior = joint.summarize(self.sources, 6000)
         frozen = copy.deepcopy(prior)
@@ -207,12 +225,39 @@ class JointReviewTests(unittest.TestCase):
         self.assertTrue(all(e['end_step'] == 6000000 for e in system['proposed_endpoints']))
         self.assertTrue(all(len(e['state_sha256']) == 5 for e in system['proposed_endpoints']))
         config = json.loads((dossier / 'joint6m/analysis_config.json').read_text())
-        self.assertEqual(hashlib.sha256(Path(joint.__file__).read_bytes()).hexdigest(),
-                         config['analyzer_sha256'])
+        import subprocess
+        archived = subprocess.check_output(['git', 'show',
+            'eaaef7b8dffb57c11b9749021ecf9ede7e3a1a3f:examples/KG_Assoc/analysis/analyze_joint_e2.py'], cwd=repo)
+        self.assertEqual(hashlib.sha256(archived).hexdigest(), config['analyzer_sha256'])
         provenance = json.loads((dossier / 'provenance.json').read_text())
         self.assertFalse(provenance['production_authorization'])
         self.assertEqual(len(provenance['segments']), 3)
         self.assertTrue(all(len(s['histories']) == 3 for s in provenance['segments']))
+
+
+    def test_f6_dossier_keeps_transient_three_units_and_exact_endpoints(self):
+        import hashlib
+        import json
+        repo = Path(__file__).resolve().parents[3]
+        dossier = repo / 'examples/KG_Assoc/reviews/e2_f6_6m_20261013'
+        decision = json.loads((dossier / 'decision.json').read_text())
+        self.assertFalse(decision['formal_acceptance'])
+        for name, digest in decision['evidence_sha256'].items():
+            self.assertEqual(hashlib.sha256((repo / name).read_bytes()).hexdigest(), digest)
+        system = decision['systems']['F06_N010_RP080_EE08_EA04']
+        self.assertEqual([e['replica'] for e in system['proposed_endpoints']], [1, 2, 3])
+        self.assertTrue(all(e['end_step'] == 6000000 for e in system['proposed_endpoints']))
+        summary = json.loads((dossier / 'joint6m/summary.json').read_text())
+        self.assertFalse(summary['automatic_acceptance'])
+        self.assertEqual(len(summary['records']), 3)
+        for record in summary['records']:
+            self.assertEqual(len(record['windows']), 6)
+            self.assertEqual(record['windows'][0]['start_step_exclusive'], 0)
+            self.assertEqual(record['windows'][-1]['end_step_inclusive'], 6000000)
+            self.assertEqual(len({w['segment'] for w in record['windows']}), 1)
+        self.assertTrue(all(c['replicas'] == 3 and c['early_steps'] == [2000000, 4000000]
+                            and c['late_steps'] == [4000000, 6000000]
+                            for c in summary['segment_comparisons']))
 
 
 

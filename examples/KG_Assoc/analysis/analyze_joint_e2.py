@@ -171,29 +171,36 @@ def summarize(segments, window_steps=1000000, prior=None):
                 ensembles.append(dict(category=category, observable=name, window=index,
                     **segment.review.analysis.dynamics.replica_statistics(means)))
     segment_windows = []
-    for source in segments[1:]:
-        long_records = []
-        for index, replica in enumerate((1, 2, 3)):
-            history = source['histories'][index]
-            entry = history['entry']
-            cached = (prior or {}).get('summary', {}).get('late_segment_long_windows', [])
-            match = [r for r in cached if r['replica'] == replica and
-                     r['window']['start_step_exclusive'] == entry['start_step'] and
-                     r['window']['end_step_inclusive'] == entry['end_step']]
-            if match:
-                window = copy.deepcopy(match[0]['window'])
-                window['statistics_source'] = dict(path=prior['path'], sha256=prior['sha256'])
-            else:
-                window = segment.review.window(history['rows'], history['events'], entry['start_step'], entry['end_step'],
-                    stickers=entry['system']['f'] * entry['system']['number_of_stars'], dt=entry['physics']['dt'],
-                    stars=entry['system']['number_of_stars'], metrics=segment.METRICS)
-            for category in ('metrics', 'activity'):
-                for metric in window[category].values():
-                    constant = len(set(metric['blocks'])) == 1 and metric['sem_estimate'] == 0
-                    metric['constant_not_mixing_evidence'] = constant
-                    metric['resolution_warning'] |= constant or metric['effective_samples_estimate'] < 10
-            long_records.append(dict(replica=replica, window=window))
-        segment_windows.append(dict(attempt=source['attempt'], records=long_records))
+    for source in segments:
+        segment_start = source['histories'][0]['entry']['start_step']
+        segment_end = source['histories'][0]['entry']['end_step']
+        for start in range(segment_start, segment_end - 2 * window_steps + 1, 2 * window_steps):
+            end = start + 2 * window_steps
+            if start < 2 * window_steps:
+                continue  # First two windows retain association-transient/early preparation context.
+            long_records = []
+            for index, replica in enumerate((1, 2, 3)):
+                history = source['histories'][index]
+                entry = history['entry']
+                cached = (prior or {}).get('summary', {}).get('late_segment_long_windows', [])
+                match = [r for r in cached if r['replica'] == replica and
+                         r['window']['start_step_exclusive'] == start and
+                         r['window']['end_step_inclusive'] == end]
+                if match:
+                    window = copy.deepcopy(match[0]['window'])
+                    window['statistics_source'] = dict(path=prior['path'], sha256=prior['sha256'])
+                else:
+                    window = segment.review.window(history['rows'], history['events'], start, end,
+                        stickers=entry['system']['f'] * entry['system']['number_of_stars'], dt=entry['physics']['dt'],
+                        stars=entry['system']['number_of_stars'], metrics=segment.METRICS)
+                for category in ('metrics', 'activity'):
+                    for metric in window[category].values():
+                        constant = len(set(metric['blocks'])) == 1 and metric['sem_estimate'] == 0
+                        metric['constant_not_mixing_evidence'] = constant
+                        metric['resolution_warning'] |= constant or metric['effective_samples_estimate'] < 10
+                long_records.append(dict(replica=replica, window=window))
+            segment_windows.append(dict(attempt=source['attempt'], start_step_exclusive=start,
+                                    end_step_inclusive=end, records=long_records))
     long_comparisons = []
     for early, late in itertools.combinations(range(len(segment_windows)), 2):
         paired = [dict(windows=[segment_windows[early]['records'][i]['window'],
@@ -202,7 +209,11 @@ def summarize(segments, window_steps=1000000, prior=None):
             for name in paired[0]['windows'][0][category]:
                 contrast = compare(paired, category, name, 0, 1)
                 contrast.update(early_segment=segment_windows[early]['attempt'],
-                                late_segment=segment_windows[late]['attempt'])
+                                late_segment=segment_windows[late]['attempt'],
+                                early_steps=[segment_windows[early]['start_step_exclusive'],
+                                             segment_windows[early]['end_step_inclusive']],
+                                late_steps=[segment_windows[late]['start_step_exclusive'],
+                                            segment_windows[late]['end_step_inclusive']])
                 long_comparisons.append(contrast)
     return dict(schema_version=2, stage='E2_joint_review_summary', system=segments[-1]['plan']['system'], records=records,
                 late_segment_long_windows=segment_windows[-1]['records'],
