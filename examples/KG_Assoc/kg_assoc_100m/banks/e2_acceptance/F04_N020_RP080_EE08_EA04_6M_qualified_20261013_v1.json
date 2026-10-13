@@ -1,0 +1,118 @@
+{
+  "bank_id": "F04_N020_RP080_EE08",
+  "evidence": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_n20_6m_20261013/DECISION.md",
+  "evidence_sha256": "bded931bd371b23fc17d91612099fd0db38315e34ddaf09fe3272857203a5165",
+  "histories": [
+    {
+      "chemistry_seed": 420901,
+      "end_step": 6000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 20,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state",
+      "replica": 1,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json": "085a6a56f004ef6c5d21d2d0fa0a9277e51e8c97c96312eaf34e2067de5e5b90",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/complete.json": "73cf5856baf7aff43733b0c86a409417090c389d7eed4458c4ca8c37a4c2d660",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.assoc_restart": "a871ff27c1f9af22a4c534b6542e2287f9d0ad61973c91a8d2fa583c16f09406",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.conformation.tsv": "d49e586a4fa1eb626fd8af4157f440264407991adf7ea85be8dcc44676ffb269",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.events": "3505de441d62f9170334901bb16a0cb96e649439cc82e7b5fa8d9b538c2bce6c",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.final_associations": "43e701a9a5e3e8ba1ea41a43d39cb143543ac5e87663f499c5f008874a557853",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.final_permanent.lammpsdat": "ce104786adfdeedbc76e2f57a22f512bd6d039b95d5e0c6a48be177b0a64644d",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.numerics.tsv": "434ababb96e7ac26e0fe02dd78a28c4e8ae0d3815af56a2dee185fc93573b0d3",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.restart.lammpsdat": "290af8505bd3fe5b39b391fc9bd5ddffa5b9229ef36930d1c89e0cc5a3a5618f",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.state": "69eac8f3aafee00dbca831ec088ba62059d5247114ef3067cca8546db91e3597"
+      }
+    },
+    {
+      "chemistry_seed": 420902,
+      "end_step": 6000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 20,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state",
+      "replica": 2,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json": "085a6a56f004ef6c5d21d2d0fa0a9277e51e8c97c96312eaf34e2067de5e5b90",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/complete.json": "68a8aa9180c9b790940a6ab4f6f1e66effe90fd2066117acd0adca0e0d937481",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.assoc_restart": "2c8ba79d5431c1b7d7dad0a1d22541777434aa6950f165886794525cb2513265",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.conformation.tsv": "77ec5967eefb093768cf5f54002f359ce829fcff13b5ac6deaf060c078a67f84",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.events": "08bccfe65a89f26308f5a706b5b01a335f870fa5c0423a0ef5e195fdfada84a5",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.final_associations": "845291c34a92034ed492623ac33fd88e3c2f23172889d2de33be9326d00c2026",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.final_permanent.lammpsdat": "1cbb9fa5325b5df7b992ee051e699beb567b4e6761352d34a9d670c647ac5e9e",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.numerics.tsv": "ce64df611023abba90b0805c84e64814c078ad4566902c8f3994c7f3791b745e",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.restart.lammpsdat": "d74f5e21323b5989693a300046fdeb98ca463cc2032cae43f18ad25d3fa49752",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.state": "5d02f61f9a9a7d4719d10e99244955dc5d323aebd863a553b217923ac25e1ace"
+      }
+    },
+    {
+      "chemistry_seed": 420903,
+      "end_step": 6000000,
+      "physics": {
+        "Ea": 4,
+        "Ee": 8,
+        "K": 30,
+        "Nevery": 100,
+        "R0": 1.5,
+        "arms": 4,
+        "damping": 2,
+        "dt": 0.01,
+        "narm": 20,
+        "nu0": 20,
+        "r_assoc": 1.25,
+        "temperature": 1
+      },
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state",
+      "replica": 3,
+      "sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json": "085a6a56f004ef6c5d21d2d0fa0a9277e51e8c97c96312eaf34e2067de5e5b90",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/complete.json": "19fcfc5613224171afb69c91c65fcc0930215edeafc2bd17e6ba9c4977b0af27",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.assoc_restart": "5ebda1164d8345debcb02a4c35a3b3aaf24e9c6a699d6c9542514cf339a19553",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.conformation.tsv": "2942a835806fc7d3e436abfa339f17433443e59e32195e5fea361feb612eca1f",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.events": "ed1049661c475c4f189a49c3aa40b17bd610084f07e9046ee3046ee9186ce5ee",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.final_associations": "22a579aa6da44943dd4838a34dbab6bfd585bdb0a00fef35ccb7b17470f568be",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.final_permanent.lammpsdat": "0c8c783ba64cc6a81baf2d38cca635b365e06e30327f93b438595711c34dca54",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.numerics.tsv": "a0e096f1a0bca5d67b5f64427718335c898500fbb8e8c95ab5f4384aedded442",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.restart.lammpsdat": "21677b64503c4447c00c2d428c3d98d87d423cfc4c6e3ff19c8a41d32c6d2e3b",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.state": "63cc30faa6ac95e84c8e0ad35560c979d23a5dbce4d122d9b3c3cc5aaf669445"
+      }
+    }
+  ],
+  "numerical_qualification": "q cancels in fixed-configuration forward/reverse ratio; exact coupled integrator invariance unproven",
+  "permitted_systems": [
+    "F04_N020_RP080_EE08_EA04"
+  ],
+  "permitted_use": "production_initial_state",
+  "provenance_kind": "E2_G1_segment",
+  "publisher_git_sha": "27654bb4f4ce9e11b58528719d68c349c3ccad76",
+  "qualification": "Full conformational stationarity and slow network-topology decorrelation are not demonstrated. The original 2\u20134M versus 4\u20136M conformational expansion is not sustained across alternative comparisons. Conformational effective sampling is limited. The giant-cluster fraction undergoes a small shared late decrease, with possible peripheral-connectivity redistribution. Slow L1/L2 and intra/inter modes remain incompletely resolved. Late intra-star association populations show a shared decrease in the final 500k interval. The arm-length comparison with N=10 also changes star/sticker number densities at fixed polymer bead density. Small shared neighbor-turnover changes remain. Three original continuous histories are the statistical units; time blocks and overlapping windows are not extra independent replicas. Qualified production initialization only; no active registry publication, selection, activation, production preparation or launch authorization.",
+  "reviewed_at": "2026-10-13T16:17:09.514475+00:00",
+  "reviewer": "Explicit user approval of qualified f4 N20 6M initialization; registration prepared by Codex",
+  "schema_version": 1,
+  "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json",
+  "source_plan_sha256": "085a6a56f004ef6c5d21d2d0fa0a9277e51e8c97c96312eaf34e2067de5e5b90",
+  "stage": "E2_acceptance",
+  "status": "accepted_with_qualification"
+}

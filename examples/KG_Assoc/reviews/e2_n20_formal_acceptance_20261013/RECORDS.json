@@ -1,0 +1,51 @@
+{
+  "production_authorization": false,
+  "records": [
+    {
+      "end_step": 8000000,
+      "record": "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F03_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json",
+      "sha256": "3c7633e7b42341af66c34a5b29ed86d0ae8bd2176cb401a7f35920be3d5ec13c",
+      "status": "accepted_with_qualification",
+      "system": "F03_N010_RP080_EE08_EA04"
+    },
+    {
+      "end_step": 6000000,
+      "record": "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP020_EE08_EA04_6M_qualified_20261013_v1.json",
+      "sha256": "20f7ed7ae7fb3b659b52caa3850d3fad3e3041268f19269007288a49fc6bc0c6",
+      "status": "accepted_with_qualification",
+      "system": "F04_N010_RP020_EE08_EA04"
+    },
+    {
+      "end_step": 2000000,
+      "record": "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE04_EA04_2M_qualified_20261013_v1.json",
+      "sha256": "7f5cd4ba2ace52b0b8a62a54ffe63bebf62c1bf4a6d22bb330df97ce44e8bb6a",
+      "status": "accepted_with_qualification",
+      "system": "F04_N010_RP080_EE04_EA04"
+    },
+    {
+      "end_step": 8000000,
+      "record": "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json",
+      "sha256": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+      "status": "accepted_with_qualification",
+      "system": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "end_step": 6000000,
+      "record": "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N020_RP080_EE08_EA04_6M_qualified_20261013_v1.json",
+      "sha256": "6ebb95dda283828342f7bd55fe2331e51e2a0477e70234e54e9631fd78bf7422",
+      "status": "accepted_with_qualification",
+      "system": "F04_N020_RP080_EE08_EA04"
+    },
+    {
+      "end_step": 6000000,
+      "record": "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F06_N010_RP080_EE08_EA04_6M_qualified_20261013_v1.json",
+      "sha256": "81179644b404b3ab5a492ad60bba0d3d23502d0f5d7da4d058552fa9a5e714c0",
+      "status": "accepted_with_qualification",
+      "system": "F06_N010_RP080_EE08_EA04"
+    }
+  ],
+  "registration_sha256": "611dd7d14c83cd6019dadc2400d9d463bcc505ce439a02a1d175febb5b676db8",
+  "registry_activation": false,
+  "schema_version": 1,
+  "stage": "E2_formal_acceptance_inventory"
+}
