@@ -1,0 +1,12 @@
+{
+  "figure_sha256": "e978afbd7966542a011ba297768b6cea7870a15d84bd0e4d033b9fbe36690a8d",
+  "matplotlib_version": "3.5.1",
+  "recipe": "3 replicas x 2 observables; all recorded scalar diagnostics versus absolute step; uniform 500k means with start-exclusive/end-inclusive samples; no error bars or independently counted frames/stars",
+  "schema_version": 1,
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.conformation.tsv": "d49e586a4fa1eb626fd8af4157f440264407991adf7ea85be8dcc44676ffb269",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.conformation.tsv": "77ec5967eefb093768cf5f54002f359ce829fcff13b5ac6deaf060c078a67f84",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.conformation.tsv": "2942a835806fc7d3e436abfa339f17433443e59e32195e5fea361feb612eca1f"
+  },
+  "stage": "E2_conformation_figure_provenance"
+}

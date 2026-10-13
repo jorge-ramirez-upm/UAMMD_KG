@@ -1,0 +1,14 @@
+{
+  "comparison": "fresh half-million means match all shared original checkpoint metrics/rates within absolute 1e-10",
+  "original_checkpoint": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_cdcfe62bcd00426e8649e812998b4fd3",
+  "read_only": true,
+  "schema_version": 1,
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_cdcfe62bcd00426e8649e812998b4fd3/SCIENTIFIC_REVIEW.md": "d0026d83e032bc558263d1c62824f8c2bf3c76583b9ec6bd9413cbabc81f1af2",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_cdcfe62bcd00426e8649e812998b4fd3/analysis_config.json": "0cca1d623b2b3429f0f6af15a2f50a1ea701e2eeb17ef731ea32009ebd1b6838",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_cdcfe62bcd00426e8649e812998b4fd3/replica_comparisons.csv": "e0f4cf23e99d4f51dbbfa046405625c1823d78039356be733bea6925a8caad45",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_cdcfe62bcd00426e8649e812998b4fd3/review_complete.json": "8a974ab6beffdcafc986ea7f6d5820324327ad23158a4ef386e584244a0b9e93",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_cdcfe62bcd00426e8649e812998b4fd3/summary.json": "d0bc6c45b10e364040c7a9431d3cdb65cd73d809f014851149caf60f26074c07"
+  },
+  "stage": "E2_review_checkpoint_authentication"
+}
