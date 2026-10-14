@@ -212,6 +212,36 @@ The immediate priority is generating the systematic cross-condition dataset
 defined below for comparative topology, bond/network dynamics, rheology, and
 translational-dynamics analysis.
 
+## Future work — resumable 100M production and COM-origin checkpoints (NOT IMPLEMENTED)
+
+**Requested 14 October 2026; deferred, not authorized for execution.**
+Before permitting a production trajectory to continue after an interruption,
+implement a **versioned, authenticated production checkpoint/restart mechanism
+that preserves molecular COM origins and unwrapped displacement histories**.
+This is necessary for correct star-COM MSD, self `F_s(q,t)`, and
+event-conditioned displacement observables across restart boundaries.
+
+The checkpoint must preserve or exactly reconstruct the stable particle/molecule
+identity map, permanent-backbone image offsets, continuous native-coordinate
+origin/winding, last accepted COM sampling state, absolute MD step/time, box and
+coordinate convention, and sufficient integrator and association-chemistry state
+to resume the *same* physical trajectory. Verify state and parent/segment
+provenance and explicitly prevent double-counted, missing, or misordered COM,
+topology, event and stress samples at the restart boundary. Add deterministic
+CPU boundary-crossing/restart/MSD tests and a separately authorized GPU
+validation before enabling production continuation. Fail closed if the origin
+or state cannot be authenticated; never silently stitch independently started
+segments or reinterpret historical legacy COM outputs as continuous.
+
+The observer-only COM/PBC correction is documented in
+`reviews/com_pbc_correction_20261014/IMPLEMENTATION.md`; that correction
+**does not implement COM-origin checkpointing or production continuation**.
+Current frozen 100M campaign policy remains *uninterrupted, nonresumable
+replicas*. No checkpoint implementation, change to the 100M campaign protocol,
+production launch, extension, or continuation is authorized by this roadmap item.
+Revisit and approve a separate design and validation plan if resumability
+becomes scientifically or operationally necessary.
+
 ## Fixed 100M cross-condition campaign
 
 The 23-system campaign matrix, external dataset/input infrastructure, single-run
