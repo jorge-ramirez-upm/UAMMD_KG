@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "scope": "immutable dossier; containing Git commit binds this manifest",
+  "sha256": {
+    "ASSESSMENT.md": "d207ea1c1e22324c252ee516d046a73137df8169c05e153eee0605130714af7c",
+    "AUTHENTICATION.json": "b1915435c4337e882810d5dceaabe5913eb801f369e48882e40b3d15b821bdec",
+    "ENDPOINTS.md": "43066eec804cce0707141cc2988710776f081a84f06c51fafb7fc51e13423ab2",
+    "PRESERVED_SHA256.json": "80dae9c09644d8ca8c1a360db6e5680d629db431976a5cba501063d6f7e5e045",
+    "VALIDATION.md": "18e6ef7ab2c956ca6d9ca207c9a3393fa2f2b24112524eedea3627cc2a0b5d3b",
+    "decision.json": "4948f09a902708b5e4771160e33b0f0d613fd633a252de96c7e5e39006cd606b",
+    "evidence/NEIGHBOR_COMPARISON.json": "a02ebdeec43d3a4f6e24644e88d70a504ac5c897bfb38686edfc85b443583aaa",
+    "evidence/WINDOWS.md": "ed8723c0a7d1b7b3999f28ae055bf77b2c0c80b873b522f399ec1fde63a917a8",
+    "evidence/chemistry.png": "b0473920a4b51c74e5dacbb4d52998d5a2b54367b91229c6509567d9922f4a69",
+    "evidence/multiplicity.png": "cf43d74e339c0a7ee236971c9e07f906519daa27f3f62f2e07a4645529053b15",
+    "evidence/network.png": "48b50eedb17903f07d1ffad1bc21067081a9edd207841aa6c1739ad3fcd8534b",
+    "evidence/provenance.json": "3ad828f05131ebe6b6c75562766938f6374c2dc97ec0f19b6e37a493f6f5e5c3",
+    "evidence/r001_frames.csv": "1199cb6d7eb85feb0f6d9882a180f78ae33c93186f66d38e105a503eaa4ca34f",
+    "evidence/r002_frames.csv": "4b2231559ab2b3eb0e3f039e633df2387ab78ba7ed24ff995af9eef6ae2a3f94",
+    "evidence/r003_frames.csv": "346844e5e0882a237b34931008ac2b641fc800b7577475e33fd45c5944e73289",
+    "evidence/shape.png": "b934e6452167bfb7c0ce8f3247979aa2ad8d0c86c26388a2102fc68a8de43232",
+    "evidence/summary.json": "070c6106cb7883720ccf6a8252e3745d1f9374d2af0d2e4dcde3db2a9a8009ec",
+    "evidence/window_estimates.csv": "e06b71e33e1327885abda765c8dd830805c096cbd1e73f3b943c5bcc3de80d1e",
+    "reproduce_rp060.py": "4800759390811cef26d12547e4fcf02154fba2c75b618944602f21589a176736",
+    "tabulate_rp060.py": "26cefbbf6189b06ffa72fd79de8931a9c391efa36bf0ea4192154c91e65fc806",
+    "test_rp060.py": "1bec4e0cb59541d98137e32f616d50b9bc4e8ee5f383c3dcf91d06372c3c605c",
+    "validate_rp060.py": "86a11ba0afec2b65884f2970d8b88bd33acc60e6fab6c25f6d27f9bc7166eef1"
+  }
+}

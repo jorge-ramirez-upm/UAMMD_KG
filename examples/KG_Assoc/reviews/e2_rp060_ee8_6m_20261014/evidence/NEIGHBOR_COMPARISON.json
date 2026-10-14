@@ -1,0 +1,115 @@
+{
+  "independent_units": "three histories per density; no between-density pairing",
+  "limitations": "no fresh neighbor trajectory replay or historical binary authentication",
+  "records": [
+    {
+      "interval": [
+        6000000,
+        8000000
+      ],
+      "record_sha256": "78ab743e1cd922b8835a6fb750be90e5afb51c2feab16dcaba32e2103a6a5d49",
+      "records": [
+        {
+          "metrics": {
+            "L1": 49.9025,
+            "L2": 36.4625,
+            "bound_fraction": 0.85341525,
+            "inter": 1556.802,
+            "intra": 150.0285,
+            "largest_cluster_fraction": 0.99192,
+            "mean_degree": 3.014564,
+            "second_degree_moment": 9.939331
+          },
+          "replica": 1
+        },
+        {
+          "metrics": {
+            "L1": 49.1435,
+            "L2": 37.073,
+            "bound_fraction": 0.85250925,
+            "inter": 1559.1245,
+            "intra": 145.894,
+            "largest_cluster_fraction": 0.9923474999999999,
+            "mean_degree": 3.020717,
+            "second_degree_moment": 9.975288
+          },
+          "replica": 2
+        },
+        {
+          "metrics": {
+            "L1": 52.0705,
+            "L2": 36.6915,
+            "bound_fraction": 0.8526375,
+            "inter": 1568.1315,
+            "intra": 137.1435,
+            "largest_cluster_fraction": 0.9934729999999999,
+            "mean_degree": 3.032991,
+            "second_degree_moment": 10.030613
+          },
+          "replica": 3
+        }
+      ],
+      "system": "F04_N010_RP040_EE08_EA04"
+    },
+    {
+      "interval": [
+        6000000,
+        8000000
+      ],
+      "record_sha256": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+      "records": [
+        {
+          "metrics": {
+            "L1": 41.821,
+            "L2": 32.4135,
+            "bound_fraction": 0.89671875,
+            "inter": 1701.7365,
+            "intra": 91.701,
+            "largest_cluster_fraction": 0.998114,
+            "mean_degree": 3.320274,
+            "second_degree_moment": 11.681478
+          },
+          "replica": 1
+        },
+        {
+          "metrics": {
+            "L1": 37.891,
+            "L2": 32.7625,
+            "bound_fraction": 0.897344,
+            "inter": 1691.985,
+            "intra": 102.703,
+            "largest_cluster_fraction": 0.9972185,
+            "mean_degree": 3.3094069999999998,
+            "second_degree_moment": 11.636663
+          },
+          "replica": 2
+        },
+        {
+          "metrics": {
+            "L1": 39.225,
+            "L2": 35.0055,
+            "bound_fraction": 0.89694475,
+            "inter": 1701.9315,
+            "intra": 91.958,
+            "largest_cluster_fraction": 0.9977495,
+            "mean_degree": 3.3260039999999997,
+            "second_degree_moment": 11.718175
+          },
+          "replica": 3
+        }
+      ],
+      "system": "F04_N010_RP080_EE08_EA04"
+    }
+  ],
+  "scope": "qualified RP040/RP080 raw scalar means; historical defective C1 data excluded",
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r001/state.state": "559a90082e1552051f4eca70b2cc99f79aa38f10416b0eaebc3de57f5bf4d75b",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r002/state.state": "1f8dcaf74d08f3f777d24710971752d9a0aa70a80ae704a23893970ae76d98c0",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r003/state.state": "e6f19a0013cb0ef3503d1942d15914187faad4c819f11dd2b149ad275da0d621",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.state": "4b85f74ef76fc8a5ba02e2befc46c887bfdd0c6706fff6b44538c7ff81892d66",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.state": "ba128fc1278d19e24fa8a9a3235493a4c9e7fd80e513b1ee1d26c9110abb64ef",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.state": "903279a784f39890fdbb3fce2cdf153c457bbfe5f774dd5867cb2dba7b37b60d",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_rp060_ee8_6m_20261014/evidence/summary.json": "070c6106cb7883720ccf6a8252e3745d1f9374d2af0d2e4dcde3db2a9a8009ec",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_rp060_ee8_6m_20261014/tabulate_rp060.py": "26cefbbf6189b06ffa72fd79de8931a9c391efa36bf0ea4192154c91e65fc806"
+  }
+}
