@@ -9,6 +9,7 @@ import math
 import numpy as np
 
 import correlator
+import com_transport
 
 from analyze_p44_com_diffusion import read_com_trajectory, validate_replica_ensemble
 
@@ -141,6 +142,7 @@ def main():
     parser.add_argument('com_files', nargs='*')
     parser.add_argument('--output-prefix')
     parser.add_argument('--self-test', action='store_true')
+    parser.add_argument('--allow-legacy-com', action='store_true')
     arguments = parser.parse_args()
     if arguments.self_test:
         validate_synthetic_fsqt()
@@ -153,8 +155,9 @@ def main():
 
     replicas = []
     for path in arguments.com_files:
-        steps, times, positions = read_com_trajectory(path)
-        replicas.append({'path': path, 'steps': steps, 'times': times, 'positions': positions})
+        steps, times, positions = read_com_trajectory(path, arguments.allow_legacy_com)
+        replicas.append({'path': path, 'steps': steps, 'times': times, 'positions': positions,
+                         'transport_metadata': com_transport.metadata_for(path, arguments.allow_legacy_com)})
     first = validate_replica_ensemble(replicas)
     validate_synthetic_fsqt()
     validate_real_slice(first['positions'])
@@ -232,6 +235,7 @@ def main():
         'segment_step_range': [int(first['steps'][0]), int(first['steps'][-1])],
         'segment_time_range': [float(first['times'][0]), float(first['times'][-1])],
         'q_diagnostics': q_diagnostics,
+        'transport_metadata': [r['transport_metadata'] for r in replicas],
         'msd_diffusion_comparison': 'omitted: P4.4 has not established terminal diffusion',
         'validation': 'static, ballistic, Brownian, and C1 ManyQ/single-q checks passed',
     }

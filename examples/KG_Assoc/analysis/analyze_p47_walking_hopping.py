@@ -12,6 +12,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+import com_transport
+
 from analyze_p45_topology import read_system, topology_frames
 from analyze_p46_bond_dynamics import bond_kind, read_events, read_restart
 
@@ -19,20 +21,29 @@ QUANTILES = (0.50, 0.75, 0.90, 0.95, 0.99, 0.995)
 KINDS = ('multiplicity_only', 'walking', 'hop')
 
 
-def read_com(path, progress=None):
+def read_com(path, progress=None, allow_legacy=False):
     frames = collections.defaultdict(dict)
-    with open(path, encoding='utf-8') as source:
-        if source.readline().strip() != '# step time molecule_id com_x com_y com_z':
-            raise ValueError('{}: unexpected COM header'.format(path))
+    with com_transport.open_com(path, allow_legacy) as (source, transport_metadata):
         for line in source:
             step, time, star, x, y, z = line.split()
-            frames[int(step)][int(star)] = (float(time), float(x), float(y), float(z))
-            if progress and len(frames) % progress[0] == 0 and star == min(frames[int(step)]):
+            step, star = int(step), int(star)
+            time = float(time)
+            position = tuple(map(float, (x, y, z)))
+            com_transport.validate_sample(transport_metadata, path, step, time, star, position)
+            if star in frames[step] or (frames[step] and
+                                       next(iter(frames[step].values()))[0] != time):
+                raise ValueError(f'{path}: duplicate molecule or inconsistent COM frame time')
+            frames[step][star] = (time, *position)
+            if progress and len(frames) % progress[0] == 0 and star == min(frames[step]):
                 print('{}: COM frames={} step={} time={:.6g}'.format(
                     progress[1], len(frames), step, float(time)), file=sys.stderr, flush=True)
     steps = sorted(frames)
     if not steps or any(set(frames[s]) != set(frames[steps[0]]) for s in steps):
         raise ValueError('{}: incomplete COM frames'.format(path))
+    for step in steps:
+        com_transport.validate_frame(transport_metadata, path, step,
+                                     frames[step][min(frames[step])][0], sorted(frames[step]))
+    com_transport.validate_step_spacing(transport_metadata, path, steps)
     return steps, frames
 
 
@@ -191,12 +202,14 @@ def system_metadata(system_path, event_metadata, system):
     return result
 
 
-def classify(prefix, system, half_windows, progress=None):
+def classify(prefix, system, half_windows, progress=None, allow_legacy=False):
     metadata, events = read_events(prefix + '.events', system)
     restart = metadata['input_file'].replace('.restart.lammpsdat', '.assoc_restart')
     initial = read_restart(restart, system, metadata)
     validate_topology(prefix + '.topology', initial, events, system)
-    steps, frames = read_com(prefix + '.com_trajectory', progress)
+    steps, frames = read_com(prefix + '.com_trajectory', progress, allow_legacy)
+    if set(frames[steps[0]]) != set(system['stars']):
+        raise ValueError('COM molecule membership differs from permanent system')
     neighbors, multiplicity = initialize(initial, system)
     grouped = collections.defaultdict(list)
     for event in events:
@@ -337,14 +350,22 @@ def kaplan_meier(durations):
     return result
 
 
-def analyze(prefix, system, half_windows, progress=None):
-    metadata, episodes, event_rows, steps, frames = classify(prefix, system, half_windows, progress)
+def analyze(prefix, system, half_windows, progress=None, allow_legacy=False):
+    metadata, episodes, event_rows, steps, frames = classify(prefix, system, half_windows, progress, allow_legacy)
     lags = sorted({row['total_lag'] for row in event_rows})
     unconditional = {lag: lag_statistics(steps, frames, lag, system['stars'], metadata['dt'],
                                          progress=progress)
                      for lag in lags}
     provenance_path = metadata['input_file'].replace('.restart.lammpsdat', '.restart.lammpsdat')
-    return metadata, episodes, event_rows, unconditional, system_metadata(provenance_path, metadata, system)
+    provenance = system_metadata(provenance_path, metadata, system)
+    provenance['com_transport'] = com_transport.metadata_for(prefix + '.com_trajectory', allow_legacy)
+    transport = provenance['com_transport']
+    if transport['version'] == 2:
+        lengths = [transport['box_bounds'][i + 1] - transport['box_bounds'][i] for i in (0, 2, 4)]
+        if any(not math.isclose(a, b, rel_tol=1e-12, abs_tol=1e-9)
+               for a, b in zip(lengths, provenance['box_size'])):
+            raise ValueError('COM metadata box differs from permanent system')
+    return metadata, episodes, event_rows, unconditional, provenance
 
 
 def self_test():
@@ -403,6 +424,7 @@ def main():
     parser.add_argument('--windows', type=float, nargs='+', default=(100, 200, 500, 1000))
     parser.add_argument('--progress-interval', type=int, default=100)
     parser.add_argument('--self-test', action='store_true')
+    parser.add_argument('--allow-legacy-com', action='store_true')
     parser.add_argument('prefixes', nargs='*')
     arguments = parser.parse_args()
     if arguments.self_test:
@@ -423,7 +445,7 @@ def main():
             replica, len(arguments.prefixes)))
         print('{}: starting {}'.format(progress[1], prefix), file=sys.stderr, flush=True)
         metadata, episodes, event_rows, unconditional, provenance = analyze(
-            prefix, system, arguments.windows, progress)
+            prefix, system, arguments.windows, progress, arguments.allow_legacy_com)
         duration = (metadata['total_requested_steps'] - metadata['start_step']) * metadata['dt']
         duration_records.append((replica, duration))
         validate_replica_durations(duration_records)

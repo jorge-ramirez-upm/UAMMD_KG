@@ -2,6 +2,7 @@
 """Periodic wrapping analysis of synchronized star-network snapshots."""
 
 import argparse
+import com_transport
 import collections
 import csv
 import json
@@ -85,10 +86,9 @@ def finite_cluster_susceptibility(components):
     return sum(size * size for size in sizes) / denominator if denominator else 0.0
 
 
-def read_com_frames(path, expected_stars):
-    with open(path, encoding='utf-8') as source:
-        if source.readline().strip() != '# step time molecule_id com_x com_y com_z':
-            raise ValueError('{}: unexpected COM header'.format(path))
+def read_com_frames(path, expected_stars, allow_legacy=False):
+    with com_transport.open_com(path, allow_legacy) as (source, transport_metadata):
+        previous = None
         while True:
             line = source.readline()
             if not line:
@@ -97,6 +97,7 @@ def read_com_frames(path, expected_stars):
             step, star = int(step), int(star)
             frame = {star: (float(x), float(y), float(z))}
             frame_time = float(time)
+            com_transport.validate_sample(transport_metadata, path, step, frame_time, star, frame[star])
             for _ in range(len(expected_stars) - 1):
                 fields = source.readline().split()
                 if len(fields) != 6:
@@ -108,8 +109,14 @@ def read_com_frames(path, expected_stars):
                 if other_star in frame:
                     raise ValueError('{}: duplicate star in COM frame'.format(path))
                 frame[other_star] = (float(x), float(y), float(z))
+                com_transport.validate_sample(transport_metadata, path, step, frame_time,
+                                              other_star, frame[other_star])
             if set(frame) != set(expected_stars):
                 raise ValueError('{}: COM star IDs do not match system'.format(path))
+            com_transport.validate_frame(transport_metadata, path, step, frame_time, sorted(frame))
+            if previous is not None:
+                com_transport.validate_step_spacing(transport_metadata, path, [previous, step])
+            previous = step
             yield step, frame_time, frame
 
 
@@ -144,11 +151,18 @@ def event_metadata(path):
     return values
 
 
-def analyze_replica(prefix, system, box, system_path, replica, progress=None):
+def analyze_replica(prefix, system, box, system_path, replica, progress=None, allow_legacy=False):
     topology_path = prefix + '.topology'
     com_path = prefix + '.com_trajectory'
     metadata = event_metadata(prefix + '.events')
-    com_frames = read_com_frames(com_path, system['stars'])
+    transport = com_transport.metadata_for(com_path, allow_legacy)
+    if transport['version'] == 2 and transport['molecule_ids'] != list(system['stars']):
+        raise ValueError('COM metadata differs from permanent molecule membership')
+    if transport['version'] == 2:
+        lengths = [transport['box_bounds'][i + 1] - transport['box_bounds'][i] for i in (0, 2, 4)]
+        if any(not math.isclose(a, b, rel_tol=1e-12, abs_tol=1e-9) for a, b in zip(lengths, box)):
+            raise ValueError('COM metadata box differs from permanent system')
+    com_frames = read_com_frames(com_path, system['stars'], allow_legacy)
     frame_rows = []
     com_step, com_time, positions = next(com_frames, (None, None, None))
     frame_count = 0
@@ -267,6 +281,7 @@ def main():
     parser.add_argument('--output-prefix', required=False)
     parser.add_argument('--progress-interval', type=int, default=100)
     parser.add_argument('--self-test', action='store_true')
+    parser.add_argument('--allow-legacy-com', action='store_true')
     parser.add_argument('prefixes', nargs='*')
     arguments = parser.parse_args()
     if arguments.self_test:
@@ -285,7 +300,7 @@ def main():
             replica, len(arguments.prefixes)))
         print('{}: starting {}'.format(progress[1], prefix), file=sys.stderr, flush=True)
         rows, metadata, provenance = analyze_replica(
-            prefix, system, box, arguments.system, replica, progress)
+            prefix, system, box, arguments.system, replica, progress, arguments.allow_legacy_com)
         duration = (metadata['total_requested_steps'] - metadata['start_step']) * metadata['dt']
         durations.append((replica, duration))
         all_frames.extend(rows)
@@ -322,6 +337,7 @@ def main():
                    'ensemble_replica_statistics': ensemble,
                    'periodic_edge_convention': 'r_j + n_ij L - r_i is minimum-image; BFS image labels add n_ij',
                    'half_box_rule': 'exact half-box ties choose the sign away from zero, preserving antisymmetry',
+                   'com_transport': transport,
                    'coordinate_basis': 'wrapped star COM positions; synchronized sticker coordinates are unavailable',
                    'finite_cluster_susceptibility': 'sum(s^2 n_s) / sum(s n_s), excluding all wrapping components',
                    'uncertainty': 'replica-level; frames are descriptive support only'}, output, indent=2)

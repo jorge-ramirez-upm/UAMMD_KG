@@ -7,6 +7,7 @@
 #include "kg_assoc_interactors.cuh"
 #include "kg_assoc_star_runtime.cuh"
 #include "kg_assoc_ea_switch.cuh"
+#include "kg_assoc_com_transport.cuh"
 
 #include <chrono>
 #include <cstdint>
@@ -618,52 +619,67 @@ void writeProvenance(std::ofstream& stateFile,
 
 class StarComWriter {
  public:
-  StarComWriter(const kg::LammpsData& data, const kg_assoc::BoxLengths& lengths)
-      : lengths_(lengths) {
-    for (int id = 0; id < data.natoms; ++id) {
-      if (data.type[id] == 1 || data.type[id] == 2) {
-        starParticles_[data.mol[id]].push_back(id);
-      }
-    }
+  StarComWriter(const kg::LammpsData& data, const kg_assoc::BoxLengths& lengths,
+                std::shared_ptr<uammd::ParticleData> particles, double maximumBondLength,
+                kg_assoc::NativeComConvention convention)
+      : transport_(data.mol, data.type, permanentBonds(data), masses(particles, data.natoms),
+                   nativePositions(particles, data.natoms), {{lengths.x, lengths.y, lengths.z}},
+                   maximumBondLength, convention),
+        count_(data.natoms),
+        center_{{0.5 * (data.xlo + data.xhi), 0.5 * (data.ylo + data.yhi),
+                 0.5 * (data.zlo + data.zhi)}} {}
+
+  std::vector<int> moleculeIds() const {
+    return transport_.moleculeIds();
   }
 
-  void write(long long step, double time,
-             std::shared_ptr<uammd::ParticleData> particles,
+  void write(long long step, double time, std::shared_ptr<uammd::ParticleData> particles,
              std::ostream& output) {
-    auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
-    auto idToIndex = particles->getIdOrderedIndices(uammd::access::cpu);
-    for (const auto& star : starParticles_) {
-      const uammd::real3 anchor = uammd::make_real3(positions[idToIndex[star.second.front()]]);
-      uammd::real3 wrappedCom = uammd::make_real3(uammd::real(0.0));
-      for (const int id : star.second) {
-        const uammd::real3 position = uammd::make_real3(positions[idToIndex[id]]);
-        wrappedCom += anchor + uammd::make_real3(
-            kg_assoc::minimumImage(position.x - anchor.x, lengths_.x),
-            kg_assoc::minimumImage(position.y - anchor.y, lengths_.y),
-            kg_assoc::minimumImage(position.z - anchor.z, lengths_.z));
+    const auto centers = transport_.positions(nativePositions(particles, count_));
+    for (const auto& star : centers) {
+      output << step << ' ' << std::setprecision(17) << time << ' ' << star.first;
+      for (int axis = 0; axis < 3; ++axis) {
+        output << ' ' << star.second[axis] + center_[axis];
       }
-      wrappedCom /= static_cast<uammd::real>(star.second.size());
-      uammd::real3 unwrappedCom = wrappedCom;
-      const auto previous = previousWrapped_.find(star.first);
-      if (previous != previousWrapped_.end()) {
-        unwrappedCom = unwrappedCom_[star.first] + uammd::make_real3(
-            kg_assoc::minimumImage(wrappedCom.x - previous->second.x, lengths_.x),
-            kg_assoc::minimumImage(wrappedCom.y - previous->second.y, lengths_.y),
-            kg_assoc::minimumImage(wrappedCom.z - previous->second.z, lengths_.z));
-      }
-      previousWrapped_[star.first] = wrappedCom;
-      unwrappedCom_[star.first] = unwrappedCom;
-      output << step << ' ' << std::setprecision(17) << time << ' ' << star.first
-             << ' ' << unwrappedCom.x << ' ' << unwrappedCom.y << ' ' << unwrappedCom.z
-             << '\n';
+      output << '\n';
     }
   }
 
  private:
-  kg_assoc::BoxLengths lengths_;
-  std::map<int, std::vector<int>> starParticles_;
-  std::map<int, uammd::real3> previousWrapped_;
-  std::map<int, uammd::real3> unwrappedCom_;
+  static std::vector<std::pair<int, int>> permanentBonds(const kg::LammpsData& data) {
+    auto bonds = data.bonds;
+    for (auto& bond : bonds) {
+      --bond.first;
+      --bond.second;
+    }
+    return bonds;
+  }
+
+  static std::vector<double> masses(std::shared_ptr<uammd::ParticleData> particles, int count) {
+    auto values = particles->getMass(uammd::access::cpu, uammd::access::read);
+    auto indices = particles->getIdOrderedIndices(uammd::access::cpu);
+    std::vector<double> result(count);
+    for (int id = 0; id < count; ++id) {
+      result[id] = values[indices[id]];
+    }
+    return result;
+  }
+
+  static std::vector<kg_assoc::ComPoint> nativePositions(
+      std::shared_ptr<uammd::ParticleData> particles, int count) {
+    auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
+    auto indices = particles->getIdOrderedIndices(uammd::access::cpu);
+    std::vector<kg_assoc::ComPoint> ordered(count);
+    for (int id = 0; id < count; ++id) {
+      const auto position = positions[indices[id]];
+      ordered[id] = {{position.x, position.y, position.z}};
+    }
+    return ordered;
+  }
+
+  kg_assoc::ComTransport transport_;
+  int count_;
+  kg_assoc::ComPoint center_;
 };
 
 #ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
@@ -860,6 +876,10 @@ int main(int argc, char** argv) {
       return 0;
     }
 
+    kg_assoc::requireIndependentComOrigin(
+        parameters.restartPrefix,
+        !parameters.continuationParent.empty() || parameters.continuationEeSwitch);
+    // The supported observer contract is a new independent segment, never a resumed COM history.
     RestartMetadata restart;
     long long initialStep = 0;
     if (!parameters.restartPrefix.empty()) {
@@ -893,6 +913,7 @@ int main(int argc, char** argv) {
       parameters.input = parameters.restartPrefix + ".restart.lammpsdat";
       initialStep = restart.completedSteps;
     }
+    kg_assoc::requireOrthorhombicComInput(parameters.input);
     const kg::LammpsData data = kg::readLammpsDataFile(parameters.input);
     const kg_assoc::StarTopologyReport topology = kg_assoc::auditStarTopology(
         data, {parameters.arms, parameters.beadsPerArm});
@@ -962,11 +983,19 @@ int main(int argc, char** argv) {
     const auto particles = kg::createParticleDataFromLammps(data, system, simulationBox);
     const kg_assoc::BoxLengths lengths{
         data.xhi - data.xlo, data.yhi - data.ylo, data.zhi - data.zlo};
-    StarComWriter comWriter(data, lengths);
+    // This executable exclusively uses GJ, which adds native displacements without folding.
+    StarComWriter comWriter(data, lengths, particles, parameters.feneR0,
+                           kg_assoc::NativeComConvention::continuous_gronbech_jensen_v1);
+    const std::array<double, 6> comBounds{{data.xlo, data.xhi, data.ylo, data.yhi,
+                                         data.zlo, data.zhi}};
 #ifndef KG_ASSOC_CAMPAIGN_PRODUCTION
-    comSamplesFile << "# step time molecule_id com_x com_y com_z\n";
+    kg_assoc::writeComTransportHeader(comSamplesFile, comBounds, comWriter.moleculeIds(),
+                                      initialStep, parameters.comEvery, parameters.dt,
+                                      parameters.output);
 #endif
-    comTrajectoryFile << "# step time molecule_id com_x com_y com_z\n";
+    kg_assoc::writeComTransportHeader(comTrajectoryFile, comBounds, comWriter.moleculeIds(),
+                                      initialStep, parameters.frameEvery, parameters.dt,
+                                      parameters.output);
     topologyFile << "# FRAME step time active_pairs; pairs: atom_i atom_j molecule_i molecule_j\n";
 #ifdef KG_ASSOC_CAMPAIGN_PRODUCTION
     FullBeadTrajectoryWriter fullBeadWriter(fullBeadPath, data);
@@ -1205,14 +1234,14 @@ int main(int argc, char** argv) {
                            data, state);
       }
 #else
-      if (absoluteStep % parameters.comEvery == 0 ||
-          absoluteStep % parameters.frameEvery == 0) {
+      if (step % parameters.comEvery == 0 ||
+          step % parameters.frameEvery == 0) {
         CudaSafeCall(cudaStreamSynchronize(samplingStream));
-        if (absoluteStep % parameters.comEvery == 0) {
+        if (step % parameters.comEvery == 0) {
           comWriter.write(absoluteStep, absoluteStep * parameters.dt, particles,
                           comSamplesFile);
         }
-        if (absoluteStep % parameters.frameEvery == 0) {
+        if (step % parameters.frameEvery == 0) {
           comWriter.write(absoluteStep, absoluteStep * parameters.dt, particles,
                           comTrajectoryFile);
           writeTopologyFrame(topologyFile, absoluteStep, absoluteStep * parameters.dt,

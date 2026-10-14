@@ -125,7 +125,15 @@ class CampaignTest(unittest.TestCase):
                 encoding="utf-8")
             com = root / "run.com_trajectory"
             com.write_text(
-                "# header\n10000 100 1 0 0 0\n10000 100 2 1 0 0\n"
+                "# step time molecule_id com_x com_y com_z\n"
+                "# KG_COM_TRANSPORT 2\n"
+                "# convention native_continuous_plus_initial_backbone_offsets\n"
+                "# origin_kind independent_segment_no_concatenation\n"
+                '# origin_id "fixture"\n'
+                "# origin_step 0\n# cadence_steps 10000\n# dt .01\n# unit_mass 1\n"
+                "# box_bounds -5 5 -5 5 -5 5\n# molecule_ids 1 2\n"
+                "# END_KG_COM_TRANSPORT\n"
+                "10000 100 1 0 0 0\n10000 100 2 1 0 0\n"
                 "20000 200 1 0 1 0\n20000 200 2 1 1 0\n",
                 encoding="utf-8")
             self.assertEqual(CAMPAIGN.read_topology_frames(topology),

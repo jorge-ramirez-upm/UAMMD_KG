@@ -1,0 +1,106 @@
+{
+  "plan_sha256": "2b692572fc8cce3148b09a9b1d61359780c9bba905447acb6616b3d6777d0a27",
+  "prepared_git_sha": "97118b8a1fbde4f3cd28002014f345191ec53c40",
+  "head_at_investigation": "75abee1b4ad671cb85ff87ed948621c32b422020",
+  "original_source_hash_changes_at_investigation": [],
+  "executable_hash_changes_at_investigation": [],
+  "added_source_inventory_keys_at_investigation": [
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_com_pbc_audit.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/com_pbc_audit_20261014/COMPLETED_SNAPSHOT.json",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/com_pbc_audit_20261014/INTEGRITY.json",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/com_pbc_audit_20261014/PRESERVED_SHA256.json"
+  ],
+  "current_changed_prepared_sources_from_approved_work": [
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/Makefile",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_p44_com_diffusion.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_p44_com_fsqt.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_p48_percolation.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_campaign.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_campaign.py",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_production.cu"
+  ],
+  "planned_histories": [
+    {
+      "replica": 1,
+      "start_step": 0,
+      "end_step": 6000000,
+      "output_prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state",
+      "chemistry_seed": 420201,
+      "md_seed": 520088,
+      "effective_md_seed": 3163078380
+    },
+    {
+      "replica": 2,
+      "start_step": 0,
+      "end_step": 6000000,
+      "output_prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r002/state",
+      "chemistry_seed": 420202,
+      "md_seed": 520089,
+      "effective_md_seed": 3154710252
+    },
+    {
+      "replica": 3,
+      "start_step": 0,
+      "end_step": 6000000,
+      "output_prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r003/state",
+      "chemistry_seed": 420203,
+      "md_seed": 520090,
+      "effective_md_seed": 3179831020
+    }
+  ],
+  "classification": [
+    "validate_preserved",
+    "run_missing",
+    "run_missing"
+  ],
+  "independent_r001_validation": {
+    "numerical_status": "valid",
+    "scientific_status": "review_required",
+    "samples": 6001,
+    "accepted_events": 198494,
+    "final_bonds": 1694,
+    "oracle_sweeps": 0,
+    "output_sha256": {
+      ".state": "47955aa2f56503cf5df9037411b7733072c09a92e5369f2bffae3596dbdd696d",
+      ".events": "7f2ae3c694f09cd9f1713746a33177faada72f57e3c9c9bb3b0c16bbc3469a7c",
+      ".numerics.tsv": "c1b5b1be67d23818f7b16d4d156d8cc278d15534cc291d75dc06627e7c4f97b7",
+      ".restart.lammpsdat": "e47ef5faec83cada706690ae8be28a23caa7433e513796d712b441bd37146573",
+      ".assoc_restart": "a4892e04c2b32403488c6c6438fe6ffe1c0c66925a84651289aa2a97275ca957",
+      ".final_permanent.lammpsdat": "03ad828b04309d1ad24a9db45c6c29eec52f42f27f8468c724950b7528d4b00e",
+      ".final_associations": "967353a6598dfecf4cadb0a6f04468532f43097e702989545e2ee24eae07ee68",
+      ".conformation.tsv": "2f5590dc77359e6f9b798e29ee0fee899b2e1a382081f6062892a21105afbffb"
+    }
+  },
+  "stopped_attempt_sha256": {
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/plan.json": "2b692572fc8cce3148b09a9b1d61359780c9bba905447acb6616b3d6777d0a27",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/approval.example.json": "06e3f675a2fd038e29baca7dd432b5be5859b7ce0c811b96f6801eab019c5702",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/approval.json": "d21d4e35ba5cc8d2506dd6e0d36295307a587739242d999b5208ded532ef3a31",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.state": "47955aa2f56503cf5df9037411b7733072c09a92e5369f2bffae3596dbdd696d",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/started.json": "470a4d0257a723eeadaa4e04c59c0303d9db9e80370d0a073f4da548842b435b",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.final_associations": "967353a6598dfecf4cadb0a6f04468532f43097e702989545e2ee24eae07ee68",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.restart.lammpsdat": "e47ef5faec83cada706690ae8be28a23caa7433e513796d712b441bd37146573",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.final_permanent.lammpsdat": "03ad828b04309d1ad24a9db45c6c29eec52f42f27f8468c724950b7528d4b00e",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/environment.json": "5f4ab29ef78faffa1b36d8cea93ffb93870d3d38852d8964e3b26fd797d6571d",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.assoc_restart": "a4892e04c2b32403488c6c6438fe6ffe1c0c66925a84651289aa2a97275ca957",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/stderr.log": "86700e641feb95430c06e35e75c9e8c67703c30252cd1079287f9a34886b9114",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/stdout.log": "7abcb732f376e94c620e4d3f619e987a22e0af05d03dcdb199eb50ece278a567",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.conformation.tsv": "2f5590dc77359e6f9b798e29ee0fee899b2e1a382081f6062892a21105afbffb",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.events": "7f2ae3c694f09cd9f1713746a33177faada72f57e3c9c9bb3b0c16bbc3469a7c",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/incomplete.json": "27be378a2b685520e59bfae468bcf04455036f4e67712bdaf66e48fe2158b141",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.numerics.tsv": "c1b5b1be67d23818f7b16d4d156d8cc278d15534cc291d75dc06627e7c4f97b7"
+  },
+  "original_plan_executable_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_candidates_test": "9710996edde93120c98e87acce783c0014da51f9e67d190a72c0077b2b738da5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars": "cb13cc5f4a7b1782898ebd186702ae48b512cf9ccf6b8c99e39acb35480836c7",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars_candidate_smoke": "40d3b8bcb8422b7894a4104f4980dfc76040e997e191ee39ea7861dced3be5a6"
+  },
+  "original_build_executable_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production": "03bac0a6672ef8d438509bbc50c7c2c5b9998f4c785dd5b26afe5acd0956e389",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production_smoke": "5f2319f214da40bdacf522203596af43dc41fb622de5fa39bb22aea8d75d17b1",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_candidates_test": "9710996edde93120c98e87acce783c0014da51f9e67d190a72c0077b2b738da5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_production": "9bc5c542410612541a16ca30f42b9e605af11c6fef2e324b6cead812f29155a6",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars": "cb13cc5f4a7b1782898ebd186702ae48b512cf9ccf6b8c99e39acb35480836c7",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars_candidate_smoke": "40d3b8bcb8422b7894a4104f4980dfc76040e997e191ee39ea7861dced3be5a6"
+  }
+}

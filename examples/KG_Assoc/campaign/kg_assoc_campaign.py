@@ -665,21 +665,24 @@ def read_topology_frames(path):
 
 
 def read_com_frames(path, stars_per_frame):
+    sys.path.insert(0, str(ANALYSIS_DIR))
+    import com_transport
     frames = []
     current = None
     molecule_ids = set()
-    with Path(path).open(encoding="utf-8") as source:
+    with com_transport.open_com(path) as (source, transport_metadata):
         for line in source:
-            if not line.strip() or line.startswith("#"):
-                continue
             words = line.split()
             if len(words) != 6:
                 raise ValueError("malformed COM row")
             frame = (int(words[0]), float(words[1]))
             molecule = int(words[2])
+            com_transport.validate_sample(transport_metadata, path, *frame, molecule,
+                                          [float(v) for v in words[3:]])
             if current is not None and frame != current:
                 if len(molecule_ids) != stars_per_frame:
                     raise ValueError("incomplete COM frame")
+                com_transport.validate_frame(transport_metadata, path, *current, sorted(molecule_ids))
                 frames.append(current)
                 molecule_ids = set()
             if molecule in molecule_ids:
@@ -689,7 +692,9 @@ def read_com_frames(path, stars_per_frame):
     if current is not None:
         if len(molecule_ids) != stars_per_frame:
             raise ValueError("incomplete COM frame")
+        com_transport.validate_frame(transport_metadata, path, *current, sorted(molecule_ids))
         frames.append(current)
+    com_transport.validate_step_spacing(transport_metadata, path, [frame[0] for frame in frames])
     return frames
 
 

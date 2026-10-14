@@ -1,0 +1,54 @@
+{
+  "checks": {
+    "affected_production_compilation_variants": 3,
+    "analysis_self_tests": 4,
+    "cpu_correlator_tests": 2,
+    "cpu_unittests": 111,
+    "failures": 0,
+    "observer_tests": 15,
+    "python_compilation": "passed",
+    "whitespace": "passed"
+  },
+  "continuation": "unsupported_fail_closed",
+  "coordinate_version": 2,
+  "e2_recovery_executed": false,
+  "e2_runtime_sources_unchanged_sha256": {
+    "examples/KG_Assoc/kg_assoc_candidate_oracle.cuh": "b330767362d5f27f355c12ecbf0ae463c693595f67c8fe7f6d0c88567679ef01",
+    "examples/KG_Assoc/kg_assoc_conformation.cuh": "412cb9c173ca3c78914deeb2bf1af04f757c6ca2425183a36a616e2a6fd0d4d0",
+    "examples/KG_Assoc/kg_assoc_ea_switch.cuh": "940a043b1ad285821f12f0c87d10dcab7ed853da3adf5a129fc0e86e67013d54",
+    "examples/KG_Assoc/kg_assoc_interactors.cuh": "53e4a15dc02f7d806b077832a3257455f0a8e6633b12136b592386fa22cd4fd3",
+    "examples/KG_Assoc/kg_assoc_kinetics.cuh": "ed540c3ed20b8b224a376852b59bea21207869549f80bbba9a4313d17945316f",
+    "examples/KG_Assoc/kg_assoc_star_runtime.cuh": "6d49d81bab3dc8da7d16a921dce444f9b116f1efb7f798522b79c5aadc9bf084",
+    "examples/KG_Assoc/kg_assoc_star_topology.cuh": "317afb9c6ce3c2554601fee5bb249f55e89a08156681a1fed4c36c0dc6ec9b46",
+    "examples/KG_Assoc/kg_assoc_stars.cu": "a1d894caf9bd7414ebc0faad118a7f34f49784fb594622c486e07af95883c69c",
+    "examples/KG_Assoc/kg_assoc_state.cuh": "c75cf4b67a451b38c0499483bc03d9382f47750aeaeebaf76a226fa973a140a4"
+  },
+  "files_sha256": {
+    "examples/KG_Assoc/Makefile": "6b3a9f5781c0d5dd11c70dd9326052b047798291d2b6d656e9684d57da1956e8",
+    "examples/KG_Assoc/analysis/analyze_p44_com_diffusion.py": "aa0010bfaca2cb4dc566f709b31a9aa6857fbd91e165b22c4de5201817b0aa10",
+    "examples/KG_Assoc/analysis/analyze_p44_com_fsqt.py": "22acae41a5519b54167fe76431bba7a44e2ccf5f95f897f7f703d85f527971ad",
+    "examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py": "1f1af69b8a753375b3316e57433f5ac38176505becf0b6d9fd33d8dd1fbb20c9",
+    "examples/KG_Assoc/analysis/analyze_p48_percolation.py": "f27d87dc44eefa963378bc19c21a008a8bf118e2d2765a37bd6b10218ad5283b",
+    "examples/KG_Assoc/analysis/com_transport.py": "1766b8b538f4a6f110a896c701dc2beacde78fa274252b166dc39cb67ffa4917",
+    "examples/KG_Assoc/campaign/kg_assoc_campaign.py": "f2553607427a80d5611b027ae33e290c00e3194ad70b27f83e95ea3ad93a555a",
+    "examples/KG_Assoc/campaign/test_campaign.py": "3efdf2806420dfffcadc115175ada93f0e4bcd7ced1b7d62eff29c84d2c58fc9",
+    "examples/KG_Assoc/campaign/test_com_pbc_audit.py": "0b151db4aeff92f6e77b905ab2904dccff58afc51da057b2ba69f224201de6e7",
+    "examples/KG_Assoc/kg_assoc_com_transport.cuh": "73d7cd2e2cd56c238c8dc1a61ae36799bd3d39c7b12fec9f38bf9cdc24589c34",
+    "examples/KG_Assoc/kg_assoc_production.cu": "bbd1662e8f98043ef453b18108bff9e82d8b30baa2aa3c587f96451ea0e073eb",
+    "examples/KG_Assoc/reviews/com_pbc_correction_20261014/IMPLEMENTATION.md": "3636f9faad60bf63a21bb46c201f2f4580a2c82c27ac15f2a641152cbbe0cef8",
+    "examples/KG_Assoc/reviews/com_pbc_correction_20261014/PRESERVED_SHA256.json": "cdfbc61299b49df4255e3d9557c086ad75a061577b885b2ed9ba878f6cf67fa2",
+    "examples/KG_Assoc/reviews/com_pbc_correction_20261014/STOPPED_E2.md": "57a024f9c79339fe83e5b9d8b79d7f5c26337a0bf5f16685b9e519c8ce4b3019",
+    "examples/KG_Assoc/reviews/com_pbc_correction_20261014/STOPPED_E2_EVIDENCE.json": "1de1838aa711a885881772b1a9739a7806edd745f73797932918c708d007b888"
+  },
+  "gpu_execution": false,
+  "production_authorization": false,
+  "production_preparation": false,
+  "registry_selection": false,
+  "schema_version": 1,
+  "starting_local_and_remote_sha": "75abee1b4ad671cb85ff87ed948621c32b422020",
+  "temporary_compile_artifacts_sha256": {
+    "/tmp/com_corrected_campaign_production": "5700a0a5820813690a1b132224dfefc1b65e69437e7c3d228cf2be63aa480c23",
+    "/tmp/com_corrected_campaign_smoke": "d0b161dfc8ba4c0876d40448f93b77b9028fe90b3730a50a248406df2cfd34a7",
+    "/tmp/com_corrected_production": "215565679934567ce93910d758b274fee3a0a492a594c0f773ff0dbce50f921b"
+  }
+}

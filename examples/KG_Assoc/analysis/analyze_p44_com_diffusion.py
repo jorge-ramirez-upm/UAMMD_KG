@@ -10,13 +10,14 @@ import statistics
 import numpy as np
 
 import correlator
+import com_transport
 
 
 def fail(path, message):
     raise ValueError('{}: {}'.format(path, message))
 
 
-def read_com_trajectory(path):
+def read_com_trajectory(path, allow_legacy=False):
     """Read one self-contained, temporally unwrapped COM output segment."""
     steps = []
     times = []
@@ -29,17 +30,16 @@ def read_com_trajectory(path):
     def finish_frame():
         if not current_positions:
             return
-        expected_ids = list(range(1, len(current_ids) + 1))
+        expected_ids = (metadata["molecule_ids"] if metadata["version"] == 2 else
+                        list(range(1, len(current_ids) + 1)))
         if current_ids != expected_ids:
-            fail(path, 'molecule IDs are not exactly ordered 1..Nstars')
+            fail(path, 'molecule IDs differ from the declared ordered star grid')
+        com_transport.validate_frame(metadata, path, current_step, current_time, current_ids)
         steps.append(current_step)
         times.append(current_time)
         frames.append(current_positions)
 
-    with open(path, encoding='utf-8') as input_file:
-        header = input_file.readline().strip()
-        if header != '# step time molecule_id com_x com_y com_z':
-            fail(path, 'unexpected COM header')
+    with com_transport.open_com(path, allow_legacy) as (input_file, metadata):
         for line in input_file:
             fields = line.split()
             if len(fields) != 6:
@@ -72,7 +72,11 @@ def read_com_trajectory(path):
         fail(path, 'nonincreasing COM times')
     step_intervals = {later - earlier for earlier, later in zip(steps, steps[1:])}
     time_intervals = {later - earlier for earlier, later in zip(times, times[1:])}
-    if len(step_intervals) != 1 or len(time_intervals) != 1:
+    com_transport.validate_step_spacing(metadata, path, steps)
+    expected_interval = times[1] - times[0]
+    if len(step_intervals) != 1 or any(not math.isclose(interval, expected_interval,
+                                                      rel_tol=1e-12, abs_tol=1e-9)
+                                     for interval in time_intervals):
         fail(path, 'nonuniform COM sampling interval')
     return np.asarray(steps), np.asarray(times), np.asarray(frames, dtype=np.float64)
 
@@ -82,6 +86,17 @@ def validate_replica_ensemble(replicas):
     if len(replicas) < 2:
         raise ValueError('at least two independent COM trajectories are required')
     first = replicas[0]
+    metadata = [r.get('transport_metadata') for r in replicas]
+    if any(m is not None for m in metadata):
+        if not all(m is not None for m in metadata) or len({m['version'] for m in metadata}) != 1:
+            raise ValueError('mixed or missing COM transport conventions')
+        if metadata[0]['version'] == 2:
+            if len({m['origin_id'] for m in metadata}) != len(metadata):
+                raise ValueError('COM files share an origin; they are not independent replicas')
+            for item in metadata[1:]:
+                if any(item[key] != metadata[0][key] for key in
+                       ('convention', 'molecule_ids', 'box_bounds', 'dt', 'cadence_steps')):
+                    raise ValueError('incompatible COM transport ensemble metadata')
     for replica in replicas[1:]:
         if (replica['positions'].shape != first['positions'].shape or
                 not np.array_equal(replica['steps'] - replica['steps'][0],
@@ -366,6 +381,8 @@ def main():
     parser.add_argument('--alpha-tolerance', type=float, default=.1)
     parser.add_argument('--min-diffusive-bins', type=int, default=5)
     parser.add_argument('--self-test', action='store_true')
+    parser.add_argument('--allow-legacy-com', action='store_true',
+                        help='Explicit unverified historical analysis; does not repair aliased winding')
     arguments = parser.parse_args()
     if arguments.self_test:
         validate_synthetic_correlator()
@@ -387,8 +404,9 @@ def main():
 
     replicas = []
     for path in arguments.com_files:
-        steps, times, positions = read_com_trajectory(path)
-        replicas.append({'path': path, 'steps': steps, 'times': times, 'positions': positions})
+        steps, times, positions = read_com_trajectory(path, arguments.allow_legacy_com)
+        replicas.append({'path': path, 'steps': steps, 'times': times, 'positions': positions,
+                         'transport_metadata': com_transport.metadata_for(path, arguments.allow_legacy_com)})
     try:
         first = validate_replica_ensemble(replicas)
     except ValueError as error:
@@ -454,6 +472,7 @@ def main():
     recommended = fit_summaries[len(fit_summaries) // 2]
     sensitivity = max(abs(item['mean_d'] - recommended['mean_d']) for item in fit_summaries)
     summary = {
+        'transport_metadata': [r['transport_metadata'] for r in replicas],
         'method': 'installed correlator.DiffusionCorrelator multi-tau MSD averaged over stars',
         'multi_tau_parameters': {'num_correlators': 20, 'points_per_level': 16, 'binning': 2},
         'all_time_origins': False,
