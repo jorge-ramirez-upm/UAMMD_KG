@@ -1,0 +1,200 @@
+{
+  "startup_bindings": [
+    {
+      "replica": 1,
+      "e1_seed": 12001,
+      "e1_git_sha": "b27081b4515604e370b703b8dbb316b9f74e5552",
+      "e1_executable_record": "44ab8cf8fbded75d74193f207c7f5d246454f418dbb0fd20778c59ea02c1bf60",
+      "started": {
+        "approval_sha256": "dd2ae55239bacf0c4a767d5e2ee61d2936b76d8b7a1434603822f3a28d6ea5fe",
+        "command": [
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+          "--input",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+          "--arms",
+          "4",
+          "--narm",
+          "10",
+          "--dt",
+          "0.01",
+          "--temperature",
+          "1",
+          "--Ea",
+          "4",
+          "--Ee",
+          "6",
+          "--nu0",
+          "20",
+          "--Nevery",
+          "100",
+          "--r-assoc",
+          "1.25",
+          "--damp",
+          "2",
+          "--K",
+          "30",
+          "--R0",
+          "1.5",
+          "--steps",
+          "4000000",
+          "--diagnostic-every",
+          "1000",
+          "--seed",
+          "420501",
+          "--md-seed",
+          "520082",
+          "--output",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r001/state"
+        ],
+        "host": "titan",
+        "plan_sha256": "20eb13c5047cfce5a26646adb95839b4b575d232943b2b4bf7c37c49b0e623c6",
+        "smoke_sha256": {
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/plan.json": "03b2c4fe11e67156549e897677cdc940f0cd15983af9d759e8be1acfffdf7b87",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r001/complete.json": "54ffd8339d436e0b5fc856b7a15f59f70cb8afdf399215ca4799f08f95dfc785",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r002/complete.json": "b3ba6a1a46de6a160e1d4333a1824d115c206651b914d7cd22961bda1ed92e15",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r003/complete.json": "6214abeef025d9e8e2d09825f3f8541ddd72e4e408aafb7feb2651ba37079a79"
+        },
+        "started_at": "2026-10-13T22:50:11.567297+00:00"
+      },
+      "environment": {
+        "gpu": "NVIDIA TITAN Xp, GPU-8170bfc5-0914-1b23-e2b6-fdb85300a2b6, 580.178.04\n",
+        "host": "titan"
+      }
+    },
+    {
+      "replica": 2,
+      "e1_seed": 12002,
+      "e1_git_sha": "b27081b4515604e370b703b8dbb316b9f74e5552",
+      "e1_executable_record": "44ab8cf8fbded75d74193f207c7f5d246454f418dbb0fd20778c59ea02c1bf60",
+      "started": {
+        "approval_sha256": "dd2ae55239bacf0c4a767d5e2ee61d2936b76d8b7a1434603822f3a28d6ea5fe",
+        "command": [
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+          "--input",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+          "--arms",
+          "4",
+          "--narm",
+          "10",
+          "--dt",
+          "0.01",
+          "--temperature",
+          "1",
+          "--Ea",
+          "4",
+          "--Ee",
+          "6",
+          "--nu0",
+          "20",
+          "--Nevery",
+          "100",
+          "--r-assoc",
+          "1.25",
+          "--damp",
+          "2",
+          "--K",
+          "30",
+          "--R0",
+          "1.5",
+          "--steps",
+          "4000000",
+          "--diagnostic-every",
+          "1000",
+          "--seed",
+          "420502",
+          "--md-seed",
+          "520083",
+          "--output",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r002/state"
+        ],
+        "host": "titan",
+        "plan_sha256": "20eb13c5047cfce5a26646adb95839b4b575d232943b2b4bf7c37c49b0e623c6",
+        "smoke_sha256": {
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/plan.json": "03b2c4fe11e67156549e897677cdc940f0cd15983af9d759e8be1acfffdf7b87",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r001/complete.json": "54ffd8339d436e0b5fc856b7a15f59f70cb8afdf399215ca4799f08f95dfc785",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r002/complete.json": "b3ba6a1a46de6a160e1d4333a1824d115c206651b914d7cd22961bda1ed92e15",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r003/complete.json": "6214abeef025d9e8e2d09825f3f8541ddd72e4e408aafb7feb2651ba37079a79"
+        },
+        "started_at": "2026-10-13T23:09:17.593055+00:00"
+      },
+      "environment": {
+        "gpu": "NVIDIA TITAN Xp, GPU-8170bfc5-0914-1b23-e2b6-fdb85300a2b6, 580.178.04\n",
+        "host": "titan"
+      }
+    },
+    {
+      "replica": 3,
+      "e1_seed": 12003,
+      "e1_git_sha": "b27081b4515604e370b703b8dbb316b9f74e5552",
+      "e1_executable_record": "44ab8cf8fbded75d74193f207c7f5d246454f418dbb0fd20778c59ea02c1bf60",
+      "started": {
+        "approval_sha256": "dd2ae55239bacf0c4a767d5e2ee61d2936b76d8b7a1434603822f3a28d6ea5fe",
+        "command": [
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+          "--input",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+          "--arms",
+          "4",
+          "--narm",
+          "10",
+          "--dt",
+          "0.01",
+          "--temperature",
+          "1",
+          "--Ea",
+          "4",
+          "--Ee",
+          "6",
+          "--nu0",
+          "20",
+          "--Nevery",
+          "100",
+          "--r-assoc",
+          "1.25",
+          "--damp",
+          "2",
+          "--K",
+          "30",
+          "--R0",
+          "1.5",
+          "--steps",
+          "4000000",
+          "--diagnostic-every",
+          "1000",
+          "--seed",
+          "420503",
+          "--md-seed",
+          "520084",
+          "--output",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r003/state"
+        ],
+        "host": "titan",
+        "plan_sha256": "20eb13c5047cfce5a26646adb95839b4b575d232943b2b4bf7c37c49b0e623c6",
+        "smoke_sha256": {
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/plan.json": "03b2c4fe11e67156549e897677cdc940f0cd15983af9d759e8be1acfffdf7b87",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r001/complete.json": "54ffd8339d436e0b5fc856b7a15f59f70cb8afdf399215ca4799f08f95dfc785",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r002/complete.json": "b3ba6a1a46de6a160e1d4333a1824d115c206651b914d7cd22961bda1ed92e15",
+          "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r003/complete.json": "6214abeef025d9e8e2d09825f3f8541ddd72e4e408aafb7feb2651ba37079a79"
+        },
+        "started_at": "2026-10-13T23:28:27.617357+00:00"
+      },
+      "environment": {
+        "gpu": "NVIDIA TITAN Xp, GPU-8170bfc5-0914-1b23-e2b6-fdb85300a2b6, 580.178.04\n",
+        "host": "titan"
+      }
+    }
+  ],
+  "reference_repository": {
+    "repository": "jorge-ramirez-upm/lammps",
+    "branch": "feature/associating-stickers",
+    "local_and_remote_head": "1c6faf70e94aef2389c208e8c80c60c084a96907",
+    "source_sha256": {
+      "/home/jramirez/lammps/src/ASSOCIATING/pair_associating.h": "d21e03f6bb3d686513126cb2b248de155d0d84c93007e13d354365ababac6be1",
+      "/home/jramirez/lammps/src/ASSOCIATING/pair_associating.cpp": "c24dd128694246acb59ed7968b1f883afc0b356fbd5275cba14997c68966ec3e",
+      "/home/jramirez/lammps/src/ASSOCIATING/fix_associating_kinetics.cpp": "8c81565fcbc12a32228712cefd819083602b2987cf54762899afd62f596917a4",
+      "/home/jramirez/lammps/src/ASSOCIATING/fix_associating_kinetics.h": "e8690683744d19e934cce62a130e7bd4a652e5f99727a95dd6bee462ad024af8",
+      "/home/jramirez/lammps/src/ASSOCIATING/write_associating_network.cpp": "e790d30097d150c76f4fcf6d8a3db3de0cd887bace21cb2954bbef42311a2295",
+      "/home/jramirez/lammps/src/ASSOCIATING/write_associating_network.h": "f5b7d521fc3fb82305e6f0a9df1e8d18d72281ed3d9832b682d0ac31f12acb05"
+    }
+  }
+}

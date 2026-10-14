@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "immutability": "New versioned dossier; SHA256 binds content; no overwrite on reproduction",
+  "files_sha256": {
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/r001_frames.csv": "99e1504333a267b51f03a478922eb8e5150270cff9dedc591acbca12d1dedb22",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/supplemental_authentication.json": "952a9afc36ec1e9a79075b31fac120c97e3d268437b93ae5c88d3bd6899fc5f5",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/window_estimates.csv": "eab93fd8b5069f889dd0deb4fdca79ab6e24f096db6403a819f29495f25e7985",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/terminal_halves.py": "26cece508f35c1a63741a78968006c86f41cdbe3b68720f573dea96264e5b767",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/ASSESSMENT.md": "49526ee7b0acdccbfdfa521efe5b3ab388ace14c45fa6aaa0cb4629ab64b4f35",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/provenance.json": "6680ef1fd4bbfe5b470883fff23af26c099fd967c227dc57e8927a50be503e79",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/ENDPOINTS.md": "2b76f131634c0f22c1f8d1cdebd764958cbb218f22baa00c40e1e23f5a013be8",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/plot_late.py": "afa97ef79c574ee642e34480de9f6dca1aa72288ff062deeb5f02609cb9bc976",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/r003_frames.csv": "e501a7889bda313d461f40066bcf4e632fe8f50b6546393f40d0dccd979f37b2",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/VALIDATION.md": "2a5ca1d1a61ac190fb0c944be821612425a6fefce4b438512588a3fb43d80579",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/reference_comparison.json": "4102607bfb2d6fcaa8566e499aefff18936668acfb697dbaad408588fc373223",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/summary.json": "4b951169ddac28b161c4fdd894825f9008a10b986e28a00ae17c619d2ece77bb",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/paired_comparisons.csv": "f2bbdb22733e4ca38ecf705c5c6913590f3af7c5d78ee56da8775f96a7f08377",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/periphery.png": "62156c32af36d6256a00c7fe311d5913f54d8c5e7b87e47bf41bdea89722641c",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/preserved_evidence_sha256.json": "65ee5fda4e2b29f945598b742c9670b5906eaaf509905f9cc4af3f87ea1043d7",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/late_paths.png": "e932506784ce241e675f3cfff670186f151c61dd6f3f4a376a44d80836fe5fc2",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/r002_frames.csv": "9bd6997785a713580b0772ede41b097b4a6af5d32596d7ff099c0f4bfe364a56",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/chemistry.png": "d231664cb000601cbc5c94035577c046dbe6da220f14f6f5c8aef4097e074b4f",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/terminal_halves.json": "b46f28ef029b8fbc5f4dee63758e0a80c7159bb665b45b43c5feb50d8d0a367f",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/shape.png": "303cd36247c22f3d7631c148bfbc043fce467b7d6307aec72341f174308889a4",
+    "examples/KG_Assoc/reviews/e2_ee6_4m_20261014/decision.json": "4a2a409a7d51237fd8eee7816b07f2accdf706b0de74fcdade148e4b3e3b4573",
+    "examples/KG_Assoc/analysis/analyze_e2_continuous4m_review.py": "84bcbe381e0c10acfef2a21934b6103622c07e726c537b603ede7e5717d6915a",
+    "examples/KG_Assoc/campaign/test_e2_continuous4m_review.py": "0924d5a16f847f4954b223750a71957c3623a4ff10fc29bdef7f276e36d7eb6c"
+  }
+}

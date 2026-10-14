@@ -1,0 +1,191 @@
+{
+  "scope": "qualitative only; exclusively corrected 6\u20138M Ee8 windows, no defective values",
+  "records": [
+    {
+      "Ee": 4,
+      "replica": 1,
+      "start": 1000000,
+      "end": 2000000,
+      "means": {
+        "metrics": {
+          "L1": 9.837,
+          "L2": 4.047,
+          "bonds": 908.284,
+          "bound_fraction": 0.454142,
+          "components": 173.166,
+          "free": 2183.432,
+          "inter": 863.029,
+          "intra": 45.255,
+          "largest_cluster_fraction": 0.619165,
+          "max_permanent_bond": 1.13848724438601,
+          "mean_center_terminal_r2": 15.710428003560171,
+          "mean_degree": 1.706486,
+          "mean_rg2": 7.00942813141186,
+          "min_permanent_bond": 0.85994318419732,
+          "second_degree_moment": 3.877812,
+          "temperature": 0.9794902731726467
+        },
+        "activity": {
+          "breaks": 23.8856,
+          "creations": 23.8894,
+          "neighbor_gains": 22.1867,
+          "neighbor_losses": 22.1822
+        }
+      }
+    },
+    {
+      "Ee": 4,
+      "replica": 2,
+      "start": 1000000,
+      "end": 2000000,
+      "means": {
+        "metrics": {
+          "L1": 9.531,
+          "L2": 4.176,
+          "bonds": 905.275,
+          "bound_fraction": 0.4526375,
+          "components": 175.287,
+          "free": 2189.45,
+          "inter": 860.1,
+          "intra": 45.175,
+          "largest_cluster_fraction": 0.613199,
+          "max_permanent_bond": 1.1379134638156099,
+          "mean_center_terminal_r2": 15.756863986024495,
+          "mean_degree": 1.701236,
+          "mean_rg2": 7.028693791798216,
+          "min_permanent_bond": 0.8598088410424429,
+          "second_degree_moment": 3.863886,
+          "temperature": 0.9792231412529617
+        },
+        "activity": {
+          "breaks": 23.9045,
+          "creations": 23.9054,
+          "neighbor_gains": 22.2353,
+          "neighbor_losses": 22.2347
+        }
+      }
+    },
+    {
+      "Ee": 4,
+      "replica": 3,
+      "start": 1000000,
+      "end": 2000000,
+      "means": {
+        "metrics": {
+          "L1": 9.531,
+          "L2": 3.971,
+          "bonds": 906.307,
+          "bound_fraction": 0.4531535,
+          "components": 174.388,
+          "free": 2187.386,
+          "inter": 861.052,
+          "intra": 45.255,
+          "largest_cluster_fraction": 0.61512,
+          "max_permanent_bond": 1.1378180642042042,
+          "mean_center_terminal_r2": 15.748977779365417,
+          "mean_degree": 1.703128,
+          "mean_rg2": 7.021187212415913,
+          "min_permanent_bond": 0.8595796111921123,
+          "second_degree_moment": 3.865094,
+          "temperature": 0.9792971469924183
+        },
+        "activity": {
+          "breaks": 23.855,
+          "creations": 23.8559,
+          "neighbor_gains": 22.1644,
+          "neighbor_losses": 22.1635
+        }
+      }
+    },
+    {
+      "Ee": 8,
+      "replica": 1,
+      "start": 6000000,
+      "end": 8000000,
+      "means": {
+        "metrics": {
+          "L1": 41.821,
+          "L2": 32.4135,
+          "bonds": 1793.4375,
+          "bound_fraction": 0.89671875,
+          "free": 413.125,
+          "inter": 1701.7365,
+          "intra": 91.701,
+          "largest_cluster_fraction": 0.998114,
+          "max_permanent_bond": 1.1379243340550018,
+          "mean_degree": 3.320274,
+          "min_permanent_bond": 0.8597040569948033,
+          "temperature": 0.9789247606144912
+        },
+        "activity": {
+          "breaks": 1.82145,
+          "creations": 1.82185,
+          "neighbor_gains": 1.654,
+          "neighbor_losses": 1.65325
+        }
+      }
+    },
+    {
+      "Ee": 8,
+      "replica": 2,
+      "start": 6000000,
+      "end": 8000000,
+      "means": {
+        "metrics": {
+          "L1": 37.891,
+          "L2": 32.7625,
+          "bonds": 1794.688,
+          "bound_fraction": 0.897344,
+          "free": 410.624,
+          "inter": 1691.985,
+          "intra": 102.703,
+          "largest_cluster_fraction": 0.9972185,
+          "max_permanent_bond": 1.1382927830430558,
+          "mean_degree": 3.309407,
+          "min_permanent_bond": 0.8598268314538378,
+          "temperature": 0.9790422780614839
+        },
+        "activity": {
+          "breaks": 1.81645,
+          "creations": 1.8173,
+          "neighbor_gains": 1.64345,
+          "neighbor_losses": 1.6411
+        }
+      }
+    },
+    {
+      "Ee": 8,
+      "replica": 3,
+      "start": 6000000,
+      "end": 8000000,
+      "means": {
+        "metrics": {
+          "L1": 39.225,
+          "L2": 35.0055,
+          "bonds": 1793.8895,
+          "bound_fraction": 0.89694475,
+          "free": 412.221,
+          "inter": 1701.9315,
+          "intra": 91.958,
+          "largest_cluster_fraction": 0.9977495,
+          "max_permanent_bond": 1.1386492674701778,
+          "mean_degree": 3.326004,
+          "min_permanent_bond": 0.8596314669025342,
+          "temperature": 0.9789305136927852
+        },
+        "activity": {
+          "breaks": 1.81755,
+          "creations": 1.81935,
+          "neighbor_gains": 1.65025,
+          "neighbor_losses": 1.6472
+        }
+      }
+    }
+  ],
+  "source_sha256": {
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE04_EA04_2M_qualified_20261013_v1.json": "7f5cd4ba2ace52b0b8a62a54ffe63bebf62c1bf4a6d22bb330df97ce44e8bb6a",
+    "examples/KG_Assoc/kg_assoc_100m/aggregate/e2/review_945a4d660de54c48808a4abc05ff57b6/summary.json": "9e0f677c8e9a7f2b08d85ca2ad079ee04db04efd69b9fbe215deb66d704974dc",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+    "examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/summary.json": "8a7349ce54b42468fb143d0fa70c7ff0f531c19a4ab6c319b3f073e4fc12b94b"
+  }
+}
