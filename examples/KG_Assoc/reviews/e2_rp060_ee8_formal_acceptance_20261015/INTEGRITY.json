@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "starting_git_sha": "bc8bda0c2e9616d2fc0c28b4b45b06fe9cebe0fc",
+  "scope": "new immutable registration dossier and exact new acceptance; containing commit binds this manifest",
+  "sha256": {
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP060_EE08_EA04_6M_qualified_20261015_v1.json": "487d34970243d2f85d74b092e715b48d95e5cc099c03ba251d9817335b443b09",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/AUTHENTICATED_SOURCE.json": "bfcd97fac0b3560e00e1fcc1247d152f33f0d2e43d4f44a695169e22a25d202f",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/AUTHENTICATION.log": "cccc848045194ec17afc4e7ba6e5eea3e354afec32ddf9291332889080df466f",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/BASELINE_CPU_TESTS.log": "0fcca36579dcbbd2217694d5f568391b694320b039ce08a5751def878f73fa65",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/CATALOG_CHECK.json": "73f5809e52a932e24b74d3333185dd504e8d73b653889ada0d4b5dbcf790c242",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/CPU_TESTS.log": "8c401c74e9fce606028799a659ffcf7630138f41a1581710b682d18444a03a98",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/PRESERVED_EVIDENCE.json": "0a701b4a24df4bb456f9a89e3d48823fe2542ff75897afa277fb93760cc83c8d",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/README.md": "b4557069c3946a3b2ae904691aba3698df3e4e9317df84c4b3000ad9b8e661d9",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/RECORDS.json": "a809e6b1c19467af4e6c7b4a6051c6defbab93096b6f9d25baf7e952a06b9774",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/REGISTRATION.json": "f2a3822fa9c45fa0abd68d3c99dd345edf5ec8dab88ac7d2af9467be6b069ee8",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/VALIDATION.md": "96be61f8702975047763afc71d99686bda70f97ca71b6338d8da74bab264ca02",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/register.py": "ad7dd659228b1420042505c62559b385a4dada370fb24ba49307b40a998d83e1",
+    "examples/KG_Assoc/reviews/e2_rp060_ee8_formal_acceptance_20261015/test_rp060_registration.py": "6e6b960080c6be014122fe79b9dd4910e27bbfe0ccff2c046454bf24bacc5ce3"
+  }
+}
