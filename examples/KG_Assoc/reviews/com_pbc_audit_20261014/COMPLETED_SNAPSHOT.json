@@ -1,0 +1,33 @@
+{
+  "path": "examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r001/state.restart.lammpsdat",
+  "sha256": "344e231f96eb8b1ec318de27f912a351d0c5175dd0b5de858612bed57f6cc6b7",
+  "receipt_sha256": "1161d3e4ff7784bbfbf1eda891e845472c078800b18dfe211acef34eb5330b90",
+  "step": 6000000,
+  "natoms": 174250,
+  "permanent_bonds": 40000,
+  "stars": 1000,
+  "box_lengths": [
+    58.9636,
+    58.9636,
+    58.9636
+  ],
+  "particles_outside_box": 133595,
+  "raw_long_periodic_bonds": 956,
+  "naive_raw_com_disagrees_modulo_box_stars": 272,
+  "single_anchor_disagrees_modulo_box_stars": 0,
+  "max_permanent_minimum_image_length": 1.1204035003515478,
+  "worst_naive_witness": {
+    "molecule": 584,
+    "naive_com": [
+      10.675821951219508,
+      9.341219512195122,
+      -8.178734878048777
+    ],
+    "bond_unwrapped_com": [
+      30.80973414634146,
+      -20.859648780487802,
+      -8.178734878048777
+    ],
+    "minimum_image_com_error": 35.10938842457931
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "active_job_accessed": false,
+  "active_job_interrupted": false,
+  "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "dossier_and_test_sha256": {
+    "examples/KG_Assoc/campaign/test_com_pbc_audit.py": "ac25b4b2fe5de8a7ea4ec533fbfaf62a7fbca76a6644f403c8200b51f4849660",
+    "examples/KG_Assoc/reviews/com_pbc_audit_20261014/AUDIT.md": "2eadfa8b4ba66920ae91bf09514f50787eb5f1d37cdfec31af35a9e5cb018889",
+    "examples/KG_Assoc/reviews/com_pbc_audit_20261014/COMPLETED_SNAPSHOT.json": "aac16ebc025de95f90196089ca7e88c1b9a014e6b55eedf6d9ff018e9a922619",
+    "examples/KG_Assoc/reviews/com_pbc_audit_20261014/PRESERVED_SHA256.json": "23f1a6bebc6b5084c642373b6f7ee1d5e741aed42f33559efe7b8e2385f93eaa"
+  },
+  "gpu_calculation": false,
+  "installed_correlator": {
+    "path": "/home/jramirez/.local/lib/python3.11/site-packages/correlator.cpython-311-x86_64-linux-gnu.so",
+    "sha256": "3406085383e3c112a68347a45e31d8cec7e94a38b71a3ae8122fa5dfead45f04"
+  },
+  "production_authorization": false,
+  "production_code_changed": false,
+  "read_only_audit": true,
+  "registry_selection": false,
+  "schema_version": 1,
+  "source_sha256": {
+    "examples/KG/correlator.cpp": "84ca3742820824d9e093c8f62b6f408e2e42017d5a7539f5cbf76e4f81fff9c0",
+    "examples/KG/kg_lammps_io.cuh": "49a8ac419ad89817af86184c01ce53b817a59e9c082e537f7546da710e0c3837",
+    "examples/KG/kg_runtime.cuh": "938a2cafde5c93ad683560be025ff1033a92d4b0dd439d4db35321951d4a7427",
+    "examples/KG_Assoc/analysis/analyze_campaign_structure.py": "60f9045b52fc1b4fbb434190bfe1cdbcbf35bd297dbe2028b17db867821f4b53",
+    "examples/KG_Assoc/analysis/analyze_p44_com_diffusion.py": "1de2a53674f1252599d563440c47d20fda40c600a65699e0d745c4a13405f92b",
+    "examples/KG_Assoc/analysis/analyze_p44_com_fsqt.py": "798fd12cb0fd1ff211851825b755f899c8a515a770074e7d8d1605aaa114ce51",
+    "examples/KG_Assoc/analysis/analyze_p45_topology.py": "59f5c917d7fb89fe3d9de80420d8cf3efd0cdc8e558f03e69ac55ff8bed2116f",
+    "examples/KG_Assoc/analysis/analyze_p47_walking_hopping.py": "b0ee891946983b4773185ba0ee742edd3f200160ce63f4b68b80ad0f67323884",
+    "examples/KG_Assoc/analysis/analyze_p48_percolation.py": "88c2570a7ef9dd45738cad99687e7b0fb7a1bf7b1b970f6e5f5025ff463cac00",
+    "examples/KG_Assoc/analysis/plot_analysis.py": "af0750166e6bd3ed9dc112bf9409259d862e23f8542c53a02afc14eb1765c713",
+    "examples/KG_Assoc/campaign/kg_assoc_campaign.py": "dd8a7027c5500d743fb6c22b37414cae32684bf44b022654f9c3fdb94be3215a",
+    "examples/KG_Assoc/campaign/kg_assoc_e2_validate.py": "dfe7f60b1daf5c89a9d1c9df5f69388217ebb36bb0b097de055d5ff92a3869d4",
+    "examples/KG_Assoc/kg_assoc_campaign_production.cu": "6b7d7e5ed22a587514c1594247cf95e065569fc2fd7ac0b0ff8e15a74cfa52e6",
+    "examples/KG_Assoc/kg_assoc_conformation.cuh": "412cb9c173ca3c78914deeb2bf1af04f757c6ca2425183a36a616e2a6fd0d4d0",
+    "examples/KG_Assoc/kg_assoc_production.cu": "aa6db3fddfb4c88f7fa8f410105fe47a52cbfab82ba10cdee431d1832450692d",
+    "examples/KG_Assoc/kg_assoc_star_equilibrate.cu": "db6d68744586f7db425ecc64246ddc75cb074bda49729ef399b58fa0893b89a2",
+    "examples/KG_Assoc/kg_assoc_star_runtime.cuh": "6d49d81bab3dc8da7d16a921dce444f9b116f1efb7f798522b79c5aadc9bf084",
+    "examples/KG_Assoc/kg_assoc_star_topology.cuh": "317afb9c6ce3c2554601fee5bb249f55e89a08156681a1fed4c36c0dc6ec9b46",
+    "examples/KG_Assoc/kg_assoc_stars.cu": "a1d894caf9bd7414ebc0faad118a7f34f49784fb594622c486e07af95883c69c",
+    "src/Integrator/VerletNVT/GronbechJensen.cu": "0be33b178de2e0b3856d1d14e4c254d51f124c220618d0a050995a9fd70f848d",
+    "src/utils/Box.cuh": "04f93b6726c170f4592d54791f3c5c4656268bf4d1bbda70ed451146645fbc39"
+  },
+  "starting_local_and_remote_git_sha": "97118b8a1fbde4f3cd28002014f345191ec53c40",
+  "test_results": {
+    "analysis_self_tests": 4,
+    "cpu_unittests": 54,
+    "failures": 0,
+    "new_deterministic_tests": 10,
+    "python_compilation": "passed"
+  }
+}
