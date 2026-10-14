@@ -94,9 +94,23 @@ class Ee6AcceptanceTests(unittest.TestCase):
         index = e2.campaign.load_json(self.dossier / 'RECORDS.json')
         self.assertEqual(len(index['records']), 8)
         self.assertEqual(len({r['system'] for r in index['records']}), 8)
+        # The immutable eight-record snapshot gains only the separately approved RP040 record.
+        rp040_registration = e2.campaign.load_json(self.repo /
+            'examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/REGISTRATION.json')
+        expected = {str(self.repo / row['record']): row['sha256'] for row in index['records']}
+        self.assertEqual(expected, rp040_registration['prior_acceptance_sha256'])
+        rp040_path = self.root / ('banks/e2_acceptance/'
+            'F04_N010_RP040_EE08_EA04_8M_qualified_20261014_v1.json')
+        self.assertEqual(self.repo / rp040_registration['acceptance'], rp040_path)
+        expected[str(rp040_path)] = rp040_registration['acceptance_sha256']
+        e2.check_hashes(expected)
+        registry.exclusive_validate(e2.campaign.load_json(rp040_path),
+                                   [e2.system_by_id('F04_N010_RP040_EE08_EA04')])
         graph = Catalog(self.repo, self.root).scan()
         system = next(s for s in graph['systems'] if s['system_id'] == self.sid)
-        self.assertEqual(len(graph['acceptances']), 8)
+        self.assertEqual(len(graph['acceptances']), 9)
+        self.assertCountEqual([r['source'] for r in graph['acceptances']],
+            ['dataset:' + str(Path(n).relative_to(self.root)) for n in expected])
         self.assertEqual(system['scientific'], 'formal_acceptance_recorded_payload_deferred')
         self.assertEqual(system['selection'], 'missing')
         self.assertEqual(system['production_authorization'], 'absent')

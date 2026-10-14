@@ -1,0 +1,41 @@
+{
+  "artifact_sha256": {
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP040_EE08_EA04_8M_qualified_20261014_v1.json": "78ab743e1cd922b8835a6fb750be90e5afb51c2feab16dcaba32e2103a6a5d49",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/AUTHENTICATION.log": "da646c66ae8a3bd81e85abc84e3b6cf735ed6ac1a9ebeadb305239934528239a",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/CPU_TESTS.log": "4ba9602232960f7067cff8a1b4f3e5a971038c89be5e990f0cce26265f59dc34",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/PRESERVED_EVIDENCE.json": "f517c69961dd72a3fdf74b9ef3e944d236670e32870a2c6d16404fd63510c504",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/README.md": "0273f4a782d61eb634b30135e7a4538064eda92aed87b318f953fb36931e7144",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/RECORDS.json": "3367b723b0b05ff3d34ce2090d95d555077eb5957b419c465c9a1b350b900098",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/REGISTRATION.json": "9e7870778b5f3619f0d1e8c34f2bd5bb9615c69ac76c6ccac1cf6faf5ce05403",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/VALIDATION.md": "3b855a0e93f513596daccd418c0d39cc81e730013cd9aa2a4e915d0d83bc5102",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/register.py": "7a8e243d9e2b9f3a0096539a4d40890b5fcd24583fc8d64026c82f014c4e73c1",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/test_registration.py": "93054f18e7ec11cc8265bf6c85881374303a220c5d605ef4ab64a2c56475dfc7"
+  },
+  "further_equilibration": false,
+  "gpu_execution": false,
+  "preserved_bindings": 854,
+  "prior_acceptance_records_unchanged": 8,
+  "production_authorization": false,
+  "production_launch": false,
+  "production_preparation": false,
+  "python_compilation_passed": true,
+  "python_tests_passed": 126,
+  "registry_activation": false,
+  "registry_publication": false,
+  "registry_selection": false,
+  "schema_version": 1,
+  "starting_git_sha": "a8d5c2353de2ee3545be7ae850ea6a1956394881",
+  "test_failures": 0,
+  "test_maintenance": {
+    "examples/KG_Assoc/campaign/test_e2_ee6_acceptance.py": {
+      "after": "53ec50e5ea22abf96d2973a7b6f5f0556cb158b25531d6d6112f95c45d8ffae5",
+      "before": "40490caeca3431b20f62521d2dd78735f3dbc88a1ccfc0f1e5c040540f6bd703"
+    },
+    "examples/KG_Assoc/campaign/test_e2_n40_acceptance.py": {
+      "after": "34cb1121cc0572c92d3b983192e2f1d05bc114a71a9dd7f5b3b18c4b7564b6dc",
+      "before": "247b44e425b355e3b890829b8a8280d359cf5258011e40ded69dab1f5a203926"
+    }
+  },
+  "total_acceptance_records": 9,
+  "unchanged_evidence_bindings": 852
+}

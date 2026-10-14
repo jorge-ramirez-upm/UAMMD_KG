@@ -90,7 +90,7 @@ class N40AcceptanceTests(unittest.TestCase):
         self.assertFalse(index['registry_activation'])
         self.assertFalse(index['production_authorization'])
 
-        # Keep the historical seven-record snapshot fixed; allow only the approved eighth record.
+        # Keep historical snapshots fixed; allow only the two explicitly approved later records.
         ee6_dossier = self.repo / 'examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014'
         ee6_registration = e2.campaign.load_json(ee6_dossier / 'REGISTRATION.json')
         historical_hashes = {str(self.repo / row['record']): row['sha256']
@@ -117,11 +117,26 @@ class N40AcceptanceTests(unittest.TestCase):
         registry.exclusive_validate(ee6, [e2.system_by_id('F04_N010_RP080_EE06_EA04')])
         expected['dataset:' + str(ee6_path.relative_to(self.root))] = ee6
 
+        rp040_registration = e2.campaign.load_json(self.repo /
+            'examples/KG_Assoc/reviews/e2_rp040_ee8_formal_acceptance_20261014/REGISTRATION.json')
+        self.assertEqual(rp040_registration['prior_acceptance_sha256'],
+                         {str(self.root / source.removeprefix('dataset:')): e2.campaign.sha256(
+                             self.root / source.removeprefix('dataset:')) for source in expected})
+        rp040_path = self.root / ('banks/e2_acceptance/'
+            'F04_N010_RP040_EE08_EA04_8M_qualified_20261014_v1.json')
+        self.assertEqual(self.repo / rp040_registration['acceptance'], rp040_path)
+        self.assertEqual(e2.campaign.sha256(rp040_path), rp040_registration['acceptance_sha256'])
+        rp040 = e2.campaign.load_json(rp040_path)
+        self.assertEqual(rp040['permitted_systems'], ['F04_N010_RP040_EE08_EA04'])
+        self.assertEqual([h['end_step'] for h in rp040['histories']], [8000000] * 3)
+        registry.exclusive_validate(rp040, [e2.system_by_id('F04_N010_RP040_EE08_EA04')])
+        expected['dataset:' + str(rp040_path.relative_to(self.root))] = rp040
+
         graph = Catalog(self.repo, self.root).scan()
         system = next(s for s in graph['systems'] if s['system_id'] == self.sid)
         self.assertEqual(system['scientific'], 'formal_acceptance_recorded_payload_deferred')
         self.assertEqual(system['selection'], 'missing')
-        self.assertEqual(len(graph['acceptances']), 8)
+        self.assertEqual(len(graph['acceptances']), 9)
         self.assertCountEqual([record['source'] for record in graph['acceptances']], expected)
         for record in graph['acceptances']:
             self.assertEqual(record['data'], expected[record['source']])
