@@ -1,0 +1,186 @@
+{
+  "scope": "qualitative; only corrected C1 windows; no defective values",
+  "records": [
+    {
+      "density": 0.2,
+      "replica": 1,
+      "start": 5000000,
+      "end": 6000000,
+      "metrics": {
+        "L1": 69.486,
+        "L2": 34.35,
+        "bonds": 1583.577,
+        "bound_fraction": 0.7917885,
+        "components": 27.157,
+        "free": 832.846,
+        "inter": 1337.038,
+        "intra": 246.539,
+        "largest_cluster_fraction": 0.965293,
+        "max_permanent_bond": 1.1365203178901226,
+        "mean_center_terminal_r2": 18.159152021865513,
+        "mean_degree": 2.537038,
+        "mean_rg2": 8.003023481346148,
+        "min_permanent_bond": 0.8593557708906472,
+        "second_degree_moment": 7.451968,
+        "temperature": 0.9885644367667518
+      },
+      "activity": {
+        "breaks": 1.4698,
+        "creations": 1.4715,
+        "neighbor_gains": 1.1275,
+        "neighbor_losses": 1.1254
+      },
+      "source": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_reassessment6m_20261013/joint6m/summary.json"
+    },
+    {
+      "density": 0.2,
+      "replica": 2,
+      "start": 5000000,
+      "end": 6000000,
+      "metrics": {
+        "L1": 59.553,
+        "L2": 33.612,
+        "bonds": 1582.855,
+        "bound_fraction": 0.7914275000000001,
+        "components": 26.731,
+        "free": 834.29,
+        "inter": 1343.987,
+        "intra": 238.868,
+        "largest_cluster_fraction": 0.966278,
+        "max_permanent_bond": 1.1366413963817414,
+        "mean_center_terminal_r2": 18.22432440208665,
+        "mean_degree": 2.570126,
+        "mean_rg2": 8.024382552405763,
+        "min_permanent_bond": 0.8591642911577755,
+        "second_degree_moment": 7.612172,
+        "temperature": 0.9883929967178277
+      },
+      "activity": {
+        "breaks": 1.4529,
+        "creations": 1.4522,
+        "neighbor_gains": 1.1275,
+        "neighbor_losses": 1.1279
+      },
+      "source": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_reassessment6m_20261013/joint6m/summary.json"
+    },
+    {
+      "density": 0.2,
+      "replica": 3,
+      "start": 5000000,
+      "end": 6000000,
+      "metrics": {
+        "L1": 63.766,
+        "L2": 37.546,
+        "bonds": 1580.761,
+        "bound_fraction": 0.7903805,
+        "components": 26.298,
+        "free": 838.478,
+        "inter": 1335.774,
+        "intra": 244.987,
+        "largest_cluster_fraction": 0.9663039999999999,
+        "max_permanent_bond": 1.136162726267886,
+        "mean_center_terminal_r2": 18.129382809708126,
+        "mean_degree": 2.545334,
+        "mean_rg2": 7.989886864348707,
+        "min_permanent_bond": 0.8588958280419241,
+        "second_degree_moment": 7.479654,
+        "temperature": 0.9883810776702582
+      },
+      "activity": {
+        "breaks": 1.4871,
+        "creations": 1.4882,
+        "neighbor_gains": 1.1419,
+        "neighbor_losses": 1.1418
+      },
+      "source": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_reassessment6m_20261013/joint6m/summary.json"
+    },
+    {
+      "density": 0.8,
+      "replica": 1,
+      "start": 7500000,
+      "end": 8000000,
+      "metrics": {
+        "L1": 41.086,
+        "L2": 32.528,
+        "bonds": 1792.71,
+        "bound_fraction": 0.896355,
+        "free": 414.58,
+        "inter": 1700.338,
+        "intra": 92.372,
+        "largest_cluster_fraction": 0.997884,
+        "max_permanent_bond": 1.1375035054200369,
+        "mean_degree": 3.318816,
+        "min_permanent_bond": 0.859600110065902,
+        "temperature": 0.9789974111612476
+      },
+      "activity": {
+        "breaks": 1.8398,
+        "creations": 1.838,
+        "neighbor_gains": 1.6606,
+        "neighbor_losses": 1.6636
+      },
+      "source": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/r001.json"
+    },
+    {
+      "density": 0.8,
+      "replica": 2,
+      "start": 7500000,
+      "end": 8000000,
+      "metrics": {
+        "L1": 44.226,
+        "L2": 34.314,
+        "bonds": 1795.642,
+        "bound_fraction": 0.897821,
+        "free": 408.716,
+        "inter": 1698.368,
+        "intra": 97.274,
+        "largest_cluster_fraction": 0.996952,
+        "max_permanent_bond": 1.1385326469038566,
+        "mean_degree": 3.310408,
+        "min_permanent_bond": 0.86046392507431,
+        "temperature": 0.9790234338846033
+      },
+      "activity": {
+        "breaks": 1.8146,
+        "creations": 1.8124,
+        "neighbor_gains": 1.6386,
+        "neighbor_losses": 1.633
+      },
+      "source": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/r002.json"
+    },
+    {
+      "density": 0.8,
+      "replica": 3,
+      "start": 7500000,
+      "end": 8000000,
+      "metrics": {
+        "L1": 38.362,
+        "L2": 33.572,
+        "bonds": 1792.752,
+        "bound_fraction": 0.896376,
+        "free": 414.496,
+        "inter": 1701.166,
+        "intra": 91.586,
+        "largest_cluster_fraction": 0.997872,
+        "max_permanent_bond": 1.1388268779502164,
+        "mean_degree": 3.32626,
+        "min_permanent_bond": 0.8594447636865609,
+        "temperature": 0.9790885738563252
+      },
+      "activity": {
+        "breaks": 1.8152,
+        "creations": 1.8152,
+        "neighbor_gains": 1.6548,
+        "neighbor_losses": 1.6516
+      },
+      "source": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/r003.json"
+    }
+  ],
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_reassessment6m_20261013/joint6m/summary.json": "7f831b9c95782ef91e95bc47838cd129c631c81cfdf4de3456c2176b7c889855",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/r001.json": "e8674f729113a2bfebcb6c5fc8c532fd024f7388004fb0bf17c4038f80c2963f",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/r002.json": "98cc1c7ee55c16ad03b8f414c8f52f543b7b64687245ad5818f44c2d1cb65593",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/r003.json": "d5d59a7d9643166ee693cb40d44766302252067d696a608b36e77e11b3fd6d55",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/C1_recovery_review_v1/analysis_config.json": "1e9aeb8a175789e63ade02ed944101139dea54b47be0074396a6e888c8bca276"
+  }
+}

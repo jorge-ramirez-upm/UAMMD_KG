@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "stage": "E2_scientific_review_decision",
+  "system": "F04_N010_RP040_EE08_EA04",
+  "formal_acceptance": false,
+  "registry_activation": false,
+  "production_authorization": false,
+  "e2_extension_prepared": false,
+  "e2_extension_authorized": false,
+  "e2_extension_executed": false,
+  "scientific_disposition": "hold_6M_acceptance_recommend_targeted_2M_extension",
+  "recommended_absolute_endpoint_step": 8000000,
+  "recommended_extension_steps_per_original_history": 2000000,
+  "recommended_replica_count": 3,
+  "frozen_parameters_unchanged": true,
+  "source_commit": "979929480cb443aff23da332852fa2ed9c997e09",
+  "source_plan": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/plan.json",
+  "source_plan_sha256": "5884973e9a8db39cf40fbb5e0e4298a65b41c517e76db1b60f0552cfbdb79b50",
+  "authenticated_6M_candidates": [
+    {
+      "chemistry_seed": 420201,
+      "effective_md_seed": 3213336292,
+      "end_step": 6000000,
+      "md_seed": 520094,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state",
+      "replica": 1,
+      "state_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.assoc_restart": "4179e769e0ccbb58d4161010b255327f0690197e393a68977470fd43c75c3a36",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.conformation.tsv": "d06dfa0b2760540c44c6856ad800d93edda750f6f6cd8de5c35a7694df814d94",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.events": "706dba6c47858e7f274af0924d6dbd342d326993bb604b76fab6ec157c87a4d0",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.final_associations": "0c6b86dfae5c68291c7ac3406404524850b0337a400556702b089178df20f65e",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.final_permanent.lammpsdat": "867cd8a5aa989be36c8d0eab6adf1267e822141bee60dcd28882caa49ceb1ab1",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.numerics.tsv": "823ebd63e3f743663f4e3be8feb7018e0596bd31d18f02d0fa9caeeb949f0d5e",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.restart.lammpsdat": "7bc651d906e354269af8f471854f6c7384473fad605dd670889ea238bbb84e60",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.state": "3a05d0d7ac77d5b3425002cfc57243739830c07ef0c465c977213bbb8ecf412e"
+      }
+    },
+    {
+      "chemistry_seed": 420202,
+      "effective_md_seed": 3204968164,
+      "end_step": 6000000,
+      "md_seed": 520095,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state",
+      "replica": 2,
+      "state_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.assoc_restart": "7864fccf06521b636c211985da9b70e149cda773ca9ceac38d4dbf9cd6e0e3a2",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.conformation.tsv": "5c4f586e43ec2641bfe0bda695f9f38d1d54a9fe2de163b71014cb441a936db5",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.events": "cc997bd12ebc039448b1807bbf123178871246dd024bf5b1ae8f26a6005cee4c",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.final_associations": "d6ad36c621b053a4f88251f45cc6b7c8d90f8aaea439bda104267493b56eea39",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.final_permanent.lammpsdat": "ffd4d372e7b290beda547985eb18f705674eabf8d22b1704bf9bb4ada560c285",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.numerics.tsv": "dba2fb158c78d567b09901446a6e0efb23f8c348ad7b6ada1c7bcc31eb300955",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.restart.lammpsdat": "0484cbfd05ec537542dcece768f8748adb46b4c88e6884bd5ce9d1a473f17d78",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.state": "40b2c4bc9d7bd946d60a87f34180b16db9e60b0887beb195fb80927f7a0bb9f7"
+      }
+    },
+    {
+      "chemistry_seed": 420203,
+      "effective_md_seed": 3095213768,
+      "end_step": 6000000,
+      "md_seed": 520096,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state",
+      "replica": 3,
+      "state_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.assoc_restart": "cd64cdb6651a7bad9b13b76a2f808d94d2d192b7176bf24201e156c395f80ae5",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.conformation.tsv": "8fe0f16b7fc4786439af0c2a20f3e422649e3a20161ec64b48f3020ea58183c3",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.events": "f0d96ce2e994fb3bd55d1b7b1714bcbbcde238788a25634ad82b74cca897cd0d",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.final_associations": "60654f501f65ef724b32827bff0b8f73ab28a074caf681b1a771dd922f156dfa",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.final_permanent.lammpsdat": "93145b85212c5f83371f44131a5c8a0a15c269f8ef5cfda035ed9609d47acea4",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.numerics.tsv": "5f1c07ad9a66d07237457370a64d6bb839f3e682f49fee8279aa8fa9fba3f649",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.restart.lammpsdat": "ea8abfce5585ed526e405e29b525ed2af3ad77db5424f72beadb32429103d1dc",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.state": "7bb8d27aa54a702cb7dea0cce58d04d13c84936e0b0e42bff79334f5fe32cb42"
+      }
+    }
+  ],
+  "reason": "Coordinated L1/multiplicity decrease across late consecutive and long windows, negative 4\u20136M slopes in every history, small common conformation offsets and limited slow-mode resolution; numerical validity retained.",
+  "evidence_sha256": {
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/ASSESSMENT.md": "966dd7eb2c7a2aede941a70cedfe2ae132046ef5ccfd111ad539cb7f08173135",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/AUTHENTICATION.json": "689ea696050c2e346f4b322aab1a3dff9153bd1cd222e821c04ab7f4e6fd9d20",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/E2_CODE_IDENTITY.json": "cbacd45fe2d26519c5cd719392966e798e2765e99b9b124bc2186f54571a889f",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/ENDPOINTS.md": "3b56c0b0e5ee6c3823eeaca5873fc0c568c2fbbe6e79f007f8585ce2695728e4",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/NEIGHBORS.json": "03b0b1536b24b9db46120a529e1b97b66b93ee6fa4e488b0314a27e4089b823e",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/NEIGHBOR_STATISTICS.json": "8e0eb70ae56923571d551c7c95414d9d88dae7ceee848a3ea43f683041284ffd",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/PRESERVED_SHA256.json": "d4ec92f59a5aa3231a460f3c8aeb9d9c81233a241ea2b4be09a4b07eaca2d32d",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/VALIDATION.md": "8d0eb525c1318b197380b706d81f34b0a3b114b1cca60b7486e93bb46fcc590c",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/consecutive.py": "e24aa68a3c0ee6dba3dd8443bb5bed489c7ecaabde7165b3f9b9ac9d8daa533f",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/chemistry.png": "1dccff5dd299f5e2243bad1ddaf3f07bf6ddff922d324481dddac2f5f974c20f",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/consecutive_comparisons.json": "5240e08cbc1039070710472a2bb5f7e8dc2542f518e95d0edadc310fa1a9e9d1",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/late_paths.png": "71dfe5314c481a1849ae67facb6137f3d8f462cc6fddac968a6e9efcf8c0c6e0",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/multiplicity.json": "0e07bd7ee5e54595c9d1c37b157335b682b0648d7807327fc79f19f55a112f9d",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/periphery.png": "0e183cc203a4d2fe8aec8eb82983df713a34d5c51afc61943a467c0b76670746",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/provenance.json": "196d6157fa4ea80d599d8b4e763b2cb32eeb314b55de6211245be6ac0d397b18",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/r001_frames.csv": "e943c28a7617a30d0cecedd3c73ac81cc44e9979bf60140bacc1ee8197abd32d",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/r001_multiplicity.csv": "1c97cfd0cc0b28d2babd424164d6185f4f9b14453f2b7b059890f080d0a56651",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/r002_frames.csv": "4c2845298a12709e25431fd143da38dbeeb767807b0abf8453e657d5dfe87320",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/r002_multiplicity.csv": "3309adf3c7786b7bbe78d15e3ae7b5d7a70956d971f8ec947599665a00fbfe8b",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/r003_frames.csv": "5243d134340f01de00d1999ab7fbda8d16f6083a4f0b88771582139c5cf776dd",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/r003_multiplicity.csv": "ed63d2014945ad40797f7cd3f53700dace59ef61c2cdfd83b5d5ef12030319ff",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/shape.png": "92d26ee7b5ea25800755cb230b1b3a25a68e2d7769fdcefa7991c139016f4e42",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/summary.json": "94e58047668bc19dab89264ffd16cce0e3e2d8a0b537b86fd96110e621211e37",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/evidence/window_estimates.csv": "ff372e857b445a1bfbb4aaf94074b61bc960ec353f06eb11bb2edede82e2c974",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/multiplicity.py": "150e7fd9bfa2dd9ac688572961c2f1f467ecfebcd61b8f7b04c15cdeff31354b",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/plot_late.py": "df0be9a5a0c9b915108f39865b1f2508ff70590f71ba1bbf5ab7265ba49e37b2",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/reproduce.py": "403ac10942434a39057acabfdd38c300a85c6a6ad45fe68fe7446c7e88f9c9d3",
+    "examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/test_reproduce.py": "5bb8edee95cac3134b04d7bbc0339998930b866b6acf163e96862df8c6162c98"
+  },
+  "checks": {
+    "python_cpu_tests": 80,
+    "cpp_cpu_tests": 2,
+    "failures": 0
+  }
+}
