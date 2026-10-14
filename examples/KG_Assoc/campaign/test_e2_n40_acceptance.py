@@ -89,12 +89,47 @@ class N40AcceptanceTests(unittest.TestCase):
         self.assertEqual(len({r['system'] for r in index['records']}), 7)
         self.assertFalse(index['registry_activation'])
         self.assertFalse(index['production_authorization'])
+
+        # Keep the historical seven-record snapshot fixed; allow only the approved eighth record.
+        ee6_dossier = self.repo / 'examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014'
+        ee6_registration = e2.campaign.load_json(ee6_dossier / 'REGISTRATION.json')
+        historical_hashes = {str(self.repo / row['record']): row['sha256']
+                             for row in index['records']}
+        self.assertEqual(historical_hashes, ee6_registration['prior_acceptance_sha256'])
+        e2.check_hashes(historical_hashes)
+        expected = {}
+        for row in index['records']:
+            path = self.repo / row['record']
+            record = e2.campaign.load_json(path)
+            self.assertEqual(record['permitted_systems'], [row['system']])
+            self.assertEqual(record['status'], row['status'])
+            self.assertEqual([h['end_step'] for h in record['histories']], [row['end_step']] * 3)
+            registry.exclusive_validate(record, [e2.system_by_id(row['system'])])
+            expected['dataset:' + str(path.relative_to(self.root))] = record
+
+        ee6_path = self.root / ('banks/e2_acceptance/'
+                               'F04_N010_RP080_EE06_EA04_4M_qualified_20261014_v1.json')
+        self.assertEqual(self.repo / ee6_registration['acceptance'], ee6_path)
+        self.assertEqual(e2.campaign.sha256(ee6_path),
+                         '55fbe03556fcc3cd184bffbc43603b27726863bd618a28a06da7f97b399c3319')
+        ee6 = e2.campaign.load_json(ee6_path)
+        self.assertEqual(ee6['permitted_systems'], ['F04_N010_RP080_EE06_EA04'])
+        registry.exclusive_validate(ee6, [e2.system_by_id('F04_N010_RP080_EE06_EA04')])
+        expected['dataset:' + str(ee6_path.relative_to(self.root))] = ee6
+
         graph = Catalog(self.repo, self.root).scan()
         system = next(s for s in graph['systems'] if s['system_id'] == self.sid)
         self.assertEqual(system['scientific'], 'formal_acceptance_recorded_payload_deferred')
         self.assertEqual(system['selection'], 'missing')
-        self.assertEqual(len(graph['acceptances']), 7)
+        self.assertEqual(len(graph['acceptances']), 8)
+        self.assertCountEqual([record['source'] for record in graph['acceptances']], expected)
+        for record in graph['acceptances']:
+            self.assertEqual(record['data'], expected[record['source']])
+            self.assertTrue(record['metadata_eligible'])
         self.assertFalse(graph['selections'])
+        self.assertFalse(graph['registry_views'])
+        self.assertIsNone(graph['selected_registry'])
+        self.assertTrue(all(s['production_authorization'] == 'absent' for s in graph['systems']))
         self.assertEqual(len(system['formal_acceptance_records']), 1)
 
 
