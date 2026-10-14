@@ -1,0 +1,580 @@
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp8gp9i1e4/1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp8gp9i1e4/2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp8gp9i1e4/3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpl88d9ztg/1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpl88d9ztg/2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpl88d9ztg/3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..../home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpix0s1m_z/1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpix0s1m_z/2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpix0s1m_z/3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............................................./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp5v8y96qd/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmptjevysay/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp4e1p6fyy/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdhf6x2z_/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp9oa8glz_/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpgfnnr8tk/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwszal_jj/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi50rehbh/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi50rehbh/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnra75gy3/accepted/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnra75gy3/accepted/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnra75gy3/accepted/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnra75gy3/accepted/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnra75gy3/accepted/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpnra75gy3/accepted/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp6mc8l9j4/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpp2bqnwp4/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpwhve8vwf/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpi917xs31/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpy_2s7o9a/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbi26uq4c/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+{
+  "executed": false,
+  "commands": [
+    [
+      "never-execute"
+    ],
+    [
+      "never-execute"
+    ],
+    [
+      "never-execute"
+    ]
+  ]
+}
+{
+  "executed": false,
+  "commands": [
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+      "--input",
+      "/tmp/tmpdzt2cqt8/h1/parent/state.e1.lammpsdat",
+      "--arms",
+      "3",
+      "--narm",
+      "10",
+      "--dt",
+      "0.01",
+      "--temperature",
+      "1",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8",
+      "--nu0",
+      "20",
+      "--Nevery",
+      "100",
+      "--r-assoc",
+      "1.25",
+      "--damp",
+      "2",
+      "--K",
+      "30",
+      "--R0",
+      "1.5",
+      "--steps",
+      "12000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "420001",
+      "--md-seed",
+      "520001",
+      "--output",
+      "/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r001/state"
+    ],
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+      "--input",
+      "/tmp/tmpdzt2cqt8/h2/parent/state.e1.lammpsdat",
+      "--arms",
+      "3",
+      "--narm",
+      "10",
+      "--dt",
+      "0.01",
+      "--temperature",
+      "1",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8",
+      "--nu0",
+      "20",
+      "--Nevery",
+      "100",
+      "--r-assoc",
+      "1.25",
+      "--damp",
+      "2",
+      "--K",
+      "30",
+      "--R0",
+      "1.5",
+      "--steps",
+      "12000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "420002",
+      "--md-seed",
+      "520002",
+      "--output",
+      "/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r002/state"
+    ],
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+      "--input",
+      "/tmp/tmpdzt2cqt8/h3/parent/state.e1.lammpsdat",
+      "--arms",
+      "3",
+      "--narm",
+      "10",
+      "--dt",
+      "0.01",
+      "--temperature",
+      "1",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8",
+      "--nu0",
+      "20",
+      "--Nevery",
+      "100",
+      "--r-assoc",
+      "1.25",
+      "--damp",
+      "2",
+      "--K",
+      "30",
+      "--R0",
+      "1.5",
+      "--steps",
+      "12000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "420003",
+      "--md-seed",
+      "520003",
+      "--output",
+      "/tmp/tmpdzt2cqt8/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r003/state"
+    ]
+  ]
+}
+VALIDATED attempt0: three original histories
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpzaqm_nth/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpthttduzi/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp78f3jlpd/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpbbc6auhm/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmppwm5lxmg/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmps32u5tdt/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpe2pxg6hk/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/first_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/second_1/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/second_1/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/first_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/second_2/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/second_2/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/first_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/second_3/parent/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpilhd05m2/second_3/attempt/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...................
+----------------------------------------------------------------------
+Ran 95 tests in 8.942s
+
+OK

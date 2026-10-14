@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_seventh_record_is_formal_but_unselected (test_e2_n40_acceptance.N40AcceptanceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_e2_n40_acceptance.py", line 96, in test_seventh_record_is_formal_but_unselected
+    self.assertEqual(len(graph['acceptances']), 7)
+AssertionError: 8 != 7
+
+----------------------------------------------------------------------
+Ran 1 test in 2.660s
+
+FAILED (failures=1)

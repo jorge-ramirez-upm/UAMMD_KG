@@ -1,0 +1,16 @@
+{
+  "files_sha256": {
+    "examples/KG_Assoc/campaign/test_e2_ee6_acceptance.py": "40490caeca3431b20f62521d2dd78735f3dbc88a1ccfc0f1e5c040540f6bd703",
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE06_EA04_4M_qualified_20261014_v1.json": "55fbe03556fcc3cd184bffbc43603b27726863bd618a28a06da7f97b399c3319",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/AUTHENTICATION.log": "e54bdbb93cd3e14aa1466afb7118e556f26a98b2634f5d605bb10972f60d997b",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/CPU_TESTS.log": "4d912d55de8dac0a2c17ba6533c0bb62759da73de2c2f363d09d21410849d32a",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/ENDPOINT_TESTS.log": "d49bba3ce1c44f83602bb4b79e342113ab902efac013efcdc05f6265c2ebd2e0",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/HISTORICAL_COUNT_TEST.log": "0a17e53911509ba5c85a813b0cc6e06393ceed1da0adb884104cc32fe8f63cc8",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/PRESERVED_EVIDENCE.json": "4f692e33dba3067ecdb7ccb4938c1958e7947ae23f67e901af057daaadbae151",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/README.md": "937bdc538e4218cabac9a447b919f439fd3b3d323229c44e5bc3e54949612c5d",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/RECORDS.json": "513e5a10ee10f7c7900962dda70f5eb5e8ba6f16341ae76a84b5e900a43442b9",
+    "examples/KG_Assoc/reviews/e2_ee6_formal_acceptance_20261014/REGISTRATION.json": "b22b78135a7d8c382f0c0e542429146250d991c8139dfc095759699cc04a4b32"
+  },
+  "immutability": "Exclusive API record; new versioned registration dossier; no overwrite of prior evidence",
+  "schema_version": 1
+}
