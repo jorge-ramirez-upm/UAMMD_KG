@@ -1,0 +1,3 @@
+/build/
+# The repository's root ignore rules otherwise hide the required project rules.
+!AGENTS.md
