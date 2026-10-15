@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "starting_git_sha": "68d80f5b38e328e4522e012acc74d54022f510ab",
+  "scope": "new immutable registration dossier and exact new acceptance; containing commit binds this manifest",
+  "sha256": {
+    "examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE10_EA04_12M_qualified_20261015_v1.json": "9f8bd5598c8fc847fd11abc5217b0390055b7d8ace1764018e4fa3140c8c15aa",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/AUTHENTICATED_SOURCE.json": "44b62dd8fe4ecf5623f1ee63cb5ef068af747d7ba083b96c3a9da6d1414e742d",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/AUTHENTICATION.log": "915ee1da6c0fee2a92a1cbdad9ac778eb0a0baeac7555daf3f51a6620bdf84d9",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/BASELINE_CPU_TESTS.log": "ed8c1c8931bb63f4de6ca841412351d8332db471a0c6c83118b47dc757a2ae33",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/BOUNDARY.json": "89905ba9445f66a3d5a2527a22c2c9e25a539baeae9550f7120b4a1be381193f",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/CATALOG_CHECK.json": "4424259882d0dc11362a9b652b3e02d30a7e85c059678e78ac577920bf6ebbfe",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/CPU_TESTS.log": "7c8556f365e2f91f02634bbce480aa2231c7d24a0ffc181e03949e4a50dd7876",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/PRESERVED_EVIDENCE.json": "fa8ab402c33f65f81e9eb0cf4991d091dd97a46c90288bf578effda43e7db501",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/README.md": "1b69cc69c906fb2028ed5594d7203d9a31c0be8a6641d6fdf50614202b01d33b",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/RECORDS.json": "90968bcf632009a0d8d3ddc4578e6a7c53b3ad5d148ddc6c445bbb2502b0b080",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/REGISTRATION.json": "b021042ecfbbf06d6be59a123dfb0fcf8bbd99f929d42f0b3bee6caa8b160bbe",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/REGISTRATION.log": "cd4bdea514ef40223c7f842cbbe5713325c9e48194721f0f73411efee4315ebb",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/SCIENTIFIC_CPU_TESTS.log": "954c6a507958a9d255c11196fc36febf258bea9507b5c9e592b1f94fcddb656b",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/VALIDATION.md": "fb786e47413cb69388e0a532a07465ecaf33177be061d9b3af95e460af47063c",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/authenticate.py": "aafa25477d4cfb57e7fba73e4ba5af439bace38eb79a669bb61bbe7d02f17c5a",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/register.py": "99ef1a9ddefe1e261676fbf140dec385f8a304dfb7f73397063ddfeb24b965d1",
+    "examples/KG_Assoc/reviews/e2_ee10_formal_acceptance_20261015/test_ee10_registration.py": "48563e509176250bf7683aa6e5af5a80a9e521a8de1e8b5c1129ad2c6eded21e"
+  }
+}

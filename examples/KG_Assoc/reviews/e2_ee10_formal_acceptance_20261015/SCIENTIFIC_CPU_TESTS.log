@@ -1,0 +1,14 @@
+test_current_checkpoint_statistics_match_roundoff (test_ee10_12m.AdditionalGuards) ... ok
+test_descriptive_correlations_handle_constant_and_algebraic_cases (test_ee10_12m.AdditionalGuards) ... ok
+test_exact_old_estimates_are_reused_and_new_estimates_stay_local (test_ee10_12m.AdditionalGuards) ... ok
+test_boundary_never_stitches_correlation_windows (test_ee10_12m.Joint12mTests) ... ok
+test_complete_exports_conserve_multigraph_and_peripheral_populations (test_ee10_12m.Joint12mTests) ... ok
+test_existing_output_cannot_authenticate_or_overwrite (test_ee10_12m.Joint12mTests) ... ok
+test_metric_selection_is_restored_on_estimation_failure (test_ee10_12m.Joint12mTests) ... ok
+test_pairing_preserves_three_history_changes (test_ee10_12m.Joint12mTests) ... ok
+test_wrong_endpoint_scope_cannot_create_output (test_ee10_12m.Joint12mTests) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.136s
+
+OK

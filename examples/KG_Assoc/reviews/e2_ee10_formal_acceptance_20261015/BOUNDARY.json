@@ -1,0 +1,113 @@
+[
+  {
+    "absolute_step": 8000000,
+    "bitwise_md_continuation": false,
+    "chemical_state": {
+      "bonds": 1932.0,
+      "breaks": 26093.0,
+      "creations": 28025.0,
+      "free": 136.0,
+      "inter": 1821.0,
+      "intra": 111.0,
+      "step": 8000000.0
+    },
+    "chemistry_seed": 420701,
+    "initVelocities": false,
+    "internal_start_step": 0,
+    "new_effective_md_seed": 3011452588,
+    "new_md_seed": 520118,
+    "old_effective_md_seed": 2961194660,
+    "old_md_seed": 520112,
+    "parent_prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state",
+    "parent_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/plan.json": "489af3d03ca1d54a1c42515b59961fea7fa889378410b5ddac8b835bd8f06812",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/complete.json": "ceeeec7d6afa42e016fec68a64159bb63ecc5e24d3a5abd18743438ab12b9bed",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.assoc_restart": "50fc8ea243d78555744d1141322fb431c51f2203af619f2f2e7bfb548e1708ac",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.conformation.tsv": "438c784b58821d3f326daefb8f8160df9b8dc84b45879aa4cae445b9f4c429b6",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.events": "d039e8ae94f6b11da1655656d9855c05e0ca4e274c5300d0d09857e73bc9fb3c",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.final_associations": "648cb017a718a19bbf7947222337f2686dd76eb58c0494b03253bb8b5ceced48",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.final_permanent.lammpsdat": "a85d6b71353e9f89361c1db7a148cd2c3e762dba87f676eb5f328ecb469c41aa",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.numerics.tsv": "5d01cae2fdfe253e071d7e5164262fa3a84777c9b7d9ff2220b040dec808479a",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.restart.lammpsdat": "57bc22947e5fe82998fbcc78cc8c278209cf6222d9a5ecaf499818e0aeff5ce6",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.state": "a9f7e469ee1bd8bfbe8487078723bdea3e9218e3c7962b4a012985df6f943692"
+    },
+    "partner_count": 1932,
+    "partner_hash_encoding": "SHA256 of JSON sorted pairs, compact separators, no newline",
+    "partner_pairs_sha256": "9d20e82f8cece6803bdfec7067c9a430847eb47c3d8336804727f7d7c5ab2b5b",
+    "replica": 1
+  },
+  {
+    "absolute_step": 8000000,
+    "bitwise_md_continuation": false,
+    "chemical_state": {
+      "bonds": 1918.0,
+      "breaks": 25957.0,
+      "creations": 27875.0,
+      "free": 164.0,
+      "inter": 1811.0,
+      "intra": 107.0,
+      "step": 8000000.0
+    },
+    "chemistry_seed": 420702,
+    "initVelocities": false,
+    "internal_start_step": 0,
+    "new_effective_md_seed": 3003084460,
+    "new_md_seed": 520119,
+    "old_effective_md_seed": 2952826532,
+    "old_md_seed": 520113,
+    "parent_prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state",
+    "parent_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/plan.json": "489af3d03ca1d54a1c42515b59961fea7fa889378410b5ddac8b835bd8f06812",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/complete.json": "535b0d3f1189dcc22e4eed3c6a20b6b9c7a9eb9d3c9cd1b0a7dabdbc12d4083f",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.assoc_restart": "ae78ee044342409fca1f7a6cbf0d906aaca2d789230387ed749c5f7e0c6d5b01",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.conformation.tsv": "9c735c23975a296cf844872e48ac3fca6ab633e27b05479aa664e06bcab7a3d7",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.events": "ab4c7b5acfeab699fd45d65123816072624acf9e42e9943f1e2f9fd1ab77c03f",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.final_associations": "f36f8a3ad5fb5345888e2ccac3ad5cfadec0e97e09e459582d085486ebf58a78",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.final_permanent.lammpsdat": "9f6aafcaca6083a6e639c15213c0c56e54c6fb2a5e72c96fb027b32e6131a184",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.numerics.tsv": "9895818f5d218383fbb8c62a52de7995d05fd9edd5a7d6bf94a0799997d9a8ab",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.restart.lammpsdat": "cab132c7c6872c4e98d67969681385f1b482dc39ccc29c1a98ac1af68829f0dd",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.state": "50df694187fe8e9552171bc973b34aae80fb012fbd30fe03035b1bee9c852353"
+    },
+    "partner_count": 1918,
+    "partner_hash_encoding": "SHA256 of JSON sorted pairs, compact separators, no newline",
+    "partner_pairs_sha256": "dd20d714ec1a4634b92d9384fa0c495e894b1c7be5f55c46b96630909abb8b35",
+    "replica": 2
+  },
+  {
+    "absolute_step": 8000000,
+    "bitwise_md_continuation": false,
+    "chemical_state": {
+      "bonds": 1921.0,
+      "breaks": 25812.0,
+      "creations": 27733.0,
+      "free": 158.0,
+      "inter": 1819.0,
+      "intra": 102.0,
+      "step": 8000000.0
+    },
+    "chemistry_seed": 420703,
+    "initVelocities": false,
+    "internal_start_step": 0,
+    "new_effective_md_seed": 2894249636,
+    "new_md_seed": 520120,
+    "old_effective_md_seed": 2977947300,
+    "old_md_seed": 520114,
+    "parent_prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state",
+    "parent_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/plan.json": "489af3d03ca1d54a1c42515b59961fea7fa889378410b5ddac8b835bd8f06812",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/complete.json": "1642d760dafa8b556647be3a68c302d63ba4da443b9e96477be704e0aedaeb09",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.assoc_restart": "bf080e697734e91b98d636ccb4175f839da0f046a645f1d5284a24d2c8665a5b",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.conformation.tsv": "efeb70116c8d5f3a9a1211255a8d501a6c9747409132052a373d0557a6815de7",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.events": "137cd8e437c548f483e67c8a8cdae18ce607742e4b3b437d355b0d2efa6e7854",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.final_associations": "d70baa7b1802df28ec50f8a0ec1933e167e28bc10e9159ef0e56b7fcdb006b73",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.final_permanent.lammpsdat": "309cdcbca4cd5d42ae2029b5e6b486c15a178387ff67993677bf4a77455bd7d5",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.numerics.tsv": "d44763a54def57941b51a44aa4a61f251f83e9607722e3903d2b1d803a91f90e",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.restart.lammpsdat": "5d0fe43a0520d875175fc9634884dada9985ebfdb2751f9a44824baacdb2624f",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.state": "0f44a0dd603fbe8396525f56eb51c1633783f39ab61e8891d9db03bf4b22ec6d"
+    },
+    "partner_count": 1921,
+    "partner_hash_encoding": "SHA256 of JSON sorted pairs, compact separators, no newline",
+    "partner_pairs_sha256": "f6e6ed91d156d2ecf622197e5b089d04039b60d9dbf8ea066b80e0824df18786",
+    "replica": 3
+  }
+]
