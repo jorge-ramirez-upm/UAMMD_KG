@@ -16,7 +16,8 @@ tracked, untracked, and ignored generated paths. Stop and report any outside
 change; never silently remove it. Use an isolated worktree when needed.
 
 Stage 1 is implemented and scientifically validated: independent GPU Rouse chains.
-Stages 2–4 are not authorized. Do not add stress, modulus or new physics.
+Stage 2A is implemented: per-chain configurational stress and direct-lag validation.
+Stage 2B (Correlator6), Stages 3–4 and new physics are not authorized.
 The project stages are:
 1. Independent Rouse chains on the GPU.
 2. Configurational stress correlations and modulus using Correlator6.
@@ -56,7 +57,8 @@ Use chain configurational stress
 
 The six Correlator6 inputs per independent chain will be, in order:
 S_xy, S_xz, S_yz, S_xx-S_yy, S_xx-S_zz, S_yy-S_zz.
-Initially feed CPU correlators from GPU stress samples. Reuse
+Stage 2A uses direct-lag CPU analysis of GPU per-chain stress samples.
+Only a separately authorized Stage 2B may add Correlator6. Reuse
 `../KG/correlator.h` and `../KG/correlator.cpp` unchanged; do not copy them.
 Read the limitations in STAGE0_REPORT.md before allocating many objects.
 
@@ -94,7 +96,36 @@ curand_normal4 for float and two curand_normal2_double calls for double.
 `tests/VALIDATION_PLAN.md` sets acceptance before stochastic execution. Compare
 nonstationary finite-step mode covariance as well as continuous-time theory.
 Cluster uncertainties by independent chain, never count overlapping origins
-as independent observations. The Python direct-lag analysis is Stage 1 only;
-it is not a stress correlator. Preserve `STAGE0_REPORT.md` as historical evidence.
+as independent observations. The Stage 1 Python analysis remains available; `stress.py` performs Stage 2A
+direct-lag stress analysis, with no multi-tau correlator. Preserve `STAGE0_REPORT.md` as historical evidence.
 Refuse to overwrite run directories; keep outputs inside this project or outside
 the repository. `make clean` must not delete scientific run data.
+
+## Permanent performance and example requirements
+
+Every simulation must print and save measured performance data: chains, springs
+and beads per chain, total beads, production steps/time, integration seconds,
+ns/bead/step and bead-updates/s, production wall time and overall ns/bead/step,
+sampling/recurrent transfer overhead, recurrent output and final data-output time.
+Use actual timers. Define the rate denominator as total_beads*production_steps,
+excluding optional equilibration. Zero production steps have null/N/A costs.
+Production timing excludes initialization/equilibration and final data flushing.
+State whether GPU timing includes launch gaps, synchronization and sampling.
+Keep timer scope/version and units explicit in metadata; never change physics
+to improve reported efficiency. Metadata/terminal telemetry overhead is outside
+the production/final-data timers and must be disclosed.
+
+Every future stage must update README's **Running the current simulator**
+section with tested, copy-and-paste build commands for both precisions, a short
+example and a moderately long example, validation commands and output locations.
+Specify N, chains, dt, production steps, sample stride and seed for each run.
+Run short examples before claiming they work. End task reports with the most
+useful current commands, not just links. Preserve refusal to overwrite outputs.
+
+Stage 2A computes six raw tensor components with double GPU reductions of stored
+unwrapped bonds, without a volume factor or bead coordinate transfer. Keep
+xy,xz,yz and xx-yy,xx-zz,yy-zz correlations separate. Normal-difference PRODUCTS
+carry a factor1/4. Never treat correlated channels or overlapping origins as
+independent statistical units. Square the exact EM covariance at each origin
+BEFORE averaging over origins. Preserve raw per-chain samples/contributions.
+`tests/STAGE2A_VALIDATION_PLAN.md` fixes the Stage 2A scientific gates.

@@ -116,6 +116,46 @@ void observationTests() {
     require(std::abs(actual[c].rg2-rg2)<1e-10,"gyration observation mismatch");
   }
 }
+void stressTests() {
+  const int index[3][3]={{0,3,4},{3,1,5},{4,5,2}};
+  for (int m:{2,5,9}) for (int kind=0;kind<5;++kind) {
+    constexpr int chains=4;
+    std::vector<real4> input(m*chains);
+    std::vector<double> weights(m,0);
+    thrust::device_vector<double> phi(weights);
+    thrust::device_vector<Observation> observations(chains);
+    std::vector<Observation> first;
+    for (int translation:{0,1048576}) {
+      for (int c=0;c<chains;++c) for (int j=0;j<m;++j) {
+        const real base=translation+c*64;
+        input[c*m+j]=kind<3 ? make_real4(base+(kind==0 ? j : 0),-base+(kind==1 ? j : 0),base+(kind==2 ? j : 0),0)
+          : kind==3 ? make_real4(base+j*(c+1),-base+(j*j+2*c)%11,base+(3*j+c)%7,0)
+                    : make_real4(base,-base,base,0);
+      }
+      thrust::device_vector<real4> positions(input);
+      observe<<<1,32>>>(thrust::raw_pointer_cast(positions.data()),thrust::raw_pointer_cast(observations.data()),
+                        thrust::raw_pointer_cast(phi.data()),chains,m);
+      std::vector<Observation> actual(chains);
+      check(cudaMemcpy(actual.data(),thrust::raw_pointer_cast(observations.data()),sizeof(Observation)*chains,cudaMemcpyDeviceToHost),"stress readback");
+      for (int c=0;c<chains;++c) {
+        double cpu[3][3]{};
+        for (int j=0;j<m-1;++j) {
+          const auto a=input[c*m+j],b=input[c*m+j+1];
+          const double q[3]={double(b.x)-a.x,double(b.y)-a.y,double(b.z)-a.z};
+          for (int row=0;row<3;++row) for (int col=0;col<3;++col) cpu[row][col]+=3*q[row]*q[col];
+        }
+        for (int row=0;row<3;++row) for (int col=0;col<3;++col) {
+          const double gpu=actual[c].stress[index[row][col]];
+          require(cpu[row][col]==cpu[col][row],"CPU tensor symmetry");
+          require(std::abs(gpu-cpu[row][col])<1e-11*(1+std::abs(cpu[row][col])),"GPU stress != CPU outer product");
+          if (translation) require(gpu==first[c].stress[index[row][col]],"stress changed under large translation");
+        }
+      }
+      if (!translation) first=actual;
+    }
+  }
+  std::cout << "PASS: six stress components, symmetric tensor, N=1,4,8, coordinate axes, arbitrary 3D, multiple chains, zero bonds, large translations\n";
+}
 void randomTests() {
   constexpr int n=131072;
   thrust::device_vector<Counter> ids(n);
@@ -156,7 +196,7 @@ void randomTests() {
 }
 int main() {
   try {
-    deterministic(); observationTests(); randomTests();
+    deterministic(); observationTests(); stressTests(); randomTests();
     check(cudaDeviceSynchronize(),"test sync");
     std::cout << "PASS: free-end forces N=1,2,8; CPU update; per-chain force conservation; translation/chain isolation; RNG replay, moments, covariances, IDs and 64-bit counters\n";
   } catch(const std::exception& e) { std::cerr << "FAIL: " << e.what() << '\n'; return 1; }

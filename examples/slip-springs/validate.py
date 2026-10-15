@@ -71,7 +71,7 @@ def record(name, value, se, reference, continuous=None):
     return result
 
 
-def analyze(directory):
+def load_samples(directory):
     directory = Path(directory)
     meta = json.loads((directory/'metadata.json').read_text())
     c, n, dt = meta['chains'], meta['springs'], meta['dt']
@@ -90,6 +90,12 @@ def analyze(directory):
     steps = data['step'][:, 0].astype(np.uint64)
     if not np.all(data['step'] == steps[:, None]):
         raise ValueError('inconsistent sample step')
+    return meta, data, steps
+
+
+def analyze(directory):
+    meta, data, steps = load_samples(directory)
+    c, n, dt = meta['chains'], meta['springs'], meta['dt']
     full_steps = steps + meta['equil']
     continuous = np.array([1, n, n*(n+2)/(6*(n+1))])
     references = dimensions(n, dt, full_steps).mean(axis=0)

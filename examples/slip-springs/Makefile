@@ -55,6 +55,7 @@ check: all
 	$(GPU_BUILD)/smoke_test
 	$(GPU_BUILD)/rouse_tests
 	python3 $(PROJECT_DIR)/tests/test_theory.py
+	python3 $(PROJECT_DIR)/tests/test_stress.py
 	python3 $(PROJECT_DIR)/tests/test_cli.py $(GPU_BUILD)/rouse
 
 double:

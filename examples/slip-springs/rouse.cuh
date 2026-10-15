@@ -63,6 +63,7 @@ struct Observation {
   double q2, ree2, rg2;
   double cm[3], ee[3], mode[3];
   double maxabs, zeroBonds;
+  double stress[6]; // xx, yy, zz, xy, xz, yz; double accumulation in both builds
 };
 
 // Double reductions of stored coordinates; anchoring avoids subtracting large squares.
@@ -88,6 +89,10 @@ __global__ void observe(const real4* pos, Observation* result, const double* phi
       double qsq=0;
       for (int a=0; a<3; ++a) qsq += q[a]*q[a];
       out.q2 += qsq/(m-1);
+      for (int a=0; a<3; ++a) out.stress[a] += 3*q[a]*q[a];
+      out.stress[3] += 3*q[0]*q[1];
+      out.stress[4] += 3*q[0]*q[2];
+      out.stress[5] += 3*q[1]*q[2];
       if (qsq == 0) out.zeroBonds += 1;
     }
   }

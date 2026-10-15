@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <sstream>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -96,10 +97,17 @@ struct Events {
     return ms/1000.;
   }
 };
+std::string rate(double value, bool applicable) {
+  if (!applicable) return "null";
+  std::ostringstream out;
+  out << std::setprecision(17) << value;
+  return out.str();
+}
 using Clock=std::chrono::steady_clock;
 double seconds(Clock::time_point start) { return std::chrono::duration<double>(Clock::now()-start).count(); }
 
-void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::System> sys) {
+void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::System> sys, double contextTime) {
+  const auto initializationStart=Clock::now();
   const int m=o.springs+1, count=m*o.chains;
   const real h=real(o.dt);
   int device;
@@ -133,20 +141,20 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
   std::ofstream samples(output/"samples.csv"), ensemble(output/"ensemble.csv");
   samples.exceptions(std::ios::badbit|std::ios::failbit);
   ensemble.exceptions(std::ios::badbit|std::ios::failbit);
-  samples << "step,time,chain,q2,ree2,rg2,cm_x,cm_y,cm_z,ee_x,ee_y,ee_z,mode1_x,mode1_y,mode1_z,max_abs,zero_bonds\n" << std::setprecision(17);
+  samples << "step,time,chain,q2,ree2,rg2,cm_x,cm_y,cm_z,ee_x,ee_y,ee_z,mode1_x,mode1_y,mode1_z,max_abs,zero_bonds,Sxx,Syy,Szz,Sxy,Sxz,Syz\n" << std::setprecision(17);
   ensemble << "step,time,q2,q2_se,ree2,ree2_se,rg2,rg2_se\n" << std::setprecision(17);
   Counter globalStep=0;
   Events events;
   double updateTime=0,samplingTime=0,outputTime=0,maxabs=0,zeros=0;
   auto advance=[&](Counter n) {
-    if (!n) return;
+    if (!n) return 0.;
     events.begin();
     for (Counter i=0;i<n;++i,++globalStep) {
       rouse::update<<<(count+255)/256,256>>>(current,next,id,count,m,h,o.seed,globalStep);
       std::swap(current,next);
     }
     rouse::check(cudaGetLastError(),"update launch");
-    updateTime+=events.end();
+    return events.end();
   };
   auto sample=[&](Counter productionStep) {
     auto start=Clock::now();
@@ -171,7 +179,12 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
       for (double x:v.cm) samples << ',' << x;
       for (double x:v.ee) samples << ',' << x;
       for (double x:v.mode) samples << ',' << x;
-      samples << ',' << v.maxabs << ',' << v.zeroBonds << '\n';
+      samples << ',' << v.maxabs << ',' << v.zeroBonds;
+      for (double x:v.stress) {
+        if (!std::isfinite(x)) throw std::runtime_error("nonfinite stress");
+        samples << ',' << x;
+      }
+      samples << '\n';
     }
     ensemble << productionStep << ',' << double(productionStep)*double(h);
     for (int k=0;k<3;++k) {
@@ -183,18 +196,22 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
     ensemble << '\n';
     outputTime+=seconds(start);
   };
+  const double initializationTime=contextTime+seconds(initializationStart);
+  const auto equilStart=Clock::now();
+  const double equilGpu=advance(o.equil);
+  const double equilTime=seconds(equilStart);
   const auto start=Clock::now();
-  advance(o.equil);
   sample(0);
   Counter done=0;
   while (done<o.steps) {
     const Counter n=std::min(o.sample,o.steps-done);
-    advance(n); done+=n; sample(done);
+    updateTime+=advance(n); done+=n; sample(done);
   }
+  const double elapsed=seconds(start);
   const auto flushStart=Clock::now();
   samples.close(); ensemble.close();
-  outputTime+=seconds(flushStart);
-  const double elapsed=seconds(start);
+  const double finalOutputTime=seconds(flushStart);
+  const double updates=double(count)*double(o.steps);
   const double spacing=double(std::nextafter(real(maxabs),std::numeric_limits<real>::infinity())-real(maxabs));
   std::ofstream meta(output/"metadata.json");
   meta.exceptions(std::ios::badbit|std::ios::failbit);
@@ -205,21 +222,50 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
        << ",\"seed\":" << o.seed << ",\"real_bits\":" << 8*sizeof(real)
        << ",\"gpu\":\"" << prop.name << "\",\"compute_capability\":\"" << prop.major << '.' << prop.minor
        << "\",\"update_seconds\":" << updateTime << ",\"sampling_seconds\":" << samplingTime
-       << ",\"output_seconds\":" << outputTime << ",\"wall_seconds\":" << elapsed
-       << ",\"bead_updates_per_second\":" << (updateTime ? double(count)*double(globalStep)/updateTime : 0)
+       << ",\"output_seconds\":" << outputTime+finalOutputTime << ",\"wall_seconds\":" << elapsed
+       << ",\"timing_schema_version\":2,\"beads_per_chain\":" << m
+       << ",\"physical_time\":" << double(o.steps)*double(h)
+       << ",\"initialization_seconds\":" << initializationTime
+       << ",\"context_initialization_seconds\":" << contextTime
+       << ",\"equilibration_seconds\":" << equilTime << ",\"equilibration_gpu_seconds\":" << equilGpu
+       << ",\"production_seconds\":" << elapsed
+       << ",\"recurrent_output_seconds\":" << outputTime
+       << ",\"final_output_seconds\":" << finalOutputTime
+       << ",\"integration_ns_per_bead_step\":" << rate(o.steps ? 1e9*updateTime/updates : 0, o.steps!=0)
+       << ",\"overall_ns_per_bead_step\":" << rate(o.steps ? 1e9*elapsed/updates : 0, o.steps!=0)
+       << ",\"gpu_timing_includes_launch_gaps\":true,\"gpu_timing_includes_sampling\":false"
+       << ",\"gpu_timing_includes_host_sync_wait\":false,\"sampling_includes_recurrent_transfer\":true"
+       << ",\"bead_updates_per_second\":" << rate(o.steps ? updates/updateTime : 0, o.steps!=0)
        << ",\"explicit_device_bytes\":" << 2*sizeof(real4)*std::size_t(count)+sizeof(Counter)*std::size_t(count)+sizeof(double)*m+sizeof(rouse::Observation)*o.chains
        << ",\"cuda_memory_delta_bytes\":" << freeBefore-freeAfter
        << ",\"max_abs_coordinate\":" << maxabs << ",\"max_spacing_over_noise\":" << spacing/std::sqrt(2*double(h))
        << ",\"sampled_zero_bonds\":" << zeros << "\n}\n";
-  std::cerr << "Timing: updates=" << updateTime << "s sampling=" << samplingTime << "s output=" << outputTime
-            << "s wall=" << elapsed << "s; outputs=" << output << '\n';
+  meta.close();
+  std::cerr << "Performance: chains=" << o.chains << " springs/chain=" << o.springs
+            << " beads/chain=" << m << " total_beads=" << count << " production_steps=" << o.steps
+            << " physical_time=" << double(o.steps)*double(h) << " tau_0\n"
+            << "  GPU integration=" << updateTime << " s; ns/bead/step="
+            << (o.steps ? std::to_string(1e9*updateTime/updates) : "N/A") << "; bead updates/s="
+            << (o.steps ? std::to_string(updates/updateTime) : "N/A") << '\n'
+            << "  Production loop=" << elapsed << " s; overall ns/bead/step="
+            << (o.steps ? std::to_string(1e9*elapsed/updates) : "N/A") << '\n'
+            << "  Sampling + recurrent D2H=" << samplingTime << " s; recurrent CSV=" << outputTime
+            << " s; final CSV flush/close=" << finalOutputTime << " s\n"
+            << "  Initialization=" << initializationTime << " s (includes System/CUDA context); equilibration="
+            << equilTime << " s (" << o.equil << " steps; GPU " << equilGpu << " s)\n"
+            << "  GPU event intervals include launch gaps; exclude sampling and host sync wait.\n"
+            << "  Production includes synchronization, sampling/D2H and recurrent CSV; excludes initialization,\n"
+            << "  equilibration, final CSV flush/close, metadata serialization and terminal logging.\n"
+            << "  Results=" << output << '\n';
 }
 int main(int argc, char** argv) {
   try {
     const auto o=parse(argc,argv);
     const auto output=prepareOutput(o.output);
+    const auto contextStart=Clock::now();
     auto sys=std::make_shared<uammd::System>();
-    simulate(o,output,sys);
+    const double contextTime=seconds(contextStart);
+    simulate(o,output,sys,contextTime);
     sys->finish();
   } catch (const std::exception& error) {
     std::cerr << "FAIL: " << error.what() << '\n';
