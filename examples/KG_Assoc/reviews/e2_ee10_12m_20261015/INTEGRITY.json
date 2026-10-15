@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "immutable scientific recommendation only; containing commit binds this manifest",
+  "sha256": {
+    "ASSESSMENT.md": "fe73988073ed5e0a344091c82ff0bdaa7d0edf03e08550015a3ae244cb2666eb",
+    "AUTHENTICATION.json": "efaab2b42f6ce6ecc0935b9779bdc5e3072df8f8a68d081d7537d8f089b07aab",
+    "CPU_TESTS.log": "82a2f205b71385897c60c8e63e58be07bc82429b515c5f3cd6db9e7598917627",
+    "ENDPOINTS.md": "cdb3fc402e5d8042fe75c183e375775dcc6ddb161c99afd8a6e6fced8d7c3bfd",
+    "PRESERVED_SHA256.json": "1855ecd31dc2e64bf01626600c5cf8d0d630d6a1a4b9fe8d59d29603301753c9",
+    "VALIDATION.md": "4937d95d40c412d6458f0249d5488ab42bc8af896033c6923b2c89d143a0b3ff",
+    "decision.json": "e788120141e6de9753c9042df9e7e42d47427a0cf08e004cd1f9c95ede0ee5b5",
+    "evidence/CORRELATIONS.json": "b5e737a3707bd94f58cfa36c66e63cd365a340c5b78509dc4f8600448358b10b",
+    "evidence/EE8_COMPARISON.json": "369e403b7a3fbde00475d449f45f0b911987d8f63e85d4a09698809a184eca66",
+    "evidence/WINDOWS.md": "c5202ba54ab4e03bea752fadd8873959471d222dfdb215a4958b07886eba1f94",
+    "evidence/chemistry.png": "cf7167392ce26479c4295f87070b7519b45cd83f692b5c938c25bb516032fdad",
+    "evidence/late.png": "87b494bb3f687db81b14fdfac0bee73096abe2fc255322c42f6f49d0341f5636",
+    "evidence/multiplicity.png": "f52be47c8a50683f979dfb2d41f8f88dd7d0b237e3af559479302f2c89a8e2d5",
+    "evidence/network.png": "61bc05a85fdee7d9d065689b99e6cf5f5f453305373329c8dc8a17b16011dc08",
+    "evidence/provenance.json": "eabd125eae3589e382ff848a68bd9310e55d91da3ecaa764868756ff99cd9a21",
+    "evidence/r001_frames.csv": "6b844bbc37f5300bae91dfce8c08aeed9037d2b9cc357ba26e041771484bad91",
+    "evidence/r002_frames.csv": "65241bf5596259eaad01a508d8e4cf33d4ce20ee311efc7b55cafb6f07ccee03",
+    "evidence/r003_frames.csv": "42af48553637be14642c4047f039c5c65d6cbbb976931b16b53db041320a7084",
+    "evidence/shape.png": "1a3359dac0bfe71b0c5810a8d207cda173c5528b4078251fb977dea25542ab4a",
+    "evidence/summary.json": "aebcf2e6ed3b99b4a48000168c1276fb818259adad363dea3428e7fd29a904dd",
+    "reproduce_ee10_12m.py": "3dc704a6af7f3a859ecb9371cc8afb8fbd02e97b7525c44e595bd433cee209ac",
+    "tabulate_ee10_12m.py": "1ea355abc57810854ad31159ac5b6d5a24f677886c58e673907f1046a26a5eb3",
+    "test_ee10_12m.py": "1f81b4f63090069ddec359295993b0a1a9ac506c008a0bfabb6301c05c432826"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "stage": "E2_CPU_scientific_assessment",
+  "system_id": "F04_N010_RP080_EE10_EA04",
+  "recommendation": "qualified_acceptance_recommended_not_registered",
+  "permitted_recommended_use": "production_initial_state",
+  "formal_acceptance": false,
+  "automatic_acceptance": false,
+  "registry_selection": false,
+  "registry_activation": false,
+  "production_preparation": false,
+  "production_authorization": false,
+  "trajectory_launched": false,
+  "further_equilibration_recommended": false,
+  "starting_git_sha": "4ada00d18cff6ac5e83872faf469409ee892f28f",
+  "source_plan_sha256": [
+    "489af3d03ca1d54a1c42515b59961fea7fa889378410b5ddac8b835bd8f06812",
+    "9ceb3ce52582e1e781ee36072b4018254dca0f663f58a73edb3111093322f28a"
+  ],
+  "exact_endpoints": [
+    {
+      "chemistry_seed": 420701,
+      "effective_md_seed": 3011452588,
+      "end_step": 12000000,
+      "md_seed": 520118,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state",
+      "replica": 1,
+      "state_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.assoc_restart": "1b01ba5479644faaa2cbebaad01139690e39278082bb116498cb2a0ab967f1ec",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.conformation.tsv": "e86d90908814fc7bbf467542c94b620929a701f9bfcc58e1513fb832ac0ba884",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.events": "ae9805c63b9218b0981e29e59e973fb09c3d209e638a3b1cf03cd23b193fec61",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.final_associations": "9d6d8ea812e4410c3684dc7d38b32e60859b790ca6781fb37cf407556eb6d40b",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.final_permanent.lammpsdat": "50f82e883f34709a6c8c38dea9b807099745a9ac94d925361434b3aa2630c8bf",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.numerics.tsv": "72773ef8ac7a54db939b31ce69973fb1177802847c78321ab0438d348fc2f3f1",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.restart.lammpsdat": "1abe47f801ef69c65d14057125ca08850782dc79bebf1232ce234daa038f3ae5",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.state": "70ce090c5dfa5f7d73d6610fb5ac60905ee250ad7391afbc069efbfbf635a821"
+      }
+    },
+    {
+      "chemistry_seed": 420702,
+      "effective_md_seed": 3003084460,
+      "end_step": 12000000,
+      "md_seed": 520119,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state",
+      "replica": 2,
+      "state_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.assoc_restart": "e89e39b6734a65bd126de368df1a58bac255dbef1ae4153cb02068585a2ac2d8",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.conformation.tsv": "0008722b6149f347349366c847c08d7eb2ddd9c70592e5589d9b65dfaa64df6c",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.events": "45a732754c9932220374b00810fb29b8ff3034420f3a0e51dca774c02de66f17",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.final_associations": "40fec6caa511034be67335a8f274b272724e360caa22e1386409fb49f15cff1a",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.final_permanent.lammpsdat": "6c4bbdd3248b317b4c2884ef0013227bad2ab337a930070db61cc2d67a04f6fc",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.numerics.tsv": "49ffd62c71a5adeea1dde0e1e7658c084f5a2a513be0a4a6cdba0054f96a17a9",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.restart.lammpsdat": "6d4f52474befbfe2f1d1fb37a3ab7bb88e26c76f8a5f3000cc08bcc06c8c8884",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.state": "203d6e2bd9c81eb6e1a3360f75702025937b53244950048f754b1341d3041559"
+      }
+    },
+    {
+      "chemistry_seed": 420703,
+      "effective_md_seed": 2894249636,
+      "end_step": 12000000,
+      "md_seed": 520120,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state",
+      "replica": 3,
+      "state_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.assoc_restart": "136351973a9e8a555e08ff327d7bfcc6ce3f8f61492903e9044f0113b8ce53e3",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.conformation.tsv": "b6f52e592840631b19236588ac502245b63bd9076c92c7120b5f8019625de646",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.events": "f5fcd40a5c14e528ed06ebd25ba8e340496fdd6e4f446f1f1ab954fd71f84df6",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.final_associations": "16424e62281a6012f9a9d1356cbb2e9bf79e8f3009cfa8078d56c9ba66f7dee5",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.final_permanent.lammpsdat": "80bfe0fabcaf5a3fafdd0c19e772c547e6484373360e00646b85fd0d593194b6",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.numerics.tsv": "20719b1a4012b5e6c79fece0e6207256a4d9ed9650279656cd692b4b923fe289",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.restart.lammpsdat": "c704178a3769932927ef647ba40e1754928ba188fb42d5c45ffb154ef80a32e1",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.state": "f8f439e7a11ff1bf5eaed9426e7445e8f7a1731d0c12b439a5742f610b3a4fc5"
+      }
+    }
+  ],
+  "qualifications": [
+    "poorly resolved slow topology and block-size sensitivity",
+    "r002's large L1 excursion and elevated late mean",
+    "r003's newer intra/inter/degree redistribution",
+    "replica-specific population offsets and shared conformational shift from 6\u20138M",
+    "possible residual initialization bias and rare-event sampling",
+    "historical original E2 and E1 executable-byte authentication limitations",
+    "complete stationarity/decorrelation and exact coupled-integrator equilibrium invariance unproven"
+  ],
+  "evidence_sha256": {
+    "ASSESSMENT.md": "fe73988073ed5e0a344091c82ff0bdaa7d0edf03e08550015a3ae244cb2666eb",
+    "ENDPOINTS.md": "cdb3fc402e5d8042fe75c183e375775dcc6ddb161c99afd8a6e6fced8d7c3bfd",
+    "VALIDATION.md": "4937d95d40c412d6458f0249d5488ab42bc8af896033c6923b2c89d143a0b3ff",
+    "AUTHENTICATION.json": "efaab2b42f6ce6ecc0935b9779bdc5e3072df8f8a68d081d7537d8f089b07aab",
+    "PRESERVED_SHA256.json": "1855ecd31dc2e64bf01626600c5cf8d0d630d6a1a4b9fe8d59d29603301753c9",
+    "evidence/provenance.json": "eabd125eae3589e382ff848a68bd9310e55d91da3ecaa764868756ff99cd9a21",
+    "evidence/summary.json": "aebcf2e6ed3b99b4a48000168c1276fb818259adad363dea3428e7fd29a904dd",
+    "evidence/CORRELATIONS.json": "b5e737a3707bd94f58cfa36c66e63cd365a340c5b78509dc4f8600448358b10b",
+    "evidence/EE8_COMPARISON.json": "369e403b7a3fbde00475d449f45f0b911987d8f63e85d4a09698809a184eca66"
+  }
+}
