@@ -1,0 +1,391 @@
+{
+  "definitions": "inter-star bond-degree zero; exact event-time residence, right-censored at 16M; zero-duration intermediate states carry no residence; not an independent stationarity test",
+  "records": [
+    {
+      "intervals": [
+        {
+          "continuously_isolated_stars": [
+            83,
+            771
+          ],
+          "end_step": 8000000,
+          "spells": [
+            {
+              "end": 5012900,
+              "overlap_steps": 2500,
+              "right_censored": false,
+              "star": 62,
+              "start": 5010400
+            },
+            {
+              "end": 7505400,
+              "overlap_steps": 200,
+              "right_censored": false,
+              "star": 245,
+              "start": 7505200
+            },
+            {
+              "end": 11199100,
+              "overlap_steps": 4000000,
+              "right_censored": false,
+              "star": 83,
+              "start": 1711400
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 4000000,
+          "time_averaged_isolated_stars": 2.000675,
+          "unique_isolated_stars": [
+            62,
+            83,
+            245,
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 12000000,
+          "spells": [
+            {
+              "end": 10444600,
+              "overlap_steps": 33100,
+              "right_censored": false,
+              "star": 310,
+              "start": 10411500
+            },
+            {
+              "end": 10715600,
+              "overlap_steps": 400,
+              "right_censored": false,
+              "star": 318,
+              "start": 10715200
+            },
+            {
+              "end": 11199100,
+              "overlap_steps": 3199100,
+              "right_censored": false,
+              "star": 83,
+              "start": 1711400
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 8000000,
+          "time_averaged_isolated_stars": 1.80815,
+          "unique_isolated_stars": [
+            83,
+            310,
+            318,
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "end": 13682000,
+              "overlap_steps": 20000,
+              "right_censored": false,
+              "star": 532,
+              "start": 13662000
+            },
+            {
+              "end": 14758600,
+              "overlap_steps": 2400,
+              "right_censored": false,
+              "star": 76,
+              "start": 14756200
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 12000000,
+          "time_averaged_isolated_stars": 1.0056,
+          "unique_isolated_stars": [
+            76,
+            532,
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "end": 14758600,
+              "overlap_steps": 2400,
+              "right_censored": false,
+              "star": 76,
+              "start": 14756200
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 14000000,
+          "time_averaged_isolated_stars": 1.0012,
+          "unique_isolated_stars": [
+            76,
+            771
+          ]
+        }
+      ],
+      "replica": 1
+    },
+    {
+      "intervals": [
+        {
+          "continuously_isolated_stars": [],
+          "end_step": 8000000,
+          "spells": [
+            {
+              "end": 5732700,
+              "overlap_steps": 400,
+              "right_censored": false,
+              "star": 466,
+              "start": 5732300
+            }
+          ],
+          "start_step": 4000000,
+          "time_averaged_isolated_stars": 0.0001,
+          "unique_isolated_stars": [
+            466
+          ]
+        },
+        {
+          "continuously_isolated_stars": [],
+          "end_step": 12000000,
+          "spells": [
+            {
+              "end": 11836200,
+              "overlap_steps": 16500,
+              "right_censored": false,
+              "star": 187,
+              "start": 11819700
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 824800,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 8000000,
+          "time_averaged_isolated_stars": 0.210325,
+          "unique_isolated_stars": [
+            187,
+            491
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "end": 15532300,
+              "overlap_steps": 1000,
+              "right_censored": false,
+              "star": 965,
+              "start": 15531300
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 12000000,
+          "time_averaged_isolated_stars": 1.00025,
+          "unique_isolated_stars": [
+            491,
+            965
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "end": 15532300,
+              "overlap_steps": 1000,
+              "right_censored": false,
+              "star": 965,
+              "start": 15531300
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 14000000,
+          "time_averaged_isolated_stars": 1.0005,
+          "unique_isolated_stars": [
+            491,
+            965
+          ]
+        }
+      ],
+      "replica": 2
+    },
+    {
+      "intervals": [
+        {
+          "continuously_isolated_stars": [],
+          "end_step": 8000000,
+          "spells": [
+            {
+              "end": 5943300,
+              "overlap_steps": 600,
+              "right_censored": false,
+              "star": 20,
+              "start": 5942700
+            },
+            {
+              "end": 6815400,
+              "overlap_steps": 3400,
+              "right_censored": false,
+              "star": 300,
+              "start": 6812000
+            },
+            {
+              "end": 7472300,
+              "overlap_steps": 300,
+              "right_censored": false,
+              "star": 191,
+              "start": 7472000
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 645500,
+              "right_censored": true,
+              "star": 531,
+              "start": 7354500
+            }
+          ],
+          "start_step": 4000000,
+          "time_averaged_isolated_stars": 0.16245,
+          "unique_isolated_stars": [
+            20,
+            191,
+            300,
+            531
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            531
+          ],
+          "end_step": 12000000,
+          "spells": [
+            {
+              "end": 10271000,
+              "overlap_steps": 100,
+              "right_censored": false,
+              "star": 230,
+              "start": 10270900
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 531,
+              "start": 7354500
+            }
+          ],
+          "start_step": 8000000,
+          "time_averaged_isolated_stars": 1.000025,
+          "unique_isolated_stars": [
+            230,
+            531
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            531
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "end": 12762800,
+              "overlap_steps": 100,
+              "right_censored": false,
+              "star": 414,
+              "start": 12762700
+            },
+            {
+              "end": 16000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 531,
+              "start": 7354500
+            }
+          ],
+          "start_step": 12000000,
+          "time_averaged_isolated_stars": 1.000025,
+          "unique_isolated_stars": [
+            414,
+            531
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            531
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "end": 16000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 531,
+              "start": 7354500
+            }
+          ],
+          "start_step": 14000000,
+          "time_averaged_isolated_stars": 1.0,
+          "unique_isolated_stars": [
+            531
+          ]
+        }
+      ],
+      "replica": 3
+    }
+  ]
+}

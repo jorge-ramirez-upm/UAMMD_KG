@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "checkpoint_scalar_comparisons": 13440,
+  "checkpoint_max_absolute_difference": 3.552713678800501e-15,
+  "fresh_checkpoint_counts_and_exposures": "exact",
+  "coarse_means_counts_exposures": "independently checked against disjoint 500k windows",
+  "repeated_output": "/tmp/ee12_16m_table_reproduction",
+  "scope": "five copied input artifacts; twelve freshly regenerated tables, figures and diagnostics; no second full raw authentication/IAT pass",
+  "bitwise_matched_sha256": {
+    "CORRELATIONS.json": "29b059dd5d135c0094a5f8d13c87a9da7dde13400f2e7cf9e350ce3d3331a9d3",
+    "EE10_COMPARISON.json": "b55d478840480a1456573a33d585c578086d60d5c7eb01c72ebe2d67dd39fbcb",
+    "ISOLATION.json": "aec36c46f73db0f423377ab3bc568db0eb49247391ddb5df9ca3cb95d4e7a3a3",
+    "LATE_DIAGNOSTICS.md": "815e8c61f9bbaf092f782d95c53b57d344a886dcb7276e895b16173581293b06",
+    "NETWORK_DISTRIBUTIONS.md": "c81f24861691e2e38d4f8cd997cb5c0a4cbf7000c425973851bc9c3d113e90e6",
+    "REPLICA_WINDOWS.md": "037ac2f7da4039dd73cc98bec417a092f6baffe4e555e98aa25d0ede58f88e93",
+    "WINDOWS.md": "5ab3268ed8e429f2afa18aa036b2651c0d37c78979497f7b1b8f4e795ed15774",
+    "chemistry.png": "3965b440201ae7e057e00f73a566ec0708db83694982b6892451b9b1e341bb5b",
+    "late.png": "4fe47b6375cb3af0d4a8d3c73222ba427087740e68b762b984e7a44693791c0f",
+    "multiplicity.png": "8bab0ac0adc67f6a4fca9183f2c889f640a294541f291677f70cf1be962adc40",
+    "network.png": "180d22a948e8ddefbeb9249412ef8e2aba0f44bfba7ccfe89a59855f77b838d2",
+    "provenance.json": "733c4f28a92dca29298f402bf9b86cd4da45ea53af1f82e3b9da3bcb11a459d3",
+    "r001_frames.csv": "839f33843b7b8dc02280bd39e8dd096045141adf4ee027aa41642bfc26d949ca",
+    "r002_frames.csv": "4fad87a47ed974405be45420798f1cba9a1babb2f0b0da7e2ce041aefd0dddd7",
+    "r003_frames.csv": "e88b277451c7100d1dd73fc400a210d13571bddbeb030fe32b87385afc81a13a",
+    "shape.png": "ebb52f61995a446c1bb5ab791316c3daca2335b22a2834bd139cb8fb12f15063",
+    "summary.json": "b52e553b04dd8c30fc0f2b623325d37c8bda003c75b6a9a9d66512b5ad0bc163"
+  }
+}
