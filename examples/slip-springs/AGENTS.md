@@ -15,8 +15,9 @@ against the recorded source SHA in STAGE0_REPORT.md and programmatically check
 tracked, untracked, and ignored generated paths. Stop and report any outside
 change; never silently remove it. Use an isolated worktree when needed.
 
-Only Stage 0 is authorized initially. Do not implement Rouse dynamics until
-Stage 0 has been reviewed and approved. Later stages require their own scope:
+Stage 1 is implemented and scientifically validated: independent GPU Rouse chains.
+Stages 2–4 are not authorized. Do not add stress, modulus or new physics.
+The project stages are:
 1. Independent Rouse chains on the GPU.
 2. Configurational stress correlations and modulus using Correlator6.
 3. Benchmarking and optimization.
@@ -78,3 +79,22 @@ Start with UAMMD ordinary precision (`real=float`); maintain a documented
 or full double arithmetic solely because coordinates are double. Do not add a
 mixed-precision coordinate representation without an approved later scope.
 Report actual compilation and execution separately; unexecuted tests never pass.
+
+## Stage 1 implementation conventions
+
+The local `rouse.cuh` Euler–Maruyama update uses immutable logical bead IDs,
+Philox4x32-10 and two old/new buffers. Never turn it into an in-place neighbor
+update. Fixed chain-contiguous layout supplies topology; do not reorder bead
+storage without remapping topology and preserving IDs. No sorting is performed.
+Reserve eight 32-bit RNG draws per bead per unsigned 64-bit step; reject runs
+whose equilibration+production count exceeds floor(UINT64_MAX/8). Keep domain
+separation for bond initialization and independent chain translations. Use
+curand_normal4 for float and two curand_normal2_double calls for double.
+
+`tests/VALIDATION_PLAN.md` sets acceptance before stochastic execution. Compare
+nonstationary finite-step mode covariance as well as continuous-time theory.
+Cluster uncertainties by independent chain, never count overlapping origins
+as independent observations. The Python direct-lag analysis is Stage 1 only;
+it is not a stress correlator. Preserve `STAGE0_REPORT.md` as historical evidence.
+Refuse to overwrite run directories; keep outputs inside this project or outside
+the repository. `make clean` must not delete scientific run data.
