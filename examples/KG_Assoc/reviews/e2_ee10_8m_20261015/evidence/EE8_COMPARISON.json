@@ -1,0 +1,120 @@
+{
+  "independent_units": "three histories per Ee; no between-Ee pairing",
+  "interval": [
+    6000000,
+    8000000
+  ],
+  "limitations": "Ee8 neighbor counts/exposures reuse frozen authenticated corrected review; no fresh Ee8 graph replay",
+  "records": [
+    {
+      "activity": {
+        "breaks": 1.82145,
+        "creations": 1.82185,
+        "neighbor_gains": 1.654,
+        "neighbor_losses": 1.65325
+      },
+      "event_counts": {
+        "breaks": 36429,
+        "creations": 36437,
+        "neighbor_gains": 33080,
+        "neighbor_losses": 33065
+      },
+      "exposure": {
+        "active_bond_time": 35868234.0,
+        "free_sticker_time": 8263532.0
+      },
+      "metrics": {
+        "L1": 41.821,
+        "L2": 32.4135,
+        "bound_fraction": 0.89671875,
+        "inter": 1701.7365,
+        "intra": 91.701,
+        "largest_cluster_fraction": 0.998114,
+        "mean_degree": 3.320274,
+        "second_degree_moment": 11.681478
+      },
+      "population_normalized_rates": {
+        "creation_events_per_free_sticker_time": 0.004409373618931953,
+        "rupture_events_per_active_bond_time": 0.0010156340565861146
+      },
+      "replica": 1
+    },
+    {
+      "activity": {
+        "breaks": 1.81645,
+        "creations": 1.8173,
+        "neighbor_gains": 1.64345,
+        "neighbor_losses": 1.6411
+      },
+      "event_counts": {
+        "breaks": 36329,
+        "creations": 36346,
+        "neighbor_gains": 32869,
+        "neighbor_losses": 32822
+      },
+      "exposure": {
+        "active_bond_time": 35894145.0,
+        "free_sticker_time": 8211710.0
+      },
+      "metrics": {
+        "L1": 37.891,
+        "L2": 32.7625,
+        "bound_fraction": 0.897344,
+        "inter": 1691.985,
+        "intra": 102.703,
+        "largest_cluster_fraction": 0.9972185,
+        "mean_degree": 3.3094069999999998,
+        "second_degree_moment": 11.636663
+      },
+      "population_normalized_rates": {
+        "creation_events_per_free_sticker_time": 0.0044261183115331644,
+        "rupture_events_per_active_bond_time": 0.0010121149284932124
+      },
+      "replica": 2
+    },
+    {
+      "activity": {
+        "breaks": 1.81755,
+        "creations": 1.81935,
+        "neighbor_gains": 1.65025,
+        "neighbor_losses": 1.6472
+      },
+      "event_counts": {
+        "breaks": 36351,
+        "creations": 36387,
+        "neighbor_gains": 33005,
+        "neighbor_losses": 32944
+      },
+      "exposure": {
+        "active_bond_time": 35877829.0,
+        "free_sticker_time": 8244342.0
+      },
+      "metrics": {
+        "L1": 39.225,
+        "L2": 35.0055,
+        "bound_fraction": 0.89694475,
+        "inter": 1701.9315,
+        "intra": 91.958,
+        "largest_cluster_fraction": 0.9977495,
+        "mean_degree": 3.3260039999999997,
+        "second_degree_moment": 11.718175
+      },
+      "population_normalized_rates": {
+        "creation_events_per_free_sticker_time": 0.0044135723627185776,
+        "rupture_events_per_active_bond_time": 0.0010131883955408784
+      },
+      "replica": 3
+    }
+  ],
+  "reference_record_sha256": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+  "scope": "only qualified corrected Ee8; never defective historical windows",
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.state": "4b85f74ef76fc8a5ba02e2befc46c887bfdd0c6706fff6b44538c7ff81892d66",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.state": "ba128fc1278d19e24fa8a9a3235493a4c9e7fd80e513b1ee1d26c9110abb64ef",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.state": "903279a784f39890fdbb3fce2cdf153c457bbfe5f774dd5867cb2dba7b37b60d",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee10_8m_20261015/AUTHENTICATION.json": "8475d99f5149f8a3a7c0ed2a1e98d0fa45eada19db454cf289e3f5fd03f08698",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee10_8m_20261015/evidence/summary.json": "78738e4e6565adc03c007c13eb7a550c1be0629c0f6488deb74f00dbcb622c22",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee10_8m_20261015/tabulate_ee10.py": "584e64f4d0c6d48008682a3e604207397bdff6de36490f7d2c01645d1f68b93f"
+  },
+  "system": "F04_N010_RP080_EE08_EA04"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "immutable scientific assessment only; containing Git commit binds this manifest",
+  "sha256": {
+    "ASSESSMENT.md": "14ec0d47a434ea2ede6b39a8222771061a4e967d958f6ff8ccd60ca1463f23d1",
+    "AUTHENTICATION.json": "8475d99f5149f8a3a7c0ed2a1e98d0fa45eada19db454cf289e3f5fd03f08698",
+    "CPU_TESTS.log": "021f212eb8b01308d154eb96ed53d48255342974b81d8b14121499af319dd984",
+    "ENDPOINTS.md": "c6e9b629a20d461ea6f42e461e12ef679e8c8e6c101061a122651149584b5f68",
+    "PRESERVED_SHA256.json": "389517ba26f6b8942ef30554690084724b7c20ff88a6d4b985dec22dc2051465",
+    "VALIDATION.md": "4b115e121df611832860d33ea911eb8db63b12f0b5765454a802735a8134cd47",
+    "decision.json": "942dc472ef6c77370371f98af80b8b175a1dfeaf6aa31ec52634ea21c3342d01",
+    "evidence/EE8_COMPARISON.json": "ea085bbe3d2b91c9d67265ae964b299b0f202e8c6434a0b72aff5c138175a8ad",
+    "evidence/WINDOWS.md": "e125bf5702f2332625e61f92d3f3502159c5d29dc0b3ead26fcd2064beae7652",
+    "evidence/chemistry.png": "9c3e7055783f85b7ef0f4df2b5d1fa83d14e98a1537760ca1d84e11b8e0fecaf",
+    "evidence/late.png": "3ccc5a4e50a3ce62c07fcfcd085a749e44ac6ca07c7d4eab095c7272c6e7d4d6",
+    "evidence/multiplicity.png": "403188072d2a0f8f94e5c4b264a9b7f9a60b40331d67581666534c36c83e37f2",
+    "evidence/network.png": "e10c17afdeb1a3f0ad09b1e2d79163caa2d63de22accb1531bee24c064c64d26",
+    "evidence/provenance.json": "93a7cdf0d982d701c983eafbec3d4648c7653669e58ca63b3509e5ed9cefe9c9",
+    "evidence/r001_frames.csv": "3471d085bdbefa0f8874b0c8a580e07ec67f70609a587eadae8f11c093ac2c36",
+    "evidence/r002_frames.csv": "77156ae069965b64acb41d4cd0ec2e3b3ec1cda770a2d41672682e609dc8d292",
+    "evidence/r003_frames.csv": "ff34f0118805ca07e6cd90b3151eda23323f74cbf491e2d742f4c52b198d2673",
+    "evidence/shape.png": "c9b42846f41bbffb560f681179fc05197c44fbcb58316c528b03870f3babb2b0",
+    "evidence/summary.json": "78738e4e6565adc03c007c13eb7a550c1be0629c0f6488deb74f00dbcb622c22",
+    "evidence/window_estimates.csv": "15b0ddf37cb380314ee9318de1853395924560c9063283b0e2fb64d62ec3e9f2",
+    "reproduce_ee10.py": "a74406692328aa6292c41e5d781f1eaeb587aeaf72c62ad76caf860bc607c323",
+    "tabulate_ee10.py": "584e64f4d0c6d48008682a3e604207397bdff6de36490f7d2c01645d1f68b93f",
+    "test_ee10.py": "6a68ad54a4b8554515542cad595facd18a92db8ed1729058895084f2a74502df"
+  }
+}

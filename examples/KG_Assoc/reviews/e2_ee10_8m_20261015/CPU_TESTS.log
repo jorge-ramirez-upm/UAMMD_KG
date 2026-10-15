@@ -1,0 +1,63 @@
+test_all_nonoverlapping_context_scales_are_compared (test_ee10.ReviewTests) ... ok
+test_checkpoint_estimates_match_at_roundoff_precision (test_ee10.ReviewTests) ... ok
+test_existing_output_does_not_authenticate (test_ee10.ReviewTests) ... ok
+test_exported_full_context_and_distribution_accounting (test_ee10.ReviewTests) ... ok
+test_graph_callback_restored_on_authentication_failure (test_ee10.ReviewTests) ... ok
+test_preserved_sources_and_execution_receipts_authenticate (test_ee10.ReviewTests) ... ok
+test_qualified_ee8_reference_uses_only_corrected_windows_and_same_other_physics (test_ee10.ReviewTests) ... ok
+test_three_paired_units_even_when_frame_uncertainty_is_tiny (test_ee10.ReviewTests) ... ok
+test_wrong_scope_never_creates_output (test_ee10.ReviewTests) ... ok
+test_exact_6m_scope_and_metric_restoration_on_failure (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_exact_diagnostic_and_event_means_keep_source_unchanged (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_fractional_window_comparisons_preserve_three_histories (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_no_overwrite_and_wrong_plan_fail_before_authentication (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_no_overwrite_or_wrong_plan_before_authentication (test_e2_continuous4m_review.Continuous4mTests) ... ok
+test_rejects_incomplete_or_extended_histories (test_e2_continuous4m_review.Continuous4mTests) ... ok
+test_shifted_windows_are_paired_and_not_extra_replicates (test_e2_continuous4m_review.Continuous4mTests) ... ok
+test_8m_scope_and_metric_restoration (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_existing_output_and_wrong_plan_fail_before_replay (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_pairs_preserve_three_units_and_reject_gaps (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_real_dossier_bindings_and_catalog_recommendation (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_component_definition_includes_only_non_singleton_satellites (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_existing_output_is_never_overwritten_or_reauthenticated (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_seeded_continuation_uses_validator_and_restores_callback (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_window_cannot_cross_reseed_and_pairing_is_three_histories (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_misaligned_histograms_and_impossible_component_accounting_fail (test_e2_peripheral_network.PeripheralTests) ... ok
+test_published_f3_hold_dossier_binds_derived_sources_and_three_histories (test_e2_peripheral_network.PeripheralTests) ... ok
+test_subtracts_isolates_within_history_before_paired_statistics (test_e2_peripheral_network.PeripheralTests) ... ok
+test_degree_histograms_reuse_graph_replay_and_keep_rows_unchanged (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_duration_weighted_mean_does_not_average_sem_or_iat (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_gaps_boundary_crossing_partial_windows_transient_and_replica_mismatch_fail (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_pairing_and_overlap_remain_three_units_and_leave_inputs_unchanged (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_continuous_six_window_history_has_two_stationary_long_windows (test_joint_e2.JointReviewTests) ... ok
+test_f6_dossier_keeps_transient_three_units_and_exact_endpoints (test_joint_e2.JointReviewTests) ... ok
+test_historical_review_driver_is_checked_against_committed_bytes (test_joint_e2.JointReviewTests) ... ok
+test_latest_executable_tampering_fails_after_historical_record_validation (test_joint_e2.JointReviewTests) ... VALIDATED attempt0: three original histories
+ok
+test_pairing_uses_three_replica_changes_not_frames (test_joint_e2.JointReviewTests) ... ok
+test_prior_estimates_reused_without_mutating_prior_evidence (test_joint_e2.JointReviewTests) ... ok
+test_published_6m_dossier_is_bound_and_remains_only_a_recommendation (test_joint_e2.JointReviewTests) ... ok
+test_report_no_overwrite_and_no_automatic_acceptance (test_joint_e2.JointReviewTests) ... ok
+test_restart_boundary_keeps_histories_and_windows_separate (test_joint_e2.JointReviewTests) ... ok
+test_seed_parent_step_boundary_and_replica_mismatches_fail (test_joint_e2.JointReviewTests) ... ok
+test_six_windows_and_separate_long_windows_keep_three_units (test_joint_e2.JointReviewTests) ... ok
+test_wrong_4m_restart_seed_or_counter_is_rejected (test_joint_e2.JointReviewTests) ... ok
+test_cached_mean_executes_identical_iat_arithmetic (test_reproduce.ReviewGuards) ... ok
+test_existing_output_and_wrong_plan_never_authenticate (test_reproduce.ReviewGuards) ... ok
+test_exported_histories_and_window_means_preserve_graph_identities (test_reproduce.ReviewGuards) ... ok
+test_four_parallel_bonds_and_invalid_valence (test_reproduce.ReviewGuards) ... ok
+test_iat_is_restored_after_success_or_failure (test_reproduce.ReviewGuards) ... ok
+test_paired_windows_keep_transient_as_context (test_reproduce.ReviewGuards) ... ok
+test_parallel_bonds_and_intra_loops_keep_permanent_star_ids (test_reproduce.ReviewGuards) ... ok
+test_wrong_endpoint_or_system_creates_no_output (test_reproduce.ReviewGuards) ... ok
+test_boundary_never_stitches_correlation_windows (test_joint_rp040_8m.Joint8mTests) ... ok
+test_complete_exports_conserve_multigraph_and_peripheral_populations (test_joint_rp040_8m.Joint8mTests) ... ok
+test_existing_output_cannot_authenticate_or_overwrite (test_joint_rp040_8m.Joint8mTests) ... ok
+test_metric_selection_is_restored_on_estimation_failure (test_joint_rp040_8m.Joint8mTests) ... ok
+test_pairing_preserves_three_history_changes (test_joint_rp040_8m.Joint8mTests) ... ok
+test_wrong_endpoint_scope_cannot_create_output (test_joint_rp040_8m.Joint8mTests) ... ok
+
+----------------------------------------------------------------------
+Ran 57 tests in 14.403s
+
+OK
