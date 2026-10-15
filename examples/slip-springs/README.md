@@ -1,4 +1,4 @@
-# GPU Rouse chains and configurational stress: Stage 2A
+# GPU Rouse chains and streaming stress modulus: Stage 2B
 
 This standalone UAMMD/CUDA example simulates independent Gaussian chains with
 local Euler–Maruyama Brownian dynamics. It is a distinct coarse-grained model
@@ -6,8 +6,11 @@ from Kremer–Grest molecular dynamics. Stage 1 implements equilibrium Gaussian
 initialization, free-end harmonic forces, unwrapped updates, conformation
 observables and direct-lag dynamic validation. Stage 2A adds double-accumulated
 GPU per-chain configurational stress, direct-lag stress correlations and permanent
-performance reporting. Correlator6, stress multi-tau analysis, relaxation modulus,
-semiflexibility and slip-springs remain future, unauthorized work.
+performance reporting. Stage 2B adds bounded synchronous/asynchronous Correlator6
+streaming and the chain-density-normalized relaxation modulus.
+**IMPLEMENTED — AWAITING SCIENTIFIC VALIDATION**: only short pipeline tests were
+run for Stage 2B; full Linux-host validation and review are pending. Semiflexibility,
+slip-springs and later-stage optimization remain unauthorized.
 
 A chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
@@ -39,13 +42,15 @@ make -C examples/slip-springs check CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PR
 `check` builds/runs the Stage 0 smokes, GPU force/observation/RNG unit tests,
 independent CPU matrix/Wick-theory tests, and CLI/reproducibility/timer tests. It does
 **not** run the full stochastic suite below. Use `make rouse` for the simulator
-alone or `make all` to build all executables without running them. `make
-check-correlator` remains CPU-only; Correlator6 is not used by the simulator.
+alone or `make all` to build the main executables without running them. `make
+check-correlator` remains CPU-only. `make check-lifetime` runs the local ownership
+adapter under AddressSanitizer/LeakSanitizer; it must pass before large ensembles.
 
 `CUDA_HOME` selects the toolkit, or set `NVCC=/path/to/nvcc`. `CXX=/path/to/g++`
 also selects nvcc's host compiler. `CUDA_ARCH=sm_86` matches the validation GPU;
 choose yours or omit it for nvcc's default. `UAMMD_ROOT` overrides the default
-relative repository root. CPPFLAGS, CXXFLAGS, NVCCFLAGS and LDLIBS are configurable;
+relative repository root for UAMMD headers. The KG dependency always comes from
+this project's read-only sibling directory. CPPFLAGS, CXXFLAGS, NVCCFLAGS and LDLIBS are configurable;
 retain C++17 and `--extended-lambda`, and do not enable fast-math for validated
 precision behavior. Clean and rebuild after changing compiler/flags/header root.
 
@@ -56,112 +61,149 @@ The previous Stage 0 smoke and correlator sources remain available unchanged.
 
 ## Running the current simulator
 
-Run these from the `slip-springs` worktree's repository root (the development
-worktree is `/tmp/UAMMD_KG-slip-springs`). Commands below target the RTX 3060 Ti
-with CUDA13 at `/usr/local/cuda`. Output directories must not exist; choose a
-new name for subsequent runs. Both short runs and the moderate run were executed.
-Create a fresh parent once in the same shell; each simulator gets a new child:
-
-```sh
-STRESS_EXAMPLES=$(mktemp -d /tmp/rouse-stage2a-examples.XXXXXX)
-```
-
-Build single precision and run a short example (N=8, 256 chains, dt0.005,
-200 steps, sample10, seed240008):
+From the slip-springs repository root, target RTX 3060 Ti / CUDA13. Output
+child directories must not exist; the executable refuses overwrites. Both short
+streaming commands below were executed. The moderate command is **host-only**,
+provided for external validation rather than claimed as tested in Codex.
 
 ```sh
 make -C examples/slip-springs rouse CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
-examples/slip-springs/build/single/rouse --springs 8 --chains 256 --dt 0.005 --steps 200 --sample 10 --equil 0 --seed 240008 --output "$STRESS_EXAMPLES/single"
-python3 examples/slip-springs/stress.py analyze "$STRESS_EXAMPLES/single"
-```
-
-Build double precision and run the same small configuration with seed240009:
-
-```sh
 make -C examples/slip-springs rouse CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double
-examples/slip-springs/build/double/rouse --springs 8 --chains 256 --dt 0.005 --steps 200 --sample 10 --equil 0 --seed 240009 --output "$STRESS_EXAMPLES/double"
-python3 examples/slip-springs/stress.py analyze "$STRESS_EXAMPLES/double"
+RUNS=$(mktemp -d /tmp/rouse-stage2b-examples.XXXXXX)
+examples/slip-springs/build/single/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620008 --output-mode stream --backend async --batch 7 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/single"
+examples/slip-springs/build/double/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620009 --output-mode stream --backend async --batch 7 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/double"
+ls "$RUNS/single/" "$RUNS/double/"
 ```
 
-A moderately long Rouse run with stress at every observation (N=32, 512 chains,
-dt0.005, 20,000 steps, sample20, seed240032; physical duration100 tau_0):
+Synchronous streaming uses the same flags with `--backend sync` (the streaming
+default). Historical detailed diagnostic output remains the default
+`--output-mode csv`: per-chain tensor/COM/dimension samples.csv, ensemble.csv,
+and metadata.json. It is useful for Stage 1/2A analysis and pipeline comparison.
+For example, with the same initial state/dynamics as the single short command:
 
 ```sh
-examples/slip-springs/build/single/rouse --springs 32 --chains 512 --dt 0.005 --steps 20000 --sample 20 --equil 0 --seed 240032 --output "$STRESS_EXAMPLES/moderate"
-python3 examples/slip-springs/stress.py analyze "$STRESS_EXAMPLES/moderate"
-python3 examples/slip-springs/validate.py analyze "$STRESS_EXAMPLES/moderate"
+examples/slip-springs/build/single/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620008 --output-mode csv --output "$RUNS/csv"
+python3 examples/slip-springs/tests/test_stream.py --compare "$RUNS/csv" "$RUNS/single"
 ```
 
-Scientific validation, including the complete Stage 1 regression suite:
+A moderately long streaming example for the dedicated host (N32, 512 chains,
+dt.005, 20000 steps, sample20, seed620032; not run in Codex):
 
 ```sh
+examples/slip-springs/build/single/rouse --springs 32 --chains 512 --dt .005 --steps 20000 --sample 20 --equil 0 --seed 620032 --output-mode stream --backend sync --batch 100 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/moderate"
+python3 examples/slip-springs/stream_analysis.py "$RUNS/moderate"
+```
+
+Quick tests (bounded, no scientific campaign):
+
+```sh
+make -C examples/slip-springs check-lifetime
 make -C examples/slip-springs check CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
 make -C examples/slip-springs check CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double
-python3 examples/slip-springs/validate.py suite /tmp/rouse-stage1-regression-new
-python3 examples/slip-springs/stress.py suite /tmp/rouse-stage2a-validation-new
 ```
 
-The Stage 1 suite specifies N=8/32/100, dt0.01/0.005/0.0025, 512 chains,
-stride=ceil(tau1/(32dt)), steps=40*stride, and seed710000+100N+dt_index+
-10000*precision_index. Its initialization runs use8192 chains and seed20261015+N.
-The Stage 2A suite specifies N=8/32/100, dt0.01/0.005/0.0025, 2048 chains,
-stride=round(0.05/dt), steps=64*stride and seed820000+100N+dt_index+
-10000*precision_index. Its zero-step equilibrium runs use8192 chains,
-dt0.005, stride10 and seed20262015+N+10000*precision_index.
-Both use equil0, precision_index0/1 and dt_index0/1/2. The plans in tests/ fix
-all seeds and acceptance rules before execution.
+Full scientific regressions, terminal relaxation, sampling/buffer sensitivity,
+performance and memory stability are **user-run host work**. Exact commands,
+fixed seeds and acceptance criteria are in
+[STAGE2B_VALIDATION_PLAN.md](STAGE2B_VALIDATION_PLAN.md). Do not execute these
+long campaigns in Codex. Short tests cannot establish scientific acceptance.
 
-Locate the example results:
+CLI: `--springs`, `--chains`, `--dt`, `--steps`, `--equil`, `--sample`, `--seed`,
+`--output` preserve their earlier meaning. Production step0 follows optional
+equilibration; the RNG counter remains continuous. `--steps` counts production
+steps only. `--output` defaults to build/run, must be new, and must be under this
+project or outside the repository. No full bead trajectories, periodic box,
+volume, checkpoint/resume or new physics are introduced. New options:
 
-```sh
-ls "$STRESS_EXAMPLES/single/"
-ls "$STRESS_EXAMPLES/double/"
-ls "$STRESS_EXAMPLES/moderate/"
-```
+| Option | Default | Meaning |
+|---|---:|---|
+| `--output-mode` | csv | csv diagnostic history or compact stream |
+| `--backend` | sync | sync or async; requires explicit stream mode |
+| `--batch` | 64 | Observation frames per bounded buffer, 1–4096 |
+| `--corr-levels` | 16 | KG multi-tau level count L |
+| `--corr-slots` | 16 | Slots p per level; divisible by m |
+| `--corr-m` | 2 | Consecutive samples averaged per next-level sample |
+| `--correlator-mib` | 512 | Estimated CPU correlator allocation budget |
 
-The simulator prints the absolute output path; `$STRESS_EXAMPLES` holds it
-for these commands. They contain CSV samples/ensembles and metadata.json; stress analysis adds
-stress_analysis.json and stress_chain_contributions.npz. Full suites save
-summary.json plus per-run data and terminal logs under the named /tmp directory.
+Streaming observes step0 and exact multiples of `--sample`. It advances any
+remaining MD steps without adding an irregular observation; metadata records
+`unsampled_final_steps`. CSV retains its historical shorter final sample.
+Partial batches are drained, including a zero-step run's one initial frame.
+Empty bins are omitted. One chain is supported, but its SE is NaN/undefined.
 
-`--output` must name a **new** directory. The executable refuses overwrite and
-rejects output elsewhere inside its source repository. The default is this
-project's `build/run`. All options are optional; `--help` lists them. `--steps`
-is the production count; `--equil` advances before the first observation and
-uses the same continuous RNG counter. Step/time zero in output is the end of
-that optional equilibration, not the original initialization. Samples include
-production step zero, every sampling interval, and a final shorter interval
-when needed. No full bead trajectories are written. There is no thermostat,
-box, checkpoint/resume or snapshot configuration.
+## Streaming estimator and outputs
 
-Outputs:
+Each chain has its own unmodified KG Correlator6, fed in order with RAW
+xy,xz,yz,xx-yy,xx-zz,yy-zz stresses. GPU double reductions read unwrapped stored
+coordinates and transfer only six doubles per chain/frame. No bead history or
+full stress trajectory is retained. No cross-chain stress products are formed.
 
-- `samples.csv`: one row per chain/sample: production step, time, chain ID,
-  mean bond q^2, Ree^2, Rg^2, COM xyz, end-to-end xyz, orthonormal p=1 mode xyz,
-  maximum absolute coordinate, count of collapsed bonds, and raw per-chain
-  Sxx,Syy,Szz,Sxy,Sxz,Syz (appended after existing Stage 1 columns). Double reductions
-  operate on the stored coordinate precision. This is O(chains*samples) data.
-- `ensemble.csv`: conformation means and standard errors across independent
-  chains at each sample. For one chain, SE is NaN because it is not estimable.
-- `metadata.json`: configuration, **effective** precision-rounded dt, seed,
-  hardware, timing/memory measurements and coordinate-resolution diagnostics.
-- `analysis.json` from Python: chain-cluster uncertainty estimates, conformation
-  theory, multi-origin COM diffusion, normalized end-to-end and p=1 correlations,
-  longest relaxation time and explicit checks that were available for the run.
-- `stress_analysis.json`: raw diagonal and separate shear/normal-difference lag
-  correlations, continuous and exact transient EM references, means, second
-  moments, paired isotropy checks, chain-based SE and approximate 95% intervals.
-- `stress_chain_contributions.npz`: lag_steps, origins_per_lag, chain_ids,
-  channels and per-chain correlations (axes: lag,chain,channel), plus raw
-  diagonal contributions. Normal-difference contributions are divided by4.
-  These retain channel covariance; do not average their SEs as if independent.
+`relaxation.csv` columns:
 
-Analysis loads sampled chain vectors into RAM and uses direct lag sums; use
-small/moderate histories. Overlapping origins are averaged within each chain;
-uncertainty uses independent chains, not the number of time-origin pairs. A
-short run may have no dynamic checks; only the full suite validates Stage 1.
-An irregular final sample is excluded from lag calculations. At least two chains
-are needed for uncertainty estimates.
+- `lag_samples`, `lag_time`: observation lag and physical lag in tau_0;
+- `block_samples`: width of stress block means, 1 at the exact finest level;
+- `g`, `g_se`: G/(n_ch*kBT), and standard error across independent chains;
+- `Cxy,Cxz,Cyz,Cxx_yy,Cxx_zz,Cyy_zz`: six raw per-chain correlations averaged
+  over chains; normal differences have **not** been divided by four;
+- `pairs_per_chain,pairs_total`: raw products contributing to this bin (the
+  latter includes all chains, but is not an independent statistical sample size);
+- the six matching `C..._se` columns: independent-chain SE for each channel.
+
+The combined estimator is `g=(Cxy+Cxz+Cyz)/5+(Cxx_yy+Cxx_zz+Cyy_zz)/30`.
+It is computed within each chain before estimating its SE, preserving channel
+covariance. Initial continuous-equilibrium g(0)=N. No fictitious volume or density
+is supplied. Multiply by an explicitly chosen n_ch*kBT only when appropriate.
+Stage 2A normal-difference products divided by four must not receive the raw
+1/30 weight. Overlapping origins are averaged within each independent chain.
+
+`metadata.json` records effective precision-rounded dt, seed/hardware, physical
+parameters, sample count/stride, backend/batch, multi-tau parameters, estimated
+correlator and buffer memory, and measured timing. Coordinate-resolution
+indicators remain available in CSV mode; streaming records them as null with
+`coordinate_diagnostics_available=false`, avoiding extra full observations.
+`stream_analysis.py DIRECTORY` adds stream_analysis.json with chain-cluster
+95% intervals, 5-SE gates and exact origin-dependent EM and continuous **block**
+references. `--terminal` adds coverage/resolved-signal checks. This script
+analyzes compact data and does not launch simulations.
+
+The unchanged KG class averages m samples recursively. Coarse bins correlate
+stress **block means**, not exact point samples. Its evaluate() exports finest
+bins then levels k<kmax, omitting the deepest level reached. Configure extra
+levels for the intended lag range; trust emitted lags/counts, not nominal span.
+The adapter rejects nonfinite stress and xy<=-1e10 because KG uses a sentinel.
+Counts/lag configuration are checked against integer/double representation limits.
+
+## Streaming ownership, memory and thread model
+
+`stream_correlator.h` privately derives an owning, noncopyable/nonmovable adapter.
+It stages allocations safely before publishing ownership, frees only leaked row
+arrays in its destructor, and lets KG destructors release tables/scalars.
+Original add/initialize/evaluate calculations remain linked read-only.
+
+Sync uses one device/pinned buffer and correlates on the main thread. Async uses
+two buffers and one dedicated CPU consumer. CUDA producer events precede copies
+on a nonblocking transfer stream; completion events precede CPU access. Slot
+states free/filling/queued/processing and a condition variable impose bounded
+backpressure and chronological consumption. No correlator has simultaneous
+writers; finish drains and joins before evaluation. Consumer exceptions reach
+the producer, and error cleanup waits for pending work before releasing buffers.
+The existing per-observation integration stop-event synchronization is retained;
+CPU processing and D2H can overlap later integration, but launch-ahead is bounded
+by these waits. There is no new global device synchronization in production.
+
+On LP64 each correlator uses approximately `184*L*p+160*L+sizeof(adapter)` bytes,
+plus its bank pointer and allocator overhead: O(chains*L*p), independent of run
+length. Default L16,p16 is about 50 KiB/chain. Each slot uses
+`48*chains*batch` bytes on device AND pinned host memory. Sync has one slot,
+async two; their combined device/pinned bytes are limited to 512 MiB. Timing
+events scale as O(slots*batch), compact curve statistics as O(L*p). Default CPU
+correlator budget is 512 MiB; it excludes allocator overhead/events/buffers.
+GPU coordinates/RNG identities remain O(total beads). Event intervals can include
+host submission gaps. These are estimates,
+not guarantees of available memory; allocation failures propagate safely.
+
+Sync remains default. Short timing probes establish no general speedup claim;
+select async only after measuring the actual workload on the dedicated host.
 
 ## RNG and precision
 
@@ -198,7 +240,8 @@ No recentering or mixed-precision coordinates are implemented.
 
 Acceptance thresholds, seeds and uncertainty definitions are in
 [tests/VALIDATION_PLAN.md](tests/VALIDATION_PLAN.md), set before execution.
-After both precision builds:
+Run this historical Stage 1 campaign **only on the user GPU host**, after both
+precision builds; never in Codex:
 
 ```sh
 python3 examples/slip-springs/validate.py suite /tmp/rouse-validation-new
@@ -210,7 +253,7 @@ timesteps 0.01/0.005/0.0025 and both precisions (512 chains). Each trajectory
 covers at least 1.25 exact slowest relaxation times. It also compares the two
 precisions statistically and records one separate small timing probe per build.
 Exit zero requires every predeclared scientific gate; runtime failure never
-counts as a pass. This is bounded validation, not a production campaign.
+counts as a pass. It is a scientific campaign and is excluded from Codex runs.
 
 ## Configurational stress and exact references
 
@@ -244,12 +287,14 @@ including zero-step initialization runs. Metadata timing_schema_version2 uses:
   synchronization wait. GPU event timing is not the sum of isolated kernel times.
 - production_seconds (wall_seconds alias): wall interval containing the initial
   sample, all production updates/synchronization, sampling/D2H and recurrent
-  CSV formatting/writing. Excludes initialization, optional equilibration and
-  final file flush/close.
-- sampling_seconds: GPU observation plus blocking recurrent D2H wall time.
-  It is part of production_seconds, not an additional disjoint run duration.
+  CSV formatting/writing or streaming worker drain. Excludes initialization,
+  optional equilibration and final evaluation/output.
+- sampling_seconds: CSV mode uses blocking observation/D2H wall time. Streaming
+  uses sampling_gpu_seconds+transfer_seconds (CUDA-event sums), which can overlap
+  integration. Never add these to production_seconds.
 - recurrent_output_seconds: in-loop CSV formatting/writing (also part of production).
-- final_output_seconds: final CSV flush/close, measured after production ends.
+- final_output_seconds: final CSV flush/close or streaming evaluation/reduction
+  and compact-file writing, measured after production ends.
   output_seconds is recurrent_output_seconds+final_output_seconds.
 - initialization_seconds: System/CUDA context creation, allocation, weights,
   Gaussian conformation initialization and output setup. Context time is also
@@ -266,10 +311,16 @@ or teardown outside these intervals. File timers measure buffered OS I/O, not
 fsync-to-device durability. Timer scope intentionally differs from historical
 Stage 1 schema1, which included equilibration and final flushing in broader sums.
 
+Additional streaming fields separate sampling_gpu_seconds, sampling_enqueue_seconds,
+transfer_seconds, transfer_wait_seconds, buffer_wait_seconds and
+cpu_correlation_seconds. Worker processing and GPU times overlap in async mode;
+production_seconds is the actual critical-path wall time, including final drain.
+measured_simulation_seconds is a wall timer from context setup through final
+output; it excludes metadata serialization, terminal logging and teardown.
+
 ## Roadmap
 
-Stages 0, 1 and 2A are implemented. Stage 2B may integrate the read-only
-Correlator6 after review and explicit authorization, including its known memory
-and lag limitations. Modulus normalization needs a separate derivation. Stage 3
-is optimization; Stage 4 is semiflexibility and slip-spring dynamics. No Stage 2B
-or later feature is implemented or authorized here.
+Stages 0, 1 and 2A have recorded scientific validation. Stage 2B is implemented
+and has passed short pipeline tests; full scientific acceptance awaits the
+user-run plan and review. Stage 3 optimization, semiflexibility and slip-spring
+physics remain future unauthorized work. See [STAGE2B_REPORT.md](STAGE2B_REPORT.md).

@@ -17,7 +17,8 @@ change; never silently remove it. Use an isolated worktree when needed.
 
 Stage 1 is implemented and scientifically validated: independent GPU Rouse chains.
 Stage 2A is implemented: per-chain configurational stress and direct-lag validation.
-Stage 2B (Correlator6), Stages 3–4 and new physics are not authorized.
+Stage 2B (Correlator6 streaming) is authorized; scientific acceptance is pending.
+Stages 3–4 and new physics are not authorized.
 The project stages are:
 1. Independent Rouse chains on the GPU.
 2. Configurational stress correlations and modulus using Correlator6.
@@ -49,16 +50,16 @@ independent bond components with mean zero and variance 1/3, accumulated along
 the chain. Dynamic equilibration alone is insufficient initialization. Choose
 chain translations separately without adding forces or interchain interactions.
 
-## Future stress and validation
+## Stress and validation
 
 Use chain configurational stress
 
     S_ab^(c) = 3 sum_(i=0)^(N-1) q_ia^(c) q_ib^(c).
 
-The six Correlator6 inputs per independent chain will be, in order:
+The six Correlator6 inputs per independent chain are, in order:
 S_xy, S_xz, S_yz, S_xx-S_yy, S_xx-S_zz, S_yy-S_zz.
 Stage 2A uses direct-lag CPU analysis of GPU per-chain stress samples.
-Only a separately authorized Stage 2B may add Correlator6. Reuse
+Stage 2B adds Correlator6 under the current authorization. Reuse
 `../KG/correlator.h` and `../KG/correlator.cpp` unchanged; do not copy them.
 Read the limitations in STAGE0_REPORT.md before allocating many objects.
 
@@ -124,8 +125,46 @@ useful current commands, not just links. Preserve refusal to overwrite outputs.
 
 Stage 2A computes six raw tensor components with double GPU reductions of stored
 unwrapped bonds, without a volume factor or bead coordinate transfer. Keep
-xy,xz,yz and xx-yy,xx-zz,yy-zz correlations separate. Normal-difference PRODUCTS
-carry a factor1/4. Never treat correlated channels or overlapping origins as
+xy,xz,yz and xx-yy,xx-zz,yy-zz correlations separate. Stage 2A normalized normal-difference PRODUCTS
+carry a factor1/4; Stage 2B correlator inputs/products remain raw. Never treat correlated channels or overlapping origins as
 independent statistical units. Square the exact EM covariance at each origin
 BEFORE averaging over origins. Preserve raw per-chain samples/contributions.
 `tests/STAGE2A_VALIDATION_PLAN.md` fixes the Stage 2A scientific gates.
+
+## Stage 2B workflow and streaming conventions
+
+The current user authorization supersedes the historical stage gate above:
+Stage 2B is implemented, awaiting external scientific validation. Later stages
+remain unauthorized. Never declare scientific acceptance from smoke tests.
+Review the actual Linux-host validation results before accepting this stage.
+
+Do not run long tests, statistical campaigns, long relaxation runs, production
+simulations or broad benchmarks in Codex. Supply exact executable commands for
+the dedicated Linux GPU host instead. Short unit, sanitizer, bounded pipeline
+and example checks are allowed. Preserve all existing tests and their fixed
+scientific acceptance limits. Avoid complexity/optimization without profiling.
+All repository modifications remain here; KG/UAMMD remain read-only.
+
+Streaming is explicit (`--output-mode stream`); historical CSV behavior remains
+the default. Streaming samples step 0 after equilibration and exact multiples of
+`--sample`; it integrates but does not correlate a shorter final interval.
+Batches count observation frames, not integration steps. Never allocate a full
+stress history. CPU ownership is exclusive: main thread in sync mode, one
+consumer in async mode. Join/drain before evaluation and release CUDA resources
+only after pending producers/transfers/consumers have completed. Keep backpressure
+and exception propagation. Never copy/move or resize the owning Correlator6 adapter.
+
+Use RAW xy,xz,yz,xx-yy,xx-zz,yy-zz channels with unchanged KG Correlator6.
+Its sentinel, block means and omitted deepest-level export are documented limits.
+The modulus is G/(n_ch*kBT) = sum(shears)/5 + sum(raw normal differences)/30.
+The earlier factor1/4 applies ONLY to Stage 2A's normalized normal products;
+never apply it before the Stage 2B 1/30 weight. Correlate each chain separately;
+combine all six channels within each chain before estimating modulus SE across
+chains. Overlapping origins and correlated channels are not independent samples.
+Compare coarse bins to block-averaged theory, never point-sample theory.
+
+Every stage must maintain tested short example commands, both-precision build
+commands, current CLI/output documentation and runnable external long-test
+commands. Every simulation must print/save measured ns/bead/step (null/N/A for
+zero steps), integration and overall wall costs. Report GPU sampling/D2H and CPU
+worker times separately; overlapping times must not be added as wall time.
