@@ -1,0 +1,29 @@
+[92m[MESSAGE] [0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+[92m[MESSAGE] [0m[94m╻[0m [94m╻┏━┓┏┳┓┏┳┓╺┳┓[0m
+[92m[MESSAGE] [0m[94m┃[0m [94m┃┣━┫┃┃[34m┃┃┃┃[0m [34m┃┃[0m Version: 3.0.0
+[92m[MESSAGE] [0m[34m┗━┛╹[0m [34m╹╹[0m [34m╹╹[0m [34m╹╺┻┛[0m
+[92m[MESSAGE] [0mCompiled at: Oct 16 2026 05:23:35
+[92m[MESSAGE] [0mCompiled in single precision mode
+[92m[MESSAGE] [0mComputation started at Fri Oct 16 05:58:51 2026
+
+[92m[MESSAGE] [0m[System] CUDA initialized
+[92m[MESSAGE] [0m[System] Using device: NVIDIA GeForce RTX 3060 Ti with id: 0
+[92m[MESSAGE] [0m[System] Compute capability of the device: 8.6
+[92m[MESSAGE] [0m━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ 
+Rouse: N=100 chains=4096 beads=413696 dt=0.004999999888241291 steps=700000 equil=0 sample=20 seed=620100 real_bits=32 GPU=NVIDIA GeForce RTX 3060 Ti
+[92m[MESSAGE] [0m[ParticleData] Created with 413696 particles.
+Streaming: frames=35001 backend=async cpu_workers=16 batch_frames=128 sampling_GPU=2.5491981585544989 s; D2H=0.26521865612268458 s; CPU_correlations=15.258217719999994 s; worker_execution_sum=191.49206355299998 s; worker_barrier_wait=5.4347407300000006 s; consumer_idle=9.9391317620000095 s; free_buffer_wait=2.4964000000000007e-05 s; transfer_wait=0.27143119999999998 s. Overlapping timers must not be summed.
+Performance: chains=4096 springs/chain=100 beads/chain=101 total_beads=413696 production_steps=700000 physical_time=3499.9999217689037 tau_0
+  GPU integration=22.482730291901184 s; ns/bead/step=0.077637; bead updates/s=12880428499.572235
+  Production loop=25.472352883999999 s; overall ns/bead/step=0.087961
+  Sampling + recurrent D2H (GPU event sums in stream mode)=2.8144168146771835 s; recurrent CSV=0 s; final data evaluation/write=0.010889869999999999 s
+  Total measured simulation=25.791440762999997 s (context through final data output)
+  Initialization=0.30819780499999999 s (includes System/CUDA context); equilibration=3.5999999999999998e-08 s (0 steps; GPU 0 s)
+  GPU event intervals include launch gaps; exclude sampling and host sync wait.
+  Production includes synchronization, sampling/D2H, recurrent CSV or streaming worker drain; excludes initialization,
+  equilibration, final data evaluation/write, metadata serialization and terminal logging.
+  Results="/tmp/rouse-stage2b1-host.hl1lsY/terminal-N100"
+[92m[MESSAGE] [0mComputation finished at Fri Oct 16 05:59:17 2026
+
+[92m[MESSAGE] [0mTime elapsed since creation: 25.814768s
+[92m[MESSAGE] [0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛

@@ -11,8 +11,14 @@ execute or authenticate the host measurements. The reported 6.28x single-precisi
 overall speedup, byte-identical correlations and 728/728 analytical memory-run
 checks support development-host acceptance. Prefer 16 workers and batch128 for
 the tested N32/4096-chain workload on the i7-12700 / RTX 3060 Ti. Production
-servers must be benchmarked separately; further optimization is not required
-before N100 terminal-relaxation experiments.
+servers must be benchmarked separately.
+
+**STAGE 2B COMPLETE — STREAMING STRESS RELAXATION VALIDATED**
+The subsequent user-executed N100 terminal experiment passed 686/686 checks.
+See [STAGE2B_N100_TERMINAL_RESULTS.md](STAGE2B_N100_TERMINAL_RESULTS.md) for all
+Stage 2B closure evidence, permanent archived artifacts and SHA-256 hashes.
+The accepted model remains the independent Rouse reference; no slip-spring
+physics is implemented or validated, and Stage 3 remains unauthorized.
 
 Starting SHA: `6aadcc7edd6f2cfbb4051654b1a0dd881fd44718`, verified against
 fetched `origin/slip-springs` before edits. Worktree:

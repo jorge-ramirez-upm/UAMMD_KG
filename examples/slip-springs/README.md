@@ -1,4 +1,4 @@
-# GPU Rouse chains and parallel streaming stress modulus: Stage 2B.1
+# GPU Rouse chains and parallel streaming stress modulus: Stage 2B complete
 
 This standalone UAMMD/CUDA example simulates independent Gaussian chains with
 local Euler–Maruyama Brownian dynamics. It is a distinct coarse-grained model
@@ -8,7 +8,12 @@ observables and direct-lag dynamic validation. Stage 2A adds double-accumulated
 GPU per-chain configurational stress, direct-lag stress correlations and permanent
 performance reporting. Stage 2B adds bounded synchronous/asynchronous Correlator6
 streaming and the chain-density-normalized relaxation modulus.
-**STAGE 2B.1 ACCEPTED — DEVELOPMENT-HOST SCIENCE, PERFORMANCE AND MEMORY VALIDATION PASSED**.
+**STAGE 2B COMPLETE — STREAMING STRESS RELAXATION VALIDATED**.
+The validated Rouse reference has Stage 1/2A regressions, the full 54-simulation
+Stage 2B matrix, N32 terminal 504/504 checks, accepted parallel CPU processing,
+million-step memory 728/728 checks, and N100 terminal 686/686 checks. The
+[N100 results](STAGE2B_N100_TERMINAL_RESULTS.md) include a permanent text-artifact
+archive and hashes. Slip-spring physics has not been implemented or validated.
 User-executed Linux-host results show byte-identical correlations across tested
 worker counts, 728/728 analytical 5-SE checks in the million-step memory run,
 and 6.28x single-precision overall speedup at 16 workers. On the RTX 3060 Ti /
@@ -16,8 +21,7 @@ i7-12700 development host, prefer async streaming with `--cpu-workers 16 --batch
 for the tested N32/4096-chain workload. Defaults remain unchanged. Production
 servers require separate benchmarking; this is not a universal optimum.
 See [STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md) for measurements,
-provenance and artifact hashes. Further optimization is not required before
-N100 terminal-relaxation experiments. Stage 3 and new physics remain unauthorized.
+provenance and artifact hashes. Stage 3 and new physics remain unauthorized.
 
 A chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
@@ -374,9 +378,11 @@ output; it excludes metadata serialization, terminal logging and teardown.
 
 ## Roadmap
 
-Stages 0, 1 and 2A have recorded scientific validation. Stage 2B passed the
-user-reported 54-simulation matrix and N32 terminal 504/504 checks. Stage 2B.1
-is accepted on the development host; see
-[STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md). Further optimization is not
-required before N100 terminal-relaxation experiments. Stage 3 optimization,
-semiflexibility and slip-spring physics remain future unauthorized work.
+Stage 2B is complete for the independent Rouse reference; the
+[N100 closure record](STAGE2B_N100_TERMINAL_RESULTS.md) collects the scientific
+evidence, and [Stage 2B.1 host results](STAGE2B1_HOST_RESULTS.md) document parallel
+performance and memory acceptance. The existing roadmap assigns benchmarking
+and optimization to Stage 3, then semiflexibility and slip-spring dynamics to
+Stage 4. No next stage is authorized. See
+[NEXT_STAGE_ASSESSMENT.md](NEXT_STAGE_ASSESSMENT.md) for the unresolved model,
+kinetic, statistical and GPU design decisions; no slip-spring model is validated.

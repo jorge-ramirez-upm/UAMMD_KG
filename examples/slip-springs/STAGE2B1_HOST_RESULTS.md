@@ -169,3 +169,15 @@ infrastructure remain unchanged. Stage 3 and new physics have not begun.
 The original [validation plan](STAGE2B1_VALIDATION_PLAN.md) remains a record of
 planned commands; the actual supplied results and accessible run coverage are
 recorded here (double workers1/8/16 and a 16-worker memory run).
+
+## Subsequent Stage 2B closure
+
+**STAGE 2B COMPLETE — STREAMING STRESS RELAXATION VALIDATED**
+
+The later user-executed N100 terminal experiment passed 686/686 checks; its
+configuration, performance, interpretation and permanent five-file text archive
+are in [STAGE2B_N100_TERMINAL_RESULTS.md](STAGE2B_N100_TERMINAL_RESULTS.md).
+This supersedes the earlier prospective N100 statement above without changing
+the original Stage 2B.1 measurements or its 71-file snapshot manifest. The
+validated system is the independent Rouse reference; slip-spring physics remains
+unimplemented and unvalidated. No Stage 3 implementation has begun.

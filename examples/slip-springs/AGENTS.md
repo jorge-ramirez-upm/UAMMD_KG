@@ -17,7 +17,12 @@ change; never silently remove it. Use an isolated worktree when needed.
 
 Stage 1 is implemented and scientifically validated: independent GPU Rouse chains.
 Stage 2A is implemented: per-chain configurational stress and direct-lag validation.
-Stage 2B is validated according to the user-supplied 54-run/terminal summary.
+**STAGE 2B COMPLETE — STREAMING STRESS RELAXATION VALIDATED**
+Evidence: Stage 1/2A regressions; 54-simulation matrix; N32 terminal 504/504;
+Stage 2B.1 acceptance; million-step memory 728/728; N100 terminal 686/686.
+See STAGE2B_N100_TERMINAL_RESULTS.md for closure and the permanent N100 archive.
+This validates the independent Rouse reference, not a slip-spring model.
+Slip-spring physics is neither implemented nor scientifically validated.
 Stage 2B.1 is accepted on the development host; see STAGE2B1_HOST_RESULTS.md.
 Stages 3–4 and new physics are not authorized.
 The project stages are:
@@ -135,8 +140,9 @@ BEFORE averaging over origins. Preserve raw per-chain samples/contributions.
 ## Stage 2B workflow and streaming conventions
 
 The current user authorization supersedes the historical stage gate above:
-Stage 2B.1 is accepted on the development host based on user-executed Linux
-results recorded in STAGE2B1_HOST_RESULTS.md. Later stages remain unauthorized.
+Stage 2B is complete on the recorded user-executed host evidence; Stage 2B.1
+acceptance remains development-host-specific. See STAGE2B1_HOST_RESULTS.md and
+STAGE2B_N100_TERMINAL_RESULTS.md. Later stages remain unauthorized.
 Never declare scientific acceptance from smoke tests or generalize host-specific
 performance to other hardware. Production servers require separate benchmarking.
 
@@ -195,6 +201,9 @@ Run only bounded checks in Codex, including check-workers ASan/UBSan/LSan and bo
 precision checks. The exact Linux performance/memory campaign is in
 STAGE2B1_VALIDATION_PLAN.md; completed user-executed results and their provenance
 are in STAGE2B1_HOST_RESULTS.md. Development-host science, performance and memory
-validation passed. Further optimization is not required before N100 terminal
-relaxation experiments. Do not begin Stage 3; benchmark production-server
-performance separately.
+validation passed. N100 terminal relaxation also passed (686/686 checks), closing
+Stage 2B. Do not begin Stage 3; benchmark production-server performance separately.
+The roadmap still places optimization in Stage 3 and semiflexibility/slip-spring
+dynamics in Stage 4. NEXT_STAGE_ASSESSMENT.md lists open model and kinetic choices;
+do not select consequential physics or change stage sequencing without explicit
+scientific decisions and implementation authorization.

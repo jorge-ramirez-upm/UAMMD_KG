@@ -1,10 +1,21 @@
 # Stage 2B — streaming stress relaxation modulus
 
-**IMPLEMENTED — AWAITING SCIENTIFIC VALIDATION**
+**STAGE 2B COMPLETE — STREAMING STRESS RELAXATION VALIDATED**
 
-15 October 2026, UTC. Only short, bounded tests and examples were executed.
-Scientific acceptance requires reviewing the actual dedicated-host results from
-[STAGE2B_VALIDATION_PLAN.md](STAGE2B_VALIDATION_PLAN.md). No next stage is started.
+Closure recorded 16 October 2026. Evidence includes the existing Stage 1/2A
+regressions, user-reported full 54-simulation matrix and N32 terminal 504/504
+checks, accepted Stage 2B.1 parallel processing, million-step memory stability
+(728/728 checks), and N100 terminal relaxation (686/686 checks). See
+[STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md) and the permanent
+[N100 results and artifact archive](STAGE2B_N100_TERMINAL_RESULTS.md).
+The host experiments were user-executed; Codex recorded the supplied evidence
+and inspected accessible artifacts without independently running/authenticating
+the measurements. Closure validates the independent Rouse reference and stress
+pipeline; slip-spring physics is unimplemented and unvalidated. Stage 3 remains
+unauthorized. See [NEXT_STAGE_ASSESSMENT.md](NEXT_STAGE_ASSESSMENT.md).
+
+The implementation, architecture, short-test and timing record below is
+historical (15 October 2026); subsequent acceptance supersedes its original gate.
 
 ## Provenance and isolation
 
@@ -220,21 +231,18 @@ performance. Zero-lag g (averaged over21 origins):
 | float | 8.5067271691 | .4277497072 | 8.2232733860 | 8 |
 | double | 8.0832231324 | .3751747830 | 8.2232733915 | 8 |
 
-## Outstanding scientific acceptance and host handoff
+## Closed scientific acceptance and remaining limitations
 
-Mandatory pending work: full existing Stage1/2A regressions; N8/32/100 and
-three-dt streaming matrix in both precisions; terminal Rouse decay, sampling
-sensitivity, host precision contrasts, meaningful buffer/backend performance,
-long memory stability and replay. Commands and immutable criteria are in
-STAGE2B_VALIDATION_PLAN.md; no source edits are needed. Large unwrapped float
-coordinates can still lose bond/increment resolution; double reductions cannot
-recover lost coordinate bits. Streaming does not collect coordinate diagnostics;
-use the preserved CSV mode for those targeted checks.
+Stage 2B is complete on the recorded evidence above. Original host commands and
+fixed criteria remain in STAGE2B_VALIDATION_PLAN.md; their historical pending
+status is superseded by this closure and linked results. No scientific thresholds
+were changed. Production-server-specific performance requires separate benchmarks.
+Large unwrapped float coordinates can still lose bond/increment resolution;
+double reductions cannot recover lost coordinate bits. Streaming does not collect
+coordinate diagnostics; use the preserved CSV mode for targeted checks.
 
-No scientific failure is hidden and no full campaign is claimed as passing.
-The implementation and short checks are ready for user-host validation;
-**Stage2B is not yet scientifically accepted**. Await and review results before
-any next-stage work. No async speedup or long-duration robustness is claimed.
+The validated system is the Gaussian Rouse reference, with no slip-spring model.
+No Stage 3 implementation or new physics is authorized by this closure.
 
 Short copy-and-paste runs, from the repository root (after building as above):
 
