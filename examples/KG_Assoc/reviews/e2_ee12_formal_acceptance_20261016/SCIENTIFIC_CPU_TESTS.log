@@ -1,0 +1,20 @@
+test_current_checkpoint_statistics_match_roundoff (test_ee12_20m.AdditionalGuards) ... ok
+test_descriptive_correlations_handle_constant_and_algebraic_cases (test_ee12_20m.AdditionalGuards) ... ok
+test_exact_old_estimates_are_reused_and_new_estimates_stay_local (test_ee12_20m.AdditionalGuards) ... ok
+test_boundary_never_stitches_correlation_windows (test_ee12_20m.Joint20mTests) ... ok
+test_complete_exports_conserve_multigraph_and_peripheral_populations (test_ee12_20m.Joint20mTests) ... ok
+test_existing_output_cannot_authenticate_or_overwrite (test_ee12_20m.Joint20mTests) ... ok
+test_metric_selection_is_restored_on_estimation_failure (test_ee12_20m.Joint20mTests) ... ok
+test_pairing_preserves_three_history_changes (test_ee12_20m.Joint20mTests) ... ok
+test_wrong_endpoint_scope_cannot_create_output (test_ee12_20m.Joint20mTests) ... ok
+test_all_tilings_and_peripheral_identities_match_full_frames (test_ee12_20m.PeripheralAndAuthenticationTests) ... ok
+test_boundary_identity_receipts_and_protected_evidence (test_ee12_20m.PeripheralAndAuthenticationTests) ... ok
+test_component_memberships_separate_isolates_satellites_and_giant (test_ee12_20m.PeripheralAndAuthenticationTests) ... ok
+test_endpoint_markdown_matches_exact_parent_final_pairs_and_receipts (test_ee12_20m.PeripheralAndAuthenticationTests) ... ok
+test_isolation_diagnostics_are_observed_residence_not_stitched_lifetimes (test_ee12_20m.PeripheralAndAuthenticationTests) ... ok
+test_satellite_topology_replay_preserves_parallel_edges_and_loops (test_ee12_20m.PeripheralAndAuthenticationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 12.360s
+
+OK
