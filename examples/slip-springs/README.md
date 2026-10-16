@@ -1,7 +1,7 @@
-# GPU Rouse chains and parallel streaming stress modulus: Stage 2B complete
+# Validated GPU Rouse chains and Stage 4A.2 semiflexible dynamics
 
-This standalone UAMMD/CUDA example simulates independent Gaussian chains with
-local Euler–Maruyama Brownian dynamics. It is a distinct coarse-grained model
+The validated Rouse executable in this standalone UAMMD/CUDA example simulates
+independent Gaussian chains with local Euler–Maruyama Brownian dynamics. It is a distinct coarse-grained model
 from Kremer–Grest molecular dynamics. Stage 1 implements equilibrium Gaussian
 initialization, free-end harmonic forces, unwrapped updates, conformation
 observables and direct-lag dynamic validation. Stage 2A adds double-accumulated
@@ -21,9 +21,11 @@ i7-12700 development host, prefer async streaming with `--cpu-workers 16 --batch
 for the tested N32/4096-chain workload. Defaults remain unchanged. Production
 servers require separate benchmarking; this is not a universal optimum.
 See [STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md) for measurements,
-provenance and artifact hashes. Stage 3 and new physics remain unauthorized.
+provenance and artifact hashes. Stage 3 remains unauthorized. Stage 4A.2 adds a
+separate semiflexible executable with bounded verification; scientific acceptance
+is pending the independent Linux-host campaign. Stage 4A.3 is not authorized.
 
-A chain has **N springs and N+1 beads**, numbered 0 through N. Units are
+A Rouse chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
 `U=(3/2) sum |r_(i+1)-r_i|^2`; there are no excluded-volume, hydrodynamic,
 interchain or periodic interactions. Every update reads an old buffer and writes
@@ -72,9 +74,137 @@ The previous Stage 0 smoke and correlator sources remain available unchanged.
 
 ## Running the current simulator
 
+Stage 4A.2 provides a separate **`semiflexible`** executable: exact finite-rest-
+length harmonic stretching plus Kratky–Porod bending, free ends, unwrapped
+coordinates and Euler–Maruyama overdamped Brownian dynamics. It has no stress
+correlator, excluded volume, hydrodynamics or slip-springs. This model's bounded
+checks pass; **full scientific acceptance remains pending host experiments**.
+See [STAGE4A2_REPORT.md](STAGE4A2_REPORT.md) and the frozen
+[host plan](STAGE4A2_VALIDATION_PLAN.md).
+
+Build and bounded verification (from the repository root):
+
+```sh
+make -C examples/slip-springs semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
+make -C examples/slip-springs semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double
+make -C examples/slip-springs check-semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
+make -C examples/slip-springs check-semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double
+```
+
+`all` and `check` retain their Rouse targets. Use the explicit targets above for
+this model. `clean-semiflexible` removes only its named binaries/dependency files.
+Both short examples below were executed (N=8,C=64,dt=0.0001,20 steps,sample5,
+seed42021,kBT=zeta=1,b0=1,kb=30,kappa=2):
+
+```sh
+SEMI_RUNS=$(mktemp -d /tmp/semiflexible-stage4a2.XXXXXX)
+examples/slip-springs/build/single/semiflexible --springs 8 --chains 64 --dt 0.0001 --steps 20 --sample 5 --seed 42021 --b0 1 --kb 30 --kappa 2 --kbt 1 --zeta 1 --output "$SEMI_RUNS/single"
+examples/slip-springs/build/double/semiflexible --springs 8 --chains 64 --dt 0.0001 --steps 20 --sample 5 --seed 42021 --b0 1 --kb 30 --kappa 2 --kbt 1 --zeta 1 --output "$SEMI_RUNS/double"
+```
+
+A moderately long **user-host** example, not run in Codex (N=32,C=512,
+dt=0.0001,20000 steps,sample100,seed42032; other parameters as above):
+
+```sh
+examples/slip-springs/build/double/semiflexible --springs 32 --chains 512 --dt 0.0001 --steps 20000 --sample 100 --seed 42032 --b0 1 --kb 30 --kappa 2 --output "$SEMI_RUNS/moderate"
+```
+
+The initial ensemble is drawn directly from the radial Jacobian and conditional
+orientation laws on CPU, then uploaded. There is no equilibration flag or need
+for artificial burn-in. The uniform per-bead friction is configurable with
+`--zeta`; thermal energy is `--kbt`. Seed is unsigned 64-bit; dynamics Philox
+domain3 leaves Rouse domains/trajectories unchanged. Reproducibility is within
+the same build/standard library and hardware environment, not across precisions.
+
+Heterogeneous coefficients share the same GPU architecture. `--parameters FILE`
+overrides scalar b0/kb/kappa and contains: N; N lines `b0[i] kb[i]` for bonds
+0..N-1; N+1 kappa entries indexed by **bead**, with exactly zero endpoints.
+`--springs` must match N. For example:
+
+```text
+3
+0.8 20
+1.2 40
+1.0 30
+0 0 3 0
+```
+
+Save that text under the fresh output parent, then pass
+`--springs 3 --parameters "$SEMI_RUNS/parameters.txt"` with a new child output
+directory. Bounded tests exercise this path. Only kb>0,b0>=0,kappa>=0 and
+positive kBT,zeta,dt are allowed; derived scales must fit the selected precision.
+All-zero kappa allocates no bending GPU storage and launches no bending kernel;
+zero entries in mixed arrays are skipped before angular geometry. Requested
+tangent *measurements* are computed separately at observation times.
+
+The force-only interface is `--force-input FILE --springs N --chains C` plus
+parameters and `--output NEW_DIR`. FILE has C*(N+1) unwrapped x y z triples in
+chain/bead order, no header. This disables integration. `forces.csv` holds each
+bead's force and energy share; summing energy over beads gives the Hamiltonian.
+`initial.csv` records the actual precision-rounded input. `--initial FILE` uses
+that format as a supplied starting state while retaining dynamics.
+
+Outputs are bounded in memory, streamed to a fresh directory:
+
+* `metadata.json`: physical parameters, precision, timing scopes, memory estimate,
+  actual bending allocation capacity and launch counters. `parameters.txt` saves
+  precision-rounded heterogeneous arrays. Zero-step rates are JSON null.
+* `samples.csv`: per-chain length moments, Re^2,Rg^2, COM/monomer MSD from the
+  initial configuration, minimum bond length and tangent separations 1..min(4,N-1).
+  Samples are at step0 and exact stride multiples; a final partial interval is
+  integrated and validated but not sampled.
+* `initial_bonds.csv`: individual initial lengths. `bond_statistics.csv`:
+  per-chain/per-bond mean, second moment and 32 fixed histogram bins plus overflow,
+  accumulated over observation frames in the final half of production. Bin edges
+  are uniform from zero to metadata's histogram_max; bin32 is overflow. These
+  per-chain statistics support clustered uncertainties without retaining trajectories.
+* `initial.csv` and `final.csv`: coordinate snapshots. On a numerical failure,
+  `failure.json`, `failure_positions.csv` and (for failed proposals)
+  `failure_proposal.csv` preserve the first failing step, selected bead and geometry.
+  Error codes 1/2/3/4/5 mean coordinates/stretch/bend/nonfinite force-energy/update.
+  Invalid input/configuration errors also return nonzero with a diagnostic.
+
+Undefined active angles and undefined stretching forces are rejected. Smooth
+zero-rest-length collapsed bonds are permitted when no active angle touches
+them; their tangent measurements are explicitly `nan`, because a tangent is
+undefined. No force or step is clamped, regularized or silently skipped.
+
+Per-step diagnostics synchronize with the GPU. Integration event timing includes
+force/update kernels, diagnostic D2H and host launch/sync gaps; observation/D2H,
+CPU reduction/formatting and output are separate. Full-coordinate observation
+readback is an initial correctness choice, not a production throughput claim.
+Initialization (including first CUDA setup and saved initial state) is separate.
+Workspace has a conservative 2 GiB cap excluding the CUDA context; storage is
+O(C*N) and independent of trajectory length. Scalar sample files grow with
+C*frames. No observation-frequency optimization is applied.
+
+Independent **user-host** campaign commands (204 runs; long work, never executed
+in Codex). First generate/review commands without running simulations:
+
+```sh
+SEMI_HOST=$(mktemp -d /tmp/semiflexible-host.XXXXXX)
+python3 examples/slip-springs/tests/semiflexible_host.py --output "$SEMI_HOST/campaign"
+cp examples/slip-springs/STAGE4A2_VALIDATION_PLAN.md "$SEMI_HOST/campaign/validation-plan.md"
+git rev-parse HEAD > "$SEMI_HOST/campaign/commit.txt"
+nvidia-smi > "$SEMI_HOST/campaign/gpu.txt"
+# User-host execution only:
+bash "$SEMI_HOST/campaign/commands.sh"
+python3 examples/slip-springs/tests/semiflexible_host.py --analyze "$SEMI_HOST/campaign"
+```
+
+The analyzer writes `analysis.json` and returns nonzero on a statistical gate
+failure. It streams input rows and clusters by chain. Passing it is necessary;
+full acceptance also requires the frozen plan's repeatability, isolation,
+sanitizer, memory/performance evidence and archived host report. It refuses to
+overwrite `analysis.json`; retain each analysis as evidence. Do not apply Gaussian
+Rouse predictions to finite-rest-length dynamics. The Gaussian controlled case
+in the plan has b0=0,kappa=0 specifically to provide an independent exact test.
+
+The Stage 4A.1 CPU reference remains available independently:
+
+
 Stage 4A.1 adds a separate **CPU equilibrium reference**, always in float64;
-`rouse` and its validated model are unchanged. There is no GPU `semiflexible`
-executable or semiflexible dynamics. The scientific contract, force derivation,
+`rouse` and its validated model are unchanged. The scientific contract, force derivation,
 sampling proof and UAMMD assessment are in [STAGE4A1_REPORT.md](STAGE4A1_REPORT.md).
 Run the bounded new tests from the repository root (Python 3 + NumPy):
 
@@ -100,9 +230,8 @@ PY
 
 Heterogeneous construction uses N-entry `b0`, `kb` and N+1-entry bead-indexed
 `kappa` with zero endpoints, e.g. `Chain([0.4,1,2], [3,10,5], [0,0.3,4,0])`.
-The Rouse build/run commands below remain the current GPU interface. Their
-bounded checks were rerun in both precisions for Stage 4A.1; no new long runs
-are needed for this CPU milestone.
+The historical Rouse build/run commands below retain their existing interface.
+Their bounded checks were rerun in both precisions for Stage 4A.2.
 
 From the slip-springs repository root, target RTX 3060 Ti / CUDA13. Output
 child directories must not exist; the executable refuses overwrites. Both short

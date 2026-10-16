@@ -207,3 +207,47 @@ The roadmap still places optimization in Stage 3 and semiflexibility/slip-spring
 dynamics in Stage 4. NEXT_STAGE_ASSESSMENT.md lists open model and kinetic choices;
 do not select consequential physics or change stage sequencing without explicit
 scientific decisions and implementation authorization.
+
+
+## Stage 4A.2 authorization and isolated semiflexible implementation
+
+The explicit 16 October 2026 user authorization supersedes the historical
+Stage 4 gate only for Stage 4A.1/4A.2. A separate `semiflexible` CPU/GPU model
+is implemented; full scientific acceptance is PENDING user-executed Linux-host
+experiments under `STAGE4A2_VALIDATION_PLAN.md`. Do not infer acceptance from
+bounded tests. Stage 4A.3, stress extensions and slip-springs remain unauthorized.
+
+Keep `rouse`, its RNG, CLI, correlator, physical model and existing thresholds
+unchanged. New local files are `semiflexible.cuh/.cu`; independent force and
+equilibrium authority remains `semiflexible_reference.py`. Explicit kappa
+indices are internal beads 1..N-1, with zero endpoint entries in N+1 arrays.
+Positive kb, nonnegative b0/kappa and positive uniform kBT/zeta are required.
+No excluded volume, closure, periodic wrapping or hydrodynamics.
+
+CUDA forces gather per bead, with one writer per force slot. Stretch overwrites;
+bend adds on the same stream. All-zero kappa means NO angular allocation,
+topology, launch or force geometry. Mixed zero angles are skipped before
+normalization. Observation-time tangent measurements remain available in the
+flexible model. Dynamics uses immutable flat IDs, Philox domain 3, eight
+reserved draws per step, and separate old/new buffers. Do not change Rouse's
+domains 0/1/2 or share initialization counters. CPU direct equilibrium sampling
+uses a separate per-chain engine; do not replace it with Gaussian finite-rest-
+length initialization or artificial long equilibration.
+
+Fail on undefined forces, collapsed active angles and nonfinite proposals;
+never clamp/regularize or continue past a failed timestep. Preserve deterministic
+first-failing-step diagnostics and full old/proposed snapshots. Per-step
+synchronous diagnostics are an explicit initial limitation, not a throughput
+claim. Full-coordinate observation readback and CPU double reductions are
+measured separately. Do not lower observation frequency to improve timings.
+Bound workspace independently of step count, keep per-chain statistical units,
+and preserve refusal to overwrite output directories. `parameters.txt` saves
+actual precision-rounded model parameters. No full coordinate trajectories are
+retained; initial/final/failure snapshots and streaming scalar observations only.
+
+Run `make check-semiflexible` in both precisions, the original bounded checks
+and lifetime sanitizer before changes are accepted. New GPU suites and host-
+analysis smoke tests are bounded; `tests/semiflexible_host.py --run` is strictly
+user-host work, never run its full campaign in Codex. Keep the acceptance plan
+frozen before long experiments; archive deviations separately. Production-server
+performance and memory behavior require separate host evidence.

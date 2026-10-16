@@ -87,3 +87,19 @@ check-workers:
 	mkdir -p $(BUILD)
 	$(CXX) -std=c++17 -O1 -g -pthread -fsanitize=address,undefined -fno-omit-frame-pointer $(PROJECT_DIR)/tests/cpu_workers.cpp $(KG_DIR)/correlator.cpp -o $(BUILD)/cpu_workers_asan
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 $(BUILD)/cpu_workers_asan
+
+# Separate Stage 4A.2 targets; historical all/check/Rouse rules are unchanged.
+.PHONY: semiflexible check-semiflexible
+semiflexible: $(GPU_BUILD)/semiflexible
+$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh
+	mkdir -p $(GPU_BUILD)
+	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< -o $@ $(LDLIBS)
+check-semiflexible: semiflexible
+	python3 $(PROJECT_DIR)/tests/test_semiflexible_gpu.py $(GPU_BUILD)/semiflexible
+	python3 $(PROJECT_DIR)/tests/test_semiflexible_host.py $(GPU_BUILD)/semiflexible
+	python3 $(PROJECT_DIR)/tests/test_semiflexible_reference.py
+-include $(GPU_BUILD)/semiflexible.d
+
+.PHONY: clean-semiflexible
+clean-semiflexible:
+	rm -f $(PROJECT_DIR)/build/single/semiflexible $(PROJECT_DIR)/build/single/semiflexible.d $(PROJECT_DIR)/build/double/semiflexible $(PROJECT_DIR)/build/double/semiflexible.d
