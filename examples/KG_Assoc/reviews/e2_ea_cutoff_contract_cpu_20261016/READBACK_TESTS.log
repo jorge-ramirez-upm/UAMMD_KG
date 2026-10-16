@@ -1,0 +1,9 @@
+test_authenticated_parent_and_build_tampering (test_e2_readback.ReadbackTests) ... ok
+test_missing_malformed_and_failed_evidence (test_e2_readback.ReadbackTests) ... ok
+test_parent_representation_and_periodic_folding (test_e2_readback.ReadbackTests) ... ok
+test_valid_and_exact_periodic_image (test_e2_readback.ReadbackTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.005s
+
+OK

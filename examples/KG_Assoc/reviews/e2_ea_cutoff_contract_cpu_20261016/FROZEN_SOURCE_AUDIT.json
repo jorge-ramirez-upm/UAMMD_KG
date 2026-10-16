@@ -1,0 +1,12 @@
+{
+  "production_candidate_set_arithmetic_changed": false,
+  "unchanged_source_sha256": {
+    "examples/KG/kg_lammps_io.cuh": "49a8ac419ad89817af86184c01ce53b817a59e9c082e537f7546da710e0c3837",
+    "examples/KG/kg_runtime.cuh": "938a2cafde5c93ad683560be025ff1033a92d4b0dd439d4db35321951d4a7427",
+    "examples/KG_Assoc/kg_assoc_interactors.cuh": "53e4a15dc02f7d806b077832a3257455f0a8e6633b12136b592386fa22cd4fd3",
+    "examples/KG_Assoc/kg_assoc_kinetics.cuh": "ed540c3ed20b8b224a376852b59bea21207869549f80bbba9a4313d17945316f",
+    "examples/KG_Assoc/kg_assoc_star_runtime.cuh": "6d49d81bab3dc8da7d16a921dce444f9b116f1efb7f798522b79c5aadc9bf084",
+    "examples/KG_Assoc/kg_assoc_state.cuh": "c75cf4b67a451b38c0499483bc03d9382f47750aeaeebaf76a226fa973a140a4",
+    "src/Integrator/VerletNVT.cuh": "dd3feb83cd07b70396711795f5285112e6449418f9db5bb7e87be5bbf2dbb38d"
+  }
+}

@@ -598,6 +598,9 @@ void writeProvenance(std::ofstream& stateFile,
               << " parent_creations=" << parameters.parentCreations
               << " parent_breaks=" << parameters.parentBreaks
               << " branch_age_start=0 bitwise_md_continuation=0\n";
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+      *output << "# validation_diagnostics_version=1 initial_device_readback_required=1\n";
+#endif
     }
   }
 }
@@ -652,6 +655,102 @@ void writeNumerics(std::ofstream& output,
 }
 
 }  // namespace
+
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+kg_assoc_test::DiagnosticContext validationContext(const Parameters& parameters,
+                                                  const char* executable,
+                                                  long long initialStep) {
+  if (std::fegetround() != FE_TONEAREST) {
+    throw std::runtime_error("candidate validation requires round-to-nearest environment");
+  }
+  kg_assoc_test::DiagnosticContext context;
+  context.branch = parameters.derivedBranchId.empty() ? "ordinary_candidate_smoke" :
+                                                       parameters.derivedBranchId;
+  context.step = initialStep;
+  char resolved[4096];
+  const auto count = ::readlink("/proc/self/exe", resolved, sizeof(resolved));
+  context.executable = count > 0 ? std::string(resolved, count) : std::string(executable);
+  const auto separator = context.executable.find_last_of('/');
+  context.buildManifest = context.executable.substr(0, separator) + "/manifest.json";
+  std::ifstream manifest(context.buildManifest);
+  if (manifest) {
+    context.buildJson = std::string(std::istreambuf_iterator<char>(manifest),
+                                    std::istreambuf_iterator<char>());
+  } else if (parameters.reseedChemistry) {
+    throw std::runtime_error("derived device validation requires sibling build manifest");
+  }
+  return context;
+}
+
+void initialDeviceReadback(const Parameters& parameters, const kg::LammpsData& data,
+                           const kg::SimulationBox& box,
+                           std::shared_ptr<uammd::ParticleData> particles,
+                           const kg_assoc::StickerState& state,
+                           const kg_assoc::BoxLengths& lengths,
+                           const kg_assoc_test::DiagnosticContext& context) {
+  std::vector<uammd::real4> positions(data.natoms);
+  std::vector<uammd::real3> velocities(data.natoms);
+  std::vector<int> ids(data.natoms);
+  std::vector<int> partners(data.natoms);
+  CudaSafeCall(cudaDeviceSynchronize());
+  {
+    auto device = particles->getPos(uammd::access::gpu, uammd::access::read);
+    CudaSafeCall(cudaMemcpy(positions.data(), device.raw(), positions.size() * sizeof(positions[0]),
+                           cudaMemcpyDeviceToHost));
+  }
+  {
+    auto device = particles->getVel(uammd::access::gpu, uammd::access::read);
+    CudaSafeCall(cudaMemcpy(velocities.data(), device.raw(), velocities.size() * sizeof(velocities[0]),
+                           cudaMemcpyDeviceToHost));
+  }
+  {
+    auto device = particles->getId(uammd::access::gpu, uammd::access::read);
+    CudaSafeCall(cudaMemcpy(ids.data(), device.raw(), ids.size() * sizeof(ids[0]),
+                           cudaMemcpyDeviceToHost));
+  }
+  CudaSafeCall(cudaMemcpy(partners.data(), thrust::raw_pointer_cast(state.devicePartner().data()),
+                         partners.size() * sizeof(partners[0]), cudaMemcpyDeviceToHost));
+  std::vector<int> mapping(data.natoms, -1);
+  bool validMapping = true;
+  for (int index = 0; index < data.natoms; ++index) {
+    if (ids[index] < 0 || ids[index] >= data.natoms || mapping[ids[index]] != -1) {
+      validMapping = false;
+    } else {
+      mapping[ids[index]] = index;
+    }
+  }
+  std::vector<kg_assoc_test::InitialParticle> records;
+  for (int id = 0; id < data.natoms; ++id) {
+    const auto expectedPosition = box.box.apply_pbc(uammd::make_real3(
+        uammd::real(data.x[id]) - box.center.x, uammd::real(data.y[id]) - box.center.y,
+        uammd::real(data.z[id]) - box.center.z));
+    kg_assoc_test::InitialParticle record;
+    record.expectedId = id;
+    record.molecule = data.mol[id];
+    record.expectedType = data.type[id];
+    record.expectedPartner = state.partner(id);
+    record.actualPartner = partners[id];  // Chemical partners are indexed by stable ID.
+    record.expectedPosition = {{expectedPosition.x, expectedPosition.y, expectedPosition.z}};
+    record.expectedVelocity = {{uammd::real(data.vx[id]), uammd::real(data.vy[id]),
+                                uammd::real(data.vz[id])}};
+    if (mapping[id] >= 0) {
+      const int index = mapping[id];
+      record.actualId = ids[index];
+      record.actualType = double(positions[index].w) + 1;
+      record.actualPosition = {{positions[index].x, positions[index].y, positions[index].z}};
+      record.actualVelocity = {{velocities[index].x, velocities[index].y, velocities[index].z}};
+    } else {
+      record.actualPosition.fill(std::numeric_limits<double>::quiet_NaN());
+      record.actualVelocity.fill(std::numeric_limits<double>::quiet_NaN());
+    }
+    records.push_back(record);
+  }
+  if (!kg_assoc_test::writeInitialReadback(parameters.output + ".initial_device_validation.tsv",
+                                          context, lengths, records, validMapping)) {
+    throw std::runtime_error("initial device state differs from authenticated loader representation");
+  }
+}
+#endif
 
 int main(int argc, char** argv) {
   try {
@@ -824,6 +923,10 @@ int main(int argc, char** argv) {
     }
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
     const std::string candidatePath = parameters.output + ".candidate_validation.tsv";
+    if (std::ifstream(parameters.output + ".candidate_mismatch.tsv") ||
+        std::ifstream(parameters.output + ".initial_device_validation.tsv")) {
+      throw std::runtime_error("validation evidence already exists");
+    }
     if (std::ifstream(candidatePath)) {
       throw std::runtime_error("candidate validation output already exists");
     }
@@ -879,6 +982,9 @@ int main(int argc, char** argv) {
                 << std::dec << " branch_age=0 bitwise_md_continuation=0\n";
       return 0;
     }
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+    auto diagnosticContext = validationContext(parameters, argv[0], initialStep);
+#endif
     std::ofstream stateFile(statePath);
     std::ofstream eventFile(eventPath);
     std::ofstream numericsFile(numericsPath);
@@ -950,6 +1056,13 @@ int main(int argc, char** argv) {
     integrator->addInteractor(permanentFene);
     integrator->addInteractor(associating);
 
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+    if (parameters.reseedChemistry) {
+      initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,
+                            diagnosticContext);
+    }
+#endif
+
     kg_assoc::Kinetics kinetics(
         {parameters.nu0, parameters.ea, parameters.temperature, parameters.dt,
          parameters.every, parameters.seed},
@@ -1001,8 +1114,11 @@ int main(int argc, char** argv) {
         std::vector<kg_assoc::Candidate> candidates = kg_assoc::findStickerCandidates(
             particles, state, lengths, parameters.rAssoc);
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
+        diagnosticContext.step = absoluteStep;
+        diagnosticContext.sweep = chemistrySweeps + 1;
         const auto eligibleActive = kg_assoc_test::checkSweep(
-            particles, state, lengths, parameters.rAssoc, candidates);
+            particles, state, lengths, parameters.rAssoc, candidates, &diagnosticContext,
+            parameters.output + ".candidate_mismatch.tsv");
         candidateFile << absoluteStep << ' ' << candidates.size() << ' ' << eligibleActive << '\n';
 #endif
         candidatePairs += static_cast<long long>(candidates.size());

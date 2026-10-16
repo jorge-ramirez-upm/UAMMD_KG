@@ -1,0 +1,45 @@
+{
+  "authenticated_source_transitions": [
+    {
+      "current_sha256": "6b13a8cd76a19a0005e2929faf3bd11ea4b32a92631d0f55d906bf01bbc4536d",
+      "historical_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2",
+      "path": "examples/KG_Assoc/Makefile",
+      "prior_sha256": "ebdd8aa69fda00841508c466dbde8088e70f81fc27fe1e74eba5c75314bb1fff"
+    },
+    {
+      "current_sha256": "51d241cdb7a3b86881118c1aa9d608847949aaa159ec91332f3ee6b303290880",
+      "historical_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2",
+      "path": "examples/KG_Assoc/campaign/kg_assoc_e2_validate.py",
+      "prior_sha256": "ef44ab128cf2b8cbbbecb82027dfc890b105a00b0a572c8630ccb77cfc9f9505"
+    },
+    {
+      "current_sha256": "78536a82a2085d31112c2735938c664ab584df7a376ff47b670534ce41b19edd",
+      "historical_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2",
+      "path": "examples/KG_Assoc/campaign/test_e2_transfer.py",
+      "prior_sha256": "0ff5640075cd65abe6280baf287fe6dc61b5f03633bb14a7ba6dff98552ed83d"
+    },
+    {
+      "current_sha256": "a05462059b32d32c3def2b44845b85b9fcecfd0823f644e4180ecf54a7450c58",
+      "historical_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2",
+      "path": "examples/KG_Assoc/kg_assoc_candidate_oracle.cuh",
+      "prior_sha256": "b330767362d5f27f355c12ecbf0ae463c693595f67c8fe7f6d0c88567679ef01"
+    },
+    {
+      "current_sha256": "efaa381245cacba748a7d532f78a1ae2dd423813f1b4db04be68c4f19bcd0242",
+      "historical_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2",
+      "path": "examples/KG_Assoc/kg_assoc_candidates_test.cu",
+      "prior_sha256": "a7c096a327bc6131d097b1e5b09a072a28265106a6e643831313320a9a13d122"
+    },
+    {
+      "current_sha256": "78a2fbfd4134c09009674d1fb90517387fceff2aaef0a3989142fb183e23222b",
+      "historical_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2",
+      "path": "examples/KG_Assoc/kg_assoc_stars.cu",
+      "prior_sha256": "dc4cc68dbfbb4300dbab17748912f2401acfac4a311e76e814a25dde210501a6"
+    }
+  ],
+  "frozen_physics_changed": false,
+  "preserved_bindings": 1739,
+  "prior_dossiers_and_acceptance_records_changed": false,
+  "simulation_candidate_search_changed": false,
+  "unchanged_live_bindings": 1733
+}

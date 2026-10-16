@@ -1,0 +1,39 @@
+{
+  "exclusions": [
+    "INTEGRITY.json (containing Git commit)",
+    "BUILD_RESULTS.md (post-build receipt Git commit)"
+  ],
+  "production_candidate_set_changed": false,
+  "scope": "CPU-only oracle contract and validation evidence repair",
+  "sha256": {
+    "examples/KG_Assoc/Makefile": "6b13a8cd76a19a0005e2929faf3bd11ea4b32a92631d0f55d906bf01bbc4536d",
+    "examples/KG_Assoc/campaign/kg_assoc_e2_readback.py": "0de5cf21f132cd65b6605c553206cccf6beae72a56470761d86c0a23f8171704",
+    "examples/KG_Assoc/campaign/kg_assoc_e2_validate.py": "51d241cdb7a3b86881118c1aa9d608847949aaa159ec91332f3ee6b303290880",
+    "examples/KG_Assoc/campaign/test_e2_readback.py": "504dbd6a576ee0a3c45e38a91a86598f9257e4b6045577db76fcfd531cfe9a67",
+    "examples/KG_Assoc/campaign/test_e2_transfer.py": "78536a82a2085d31112c2735938c664ab584df7a376ff47b670534ce41b19edd",
+    "examples/KG_Assoc/kg_assoc_candidate_oracle.cuh": "a05462059b32d32c3def2b44845b85b9fcecfd0823f644e4180ecf54a7450c58",
+    "examples/KG_Assoc/kg_assoc_candidates_test.cu": "efaa381245cacba748a7d532f78a1ae2dd423813f1b4db04be68c4f19bcd0242",
+    "examples/KG_Assoc/kg_assoc_stars.cu": "78a2fbfd4134c09009674d1fb90517387fceff2aaef0a3989142fb183e23222b",
+    "examples/KG_Assoc/kg_assoc_validation_evidence.cuh": "d3873db0ee42bc9a75bf30723c142874e034cb7367d5b4a17982c3a6653b11de",
+    "examples/KG_Assoc/kg_assoc_validation_tests.cuh": "3de3ff67b00b9d7a96f2dad6af6483dc4f949891b5e5680dc86d6d1f68e7cfe0",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/ACCEPTANCE_AUDIT.json": "946560db2a7d29771228f4e155facc2b3ebe37245a931b6ceeecb8de13d6271c",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/ASSESSMENT.md": "80320bfab89b375658e950f280519537ccd95479804d43a66ea542a7b2a5aa38",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/BASELINE_SHA256.json": "5f24e7c5b8f053e43c48e67ac610a39f554ddde6f6dd65540fbfdd670c77854b",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md": "809060e0da31e6508138bcaf136c3880cd2da8766332ecf19fa93082ad6d7f8e",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/DIAGNOSTICS.md": "06adf71939354236616db50a6e7f1b571bd41480ee70605a0751938856aacfea",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/FINAL_CANDIDATE_CPU_BUILDS.json": "300044322e7d675fe816d8ba79a1551da7bb0011a0191cec8c8b7acb596e93d8",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/FROZEN_SOURCE_AUDIT.json": "f79da54f1d1599ff30382f9936c5e5c0f8151dd8792706dd383593104b0b05c0",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/LAMMPS_REFERENCE.json": "a27d797ae5dc3671081ecc1321412abef0bbb72ca80380d49460d467c5fb508d",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/PRESERVATION.json": "2be8150397a8803887bd9d5b22391b7b1afb3f65197757c8c13873fe6d699741",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/READBACK_TESTS.log": "0c208ac2541a6f8fbbdd8818259c89f2f2df3ec0ec48384b61b30e5483ec318e",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/REGRESSION_TESTS.log": "6354c140c258001e4d5b674fd26b6c175a5ca753917dd87fcc94b40426e81df8",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/TRANSFER_TESTS.log": "eaf4dc1b92c4c476dbeeb20b7a700a1e9e7f31d2d3264dc7fedf6e560b00299b",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/VALIDATION.md": "19e3accbc7efbec44292f218d1706b96fd66d6f830e667e0d85d89f8581c36af",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/final_candidate_double.build.log": "4a9039e3453232c01f7268ec2cf78f30738e225eb22be0155616a8713600c863",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/final_candidate_double.tests.log": "b5491cd1edb417c1d0c46d7864adb0f13a34cf65165375348f84356729b4a1f5",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/final_candidate_single.build.log": "4a9039e3453232c01f7268ec2cf78f30738e225eb22be0155616a8713600c863",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/final_candidate_single.tests.log": "8b294e52f9cc228cbeb4f05142de73df6287c141b1aec44f3e4faf12da2ea4af",
+    "examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/verify_preservation.py": "423341b392d414abe23aec526111242986335e43d013d080c041b62a582c9594"
+  },
+  "starting_git_sha": "2f5c991bd354eb3c599f8cb2fed36ed2b5c9f6d2"
+}

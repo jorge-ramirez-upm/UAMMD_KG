@@ -2,7 +2,7 @@
 #define EXAMPLES_KG_ASSOC_CANDIDATE_ORACLE_CUH
 
 // Test-only all-pairs oracle. Never included in ordinary production builds.
-#include "kg_assoc_star_runtime.cuh"
+#include "kg_assoc_validation_evidence.cuh"
 #include <algorithm>
 #include <map>
 
@@ -17,9 +17,13 @@ inline std::vector<kg_assoc::Candidate> oracle(
     for (std::size_t j = i + 1; j < coordinates.size(); ++j) {
       const auto a = coordinates[i].position;
       const auto b = coordinates[j].position;
-      const double dx = std::remainder(double(b.x) - double(a.x), box.x);
-      const double dy = std::remainder(double(b.y) - double(a.y), box.y);
-      const double dz = std::remainder(double(b.z) - double(a.z), box.z);
+      double dx = double(uammd::real(b.x - a.x));
+      double dy = double(uammd::real(b.y - a.y));
+      double dz = double(uammd::real(b.z - a.z));
+      // Match the frozen represented arithmetic, independently of cell enumeration.
+      dx -= box.x * std::nearbyint(dx / box.x);
+      dy -= box.y * std::nearbyint(dy / box.y);
+      dz -= box.z * std::nearbyint(dz / box.z);
       const double squared = dx * dx + dy * dy + dz * dz;
       if (squared < cutoff * cutoff) {
         const auto pair = std::minmax(coordinates[i].id, coordinates[j].id);
@@ -51,9 +55,26 @@ inline void compare(const std::vector<kg_assoc::Candidate>& actual,
   }
   for (const auto& item : reference) {
     const auto match = found.find(item.first);
-    if (match == found.end() || std::abs(match->second - item.second) > 1e-4) {
+    if (match == found.end() || match->second != item.second) {
       throw std::runtime_error("candidate regression: oracle pair/distance mismatch");
     }
+  }
+}
+
+inline void compareWithEvidence(
+    const std::vector<kg_assoc::Candidate>& found,
+    const std::vector<kg_assoc::Candidate>& expected,
+    const std::vector<kg_assoc::StickerCoordinate>& coordinates,
+    const kg_assoc::StickerState& state, const kg_assoc::BoxLengths& box, double cutoff,
+    const DiagnosticContext* context, const std::string& evidencePath) {
+  try {
+    compare(found, expected);
+  } catch (...) {
+    if (context != nullptr) {
+      writeCandidateMismatch(evidencePath, *context, coordinates, state, box, cutoff,
+                             found, expected);
+    }
+    throw;
   }
 }
 
@@ -61,7 +82,9 @@ inline std::size_t checkSweep(std::shared_ptr<uammd::ParticleData> particles,
                               const kg_assoc::StickerState& state,
                               const kg_assoc::BoxLengths& box,
                               double cutoff,
-                              const std::vector<kg_assoc::Candidate>& found) {
+                              const std::vector<kg_assoc::Candidate>& found,
+                              const DiagnosticContext* context = nullptr,
+                              const std::string& evidencePath = "") {
   auto positions = particles->getPos(uammd::access::cpu, uammd::access::read);
   auto mapping = particles->getIdOrderedIndices(uammd::access::cpu);
   std::vector<kg_assoc::StickerCoordinate> coordinates;
@@ -69,7 +92,8 @@ inline std::size_t checkSweep(std::shared_ptr<uammd::ParticleData> particles,
     coordinates.push_back({id, uammd::make_real3(positions[mapping[id]])});
   }
   const auto expected = oracle(coordinates, box, cutoff);
-  compare(found, expected);
+  compareWithEvidence(found, expected, coordinates, state, box, cutoff,
+                      context, evidencePath);
   std::size_t active = 0;
   for (const auto& edge : expected) {
     active += state.bonded(edge.first, edge.second);

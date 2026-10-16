@@ -1,4 +1,5 @@
 #include "kg_assoc_candidate_oracle.cuh"
+#include "kg_assoc_validation_tests.cuh"
 
 #include <iostream>
 #include <random>
@@ -144,6 +145,8 @@ void snapshot(const std::string& path, int expected) {
 int main(int argc, char** argv) {
   try {
     synthetic();
+    kg_assoc_test::cutoffContractTests();
+    kg_assoc_test::evidenceTests();
     if (argc == 3) {
       snapshot(argv[1], std::stoi(argv[2]));
     } else if (argc != 1) {

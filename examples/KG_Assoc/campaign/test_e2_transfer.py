@@ -96,8 +96,30 @@ class TransferTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.record, cls.parents = transfer.reference(ROOT)
+        # Test-only allocation fixture: immutable campaign rows may already be claimed.
+        cls.original_reservations = transfer.RESERVATIONS
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        fixture = Path(temporary.name) / 'cpu_reservations.json'
+        policy = e2.campaign.load_json(cls.original_reservations)
+        policy['reservation_id'] = 'CPU_test_fixture_only_not_campaign_allocation'
+        for row in policy['streams']:
+            row['chemistry_seed'] += 10000000
+            row['md_seed'] += 10000000
+        fixture.write_text(json.dumps(policy))
+        reservation_patch = patch.object(transfer, 'RESERVATIONS', fixture)
+        reservation_patch.start()
+        cls.addClassCleanup(reservation_patch.stop)
         cls.plans = {sid: transfer.inspect(ROOT, output(ROOT, sid), sid,
                      control=sid == transfer.REFERENCE) for sid in (*transfer.TARGETS, transfer.REFERENCE)}
+
+    def test_claimed_campaign_reservations_remain_ineligible(self):
+        with patch.object(transfer, 'RESERVATIONS', self.original_reservations):
+            _, rows = transfer.reserved_streams(ROOT)
+            if not any(row['claimed'] for row in rows):
+                self.skipTest('campaign reservations not yet claimed')
+            with self.assertRaisesRegex(ValueError, 'already used'):
+                transfer.inspect(ROOT, output(ROOT, transfer.TARGETS[0]), transfer.TARGETS[0])
 
     def test_all_twelve_streams_and_exact_inherited_states(self):
         chemical, md = set(), set()
@@ -274,7 +296,7 @@ class TransferTests(unittest.TestCase):
                 reservation, rows = transfer.reserved_streams(root)
                 self.assertEqual(sum(row['claimed'] for row in rows), 3)
                 collision = root / 'banks/other.json'
-                collision.write_text(json.dumps(dict(histories=[dict(chemistry_seed=620601,
+                collision.write_text(json.dumps(dict(histories=[dict(chemistry_seed=self.plans[sid]['histories'][0]['chemistry_seed'],
                                                                      prefix='/unrelated')])))
                 with self.assertRaisesRegex(ValueError, 'conflicting owners'):
                     transfer.reserved_streams(root)
@@ -303,8 +325,9 @@ class TransferTests(unittest.TestCase):
             root = Path(temp)
             path = root / 'banks/e2_attempts/other/attempt/plan.json'
             path.parent.mkdir(parents=True)
-            for history in [dict(chemistry_seed=620601), dict(md_seed=630601),
-                            dict(effective_md_seed=e2.validation.effective_md_seed(630601))]:
+            entry = self.plans[transfer.TARGETS[0]]['histories'][0]
+            for history in [dict(chemistry_seed=entry['chemistry_seed']), dict(md_seed=entry['md_seed']),
+                            dict(effective_md_seed=entry['effective_md_seed'])]:
                 path.write_text(json.dumps(dict(histories=[history])))
                 with self.assertRaisesRegex(ValueError, 'collides'):
                     transfer.reserved_streams(root)
@@ -326,7 +349,8 @@ class TransferTests(unittest.TestCase):
             allocated = e2.allocate_md_seeds(root)
             self.assertFalse({e2.validation.effective_md_seed(s) for s in allocated} &
                              {row['effective_md_seed'] for row in rows})
-            policy['streams'][0]['chemistry_seed'] = 620401
+            policy['streams'][0]['chemistry_seed'] = e2.campaign.load_json(
+                transfer.RESERVATIONS)['streams'][0]['chemistry_seed']
             path.write_text(json.dumps(policy))
             with self.assertRaisesRegex(ValueError, 'reservation sets collide'):
                 transfer.reserved_streams(root, seed_reservations=path)

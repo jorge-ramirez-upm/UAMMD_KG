@@ -1,0 +1,15 @@
+{
+  "repository": "jorge-ramirez-upm/lammps",
+  "branch": "feature/associating-stickers",
+  "git_sha": "1c6faf70e94aef2389c208e8c80c60c084a96907",
+  "referenced_files_match_commit": true,
+  "unrelated_working_tree_changes_present": true,
+  "source_sha256": {
+    "src/ASSOCIATING/fix_associating_kinetics.cpp": "8c81565fcbc12a32228712cefd819083602b2987cf54762899afd62f596917a4",
+    "src/ASSOCIATING/fix_associating_kinetics.h": "e8690683744d19e934cce62a130e7bd4a652e5f99727a95dd6bee462ad024af8",
+    "src/ASSOCIATING/pair_associating.cpp": "c24dd128694246acb59ed7968b1f883afc0b356fbd5275cba14997c68966ec3e",
+    "src/ASSOCIATING/pair_associating.h": "d21e03f6bb3d686513126cb2b248de155d0d84c93007e13d354365ababac6be1",
+    "src/domain.cpp": "fb6adc5d2c1d73b841c9a1ce64c80d4fa84b5820ab59f72776baaac572a1d1cf"
+  },
+  "remote_branch_sha_verified": "1c6faf70e94aef2389c208e8c80c60c084a96907"
+}

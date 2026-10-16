@@ -169,6 +169,9 @@ def validate(entry, oracle=False):
                 (key != 'input_file' and float(event_metadata[key]) == float(metadata[key])),
                 'event provenance mismatch: ' + key)
     check_physics(event_metadata, expected, state=True)
+    for key in ('validation_diagnostics_version', 'initial_device_readback_required'):
+        if key in metadata:
+            require(event_metadata.get(key) == metadata[key], 'device evidence metadata differs')
     if 'lineage' in entry:
         require(all(event_metadata.get(key) == metadata.get(key) for key in expected_lineage),
                 'derived event/state lineage differs')
@@ -237,6 +240,19 @@ def validate(entry, oracle=False):
     require(seed_line in log, 'effective MD stream mismatch')
     for field, value in (('Temperature', '1.000000'), ('Time step', '0.010000'), ('Friction', '0.500000')):
         require(f'[VerletNVT::GronbechJensen] {field}: {value}' in log, 'runtime NVT mismatch')
+    device_readback = None
+    if oracle and 'lineage' in entry:
+        build = campaign.load_json(Path(entry['command'][0]).parent / 'manifest.json')
+        modern = any(Path(name).name == 'kg_assoc_validation_evidence.cuh'
+                     for name in build.get('source_sha256', {}))
+        if modern or 'validation_diagnostics_version' in metadata:
+            require(metadata.get('validation_diagnostics_version') == '1' and
+                    metadata.get('initial_device_readback_required') == '1',
+                    'initial device evidence declaration absent')
+            import kg_assoc_e2_readback
+            device_readback = kg_assoc_e2_readback.check(
+                str(prefix) + '.initial_device_validation.tsv', entry,
+                campaign.parse_lammps_data(entry['parent']['snapshot']), initial['pairs'])
     if oracle:
         lines = Path(str(prefix) + '.candidate_validation.tsv').read_text().splitlines()
         require(lines[0] == '# step candidates oracle_verified_active_candidates', 'oracle header mismatch')
@@ -246,6 +262,7 @@ def validate(entry, oracle=False):
                 sum(line[1] for line in checks) == int(metadata['candidate_sticker_pairs']),
                 'incomplete oracle sweeps')
     return rows, event_rows, dict(numerical_status='valid', scientific_status='review_required',
+                                 **({'initial_device_readback': device_readback} if device_readback else {}),
                                  samples=len(rows), accepted_events=len(events), final_bonds=len(active),
                                  oracle_sweeps=sweeps if oracle else 0,
                                  output_sha256={suffix: campaign.sha256(Path(str(prefix) + suffix))
