@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/usr/local/cuda-12.8/bin/nvcc",
+    "-ccbin=/usr/local/gcc-11.2.0/bin/g++",
+    "-std=c++14",
+    "-I.",
+    "-I/usr/local/cuda-12.8/include",
+    "-I../..//src",
+    "-I../..//src/third_party",
+    "--extended-lambda",
+    "-O3",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_smoke_20261016_v1/cutoff_counterexample.cu",
+    "-o",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_smoke_20261016_v1/cutoff_counterexample",
+    "-lz"
+  ],
+  "cwd": "/home/jramirez/UAMMD_KG/examples/KG_Assoc",
+  "executable_sha256": "b95fcc0a3fb2080f044a6a615835d53f61066d1c6b9961a97cd357a815fb6b12",
+  "host_only": true,
+  "source_sha256": "daa02445fbdfa602006bd9f91f8b3edb05beb144e717d463f567fb39ba574a63",
+  "unchanged_header_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_candidate_oracle.cuh": "b330767362d5f27f355c12ecbf0ae463c693595f67c8fe7f6d0c88567679ef01",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_star_runtime.cuh": "6d49d81bab3dc8da7d16a921dce444f9b116f1efb7f798522b79c5aadc9bf084"
+  }
+}

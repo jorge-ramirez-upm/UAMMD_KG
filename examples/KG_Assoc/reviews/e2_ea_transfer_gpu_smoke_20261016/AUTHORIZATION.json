@@ -1,0 +1,8 @@
+{
+  "aggregate_step_cap": 120000,
+  "approved": true,
+  "authority": "Explicit user authorization in current conversation: Authorized milestone: Capped GPU validation of Ea reference-state transfer",
+  "recorded_at": "2026-10-16T13:12:39.176829+00:00",
+  "schema_version": 1,
+  "scope": "four specified branches, r001-r003, at most 10000 additional MD steps each; no kinetic screen or production"
+}

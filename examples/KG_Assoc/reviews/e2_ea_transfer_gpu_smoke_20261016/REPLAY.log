@@ -1,0 +1,7 @@
+REPLAY_OK F04_N010_RP080_EE08_EA04 1 {'creations': 195, 'breaks': 187, 'neighbor_gains': 180, 'neighbor_losses': 173}
+REPLAY_OK F04_N010_RP080_EE08_EA04 2 {'creations': 182, 'breaks': 174, 'neighbor_gains': 154, 'neighbor_losses': 155}
+REPLAY_OK F04_N010_RP080_EE08_EA04 3 {'creations': 153, 'breaks': 167, 'neighbor_gains': 135, 'neighbor_losses': 150}
+REPLAY_OK F04_N010_RP080_EE08_EA06 1 {'creations': 33, 'breaks': 28, 'neighbor_gains': 29, 'neighbor_losses': 26}
+REPLAY_OK F04_N010_RP080_EE08_EA06 2 {'creations': 31, 'breaks': 27, 'neighbor_gains': 31, 'neighbor_losses': 22}
+REPLAY_OK F04_N010_RP080_EE08_EA06 3 {'creations': 22, 'breaks': 24, 'neighbor_gains': 17, 'neighbor_losses': 18}
+FAILED_PARTIAL_REPLAY_OK F04_N010_RP080_EE08_EA08 1

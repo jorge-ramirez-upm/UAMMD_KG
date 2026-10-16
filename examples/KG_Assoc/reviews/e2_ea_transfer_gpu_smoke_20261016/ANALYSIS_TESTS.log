@@ -1,0 +1,10 @@
+test_bad_event_chronology_or_population_rejected (test_smoke_analysis.SmokeAnalysisTests) ... ok
+test_full_multiplicity_degree_loop_distributions (test_smoke_analysis.SmokeAnalysisTests) ... ok
+test_ordered_same_step_events_and_end_boundary (test_smoke_analysis.SmokeAnalysisTests) ... ok
+test_sparse_count_interval_is_not_zero_width (test_smoke_analysis.SmokeAnalysisTests) ... ok
+test_zero_event_exposure (test_smoke_analysis.SmokeAnalysisTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.219s
+
+OK

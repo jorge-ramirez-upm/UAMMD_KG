@@ -1,0 +1,2 @@
+sizeof(real)=4 first=-0.10000000149011612 second=1.1499999761581421 candidate_displacement=1.25 oracle_displacement=1.2499999776482582 found=0 expected=1
+UNCHANGED_CODE_COUNTEREXAMPLE_REPRODUCED: candidate regression: oracle count mismatch

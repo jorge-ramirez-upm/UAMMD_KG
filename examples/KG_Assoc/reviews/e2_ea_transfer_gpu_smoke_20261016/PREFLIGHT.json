@@ -1,0 +1,8 @@
+{
+  "baseline_bindings": 1602,
+  "build_manifest_sha256": "6d04459efe40df2698e5f40a6ad67d922fe31b5fc49ba16e9450f2290ced5446",
+  "history_cap": 10000,
+  "reference_acceptance_sha256": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+  "starting_sha": "2f961789c1bb18bba13f911cf7687222595f7649",
+  "total_md_step_cap": 120000
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "approval_sha256": "aa3a05f212a2b631087dddde2a3f2b9bbb8f99aed0c6fc629d9c7e6613121505",
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1",
+    "plan_sha256": "4933ab682974cc332842b990bfca8a61a669e02d98c88fed0d1367579afc10e3",
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "approval_sha256": "b208c306848e5b7bb535ae979e7c88f4114de543c1930a99360b8c2979843276",
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1",
+    "plan_sha256": "245108537a695f895ad213a8aee2673e297529cff96e48fc9de83b139f239ebb",
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "approval_sha256": "96b1753143f66fc00d5290e68a9ba6a0ccfad73fe9d8a211cf5b79ca79514e01",
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_gpu_smoke_20261016_v1",
+    "plan_sha256": "5a4dbbdd898f92d3e54897c1065db0a325f4c3d84af7820396ceb7834eac4634",
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "approval_sha256": "02fa5fa71afc67de0cdee06bbcef9074bcdfaa52d7cb0d9260ed207445e96738",
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_gpu_smoke_20261016_v1",
+    "plan_sha256": "95f0261e0ebc90b8af33d1d750a552d36af496cc890004ca4b32c41faab217d1",
+    "system": "F04_N010_RP080_EE08_EA10"
+  }
+]

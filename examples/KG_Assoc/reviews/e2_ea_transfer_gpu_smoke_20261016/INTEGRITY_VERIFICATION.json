@@ -1,0 +1,11 @@
+{
+  "baseline_sha256": "48ccd245a5da476c5c841545d7500c3b75e31e5f330099810a68787e3cf21a18",
+  "new_artifact_bindings": 106,
+  "preserved_bindings_unchanged": 1602,
+  "prior_acceptance_payloads": "exclusive_validate passed for all twelve",
+  "prior_acceptance_records_unchanged": 12,
+  "production_authorization": false,
+  "selected_registry": null,
+  "simulation_source_changes": 0,
+  "starting_sha": "2f961789c1bb18bba13f911cf7687222595f7649"
+}
