@@ -1,0 +1,53 @@
+[
+  {
+    "name": "REGRESSION_TESTS",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "test_catalog",
+      "test_e2_acceptance",
+      "test_e2_continuous4m_review",
+      "test_e2_continuous8m_review",
+      "test_e2_continuous_review",
+      "test_e2_g1",
+      "test_e2_peripheral_network",
+      "test_e2_readback",
+      "test_e2_recover",
+      "test_e2_satellite_continuation",
+      "test_e2_window_sensitivity",
+      "test_joint_e2",
+      "test_joint_rp040_8m",
+      "test_reproduce",
+      "test_run_e2"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "TRANSFER_TESTS",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "test_e2_transfer"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "CANDIDATE_CPU_TESTS",
+    "argv": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/ea_cutoff_contract_cpu_20261016_v1/kg_assoc_candidates_test"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "NATIVE_HOST_SELF_TESTS",
+    "argv": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/ea_cutoff_contract_cpu_20261016_v1/kg_assoc_stars",
+      "--self-test"
+    ],
+    "returncode": 0
+  }
+]

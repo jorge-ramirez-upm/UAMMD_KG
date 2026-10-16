@@ -1,0 +1,22 @@
+[
+  {
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_diagnostic_retest_20261016_v1",
+    "plan_sha256": "df0094f54990d7c8feac1e4a7a8dec4d998769cfd81531b3d58fd2a93d65f3e1",
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_diagnostic_retest_20261016_v1",
+    "plan_sha256": "5923cfa3e05ee47725e22974b9b04a3d369c9b36957a4414b1290f8139007f83",
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_gpu_diagnostic_retest_20261016_v1",
+    "plan_sha256": "585fdc58a6e219a4a13957a0d69ab00fb0d1ad57cfdccabe035152ac12e57024",
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_gpu_diagnostic_retest_20261016_v1",
+    "plan_sha256": "6d74b58bca134c7a4989c7232ec889e4cde10da977cf26439ea3cd64a91c71d5",
+    "system": "F04_N010_RP080_EE08_EA10"
+  }
+]

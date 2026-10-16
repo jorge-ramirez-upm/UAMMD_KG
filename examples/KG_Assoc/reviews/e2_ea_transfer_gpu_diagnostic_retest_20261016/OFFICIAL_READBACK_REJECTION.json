@@ -1,0 +1,5 @@
+{
+  "status": "rejected_as_required",
+  "error": "initial device readback: readback_pass differs",
+  "native_status_preserved": true
+}

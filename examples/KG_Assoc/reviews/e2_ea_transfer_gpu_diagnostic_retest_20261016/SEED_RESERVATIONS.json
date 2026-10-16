@@ -1,0 +1,91 @@
+{
+  "purpose": "Fresh streams reserved exclusively for the user-authorized capped GPU diagnostic retest; no kinetic-screen or acceptance authorization",
+  "reservation_id": "Ea_reference_transfer_diagnostic_retest_20261016_v2",
+  "schema_version": 1,
+  "streams": [
+    {
+      "chemistry_seed": 720401,
+      "md_seed": 730401,
+      "reference_control": true,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 720402,
+      "md_seed": 730402,
+      "reference_control": true,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 720403,
+      "md_seed": 730403,
+      "reference_control": true,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 720601,
+      "md_seed": 730601,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 720602,
+      "md_seed": 730602,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 720603,
+      "md_seed": 730603,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 720801,
+      "md_seed": 730801,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 720802,
+      "md_seed": 730802,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 720803,
+      "md_seed": 730803,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 721001,
+      "md_seed": 731001,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 721002,
+      "md_seed": 731002,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 721003,
+      "md_seed": 731003,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    }
+  ]
+}

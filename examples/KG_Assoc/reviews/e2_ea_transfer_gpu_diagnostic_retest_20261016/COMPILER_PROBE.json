@@ -1,0 +1,42 @@
+[
+  {
+    "compile_argv": [
+      "/usr/local/cuda-12.8/bin/nvcc",
+      "-ccbin=/usr/local/gcc-11.2.0/bin/g++",
+      "-std=c++14",
+      "-O3",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1/narrowing_probe.cu",
+      "-o",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1/narrowing_probe_nvcc"
+    ],
+    "run_argv": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1/narrowing_probe_nvcc",
+      "0.270623",
+      "0.266728",
+      "0.876108"
+    ],
+    "executable_sha256": "c475184698a01aa795c0d4c19907fa07ab3cfc5e7b83c8b7fd3fcc3ee188de2c",
+    "source_sha256": "507821780881c26f2c8a87d12dfd609b9b4346835176ee85405f7590ed141225",
+    "gpu_calls": false
+  },
+  {
+    "compile_argv": [
+      "/usr/local/cuda-12.8/bin/nvcc",
+      "-ccbin=/usr/local/gcc-11.2.0/bin/g++",
+      "-std=c++14",
+      "-O0",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1/narrowing_probe.cu",
+      "-o",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1/narrowing_probe_nvcc_O0"
+    ],
+    "run_argv": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1/narrowing_probe_nvcc_O0",
+      "0.270623",
+      "0.266728",
+      "0.876108"
+    ],
+    "executable_sha256": "ccf5bac7b774def866f48df42e302db379bf7faaab7fa4d7007e87f3cf0804ba",
+    "source_sha256": "507821780881c26f2c8a87d12dfd609b9b4346835176ee85405f7590ed141225",
+    "gpu_calls": false
+  }
+]

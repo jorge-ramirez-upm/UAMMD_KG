@@ -1,0 +1,5 @@
+CANDIDATE SELF_TEST PASS translations, degenerate grids, cutoff, active partners, kinetics
+CUTOFF_COUNTEREXAMPLE real_bytes=4 real_first=1.25 double_first=1.2499999776482582
+MIC_COUNTEREXAMPLE subtraction=1.25 remainder=1.2499999999999964
+CUTOFF_CONTRACT PASS cases=398 strict_boundaries periodic_faces images nondyadic_coordinates
+VALIDATION_EVIDENCE PASS missing extra active free provenance immutable readback_position_velocity_ids_types_partners_nonfinite_mapping

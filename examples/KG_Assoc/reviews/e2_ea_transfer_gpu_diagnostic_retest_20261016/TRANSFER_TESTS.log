@@ -1,0 +1,20 @@
+test_acceptance_reader_binds_derived_lineage_without_registering (test_e2_transfer.TransferTests)
+An in-memory schema fixture only; no acceptance file or physical trajectory. ... ok
+test_all_twelve_streams_and_exact_inherited_states (test_e2_transfer.TransferTests) ... ok
+test_claimed_campaign_reservations_remain_ineligible (test_e2_transfer.TransferTests) ... ok
+test_complete_validator_accepts_synthetic_branch_and_rejects_offsets (test_e2_transfer.TransferTests) ... ok
+test_native_corrupt_sidecar_reciprocity_and_counters_rejected (test_e2_transfer.TransferTests) ... ok
+test_native_initial_state_fidelity_all_targets_and_controls (test_e2_transfer.TransferTests) ... ok
+test_native_ordinary_restart_compatibility_and_nonoverwrite (test_e2_transfer.TransferTests) ... ok
+test_native_rejects_wrong_physics_seeds_and_flags_before_gpu (test_e2_transfer.TransferTests) ... ok
+test_prepare_check_tamper_duplicate_and_approval_gates (test_e2_transfer.TransferTests) ... ok
+test_reference_hash_corruption_rejected (test_e2_transfer.TransferTests) ... ok
+test_rejects_substituted_lineage_pairs_physics_and_seeds (test_e2_transfer.TransferTests) ... ok
+test_seed_collisions_in_plans_and_effective_reservations (test_e2_transfer.TransferTests) ... ok
+test_unsupported_targets_paths_durations_and_reuse (test_e2_transfer.TransferTests) ... ok
+test_versioned_reservations_leave_prior_stream_bindings_immutable (test_e2_transfer.TransferTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 86.459s
+
+OK

@@ -1,0 +1,16 @@
+import os,sys,subprocess,re,json
+from pathlib import Path
+R=Path.cwd(); C=R/'examples/KG_Assoc'; W=C/'kg_assoc_100m/aggregate/e2/ea_transfer_diagnostic_retest_20261016_v1'; B=C/'kg_assoc_100m/builds/ea_cutoff_contract_cpu_20261016_v1'
+env=dict(os.environ,PYTHONPATH=str(C/'campaign')+':'+str(C/'analysis')+':'+str(C/'reviews/e2_rp040_ee8_6m_20261014')+':'+str(C/'reviews/e2_rp040_ee8_8m_20261014'),PYTHONWARNINGS='ignore::ResourceWarning',KG_ASSOC_TRANSFER_HOST_EXE=str(B/'kg_assoc_stars'))
+log=(C/'reviews/e2_ea_cutoff_contract_cpu_20261016/REGRESSION_TESTS.log').read_text()
+modules=sorted(set(re.findall(r'\((test_\w+)\.',log)))
+commands=[('REGRESSION_TESTS',[sys.executable,'-m','unittest','-v',*modules]),('TRANSFER_TESTS',[sys.executable,'-m','unittest','-v','test_e2_transfer']),('CANDIDATE_CPU_TESTS',[str(B/'kg_assoc_candidates_test')]),('NATIVE_HOST_SELF_TESTS',[str(B/'kg_assoc_stars'),'--self-test'])]
+results=[]
+for name,cmd in commands:
+ with (W/(name+'.log')).open('x') as f:
+  p=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT)
+ results.append(dict(name=name,argv=cmd,returncode=p.returncode))
+ print(name,p.returncode,flush=True)
+ if p.returncode: break
+(W/'CPU_CHECKS.json').write_text(json.dumps(results,indent=2)+'\n')
+assert all(x['returncode']==0 for x in results)
