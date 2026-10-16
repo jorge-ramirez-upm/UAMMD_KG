@@ -1,0 +1,21 @@
+{
+  "authorized_by": "User instruction in this conversation, including explicit scoped-launcher-selector confirmation",
+  "continuation_starting_sha": "b645475647ccb70930635f5f948c8db18990cdd0",
+  "document_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md": "809060e0da31e6508138bcaf136c3880cd2da8766332ecf19fa93082ad6d7f8e",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/PROTOCOL.md": "9ecf90e20fc7d8454c2d0a98b094d179e2520d601ea8e1a78c4277bc12d68fb5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_gpu_diagnostic_retest_20261016/ASSESSMENT.md": "2300f55d49d57fd058954d916eb84c3767d0aeb0989c8127d83dc3d776579ab9",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_readback_rounding_cpu_20261016/ASSESSMENT.md": "48bb2d583ab82aafbb3269274cd939db9dbab098d684f5ab603939e8b9ed39b8",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_readback_rounding_cpu_20261016/BUILD_RESULTS.md": "0f89523ec6e65e392c7600a40b2b92392f637269f76127d00b971a72a9134b4c"
+  },
+  "maximum_additional_MD_steps": 10000,
+  "maximum_end_step": 8010000,
+  "requested_original_starting_sha": "e63944aedfa7432c69a0b40fff2437a58a24bd21",
+  "schema_version": 1,
+  "scope": "Only F04_N010_RP080_EE08_EA04 r001 reseeded control; no other GPU history",
+  "seed_reservations": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_seed_reservations/ea4_r001_gpu_diagnostic_20261016_v1.json",
+  "seed_reservations_sha256": "6d0bb09318940916b3314ee93ed8058acbf9607a662d136663850ed2c3cb25d8",
+  "source_git_sha": "83910377c98049170aacd4bd42dfef434dd6e44e",
+  "start_step": 8000000,
+  "zero_step_supported": false
+}

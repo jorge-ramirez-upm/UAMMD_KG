@@ -1,0 +1,37 @@
+# Immutable single-diagnostic preparation. Not an execution or a reusable launch recipe.
+import copy,json,sys
+from pathlib import Path
+r=Path.cwd();c=r/'examples/KG_Assoc';root=c/'kg_assoc_100m';w=root/'aggregate/e2/ea4_r001_gpu_diagnostic_20261016_v1'
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_transfer as transfer
+chemical,requested,effective,_=transfer.streams_in_use(root)
+for p in [transfer.RESERVATIONS,*(root/'banks/e2_seed_reservations').glob('*.json')]:
+ for row in e2.campaign.load_json(p)['streams']:
+  chemical.add(row['chemistry_seed']);requested.add(row['md_seed']);effective.add(e2.validation.effective_md_seed(row['md_seed']))
+reservation=copy.deepcopy(e2.campaign.load_json(transfer.RESERVATIONS))
+reservation['reservation_id']='Ea4_r001_gpu_diagnostic_20261016_v1'
+reservation['purpose']='Only Ea4 r001 is executable under separate scoped approval; other rows are format-required reservations, not execution authority. Retire entire set after this diagnostic; never reclaim.'
+for row in reservation['streams']:
+ row['chemistry_seed']+=200000;row['md_seed']+=200000
+new_chemical=[x['chemistry_seed'] for x in reservation['streams']];new_md=[x['md_seed'] for x in reservation['streams']];new_effective=[e2.validation.effective_md_seed(x) for x in new_md]
+assert len(set(new_chemical+new_md))==24 and len(set(new_effective))==12
+assert not set(new_chemical+new_md)&(chemical|requested) and not set(new_effective)&effective
+policy=root/'banks/e2_seed_reservations/ea4_r001_gpu_diagnostic_20261016_v1.json'
+e2.exclusive_json(policy,reservation)
+transfer.reserved_streams(root,seed_reservations=policy)
+docs=[c/'reviews'/p for p in ['e2_readback_rounding_cpu_20261016/ASSESSMENT.md','e2_readback_rounding_cpu_20261016/BUILD_RESULTS.md','e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md','e2_ea_transfer_gpu_diagnostic_retest_20261016/ASSESSMENT.md','e2_ea_transfer_feasibility_20261016/PROTOCOL.md']]
+authority=dict(schema_version=1,authorized_by='User instruction in this conversation, including explicit scoped-launcher-selector confirmation',scope='Only F04_N010_RP080_EE08_EA04 r001 reseeded control; no other GPU history',maximum_additional_MD_steps=10000,start_step=8000000,maximum_end_step=8010000,source_git_sha=e2.campaign.git_sha(),document_sha256=e2.hash_files(docs),zero_step_supported=False,requested_original_starting_sha='e63944aedfa7432c69a0b40fff2437a58a24bd21',continuation_starting_sha='b645475647ccb70930635f5f948c8db18990cdd0',seed_reservations=str(policy),seed_reservations_sha256=e2.campaign.sha256(policy))
+evidence=w/'AUTHORIZATION.json';e2.exclusive_json(evidence,authority)
+attempt=root/'banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_single_r001_gpu_diagnostic_20261016_v1'
+plan=transfer.prepare(root,attempt,transfer.REFERENCE,10000,evidence,smoke=True,control=True,build_evidence=root/'builds/readback_rounding_cpu_20261016_v2',seed_reservations=policy)
+approval=dict(e2.campaign.load_json(attempt/'approval.example.json'),approved=True,reviewer='User authorization in conversation: only Ea4 r001, 10000-step cap, scoped launcher selector explicitly authorized',approved_at=e2.timestamp(),authorized_replicas=[1],maximum_additional_MD_steps=10000,authorization=str(evidence),authorization_sha256=e2.campaign.sha256(evidence))
+e2.exclusive_json(attempt/'approval.json',approval)
+e2.check_plan(root,attempt,live=True)
+e2.scoped_launch_approval(attempt/'approval.json',attempt,'e2_derived_smoke',plan,1)
+assert [e['replica'] for e in e2.launch_scope(plan,1)]==[1]
+assert all((e['start_step'],e['end_step'])==(8000000,8010000) for e in plan['histories'])
+result=dict(attempt=str(attempt),plan_sha256=e2.campaign.sha256(attempt/'plan.json'),approval_sha256=e2.campaign.sha256(attempt/'approval.json'),authorization=authority,selected=plan['histories'][0],reservation=reservation)
+e2.exclusive_json(w/'PREPARED.json',result)
+e2.launch(root,attempt,replica=1)
+print('PREPARED_ONLY_R001_FOR_EXECUTION',plan['histories'][0]['chemistry_seed'],plan['histories'][0]['md_seed'],plan['histories'][0]['effective_md_seed'])

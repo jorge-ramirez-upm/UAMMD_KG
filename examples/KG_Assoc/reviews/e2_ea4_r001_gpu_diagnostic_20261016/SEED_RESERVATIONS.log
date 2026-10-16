@@ -1,0 +1,91 @@
+{
+  "purpose": "Only Ea4 r001 is executable under separate scoped approval; other rows are format-required reservations, not execution authority. Retire entire set after this diagnostic; never reclaim.",
+  "reservation_id": "Ea4_r001_gpu_diagnostic_20261016_v1",
+  "schema_version": 1,
+  "streams": [
+    {
+      "chemistry_seed": 820401,
+      "md_seed": 830401,
+      "reference_control": true,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 820402,
+      "md_seed": 830402,
+      "reference_control": true,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 820403,
+      "md_seed": 830403,
+      "reference_control": true,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 820601,
+      "md_seed": 830601,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 820602,
+      "md_seed": 830602,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 820603,
+      "md_seed": 830603,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 820801,
+      "md_seed": 830801,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 820802,
+      "md_seed": 830802,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 820803,
+      "md_seed": 830803,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 821001,
+      "md_seed": 831001,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 821002,
+      "md_seed": 831002,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 821003,
+      "md_seed": 831003,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    }
+  ]
+}

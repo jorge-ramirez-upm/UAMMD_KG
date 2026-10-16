@@ -1,0 +1,28 @@
+{
+  "executed": false,
+  "commands": [
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/readback_rounding_cpu_20261016_v2/kg_assoc_stars_candidate_smoke",
+      "--restart-prefix",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state",
+      "--reseed-chemistry-from",
+      "22001",
+      "--derived-branch-id",
+      "F04_N010_RP080_EE08_EA04:derived_F04_N010_RP080_EE08_EA04_single_r001_gpu_diagnostic_20261016_v1:r001",
+      "--reference-control",
+      "--Ea",
+      "4",
+      "--steps",
+      "10000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "820401",
+      "--md-seed",
+      "830401",
+      "--output",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_single_r001_gpu_diagnostic_20261016_v1/r001/state"
+    ]
+  ]
+}
+PREPARED_ONLY_R001_FOR_EXECUTION 820401 830401 106569476

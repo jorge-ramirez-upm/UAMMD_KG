@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Read-only reproduction of one completed diagnostic; never invokes an executable."""
+import argparse
+import importlib.util
+import json
+import math
+from pathlib import Path
+import sys
+
+REPO = Path.cwd()
+ASSOC = REPO / 'examples/KG_Assoc'
+ROOT = ASSOC / 'kg_assoc_100m'
+WORK = ROOT / 'aggregate/e2/ea4_r001_gpu_diagnostic_20261016_v1'
+sys.path.insert(0, str(ASSOC / 'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_readback as readback
+
+spec = importlib.util.spec_from_file_location('historical_smoke_helpers',
+    ASSOC / 'reviews/e2_ea_transfer_gpu_smoke_20261016/reproduce.py')
+prior = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(prior)
+
+
+def integer_exposure(events, bonds, start, end, stickers):
+    previous = start
+    bond_steps = 0
+    for step, kind, _ in events:
+        assert start < step <= end and previous <= step and kind in ('C', 'B')
+        bond_steps += bonds * (step - previous)
+        bonds += 1 if kind == 'C' else -1
+        assert 0 <= 2 * bonds <= stickers
+        previous = step
+    bond_steps += bonds * (end - previous)
+    return dict(bond_steps=bond_steps,
+                free_sticker_steps=stickers * (end - start) - 2 * bond_steps,
+                final_bonds=bonds)
+
+
+def analyze():
+    fixture = [(100, 'C', None), (100, 'B', None), (200, 'B', None)]
+    assert integer_exposure(fixture, 2, 0, 300, 8) == dict(
+        bond_steps=500, free_sticker_steps=1400, final_bonds=1)
+    prepared = e2.campaign.load_json(WORK / 'PREPARED.json')
+    attempt = Path(prepared['attempt'])
+    plan = e2.check_plan(ROOT, attempt)
+    assert plan['smoke'] and plan['steps'] == 10000 and plan['reference_control']
+    assert e2.campaign.sha256(attempt / 'plan.json') == prepared['plan_sha256']
+    assert e2.campaign.sha256(attempt / 'approval.json') == prepared['approval_sha256']
+    approval = e2.scoped_launch_approval(attempt / 'approval.json', attempt,
+                                        'e2_derived_smoke', plan, 1)
+    selected = e2.launch_scope(plan, 1)
+    assert len(selected) == 1 and selected[0] == prepared['selected']
+    entry = selected[0]
+    assert entry['system']['system_id'] == 'F04_N010_RP080_EE08_EA04'
+    assert (entry['replica'], entry['start_step'], entry['end_step']) == (1, 8000000, 8010000)
+    for replica in (2, 3):
+        assert not list((attempt / f'r{replica:03d}').iterdir())
+    directory = Path(entry['output_prefix']).parent
+    prefix = entry['output_prefix']
+    assert not (directory / 'incomplete.json').exists()
+    assert not Path(prefix + '.candidate_mismatch.tsv').exists()
+    complete = e2.campaign.load_json(directory / 'complete.json')
+    assert complete['status'] == 'validated' and complete['end_step'] == 8010000
+    assert complete['plan_sha256'] == prepared['plan_sha256']
+    e2.check_hashes(complete['output_sha256'])
+    rows, events, validation = e2.validation.validate(entry, oracle=True)
+    assert validation == complete['validation']
+    system, initial = e2.validation.read_parent(entry)
+    data = e2.campaign.parse_lammps_data(entry['parent']['snapshot'])
+    device = readback.check(prefix + '.initial_device_validation.tsv', entry, data, initial['pairs'])
+    assert device['status'] == 'valid' and device['particles'] == 43563
+    _, raw = e2.validation.analysis.dynamics.read_events(prefix + '.events', system)
+    final_metadata, final_pairs = e2.validation.analysis.restart.read_metadata(prefix + '.assoc_restart')
+    exact = integer_exposure(raw, len(initial['pairs']), entry['start_step'], entry['end_step'], 4000)
+    exposure = prior.exposures(raw, len(initial['pairs']), entry['start_step'], entry['end_step'])
+    assert exact['final_bonds'] == rows[-1]['bonds'] == len(final_pairs)
+    assert math.isclose(exact['bond_steps'] * .01, exposure['active_bond_time'], abs_tol=1e-7)
+    assert math.isclose(exact['free_sticker_steps'] * .01, exposure['free_sticker_time'], abs_tol=1e-7)
+    counts = dict(creations=sum(event['type'] == 'C' for event in events),
+                  breaks=sum(event['type'] == 'B' for event in events),
+                  neighbor_gains=sum(event['neighbor_gain'] for event in events),
+                  neighbor_losses=sum(event['neighbor_loss'] for event in events))
+    assert counts['creations'] == rows[-1]['creations'] - initial['creations']
+    assert counts['breaks'] == rows[-1]['breaks'] - initial['breaks']
+    assert counts['creations'] + counts['breaks'] == validation['accepted_events']
+    checks = [list(map(int, line.split())) for line in
+              Path(prefix + '.candidate_validation.tsv').read_text().splitlines()[1:]]
+    assert len(checks) == validation['oracle_sweeps'] == 100
+    assert [row[0] for row in checks] == list(range(8000100, 8010001, 100))
+    old_path = ASSOC / 'reviews/e2_ea_transfer_gpu_smoke_20261016/RESULTS.json'
+    old = next(h for h in e2.campaign.load_json(old_path)['histories']
+               if h['Ea'] == 4 and h['replica'] == 1)
+    for suffix in ('.restart.lammpsdat', '.assoc_restart'):
+        name = entry['parent']['prefix'] + suffix
+        assert old['parent']['sha256'][name] == entry['parent']['sha256'][name]
+    initial_graph = prior.graph_summary(initial['pairs'], system)
+    final_graph = prior.graph_summary(final_pairs, system)
+    numeric = e2.validation.analysis.numerics(Path(prefix + '.numerics.tsv'), rows, 43563)
+    conditional_breaks = (old['counts']['breaks'] / old['exposure']['active_bond_time'] *
+                          exposure['active_bond_time'])
+    return dict(status='single_history_runtime_diagnostic_pass',
+        original_requested_starting_sha='e63944aedfa7432c69a0b40fff2437a58a24bd21',
+        continuation_starting_sha='b645475647ccb70930635f5f948c8db18990cdd0',
+        launch_source_sha=plan['git_sha'], build=plan['build'],
+        executable_sha256=plan['executable_sha256'],
+        parent=entry['parent'], lineage=entry['lineage'], command=entry['command'],
+        chemistry_seed=entry['chemistry_seed'], requested_md_seed=entry['md_seed'],
+        effective_md_seed=entry['effective_md_seed'],
+        plan_sha256=prepared['plan_sha256'], approval_sha256=prepared['approval_sha256'],
+        approval=approval, complete=complete, complete_sha256=e2.campaign.sha256(directory / 'complete.json'),
+        environment=e2.campaign.load_json(directory / 'environment.json'),
+        GPU_histories_executed=1, additional_MD_steps=10000,
+        absolute_start_step=8000000, absolute_end_step=8010000,
+        physical_duration=100, unselected_replica_directories_empty=True,
+        device_readback=device, initial_host_receipt=plan['initial_state_checks'][0],
+        candidate_comparisons_during_GPU_trajectory=100,
+        oracle_implementation='independent host all-pairs on live synchronized GPU positions',
+        oracle_CUDA_kernel_executed=False,
+        candidate_opportunities=sum(x[1] for x in checks),
+        active_candidate_opportunities=sum(x[2] for x in checks),
+        strict_cutoff_contract='real-first subtraction; double nearbyint images; rsq < 1.5625',
+        validation=validation, counts=counts, exact_integer_step_exposures=exact,
+        exposure=exposure, rates_per_physical_time={key: value / 100 for key, value in counts.items()},
+        break_rate_per_bond_time=counts['breaks']/exposure['active_bond_time'],
+        creation_rate_per_free_sticker_time=counts['creations']/exposure['free_sticker_time'],
+        initial=rows[0], final=rows[-1], timeseries=rows,
+        initial_graph=initial_graph, final_graph=final_graph,
+        numeric_extrema=dict(temperature=[min(x[3] for x in numeric),max(x[3] for x in numeric)],
+                            permanent_bond=[min(x[4] for x in numeric),max(x[5] for x in numeric)],
+                            sampled_kinetic_energy=[min(x[2] for x in numeric),max(x[2] for x in numeric)]),
+        comparison=dict(earlier_Ea4_r001_results=str(old_path),
+                        earlier_results_sha256=e2.campaign.sha256(old_path),
+                        earlier_counts=old['counts'], earlier_exposure=old['exposure'],
+                        earlier_initial=old['initial'], earlier_final=old['final'],
+                        earlier_initial_graph=old['initial_graph'], earlier_final_graph=old['final_graph'],
+                        control_hazard_conditional_expected_breaks=conditional_breaks,
+                        observed_over_conditional_prediction=counts['breaks']/conditional_breaks,
+                        independent_parent_preparations=1, bitwise_continuation=False,
+                        equilibrium_or_topology_mixing_claim=False))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', required=True, type=Path)
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=False)
+    result = analyze()
+    (args.output / 'RESULTS.log').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+    print(json.dumps(dict(status=result['status'], steps=result['additional_MD_steps'],
+                         counts=result['counts'], device=result['device_readback'],
+                         candidate_comparisons=result['candidate_comparisons_during_GPU_trajectory']), indent=2))

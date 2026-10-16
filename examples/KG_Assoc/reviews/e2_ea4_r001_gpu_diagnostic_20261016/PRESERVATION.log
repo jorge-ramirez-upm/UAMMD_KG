@@ -1,0 +1,12 @@
+{
+  "unchanged_bindings": 2255,
+  "intended_administrative_source_transitions": {
+    "examples/KG_Assoc/campaign/kg_assoc_e2.py": {
+      "before": "00abd0715edae39bd59c4ef2526e60358746efc9ddf9a47d87de0c32578204b4",
+      "after": "81f4e358416311766a4d899c0eed36932b18dc92b6aa462def301f01ebab9bfb"
+    }
+  },
+  "formal_acceptances_validated": 12,
+  "frozen_native_sources_unchanged": true,
+  "existing_executables_unchanged": true
+}

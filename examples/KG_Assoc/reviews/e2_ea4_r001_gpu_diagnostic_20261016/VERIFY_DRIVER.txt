@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Read-only authentication/replay of the single diagnostic; no executable invocation."""
+import hashlib
+import json
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+
+HERE = Path(__file__).resolve().parent
+REPO = Path.cwd()
+sys.path.insert(0, str(REPO / 'examples/KG_Assoc/campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_registry as registry
+
+for name in ('INTEGRITY.sha256', 'ARTIFACTS.sha256'):
+    e2.check_hashes(e2.campaign.load_json(HERE / name))
+preservation = e2.campaign.load_json(HERE / 'PRESERVATION.log')
+transitions = preservation['intended_administrative_source_transitions']
+baseline = e2.campaign.load_json(HERE / 'BASELINE.sha256')
+unchanged = 0
+for name, expected in baseline.items():
+    path = Path(name)
+    relative = str(path.relative_to(REPO))
+    actual = e2.campaign.sha256(path)
+    if relative in transitions:
+        change = transitions[relative]
+        assert expected == change['before'] and actual == change['after']
+        original = subprocess.check_output(['git', 'show',
+            'b645475647ccb70930635f5f948c8db18990cdd0:' + relative])
+        assert hashlib.sha256(original).hexdigest() == expected
+    else:
+        assert actual == expected, name
+        unchanged += 1
+assert unchanged == 2255 and len(transitions) == 1
+records = e2.campaign.load_json(REPO / 'examples/KG_Assoc/reviews/'
+    'e2_ea_transfer_gpu_diagnostic_retest_20261016/PREFLIGHT.json')['acceptance_records']
+assert len(records) == 12
+for row in records:
+    path = REPO / row['record']
+    assert e2.campaign.sha256(path) == row['sha256']
+    registry.exclusive_validate(e2.campaign.load_json(path), [e2.system_by_id(row['system'])])
+expected = e2.campaign.load_json(HERE / 'RESULTS.log')
+actual = runpy.run_path(str(HERE / 'ANALYSIS_DRIVER.txt'))['analyze']()
+assert json.dumps(actual, sort_keys=True) == json.dumps(expected, sort_keys=True)
+plan = e2.campaign.load_json(HERE / 'PLAN.log')
+e2.check_hashes(plan['source_sha256'])
+e2.check_hashes(plan['executable_sha256'])
+e2.check_build(REPO / 'examples/KG_Assoc/kg_assoc_100m/builds/readback_rounding_cpu_20261016_v2')
+print(json.dumps(dict(preserved_bindings=unchanged, intended_administrative_transitions=1,
+    formal_acceptances_validated=12, exact_results_reproduced=True,
+    GPU_histories_executed=1, additional_MD_steps=10000, device_readback='valid',
+    live_trajectory_oracle_comparisons=100, oracle_CUDA_kernel_executed=False,
+    unselected_histories_unexecuted=True, current_native_build_authenticated=True), indent=2))

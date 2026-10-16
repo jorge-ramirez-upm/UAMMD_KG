@@ -1,0 +1,15 @@
+test_default_unscoped_launch_retains_three_history_behavior (test_e2_single_history.SingleHistoryTests) ... ok
+test_dry_run_shows_exactly_one_command_and_no_process (test_e2_single_history.SingleHistoryTests) ... ok
+test_failed_selected_history_stops_without_retry (test_e2_single_history.SingleHistoryTests) ... ok
+test_live_plan_failure_prevents_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_and_step_approval_required_before_any_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_is_rechecked_immediately_before_start (test_e2_single_history.SingleHistoryTests) ... ok
+test_scoped_approval_cannot_launch_default_triplet (test_e2_single_history.SingleHistoryTests) ... ok
+test_selected_success_never_starts_other_histories (test_e2_single_history.SingleHistoryTests) ... ok
+test_used_unselected_directory_still_fails_closed (test_e2_single_history.SingleHistoryTests) ... ok
+test_wrong_mode_target_replica_or_duration_is_rejected (test_e2_single_history.SingleHistoryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.027s
+
+OK

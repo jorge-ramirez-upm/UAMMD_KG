@@ -1,0 +1,14 @@
+{
+  "approved": true,
+  "approved_at": "2026-10-16T19:15:00.791934+00:00",
+  "authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea4_r001_gpu_diagnostic_20261016_v1/AUTHORIZATION.json",
+  "authorization_sha256": "5b69bdf3fe0819168d7c7f532333ea2e2ef16f00479b160350044183ee6a68d9",
+  "authorized_replicas": [
+    1
+  ],
+  "maximum_additional_MD_steps": 10000,
+  "plan_sha256": "beb204468c20f8089079ff5c8f6a4334cb4523867c960e8d663a6101fca1f4da",
+  "purpose": "e2_derived_smoke",
+  "reviewer": "User authorization in conversation: only Ea4 r001, 10000-step cap, scoped launcher selector explicitly authorized",
+  "schema_version": 1
+}

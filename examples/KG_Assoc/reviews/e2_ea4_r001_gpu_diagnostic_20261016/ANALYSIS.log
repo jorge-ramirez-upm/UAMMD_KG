@@ -1,0 +1,16 @@
+{
+  "status": "single_history_runtime_diagnostic_pass",
+  "steps": 10000,
+  "counts": {
+    "creations": 190,
+    "breaks": 187,
+    "neighbor_gains": 170,
+    "neighbor_losses": 160
+  },
+  "device": {
+    "status": "valid",
+    "particles": 43563,
+    "sha256": "b55c2c5bea29a2980b1bd91407deebfd07028d07060c69cfba48fecb6b8233ee"
+  },
+  "candidate_comparisons": 100
+}

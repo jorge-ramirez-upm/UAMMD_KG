@@ -1,0 +1,81 @@
+diff --git a/examples/KG_Assoc/campaign/kg_assoc_e2.py b/examples/KG_Assoc/campaign/kg_assoc_e2.py
+index ab9aa41..65db375 100644
+--- a/examples/KG_Assoc/campaign/kg_assoc_e2.py
++++ b/examples/KG_Assoc/campaign/kg_assoc_e2.py
+@@ -461,25 +461,52 @@ def matching_smoke(root, attempt, plan):
+                       [attempt / f'r{replica:03d}/complete.json' for replica in (1, 2, 3)])
+ 
+ 
+-def launch(root, attempt, execute=False, approval=None, smoke_attempt=None):
++def launch_scope(plan, replica):
++    if replica is None:
++        return plan['histories']
++    require(type(replica) is int and replica == 1 and
++            plan.get('lineage_mode') == 'Ea_reference_transfer_v1' and
++            plan.get('reference_control') is True and plan['smoke'] is True and
++            plan['system']['system_id'] == 'F04_N010_RP080_EE08_EA04' and
++            3000 <= plan['steps'] <= 10000,
++            'single-history selection requires derived Ea4 r001 control smoke')
++    histories = [entry for entry in plan['histories'] if entry['replica'] == replica]
++    require(len(histories) == 1, 'selected history missing or duplicated')
++    return histories
++
++
++def scoped_launch_approval(path, attempt, purpose, plan, replica):
++    record = approval_record(path, attempt / 'plan.json', purpose)
++    if replica is not None or 'authorized_replicas' in record:
++        require(replica == 1 and type(record.get('authorized_replicas')) is list and
++                record['authorized_replicas'] == [1] and
++                type(record['authorized_replicas'][0]) is int and
++                type(record.get('maximum_additional_MD_steps')) is int and
++                record['maximum_additional_MD_steps'] == plan['steps'],
++                'single-history approval scope/cap differs; explicit selector required')
++    return record
++
++
++def launch(root, attempt, execute=False, approval=None, smoke_attempt=None, replica=None):
+     plan = check_plan(root, attempt, live=execute)
++    histories = launch_scope(plan, replica)
+     for entry in plan['histories']:
+         require(not any(Path(entry['output_prefix']).parent.iterdir()), 'attempt already used; preserve it')
+     if not execute:
+-        print(json.dumps(dict(executed=False, commands=[e['command'] for e in plan['histories']]), indent=2))
++        print(json.dumps(dict(executed=False, commands=[e['command'] for e in histories]), indent=2))
+         return
+     purpose = ('e2_derived_smoke' if plan['smoke'] else 'e2_derived_segment') if plan.get(
+         'lineage_mode') else ('e2_smoke' if plan['smoke'] else 'e2_segment')
+-    approval_record(approval, attempt / 'plan.json', purpose)
++    scoped_launch_approval(approval, attempt, purpose, plan, replica)
+     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
+     lock = attempt / '.launch.lock'
+     with lock.open('x') as stream:
+         json.dump(dict(pid=os.getpid(), host=socket.gethostname()), stream)
+     try:
+-        for entry in plan['histories']:
++        for entry in histories:
+             check_plan(root, attempt, live=True)
+             check_hashes(smoke_hashes)
+-            approval_record(approval, attempt / 'plan.json', purpose)
++            scoped_launch_approval(approval, attempt, purpose, plan, replica)
+             directory = Path(entry['output_prefix']).parent
+             require(not any(directory.iterdir()), 'replica outputs appeared during preflight')
+             exclusive_json(directory / 'started.json', dict(plan_sha256=campaign.sha256(attempt / 'plan.json'),
+@@ -531,6 +558,8 @@ def main():
+     parser.add_argument('--execute', action='store_true')
+     parser.add_argument('--approval', type=Path)
+     parser.add_argument('--smoke-attempt', type=Path)
++    parser.add_argument('--replica', type=int, choices=(1,),
++                        help='launch only derived Ea4 r001 control with scoped approval')
+     args = parser.parse_args()
+     root, output = args.dataset_root.resolve(), args.output.resolve()
+     if args.action == 'build':
+@@ -540,7 +569,8 @@ def main():
+         prepare(root, output, args.system, args.steps, args.evidence.resolve(),
+                 args.parent_attempt.resolve() if args.parent_attempt else None, args.smoke, args.c1, args.ea, args.build_evidence)
+     elif args.action == 'launch':
+-        launch(root, output, args.execute, args.approval, args.smoke_attempt.resolve() if args.smoke_attempt else None)
++        launch(root, output, args.execute, args.approval,
++               args.smoke_attempt.resolve() if args.smoke_attempt else None, args.replica)
+     elif args.action == 'verify':
+         verify(root, output)
+         print('E2 numerical/event/network verification PASS; scientific review required')
