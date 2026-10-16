@@ -1,0 +1,3100 @@
+{
+  "independent_units": "three original histories per Ee; descriptive comparison, no between-Ee pairing",
+  "interval": [
+    10000000,
+    12000000
+  ],
+  "limitations": "same E1 geometries; different chemical/MD streams; qualified Ee10 also has unresolved slow topology; reference neighbor counts/exposures reuse authenticated frozen review, no new reference replay",
+  "records": [
+    {
+      "replica": 1,
+      "window": {
+        "activity": {
+          "breaks": {
+            "blocking_sem_sensitivity": {
+              "10": 0.004305713258760585,
+              "20": 0.004216680535307615,
+              "5": 0.0029353449541748944
+            },
+            "blocks": [
+              0.323,
+              0.3075,
+              0.316,
+              0.342,
+              0.311,
+              0.324,
+              0.337,
+              0.3145,
+              0.34550000000000003,
+              0.313
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1724.742474409439,
+            "mean": 0.32335,
+            "resolution_warning": false,
+            "sem_estimate": 0.004295230154630831,
+            "slope": 5.7513764378441e-07,
+            "tau_time": 5.797967028917784
+          },
+          "creations": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00418758084499074,
+              "20": 0.004213683848955375,
+              "5": 0.00279329554469269
+            },
+            "blocks": [
+              0.315,
+              0.3175,
+              0.314,
+              0.343,
+              0.308,
+              0.326,
+              0.338,
+              0.318,
+              0.343,
+              0.312
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.32345,
+            "resolution_warning": false,
+            "sem_estimate": 0.004081978533750514,
+            "slope": 6.667726666931672e-07,
+            "tau_time": 5.0
+          },
+          "neighbor_gains": {
+            "blocking_sem_sensitivity": {
+              "10": 0.003613247231446465,
+              "20": 0.0038426279384926403,
+              "5": 0.0022597013076953295
+            },
+            "blocks": [
+              0.2905,
+              0.293,
+              0.2785,
+              0.3085,
+              0.28150000000000003,
+              0.295,
+              0.3125,
+              0.2895,
+              0.307,
+              0.289
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.2945,
+            "resolution_warning": false,
+            "sem_estimate": 0.0039031877997349807,
+            "slope": 6.226351556587895e-07,
+            "tau_time": 5.0
+          },
+          "neighbor_losses": {
+            "blocking_sem_sensitivity": {
+              "10": 0.003480461335959804,
+              "20": 0.003704531364636955,
+              "5": 0.0016571813419176509
+            },
+            "blocks": [
+              0.298,
+              0.28450000000000003,
+              0.28150000000000003,
+              0.311,
+              0.286,
+              0.2955,
+              0.3065,
+              0.2895,
+              0.31,
+              0.287
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.29495,
+            "resolution_warning": false,
+            "sem_estimate": 0.00384769395222645,
+            "slope": 4.1147260286815046e-07,
+            "tau_time": 5.0
+          }
+        },
+        "duration": 20000.0,
+        "end_step_inclusive": 12000000,
+        "event_counts": {
+          "breaks": 6467,
+          "creations": 6469,
+          "neighbor_gains": 5890,
+          "neighbor_losses": 5899
+        },
+        "event_rates_per_star_time": {
+          "breaks": 0.00032335,
+          "creations": 0.00032345,
+          "neighbor_gains": 0.0002945,
+          "neighbor_losses": 0.00029495
+        },
+        "event_rates_per_time": {
+          "breaks": 0.32335,
+          "creations": 0.32345,
+          "neighbor_gains": 0.2945,
+          "neighbor_losses": 0.29495
+        },
+        "exposure": {
+          "active_bond_time": 38438853.0,
+          "free_sticker_time": 3122294.0
+        },
+        "metrics": {
+          "L1": {
+            "blocking_sem_sensitivity": {
+              "10": 1.0928403360052188,
+              "20": 0.7731788449742978,
+              "5": 1.5827904551771854
+            },
+            "blocks": [
+              42.1,
+              40.825,
+              39.635,
+              40.435,
+              40.61,
+              42.385,
+              43.515,
+              46.225,
+              49.48,
+              48.14
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.8396561034509227,
+            "mean": 43.335,
+            "resolution_warning": true,
+            "sem_estimate": 1.8415729581868199,
+            "slope": 0.0004779569694892424,
+            "tau_time": 2604.3999073282675
+          },
+          "L2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.9563855568406147,
+              "20": 0.7496390359436508,
+              "5": 1.2942925191006853
+            },
+            "blocks": [
+              41.49,
+              41.63,
+              47.635,
+              46.265,
+              45.44,
+              50.495,
+              49.775,
+              48.435,
+              47.03,
+              45.855
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 8.999495400681425,
+            "mean": 46.405,
+            "resolution_warning": true,
+            "sem_estimate": 1.2145286842742724,
+            "slope": 0.00028089622022405507,
+            "tau_time": 1111.173410816213
+          },
+          "bonds": {
+            "blocking_sem_sensitivity": {
+              "10": 0.4342009263514402,
+              "20": 0.6119074577434905,
+              "5": 0.41851269395325474
+            },
+            "blocks": [
+              1921.655,
+              1919.44,
+              1921.73,
+              1921.1,
+              1922.34,
+              1922.6,
+              1923.785,
+              1921.435,
+              1921.185,
+              1924.19
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 66.96849615324787,
+            "mean": 1921.946,
+            "resolution_warning": false,
+            "sem_estimate": 0.7071261660637539,
+            "slope": 0.00010458437614609408,
+            "tau_time": 149.323944457651
+          },
+          "bound_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00021710046317572165,
+              "20": 0.0003059537288717486,
+              "5": 0.00020925634697660777
+            },
+            "blocks": [
+              0.9608275,
+              0.95972,
+              0.960865,
+              0.96055,
+              0.96117,
+              0.9613,
+              0.9618925,
+              0.9607175,
+              0.9605925,
+              0.962095
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 66.96849615325029,
+            "mean": 0.960973,
+            "resolution_warning": false,
+            "sem_estimate": 0.00035356308303187076,
+            "slope": 5.229218807304716e-08,
+            "tau_time": 149.3239444576456
+          },
+          "components": {
+            "blocking_sem_sensitivity": {
+              "10": 0.31951769208536096,
+              "20": 0.2240193835598302,
+              "5": 0.41697017279417004
+            },
+            "blocks": [
+              2.005,
+              2.015,
+              2.105,
+              4.0,
+              4.0,
+              3.275,
+              3.14,
+              2.55,
+              1.285,
+              1.235
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.103817900673623,
+            "mean": 2.561,
+            "resolution_warning": true,
+            "sem_estimate": 0.44885689189986194,
+            "slope": -4.078441019610255e-05,
+            "tau_time": 1959.3175529793411
+          },
+          "degree_0_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0003269866205213907,
+              "20": 0.00022857737950429964,
+              "5": 0.0004295291026228607
+            },
+            "blocks": [
+              0.001005,
+              0.001015,
+              0.001105,
+              0.003,
+              0.003,
+              0.00227,
+              0.00211,
+              0.00155,
+              0.000285,
+              6.500000000000001e-05
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.018789606229736,
+            "mean": 0.0015405,
+            "resolution_warning": true,
+            "sem_estimate": 0.00045899916153137506,
+            "slope": -4.528268632067158e-08,
+            "tau_time": 1992.5122957111362
+          },
+          "degree_1_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0005657779550711078,
+              "20": 0.0004528944776597931,
+              "5": 0.000502702322453358
+            },
+            "blocks": [
+              0.00833,
+              0.008749999999999999,
+              0.0097,
+              0.005385,
+              0.006815,
+              0.009655,
+              0.01053,
+              0.008765,
+              0.005275,
+              0.008
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 15.836817208878397,
+            "mean": 0.0081205,
+            "resolution_warning": false,
+            "sem_estimate": 0.0006301677101836638,
+            "slope": -4.177883544470884e-08,
+            "tau_time": 631.4400089428212
+          },
+          "degree_2_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.002150241775811373,
+              "20": 0.001613646324485733,
+              "5": 0.0026686675514196226
+            },
+            "blocks": [
+              0.080035,
+              0.082535,
+              0.079345,
+              0.091135,
+              0.092755,
+              0.092985,
+              0.09244,
+              0.0964,
+              0.09915,
+              0.089075
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.262255789653011,
+            "mean": 0.0895855,
+            "resolution_warning": true,
+            "sem_estimate": 0.0033723612430344853,
+            "slope": 8.803039450759844e-07,
+            "tau_time": 1900.3257157629337
+          },
+          "degree_3_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0019340511957489088,
+              "20": 0.001621127267805045,
+              "5": 0.0026447850810604632
+            },
+            "blocks": [
+              0.20079,
+              0.19904,
+              0.19823,
+              0.196495,
+              0.198415,
+              0.197185,
+              0.18855,
+              0.197295,
+              0.206215,
+              0.21166000000000001
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 29.040577468334998,
+            "mean": 0.1993875,
+            "resolution_warning": false,
+            "sem_estimate": 0.0019754353206951616,
+            "slope": 3.736770184192544e-07,
+            "tau_time": 344.3457696701696
+          },
+          "degree_4_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.002500840169933997,
+              "20": 0.0019722695182534168,
+              "5": 0.0034506856746159896
+            },
+            "blocks": [
+              0.7098399999999999,
+              0.70866,
+              0.7116199999999999,
+              0.703985,
+              0.6990149999999999,
+              0.697905,
+              0.7063699999999999,
+              0.69599,
+              0.689075,
+              0.6912
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 10.326158352018014,
+            "mean": 0.7013659999999999,
+            "resolution_warning": false,
+            "sem_estimate": 0.003650315707405317,
+            "slope": -1.1669194417298605e-06,
+            "tau_time": 968.4143569273975
+          },
+          "edges_m1": {
+            "blocking_sem_sensitivity": {
+              "10": 2.8903020987817536,
+              "20": 2.1062449250290296,
+              "5": 4.02888984398929
+            },
+            "blocks": [
+              1764.565,
+              1761.965,
+              1765.145,
+              1756.105,
+              1751.205,
+              1748.025,
+              1751.485,
+              1742.48,
+              1739.78,
+              1744.825
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.402225281581792,
+            "mean": 1752.558,
+            "resolution_warning": true,
+            "sem_estimate": 4.961210075017967,
+            "slope": -0.001416556704139176,
+            "tau_time": 2271.578431444298
+          },
+          "edges_m2": {
+            "blocking_sem_sensitivity": {
+              "10": 1.1827958403714478,
+              "20": 0.84369531791618,
+              "5": 1.6579702575740016
+            },
+            "blocks": [
+              39.7,
+              40.825,
+              39.635,
+              40.435,
+              40.61,
+              40.87,
+              40.92,
+              46.225,
+              49.48,
+              48.14
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.488882910442595,
+            "mean": 42.684,
+            "resolution_warning": true,
+            "sem_estimate": 1.8370666296071108,
+            "slope": 0.000514993328748332,
+            "tau_time": 2227.725739233866
+          },
+          "edges_m3": {
+            "blocking_sem_sensitivity": {
+              "10": 0.11413247663229875,
+              "20": 0.08783387429508169,
+              "5": 0.09363960166510749
+            },
+            "blocks": [
+              0.8,
+              0,
+              0,
+              0,
+              0,
+              0.505,
+              0.865,
+              0,
+              0,
+              0
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 10.728776982123419,
+            "mean": 0.217,
+            "resolution_warning": false,
+            "sem_estimate": 0.12584490553057526,
+            "slope": -1.2345453086363271e-05,
+            "tau_time": 932.0726879365908
+          },
+          "edges_m4": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0,
+              "20": 0.0,
+              "5": 0.0
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "constant_not_mixing_evidence": true,
+            "effective_samples_estimate": 2000,
+            "mean": 0,
+            "resolution_warning": true,
+            "sem_estimate": 0.0,
+            "slope": 0.0,
+            "tau_time": 5.0
+          },
+          "fraction_parallel_edges": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0006538894374559668,
+              "20": 0.00046479088128968286,
+              "5": 0.000930659298431904
+            },
+            "blocks": [
+              0.02243744894685154,
+              0.02264547633209135,
+              0.02196079678702418,
+              0.022507393970349156,
+              0.022664640161307918,
+              0.023122044762168125,
+              0.023301172518957157,
+              0.025845751017160575,
+              0.02765387873310236,
+              0.026849782720110363
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.135429897379844,
+            "mean": 0.02389883859491227,
+            "resolution_warning": true,
+            "sem_estimate": 0.001054515878677709,
+            "slope": 2.9216146766647196e-07,
+            "tau_time": 2418.1282836727264
+          },
+          "free": {
+            "blocking_sem_sensitivity": {
+              "10": 0.86840185270287,
+              "20": 1.2238149154869864,
+              "5": 0.8370253879064831
+            },
+            "blocks": [
+              156.69,
+              161.12,
+              156.54,
+              157.8,
+              155.32,
+              154.8,
+              152.43,
+              157.13,
+              157.63,
+              151.62
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 66.96849615324875,
+            "mean": 156.108,
+            "resolution_warning": false,
+            "sem_estimate": 1.4142523321274982,
+            "slope": -0.00020916875229218785,
+            "tau_time": 149.32394445764902
+          },
+          "inter": {
+            "blocking_sem_sensitivity": {
+              "10": 1.6348766858016481,
+              "20": 1.2381601588435014,
+              "5": 2.2646949849814253
+            },
+            "blocks": [
+              1846.365,
+              1843.615,
+              1844.415,
+              1836.975,
+              1832.425,
+              1831.28,
+              1835.92,
+              1834.93,
+              1838.74,
+              1841.105
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 8.512174211041994,
+            "mean": 1838.577,
+            "resolution_warning": true,
+            "sem_estimate": 2.5322393503665803,
+            "slope": -0.0004236064059016015,
+            "tau_time": 1174.7879862500931
+          },
+          "intra": {
+            "blocking_sem_sensitivity": {
+              "10": 1.8149260468557809,
+              "20": 1.31137491126479,
+              "5": 2.6029229483409613
+            },
+            "blocks": [
+              75.29,
+              75.825,
+              77.315,
+              84.125,
+              89.915,
+              91.32,
+              87.865,
+              86.505,
+              82.445,
+              83.085
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.054027945059947,
+            "mean": 83.369,
+            "resolution_warning": true,
+            "sem_estimate": 2.9145282625052817,
+            "slope": 0.0005281907820476954,
+            "tau_time": 2466.6825526413904
+          },
+          "isolated_stars": {
+            "blocking_sem_sensitivity": {
+              "10": 0.32698662052139077,
+              "20": 0.22857737950429965,
+              "5": 0.4295291026228607
+            },
+            "blocks": [
+              1.005,
+              1.015,
+              1.105,
+              3,
+              3,
+              2.27,
+              2.11,
+              1.55,
+              0.285,
+              0.065
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.0187896062298565,
+            "mean": 1.5405,
+            "resolution_warning": true,
+            "sem_estimate": 0.4589991615313695,
+            "slope": -4.528268632067157e-05,
+            "tau_time": 1992.512295711088
+          },
+          "largest_cluster_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.000312781473236507,
+              "20": 0.00022069301732211067,
+              "5": 0.0004046832094367085
+            },
+            "blocks": [
+              0.998995,
+              0.998985,
+              0.998895,
+              0.997,
+              0.997,
+              0.99772,
+              0.99783,
+              0.99845,
+              0.999715,
+              0.999595
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.394787939793355,
+            "mean": 0.9984185,
+            "resolution_warning": true,
+            "sem_estimate": 0.00043893007616076566,
+            "slope": 3.628613407153366e-08,
+            "tau_time": 1853.6409793306993
+          },
+          "max_edge_multiplicity": {
+            "blocking_sem_sensitivity": {
+              "10": 0.11413247663229875,
+              "20": 0.08783387429508169,
+              "5": 0.09363960166510749
+            },
+            "blocks": [
+              2.8,
+              2,
+              2,
+              2,
+              2,
+              2.505,
+              2.865,
+              2,
+              2,
+              2
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 10.728776982123419,
+            "mean": 2.217,
+            "resolution_warning": false,
+            "sem_estimate": 0.12584490553057526,
+            "slope": -1.2345453086363273e-05,
+            "tau_time": 932.0726879365908
+          },
+          "max_permanent_bond": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00021379045631776325,
+              "20": 0.00021650299661565107,
+              "5": 0.00022053994447199856
+            },
+            "blocks": [
+              1.1392214127033884,
+              1.137818731820637,
+              1.1385955848377511,
+              1.1383258469344244,
+              1.1387134736287474,
+              1.1382441610205345,
+              1.137372765389965,
+              1.1377749696169182,
+              1.138292249908077,
+              1.1369088408832726
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 1.1381268036743717,
+            "resolution_warning": false,
+            "sem_estimate": 0.0003221276634661479,
+            "slope": -7.24505100327154e-08,
+            "tau_time": 5.0
+          },
+          "mean_center_terminal_r2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.016728254541498285,
+              "20": 0.013915170482688088,
+              "5": 0.017782112621503126
+            },
+            "blocks": [
+              15.88541952277702,
+              16.01228457372847,
+              15.947509564260024,
+              15.914521928686122,
+              15.834901643274822,
+              15.87666523794158,
+              15.939835587270652,
+              15.917705421613393,
+              15.839283519047399,
+              15.914496950913295
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 61.81511274050365,
+            "mean": 15.908262394951278,
+            "resolution_warning": false,
+            "sem_estimate": 0.016636586163085054,
+            "slope": -2.741443064990852e-06,
+            "tau_time": 161.77273738833793
+          },
+          "mean_degree": {
+            "blocking_sem_sensitivity": {
+              "10": 0.004104818252844927,
+              "20": 0.003051659738223572,
+              "5": 0.005677839730038175
+            },
+            "blocks": [
+              3.61013,
+              3.60558,
+              3.60956,
+              3.59308,
+              3.58363,
+              3.5787999999999998,
+              3.58654,
+              3.57741,
+              3.57852,
+              3.58593
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.710015886981173,
+            "mean": 3.590918,
+            "resolution_warning": true,
+            "sem_estimate": 0.0068676827220058405,
+            "slope": -1.8278176569544138e-06,
+            "tau_time": 1751.308612433108
+          },
+          "mean_edge_multiplicity": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0006371376449205539,
+              "20": 0.0004516359942058443,
+              "5": 0.0009169938314756212
+            },
+            "blocks": [
+              1.0228801079560084,
+              1.0226454763320914,
+              1.0219607967870241,
+              1.022507393970349,
+              1.022664640161308,
+              1.0234043220312201,
+              1.0237836518343406,
+              1.0258457510171606,
+              1.0276538787331024,
+              1.0268497827201104
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.917664825369718,
+            "mean": 1.0240195801542715,
+            "resolution_warning": true,
+            "sem_estimate": 0.0010564752250405917,
+            "slope": 2.8537731682319896e-07,
+            "tau_time": 2552.540976768292
+          },
+          "mean_rg2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.007000999027796272,
+              "20": 0.006185389980150926,
+              "5": 0.007945751437842546
+            },
+            "blocks": [
+              7.024476084639604,
+              7.078835278105912,
+              7.045454274600731,
+              7.031821763781563,
+              7.009978064832918,
+              7.005417004167674,
+              7.041365677121762,
+              7.041680426418901,
+              7.007357590103539,
+              7.032056797574312
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 41.88114329891006,
+            "mean": 7.031844296134691,
+            "resolution_warning": false,
+            "sem_estimate": 0.007312024288235891,
+            "slope": -1.177038127051811e-06,
+            "tau_time": 238.77094110418534
+          },
+          "min_permanent_bond": {
+            "blocking_sem_sensitivity": {
+              "10": 9.864800023538081e-05,
+              "20": 9.855201544282484e-05,
+              "5": 6.73877559857773e-05
+            },
+            "blocks": [
+              0.8593280421623979,
+              0.8602922588144728,
+              0.8598776608586954,
+              0.8595814254410464,
+              0.859559624590931,
+              0.8598101700944808,
+              0.8593284847569486,
+              0.859856146635677,
+              0.8599054264769938,
+              0.8600777603857723
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1692.9456518337975,
+            "mean": 0.8597617000217416,
+            "resolution_warning": false,
+            "sem_estimate": 0.00012856713575090778,
+            "slope": 1.1579057978802697e-08,
+            "tau_time": 5.9068641625725
+          },
+          "satellite_components": {
+            "blocking_sem_sensitivity": {
+              "10": 0.01687289081468983,
+              "20": 0.017083001708377277,
+              "5": 0.01636306817195357
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.005,
+              0.03,
+              0,
+              0,
+              0.17
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 70.68996752299857,
+            "mean": 0.0205,
+            "resolution_warning": false,
+            "sem_estimate": 0.01685389405671585,
+            "slope": 4.498276124569032e-06,
+            "tau_time": 141.46278956411402
+          },
+          "satellite_stars": {
+            "blocking_sem_sensitivity": {
+              "10": 0.03374578162937966,
+              "20": 0.034166003416754555,
+              "5": 0.03272613634390714
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.01,
+              0.06,
+              0,
+              0,
+              0.34
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 70.68996752299857,
+            "mean": 0.041,
+            "resolution_warning": false,
+            "sem_estimate": 0.0337077881134317,
+            "slope": 8.996552249138063e-06,
+            "tau_time": 141.46278956411402
+          },
+          "second_degree_moment": {
+            "blocking_sem_sensitivity": {
+              "10": 0.025089928754161325,
+              "20": 0.018922381684967106,
+              "5": 0.03457739609918581
+            },
+            "blocks": [
+              13.49302,
+              13.46881,
+              13.49707,
+              13.40214,
+              13.34781,
+              13.32274,
+              13.37916,
+              13.30586,
+              13.283009999999999,
+              13.32844
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 6.21659278676869,
+            "mean": 13.382806,
+            "resolution_warning": true,
+            "sem_estimate": 0.04142564218926846,
+            "slope": -1.1828180957045244e-05,
+            "tau_time": 1608.5982053197793
+          },
+          "stars_intra_loops_0": {
+            "blocking_sem_sensitivity": {
+              "10": 1.6452525641979696,
+              "20": 1.201477577161164,
+              "5": 2.3910005227937625
+            },
+            "blocks": [
+              925.71,
+              925.175,
+              923.685,
+              918.84,
+              913.085,
+              910.89,
+              914.135,
+              915.03,
+              917.625,
+              916.915
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.9894385293289467,
+            "mean": 918.109,
+            "resolution_warning": true,
+            "sem_estimate": 2.7045504182335036,
+            "slope": -0.0005790970447742615,
+            "tau_time": 2506.61839416337
+          },
+          "stars_intra_loops_1": {
+            "blocking_sem_sensitivity": {
+              "10": 1.531742689444499,
+              "20": 1.130255467163345,
+              "5": 2.2473269399444304
+            },
+            "blocks": [
+              73.29,
+              73.825,
+              75.315,
+              78.195,
+              83.915,
+              86.9,
+              83.865,
+              83.435,
+              82.305,
+              83.085
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.9501289651468987,
+            "mean": 80.413,
+            "resolution_warning": true,
+            "sem_estimate": 2.5688287226209634,
+            "slope": 0.0006300033075008268,
+            "tau_time": 2531.562915599166
+          },
+          "stars_intra_loops_2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.3365116804972913,
+              "20": 0.2346112125466973,
+              "5": 0.4426732711605705
+            },
+            "blocks": [
+              1,
+              1,
+              1,
+              2.965,
+              3,
+              2.21,
+              2,
+              1.535,
+              0.07,
+              0
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.868150358816537,
+            "mean": 1.478,
+            "resolution_warning": true,
+            "sem_estimate": 0.4689370959499766,
+            "slope": -5.0906262726565686e-05,
+            "tau_time": 2054.1682698623613
+          },
+          "temperature": {
+            "blocking_sem_sensitivity": {
+              "10": 8.718405445627204e-05,
+              "20": 8.342452465814468e-05,
+              "5": 6.794052703213247e-05
+            },
+            "blocks": [
+              0.979033430525491,
+              0.9788603153498836,
+              0.979194034606776,
+              0.9787287156586555,
+              0.978802441927265,
+              0.9792270419292776,
+              0.9791937190467704,
+              0.9792070704998204,
+              0.9783991439748495,
+              0.9791554266307874
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.9789801340149576,
+            "resolution_warning": false,
+            "sem_estimate": 8.791521680593203e-05,
+            "slope": 3.785643648874334e-10,
+            "tau_time": 5.0
+          }
+        },
+        "population_normalized_rates": {
+          "creation_events_per_free_sticker_time": 0.0020718740772009297,
+          "rupture_events_per_active_bond_time": 0.00016824123238016493
+        },
+        "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a",
+        "start_step_exclusive": 10000000
+      }
+    },
+    {
+      "replica": 2,
+      "window": {
+        "activity": {
+          "breaks": {
+            "blocking_sem_sensitivity": {
+              "10": 0.002732520204255895,
+              "20": 0.003304303414130064,
+              "5": 0.0027872477464337482
+            },
+            "blocks": [
+              0.317,
+              0.3115,
+              0.306,
+              0.31,
+              0.328,
+              0.3025,
+              0.3245,
+              0.3235,
+              0.3235,
+              0.3185
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1912.9202297221216,
+            "mean": 0.3165,
+            "resolution_warning": false,
+            "sem_estimate": 0.0039692365607255,
+            "slope": 6.482251620562901e-07,
+            "tau_time": 5.22760951796335
+          },
+          "creations": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0020548722588034536,
+              "20": 0.002826821722824344,
+              "5": 0.0019309971517327482
+            },
+            "blocks": [
+              0.3095,
+              0.322,
+              0.3055,
+              0.315,
+              0.3175,
+              0.312,
+              0.3225,
+              0.3185,
+              0.327,
+              0.314
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.31635,
+            "resolution_warning": false,
+            "sem_estimate": 0.003931772977932475,
+            "slope": 4.737076184269049e-07,
+            "tau_time": 5.0
+          },
+          "neighbor_gains": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0024506235034283683,
+              "20": 0.002508406917379611,
+              "5": 0.0027579430741043165
+            },
+            "blocks": [
+              0.2765,
+              0.28450000000000003,
+              0.2695,
+              0.2785,
+              0.2945,
+              0.2795,
+              0.286,
+              0.2895,
+              0.293,
+              0.28350000000000003
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.28350000000000003,
+            "resolution_warning": false,
+            "sem_estimate": 0.003750183328852071,
+            "slope": 6.646951661737924e-07,
+            "tau_time": 5.0
+          },
+          "neighbor_losses": {
+            "blocking_sem_sensitivity": {
+              "10": 0.003345021175817372,
+              "20": 0.0032905566638328416,
+              "5": 0.0033472003226577285
+            },
+            "blocks": [
+              0.2845,
+              0.284,
+              0.266,
+              0.2745,
+              0.3005,
+              0.2685,
+              0.286,
+              0.2905,
+              0.289,
+              0.288
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1867.0282037556692,
+            "mean": 0.28315,
+            "resolution_warning": false,
+            "sem_estimate": 0.003785255511686099,
+            "slope": 5.879926469981618e-07,
+            "tau_time": 5.35610548350809
+          }
+        },
+        "duration": 20000.0,
+        "end_step_inclusive": 12000000,
+        "event_counts": {
+          "breaks": 6330,
+          "creations": 6327,
+          "neighbor_gains": 5670,
+          "neighbor_losses": 5663
+        },
+        "event_rates_per_star_time": {
+          "breaks": 0.0003165,
+          "creations": 0.00031635,
+          "neighbor_gains": 0.0002835,
+          "neighbor_losses": 0.00028315
+        },
+        "event_rates_per_time": {
+          "breaks": 0.3165,
+          "creations": 0.31635,
+          "neighbor_gains": 0.2835,
+          "neighbor_losses": 0.28315
+        },
+        "exposure": {
+          "active_bond_time": 38446194.0,
+          "free_sticker_time": 3107612.0
+        },
+        "metrics": {
+          "L1": {
+            "blocking_sem_sensitivity": {
+              "10": 2.520910682008918,
+              "20": 1.7686437860986206,
+              "5": 3.644490996696246
+            },
+            "blocks": [
+              55.925,
+              62.86,
+              68.475,
+              64.025,
+              62.535,
+              61.815,
+              55.94,
+              55.135,
+              46.605,
+              43.105
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.894653825940608,
+            "mean": 57.642,
+            "resolution_warning": true,
+            "sem_estimate": 4.001905196549245,
+            "slope": -0.0009709490427372607,
+            "tau_time": 2567.6222963371783
+          },
+          "L2": {
+            "blocking_sem_sensitivity": {
+              "10": 1.6551689742540892,
+              "20": 1.1653899053874404,
+              "5": 2.414323999590776
+            },
+            "blocks": [
+              33.765,
+              30.08,
+              25.905,
+              24.955,
+              26.315,
+              28.985,
+              36.0,
+              33.765,
+              39.045,
+              38.595
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.8453254407221276,
+            "mean": 31.741,
+            "resolution_warning": true,
+            "sem_estimate": 2.6791873742197416,
+            "slope": 0.000544108336027084,
+            "tau_time": 2600.5601227141033
+          },
+          "bonds": {
+            "blocking_sem_sensitivity": {
+              "10": 1.0761487531419078,
+              "20": 1.0032891368420471,
+              "5": 0.9249251996783161
+            },
+            "blocks": [
+              1921.41,
+              1917.515,
+              1919.16,
+              1924.77,
+              1924.69,
+              1925.81,
+              1926.15,
+              1918.125,
+              1925.4,
+              1920.135
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 21.688537807163225,
+            "mean": 1922.3165,
+            "resolution_warning": false,
+            "sem_estimate": 1.318466031668436,
+            "slope": 0.00011823040455760116,
+            "tau_time": 461.0730372380027
+          },
+          "bound_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0005380743765709548,
+              "20": 0.0005016445684210253,
+              "5": 0.00046246259983915243
+            },
+            "blocks": [
+              0.960705,
+              0.9587575,
+              0.95958,
+              0.962385,
+              0.962345,
+              0.962905,
+              0.963075,
+              0.9590625,
+              0.9627,
+              0.9600675
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 21.688537807163325,
+            "mean": 0.96115825,
+            "resolution_warning": false,
+            "sem_estimate": 0.0006592330158342172,
+            "slope": 5.9115202278800546e-08,
+            "tau_time": 461.07303723800067
+          },
+          "components": {
+            "blocking_sem_sensitivity": {
+              "10": 0.11517667587956626,
+              "20": 0.09508887809224643,
+              "5": 0.08859458222713168
+            },
+            "blocks": [
+              2.065,
+              2.005,
+              2.0,
+              2.425,
+              2.59,
+              1.575,
+              1.33,
+              2.045,
+              2.185,
+              2.0
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.853368810068737,
+            "mean": 2.022,
+            "resolution_warning": false,
+            "sem_estimate": 0.14453618914998323,
+            "slope": -1.0089902522475645e-05,
+            "tau_time": 778.0061513652718
+          },
+          "degree_0_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.000115511062481286,
+              "20": 9.535053059218144e-05,
+              "5": 8.90666884980013e-05
+            },
+            "blocks": [
+              0.001065,
+              0.001005,
+              0.001,
+              0.001425,
+              0.00159,
+              0.000575,
+              0.000325,
+              0.001045,
+              0.001185,
+              0.001
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.81052423246981,
+            "mean": 0.0010215,
+            "resolution_warning": false,
+            "sem_estimate": 0.00014491827636766523,
+            "slope": -1.0123577530894383e-08,
+            "tau_time": 780.6081795352138
+          },
+          "degree_1_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0006852923139475267,
+              "20": 0.0005101661236148579,
+              "5": 0.0009424625324117666
+            },
+            "blocks": [
+              0.01105,
+              0.011745,
+              0.01081,
+              0.00856,
+              0.00857,
+              0.010414999999999999,
+              0.01475,
+              0.01336,
+              0.009625,
+              0.008015
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 11.753569073227112,
+            "mean": 0.01069,
+            "resolution_warning": false,
+            "sem_estimate": 0.0008498471588173893,
+            "slope": -2.87382071845518e-08,
+            "tau_time": 850.8053968711953
+          },
+          "degree_2_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0021896049174324676,
+              "20": 0.0016210155158515845,
+              "5": 0.002974396724547685
+            },
+            "blocks": [
+              0.11128,
+              0.119635,
+              0.127685,
+              0.12098,
+              0.119405,
+              0.11572500000000001,
+              0.109845,
+              0.106085,
+              0.107415,
+              0.11099
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.027245630362627,
+            "mean": 0.1149045,
+            "resolution_warning": true,
+            "sem_estimate": 0.0034556626919889054,
+            "slope": -6.972174993043743e-07,
+            "tau_time": 1989.1608119571188
+          },
+          "degree_3_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0027087970885001094,
+              "20": 0.0020943060023738045,
+              "5": 0.003609822970036066
+            },
+            "blocks": [
+              0.21676,
+              0.222175,
+              0.22029,
+              0.21819,
+              0.21372,
+              0.212095,
+              0.20145,
+              0.2167,
+              0.19850500000000001,
+              0.201565
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 11.540957287000333,
+            "mean": 0.212145,
+            "resolution_warning": false,
+            "sem_estimate": 0.0033281969974878972,
+            "slope": -1.1155738288934577e-06,
+            "tau_time": 866.4792487590212
+          },
+          "degree_4_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.004420865664349263,
+              "20": 0.003245850622434416,
+              "5": 0.00616127526369339
+            },
+            "blocks": [
+              0.659845,
+              0.64544,
+              0.640215,
+              0.650845,
+              0.656715,
+              0.66119,
+              0.6736300000000001,
+              0.66281,
+              0.68327,
+              0.67843
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.502917270676066,
+            "mean": 0.661239,
+            "resolution_warning": true,
+            "sem_estimate": 0.007330001321798323,
+            "slope": 1.8516531129132796e-06,
+            "tau_time": 2220.7825280562183
+          },
+          "edges_m1": {
+            "blocking_sem_sensitivity": {
+              "10": 5.154497981806225,
+              "20": 3.677169320350409,
+              "5": 7.321600533694808
+            },
+            "blocks": [
+              1707.37,
+              1690.57,
+              1680.91,
+              1694.61,
+              1699.115,
+              1703.11,
+              1713.405,
+              1710.6,
+              1730.9,
+              1731.31
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.9461028280317176,
+            "mean": 1706.19,
+            "resolution_warning": true,
+            "sem_estimate": 8.397931466807771,
+            "slope": 0.002129044132261035,
+            "tau_time": 2534.1458233078824
+          },
+          "edges_m2": {
+            "blocking_sem_sensitivity": {
+              "10": 1.7800727279149764,
+              "20": 1.2722032846084077,
+              "5": 2.6035363690565183
+            },
+            "blocks": [
+              53.435,
+              57.19,
+              60.33,
+              57.425,
+              56.61,
+              56.61,
+              51.905,
+              51.685,
+              45.135,
+              42.79
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.017301810171248,
+            "mean": 53.3115,
+            "resolution_warning": true,
+            "sem_estimate": 2.8866199577925973,
+            "slope": -0.0007305533576383394,
+            "tau_time": 2489.232941045503
+          },
+          "edges_m3": {
+            "blocking_sem_sensitivity": {
+              "10": 0.2566623917392911,
+              "20": 0.18308938714248438,
+              "5": 0.3575075174034806
+            },
+            "blocks": [
+              0.83,
+              1.89,
+              2.715,
+              2.2,
+              1.975,
+              1.735,
+              1.345,
+              1.15,
+              0.49,
+              0.105
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.285141037136065,
+            "mean": 1.4435,
+            "resolution_warning": true,
+            "sem_estimate": 0.37766088671336645,
+            "slope": -8.013189503297377e-05,
+            "tau_time": 1892.0970944266123
+          },
+          "edges_m4": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0,
+              "20": 0.0,
+              "5": 0.0
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "constant_not_mixing_evidence": true,
+            "effective_samples_estimate": 2000,
+            "mean": 0,
+            "resolution_warning": true,
+            "sem_estimate": 0.0,
+            "slope": 0.0,
+            "tau_time": 5.0
+          },
+          "fraction_parallel_edges": {
+            "blocking_sem_sensitivity": {
+              "10": 0.001200273792588304,
+              "20": 0.0008498207802498989,
+              "5": 0.0017445927039244579
+            },
+            "blocks": [
+              0.030804326522134894,
+              0.03377271433974073,
+              0.03615343361914959,
+              0.033989451491810055,
+              0.03333051725508194,
+              0.03312466793721173,
+              0.03014074219610429,
+              0.02996402326587851,
+              0.02568243760183496,
+              0.02417836071572296
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.8900696047585237,
+            "mean": 0.031114067494466966,
+            "resolution_warning": true,
+            "sem_estimate": 0.0019356191928282976,
+            "slope": -4.82528381388264e-07,
+            "tau_time": 2570.648090144071
+          },
+          "free": {
+            "blocking_sem_sensitivity": {
+              "10": 2.152297506283822,
+              "20": 2.006578273684098,
+              "5": 1.8498503993566595
+            },
+            "blocks": [
+              157.18,
+              164.97,
+              161.68,
+              150.46,
+              150.62,
+              148.38,
+              147.7,
+              163.75,
+              149.2,
+              159.73
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 21.68853780716325,
+            "mean": 155.367,
+            "resolution_warning": false,
+            "sem_estimate": 2.6369320633368707,
+            "slope": -0.00023646080911520203,
+            "tau_time": 461.0730372380022
+          },
+          "inter": {
+            "blocking_sem_sensitivity": {
+              "10": 1.361251680949904,
+              "20": 1.128077842358872,
+              "5": 1.5851507420431619
+            },
+            "blocks": [
+              1816.73,
+              1810.62,
+              1809.715,
+              1816.06,
+              1818.26,
+              1821.535,
+              1821.25,
+              1817.42,
+              1822.64,
+              1817.205
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 11.838767650605732,
+            "mean": 1817.1435,
+            "resolution_warning": false,
+            "sem_estimate": 1.8638222842631091,
+            "slope": 0.000427541731885433,
+            "tau_time": 844.6825121606596
+          },
+          "intra": {
+            "blocking_sem_sensitivity": {
+              "10": 0.864396449681638,
+              "20": 0.647701238795204,
+              "5": 1.1552879511186815
+            },
+            "blocks": [
+              104.68,
+              106.895,
+              109.445,
+              108.71,
+              106.43,
+              104.275,
+              104.9,
+              100.705,
+              102.76,
+              102.93
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.837767140873101,
+            "mean": 105.173,
+            "resolution_warning": true,
+            "sem_estimate": 1.4219054719526811,
+            "slope": -0.00030931132732783177,
+            "tau_time": 2067.0693129300225
+          },
+          "isolated_stars": {
+            "blocking_sem_sensitivity": {
+              "10": 0.11551106248128598,
+              "20": 0.09535053059218143,
+              "5": 0.0890666884980013
+            },
+            "blocks": [
+              1.065,
+              1.005,
+              1,
+              1.425,
+              1.59,
+              0.575,
+              0.325,
+              1.045,
+              1.185,
+              1
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.810524232470202,
+            "mean": 1.0215,
+            "resolution_warning": false,
+            "sem_estimate": 0.144918276367663,
+            "slope": -1.0123577530894377e-05,
+            "tau_time": 780.60817953519
+          },
+          "largest_cluster_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00011484349253561564,
+              "20": 9.48291399806717e-05,
+              "5": 8.812278366007502e-05
+            },
+            "blocks": [
+              0.998935,
+              0.998995,
+              0.999,
+              0.998575,
+              0.99841,
+              0.999425,
+              0.999665,
+              0.998955,
+              0.998815,
+              0.999
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.944528280968992,
+            "mean": 0.9989775,
+            "resolution_warning": false,
+            "sem_estimate": 0.00014415442573634046,
+            "slope": 1.0056227514056893e-08,
+            "tau_time": 772.5271854596642
+          },
+          "max_edge_multiplicity": {
+            "blocking_sem_sensitivity": {
+              "10": 0.09672196694075698,
+              "20": 0.07050149307862769,
+              "5": 0.13724066452768294
+            },
+            "blocks": [
+              2.83,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              2.49,
+              2.105
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 8.750848171198259,
+            "mean": 2.8425,
+            "resolution_warning": true,
+            "sem_estimate": 0.12314028642416434,
+            "slope": -2.9944732486183128e-05,
+            "tau_time": 1142.7463720503215
+          },
+          "max_permanent_bond": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0004380374523020915,
+              "20": 0.00036900973085412646,
+              "5": 0.0005095892594857594
+            },
+            "blocks": [
+              1.139773905168877,
+              1.138163223951043,
+              1.13926360292837,
+              1.1362604355243808,
+              1.1371477732594582,
+              1.1381932225698652,
+              1.1376911971353119,
+              1.1382427580987085,
+              1.1399283924793502,
+              1.1407960539697797
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 1.1385460565085146,
+            "resolution_warning": false,
+            "sem_estimate": 0.00032167650730870347,
+            "slope": 6.139547757662163e-08,
+            "tau_time": 5.0
+          },
+          "mean_center_terminal_r2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.017645693203110758,
+              "20": 0.013500999665509997,
+              "5": 0.021423926284240086
+            },
+            "blocks": [
+              15.80877768654618,
+              15.767124202717824,
+              15.756700933072123,
+              15.810716830408817,
+              15.804875616841617,
+              15.773394569152627,
+              15.808388466238927,
+              15.924653030786205,
+              15.874641652597827,
+              15.88755224296387
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 27.69862871161096,
+            "mean": 15.821682523132601,
+            "resolution_warning": false,
+            "sem_estimate": 0.024229768467642965,
+            "slope": 6.740866538350208e-06,
+            "tau_time": 361.028703049408
+          },
+          "mean_degree": {
+            "blocking_sem_sensitivity": {
+              "10": 0.006428739810845919,
+              "20": 0.0046712855212513605,
+              "5": 0.008889943335027442
+            },
+            "blocks": [
+              3.52327,
+              3.4993,
+              3.4879100000000003,
+              3.50847,
+              3.5154,
+              3.52291,
+              3.5333099999999997,
+              3.5268699999999997,
+              3.55305,
+              3.54841
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.430522147167371,
+            "mean": 3.52189,
+            "resolution_warning": true,
+            "sem_estimate": 0.010422054935057162,
+            "slope": 2.636717759179439e-06,
+            "tau_time": 2257.070310864701
+          },
+          "mean_edge_multiplicity": {
+            "blocking_sem_sensitivity": {
+              "10": 0.001342073422284742,
+              "20": 0.0009451456948057909,
+              "5": 0.0019434711659943392
+            },
+            "blocks": [
+              1.031275614992039,
+              1.0348530633632118,
+              1.0377101359185028,
+              1.035243867217212,
+              1.0344541362317239,
+              1.0341097291000838,
+              1.03090239075959,
+              1.0306161961477336,
+              1.0259583333592261,
+              1.0242374507028844
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.867243516263476,
+            "mean": 1.0319360917792206,
+            "resolution_warning": true,
+            "sem_estimate": 0.002148452763411153,
+            "slope": -5.285589852650076e-07,
+            "tau_time": 2585.8211302043846
+          },
+          "mean_rg2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.007049664829806741,
+              "20": 0.00562342958824261,
+              "5": 0.008683402369739223
+            },
+            "blocks": [
+              7.011301993382522,
+              6.980788918023643,
+              6.9867396788473135,
+              6.993546896721702,
+              6.991465144420268,
+              6.983998807383646,
+              6.998617347894829,
+              7.04068006274066,
+              7.026080977061455,
+              7.036620287717041
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 18.072210863188612,
+            "mean": 7.004984011419308,
+            "resolution_warning": false,
+            "sem_estimate": 0.010219590751178592,
+            "slope": 2.463873101858448e-06,
+            "tau_time": 553.3357305148014
+          },
+          "min_permanent_bond": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00013400293940761282,
+              "20": 0.0001344841940054771,
+              "5": 9.719237144618008e-05
+            },
+            "blocks": [
+              0.860255575419033,
+              0.8596432864389262,
+              0.859725172938141,
+              0.8598296174542628,
+              0.8597141174577208,
+              0.86008179685985,
+              0.8590009758949775,
+              0.8598138374628695,
+              0.8602185823035327,
+              0.8590807006270049
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1543.4996578974587,
+            "mean": 0.8597363662856319,
+            "resolution_warning": false,
+            "sem_estimate": 0.00013285430997271081,
+            "slope": -2.4679054911058953e-08,
+            "tau_time": 6.478783424948671
+          },
+          "satellite_components": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0005,
+              "20": 0.0005,
+              "5": 0.0005
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.005,
+              0,
+              0,
+              0
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.0005,
+            "resolution_warning": false,
+            "sem_estimate": 0.0004998749843710925,
+            "slope": 3.367500841875211e-08,
+            "tau_time": 5.0
+          },
+          "satellite_stars": {
+            "blocking_sem_sensitivity": {
+              "10": 0.001,
+              "20": 0.001,
+              "5": 0.001
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.01,
+              0,
+              0,
+              0
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.001,
+            "resolution_warning": false,
+            "sem_estimate": 0.000999749968742185,
+            "slope": 6.735001683750422e-08,
+            "tau_time": 5.0
+          },
+          "second_degree_moment": {
+            "blocking_sem_sensitivity": {
+              "10": 0.04070527631783271,
+              "20": 0.029625479157572982,
+              "5": 0.05651054774553154
+            },
+            "blocks": [
+              12.96453,
+              12.8169,
+              12.7476,
+              12.86971,
+              12.91711,
+              12.96121,
+              13.04526,
+              12.99296,
+              13.158150000000001,
+              13.12094
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.328223530584785,
+            "mean": 12.959437,
+            "resolution_warning": true,
+            "sem_estimate": 0.06680307967278665,
+            "slope": 1.676867714216926e-05,
+            "tau_time": 2310.41671700558
+          },
+          "stars_intra_loops_0": {
+            "blocking_sem_sensitivity": {
+              "10": 0.8326928205126651,
+              "20": 0.6230810963522967,
+              "5": 1.076322848870156
+            },
+            "blocks": [
+              896.32,
+              894.105,
+              891.555,
+              892.585,
+              894.965,
+              895.905,
+              895.1,
+              900.125,
+              898.24,
+              898.07
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.411827212948003,
+            "mean": 895.697,
+            "resolution_warning": true,
+            "sem_estimate": 1.3017189572609273,
+            "slope": 0.0002913458228364558,
+            "tau_time": 1847.8047444076965
+          },
+          "stars_intra_loops_1": {
+            "blocking_sem_sensitivity": {
+              "10": 0.8240301369893369,
+              "20": 0.6154955641381049,
+              "5": 1.0073307550154518
+            },
+            "blocks": [
+              102.68,
+              104.895,
+              107.445,
+              106.12,
+              103.64,
+              103.915,
+              104.9,
+              99.045,
+              100.76,
+              100.93
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 6.493655774217447,
+            "mean": 103.433,
+            "resolution_warning": true,
+            "sem_estimate": 1.181287693110993,
+            "slope": -0.00027338031834507956,
+            "tau_time": 1539.9645974004688
+          },
+          "stars_intra_loops_2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.14044967465648012,
+              "20": 0.10462212707493673,
+              "5": 0.1274043759060104
+            },
+            "blocks": [
+              1,
+              1,
+              1,
+              1.295,
+              1.395,
+              0.18,
+              0,
+              0.83,
+              1,
+              1
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 7.7810938634793265,
+            "mean": 0.87,
+            "resolution_warning": true,
+            "sem_estimate": 0.17963999290247196,
+            "slope": -1.7965504491376122e-05,
+            "tau_time": 1285.1663500597442
+          },
+          "temperature": {
+            "blocking_sem_sensitivity": {
+              "10": 8.541172839255261e-05,
+              "20": 7.502972526042085e-05,
+              "5": 8.42420044502801e-05
+            },
+            "blocks": [
+              0.9793668329051877,
+              0.9787478794318405,
+              0.9788236399300471,
+              0.978551720323301,
+              0.9787253848862993,
+              0.9787464182696817,
+              0.9784408981598398,
+              0.978975818635346,
+              0.9790278269895659,
+              0.9790698529853629
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.9788476272516472,
+            "resolution_warning": false,
+            "sem_estimate": 8.862384570237607e-05,
+            "slope": -7.080808741057173e-10,
+            "tau_time": 5.0
+          }
+        },
+        "population_normalized_rates": {
+          "creation_events_per_free_sticker_time": 0.0020359684542343125,
+          "rupture_events_per_active_bond_time": 0.00016464568638445719
+        },
+        "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a",
+        "start_step_exclusive": 10000000
+      }
+    },
+    {
+      "replica": 3,
+      "window": {
+        "activity": {
+          "breaks": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00520267025456907,
+              "20": 0.0049156570476922325,
+              "5": 0.005323532661682463
+            },
+            "blocks": [
+              0.34600000000000003,
+              0.31,
+              0.341,
+              0.3185,
+              0.3285,
+              0.349,
+              0.3165,
+              0.3,
+              0.3115,
+              0.322
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1643.8441163977157,
+            "mean": 0.3243,
+            "resolution_warning": false,
+            "sem_estimate": 0.004383703063620988,
+            "slope": -1.036875259218815e-06,
+            "tau_time": 6.0833018777436045
+          },
+          "creations": {
+            "blocking_sem_sensitivity": {
+              "10": 0.004941912585224471,
+              "20": 0.005063426653333117,
+              "5": 0.0055394043001030365
+            },
+            "blocks": [
+              0.342,
+              0.315,
+              0.337,
+              0.321,
+              0.327,
+              0.3515,
+              0.3115,
+              0.3015,
+              0.3105,
+              0.3265
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.32435,
+            "resolution_warning": false,
+            "sem_estimate": 0.004091581448535517,
+            "slope": -8.704877176219297e-07,
+            "tau_time": 5.0
+          },
+          "neighbor_gains": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0049580462101741435,
+              "20": 0.004523564035022315,
+              "5": 0.005782300580218919
+            },
+            "blocks": [
+              0.309,
+              0.28250000000000003,
+              0.3035,
+              0.2905,
+              0.2975,
+              0.319,
+              0.28,
+              0.2695,
+              0.275,
+              0.2925
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1986.4734538415555,
+            "mean": 0.2919,
+            "resolution_warning": false,
+            "sem_estimate": 0.003905168011110406,
+            "slope": -9.933152483288126e-07,
+            "tau_time": 5.034046632066202
+          },
+          "neighbor_losses": {
+            "blocking_sem_sensitivity": {
+              "10": 0.005144144459696111,
+              "20": 0.004453325191714376,
+              "5": 0.0056818790905826195
+            },
+            "blocks": [
+              0.311,
+              0.28200000000000003,
+              0.31,
+              0.28250000000000003,
+              0.3045,
+              0.314,
+              0.2865,
+              0.2685,
+              0.2755,
+              0.2885
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1897.2482514985688,
+            "mean": 0.2923,
+            "resolution_warning": false,
+            "sem_estimate": 0.0038846686287249774,
+            "slope": -1.1964452991113243e-06,
+            "tau_time": 5.270791522459623
+          }
+        },
+        "duration": 20000.0,
+        "end_step_inclusive": 12000000,
+        "event_counts": {
+          "breaks": 6486,
+          "creations": 6487,
+          "neighbor_gains": 5838,
+          "neighbor_losses": 5846
+        },
+        "event_rates_per_star_time": {
+          "breaks": 0.0003243,
+          "creations": 0.00032435,
+          "neighbor_gains": 0.0002919,
+          "neighbor_losses": 0.0002923
+        },
+        "event_rates_per_time": {
+          "breaks": 0.3243,
+          "creations": 0.32435,
+          "neighbor_gains": 0.2919,
+          "neighbor_losses": 0.2923
+        },
+        "exposure": {
+          "active_bond_time": 38398794.0,
+          "free_sticker_time": 3202412.0
+        },
+        "metrics": {
+          "L1": {
+            "blocking_sem_sensitivity": {
+              "10": 0.7986398332999259,
+              "20": 0.6030380432269158,
+              "5": 1.0153326425364253
+            },
+            "blocks": [
+              48.615,
+              50.345,
+              50.36,
+              46.275,
+              45.23,
+              42.87,
+              45.14,
+              46.925,
+              49.925,
+              47.95
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 6.893349786325215,
+            "mean": 47.3635,
+            "resolution_warning": true,
+            "sem_estimate": 1.1450008771429454,
+            "slope": -9.435849858962458e-05,
+            "tau_time": 1450.6735201277104
+          },
+          "L2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.7090884014783424,
+              "20": 0.630698641441211,
+              "5": 0.8120338662888394
+            },
+            "blocks": [
+              35.85,
+              38.69,
+              33.785,
+              33.36,
+              32.13,
+              36.03,
+              34.075,
+              31.545,
+              34.46,
+              37.27
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 13.550362691208921,
+            "mean": 34.7195,
+            "resolution_warning": false,
+            "sem_estimate": 0.8417414198708093,
+            "slope": -5.932193983048507e-05,
+            "tau_time": 737.9876264483834
+          },
+          "bonds": {
+            "blocking_sem_sensitivity": {
+              "10": 1.3051055300030021,
+              "20": 1.0593862175310476,
+              "5": 1.513039077486103
+            },
+            "blocks": [
+              1917.335,
+              1924.88,
+              1917.44,
+              1924.1,
+              1917.02,
+              1916.755,
+              1924.495,
+              1924.73,
+              1918.74,
+              1914.045
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 30.850607651595034,
+            "mean": 1919.954,
+            "resolution_warning": false,
+            "sem_estimate": 1.20723102818475,
+            "slope": -0.00011477777869444469,
+            "tau_time": 324.14272395970073
+          },
+          "bound_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0006525527650015067,
+              "20": 0.0005296931087655249,
+              "5": 0.0007565195387430564
+            },
+            "blocks": [
+              0.9586675,
+              0.96244,
+              0.95872,
+              0.96205,
+              0.95851,
+              0.9583775,
+              0.9622475,
+              0.962365,
+              0.95937,
+              0.9570225
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 30.85060765159531,
+            "mean": 0.959977,
+            "resolution_warning": false,
+            "sem_estimate": 0.0006036155140923726,
+            "slope": -5.7388889347222436e-08,
+            "tau_time": 324.14272395969783
+          },
+          "components": {
+            "blocking_sem_sensitivity": {
+              "10": 0.11148853952063614,
+              "20": 0.08570596920807055,
+              "5": 0.13977303030270183
+            },
+            "blocks": [
+              2.005,
+              2.005,
+              2.18,
+              1.795,
+              1.045,
+              1.755,
+              2.075,
+              2.215,
+              2.19,
+              2.14
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.401024871449085,
+            "mean": 1.9405,
+            "resolution_warning": false,
+            "sem_estimate": 0.139682749257019,
+            "slope": 1.3762728440682106e-05,
+            "tau_time": 806.3849644413688
+          },
+          "degree_0_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00011098348225449287,
+              "20": 8.530934421577929e-05,
+              "5": 0.00013878805784360557
+            },
+            "blocks": [
+              0.001005,
+              0.001005,
+              0.00118,
+              0.000795,
+              4.5e-05,
+              0.000755,
+              0.001075,
+              0.001215,
+              0.001185,
+              0.0011200000000000001
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.414368803108715,
+            "mean": 0.000938,
+            "resolution_warning": false,
+            "sem_estimate": 0.0001387964374182591,
+            "slope": 1.3110153277538325e-08,
+            "tau_time": 805.5181989998455
+          },
+          "degree_1_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0006731548649621587,
+              "20": 0.0005644459206765703,
+              "5": 0.0008068660049847185
+            },
+            "blocks": [
+              0.009295,
+              0.005235,
+              0.010385,
+              0.010325,
+              0.008915,
+              0.00964,
+              0.009145,
+              0.010975,
+              0.01375,
+              0.01073
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 18.346548221460033,
+            "mean": 0.0098395,
+            "resolution_warning": false,
+            "sem_estimate": 0.0007150200349464824,
+            "slope": 2.1728277932069506e-07,
+            "tau_time": 545.0616584270036
+          },
+          "degree_2_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.001355806043568835,
+              "20": 0.0010341826864473066,
+              "5": 0.001975497658819163
+            },
+            "blocks": [
+              0.097635,
+              0.099145,
+              0.101925,
+              0.102025,
+              0.103975,
+              0.107095,
+              0.10631499999999999,
+              0.106835,
+              0.10862,
+              0.11114500000000001
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 6.273037491127218,
+            "mean": 0.1044715,
+            "resolution_warning": true,
+            "sem_estimate": 0.0022830194829306523,
+            "slope": 6.98164899541226e-07,
+            "tau_time": 1594.1240609743388
+          },
+          "degree_3_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0025679135769898667,
+              "20": 0.0022621067119647097,
+              "5": 0.003025619977789679
+            },
+            "blocks": [
+              0.21121499999999999,
+              0.213085,
+              0.223885,
+              0.207005,
+              0.21987500000000001,
+              0.20879,
+              0.201595,
+              0.197525,
+              0.20259,
+              0.20776
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 18.89210405624106,
+            "mean": 0.2093325,
+            "resolution_warning": false,
+            "sem_estimate": 0.0028538867361492695,
+            "slope": -7.872562218140545e-07,
+            "tau_time": 529.3216663549167
+          },
+          "degree_4_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0022789862573326524,
+              "20": 0.0020665126070903,
+              "5": 0.0026723764704846527
+            },
+            "blocks": [
+              0.6808500000000001,
+              0.68153,
+              0.662625,
+              0.6798500000000001,
+              0.6671900000000001,
+              0.67372,
+              0.68187,
+              0.68345,
+              0.673855,
+              0.6692450000000001
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 23.74888837069742,
+            "mean": 0.6754185,
+            "resolution_warning": false,
+            "sem_estimate": 0.002448449751112171,
+            "slope": -1.4130161032540218e-07,
+            "tau_time": 421.07234005691424
+          },
+          "edges_m1": {
+            "blocking_sem_sensitivity": {
+              "10": 1.789600894364753,
+              "20": 1.525188767436926,
+              "5": 2.2073063901506638
+            },
+            "blocks": [
+              1732.69,
+              1734.105,
+              1717.835,
+              1731.12,
+              1727.395,
+              1729.67,
+              1732.18,
+              1730.605,
+              1720.975,
+              1721.72
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 18.818078233620128,
+            "mean": 1727.8295,
+            "resolution_warning": false,
+            "sem_estimate": 1.9286086263930708,
+            "slope": -0.0003827808206952051,
+            "tau_time": 531.4038912929022
+          },
+          "edges_m2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.8682320638323988,
+              "20": 0.6445281729990349,
+              "5": 1.1510949678458338
+            },
+            "blocks": [
+              47.865,
+              50.345,
+              50.36,
+              46.275,
+              45.23,
+              42.87,
+              44.69,
+              43.895,
+              44.21,
+              43.405
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.887123712272218,
+            "mean": 45.9145,
+            "resolution_warning": true,
+            "sem_estimate": 1.4167391698435483,
+            "slope": -0.0003636714159178541,
+            "tau_time": 2046.1933416763463
+          },
+          "edges_m3": {
+            "blocking_sem_sensitivity": {
+              "10": 0.22843574345729892,
+              "20": 0.1625618910478487,
+              "5": 0.3247830044814537
+            },
+            "blocks": [
+              0.25,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.15,
+              1.01,
+              1.905,
+              1.515
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.179396766534668,
+            "mean": 0.483,
+            "resolution_warning": true,
+            "sem_estimate": 0.35802098314554304,
+            "slope": 8.977097244274311e-05,
+            "tau_time": 2392.6897967841096
+          },
+          "edges_m4": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0,
+              "20": 0.0,
+              "5": 0.0
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "constant_not_mixing_evidence": true,
+            "effective_samples_estimate": 2000,
+            "mean": 0,
+            "resolution_warning": true,
+            "sem_estimate": 0.0,
+            "slope": 0.0,
+            "tau_time": 5.0
+          },
+          "fraction_parallel_edges": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00043236762921257935,
+              "20": 0.0003290803902542661,
+              "5": 0.0005479396459349304
+            },
+            "blocks": [
+              0.02701986116614554,
+              0.02821308944274986,
+              0.028482983181054838,
+              0.026038480102632853,
+              0.02551920937447117,
+              0.024186489802022603,
+              0.025234243546994443,
+              0.025291250485148214,
+              0.026097884567816903,
+              0.0254257913413285
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 5.974811446138651,
+            "mean": 0.02615092830103649,
+            "resolution_warning": true,
+            "sem_estimate": 0.0006703130951792686,
+            "slope": -1.4462825521582523e-07,
+            "tau_time": 1673.6929843137914
+          },
+          "free": {
+            "blocking_sem_sensitivity": {
+              "10": 2.610211060006026,
+              "20": 2.1187724350620925,
+              "5": 3.0260781549722062
+            },
+            "blocks": [
+              165.33,
+              150.24,
+              165.12,
+              151.8,
+              165.96,
+              166.49,
+              151.01,
+              150.54,
+              162.52,
+              171.91
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 30.850607651595013,
+            "mean": 160.092,
+            "resolution_warning": false,
+            "sem_estimate": 2.4144620563695005,
+            "slope": 0.00022955555738888954,
+            "tau_time": 324.14272395970096
+          },
+          "inter": {
+            "blocking_sem_sensitivity": {
+              "10": 2.1340620174785156,
+              "20": 1.5855513527178107,
+              "5": 3.06491109169583
+            },
+            "blocks": [
+              1829.17,
+              1834.795,
+              1818.555,
+              1823.67,
+              1817.855,
+              1815.41,
+              1822.01,
+              1821.425,
+              1815.11,
+              1813.075
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 9.915465575446035,
+            "mean": 1821.1075,
+            "resolution_warning": true,
+            "sem_estimate": 2.6736346620786975,
+            "slope": -0.00084081073520268,
+            "tau_time": 1008.5255123837352
+          },
+          "intra": {
+            "blocking_sem_sensitivity": {
+              "10": 1.7003896693928062,
+              "20": 1.2045211485766538,
+              "5": 2.504657361796219
+            },
+            "blocks": [
+              88.165,
+              90.085,
+              98.885,
+              100.43,
+              99.165,
+              101.345,
+              102.485,
+              103.305,
+              103.63,
+              100.97
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.783555211923032,
+            "mean": 98.8465,
+            "resolution_warning": true,
+            "sem_estimate": 2.490395277124831,
+            "slope": 0.0007260329565082392,
+            "tau_time": 2090.495365262004
+          },
+          "isolated_stars": {
+            "blocking_sem_sensitivity": {
+              "10": 0.11098348225449288,
+              "20": 0.08530934421577928,
+              "5": 0.13878805784360554
+            },
+            "blocks": [
+              1.005,
+              1.005,
+              1.18,
+              0.795,
+              0.045,
+              0.755,
+              1.075,
+              1.215,
+              1.185,
+              1.12
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.414368803109562,
+            "mean": 0.938,
+            "resolution_warning": false,
+            "sem_estimate": 0.13879643741825434,
+            "slope": 1.3110153277538312e-05,
+            "tau_time": 805.5181989997905
+          },
+          "largest_cluster_fraction": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00011202727842410466,
+              "20": 8.613056184776035e-05,
+              "5": 0.00014079550774084737
+            },
+            "blocks": [
+              0.998995,
+              0.998995,
+              0.99882,
+              0.999205,
+              0.999955,
+              0.999245,
+              0.998925,
+              0.998785,
+              0.998805,
+              0.99884
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 12.63358039347833,
+            "mean": 0.999057,
+            "resolution_warning": false,
+            "sem_estimate": 0.00014060164238016855,
+            "slope": -1.4415303603825912e-08,
+            "tau_time": 791.5412486837201
+          },
+          "max_edge_multiplicity": {
+            "blocking_sem_sensitivity": {
+              "10": 0.14640127503998498,
+              "20": 0.10295630140987,
+              "5": 0.19599107122519638
+            },
+            "blocks": [
+              2.25,
+              2,
+              2,
+              2,
+              2,
+              2,
+              2.15,
+              3,
+              3,
+              3
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 3.997133948084065,
+            "mean": 2.34,
+            "resolution_warning": true,
+            "sem_estimate": 0.23693928589408483,
+            "slope": 5.74200143550036e-05,
+            "tau_time": 2501.7925668448693
+          },
+          "max_permanent_bond": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00026499751866400513,
+              "20": 0.00028114252474914525,
+              "5": 0.00030746631368565335
+            },
+            "blocks": [
+              1.13885632417196,
+              1.1389146319818415,
+              1.1386319171804764,
+              1.1372894118851613,
+              1.1373532587282913,
+              1.1373943521378747,
+              1.1383014644785188,
+              1.1395085253639519,
+              1.1394672278821114,
+              1.1381207451902642
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 1.1383837859000452,
+            "resolution_warning": false,
+            "sem_estimate": 0.00032704065799968616,
+            "slope": 1.2888417216485676e-08,
+            "tau_time": 5.0
+          },
+          "mean_center_terminal_r2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.014532044887070038,
+              "20": 0.012814344172544708,
+              "5": 0.01920415513761263
+            },
+            "blocks": [
+              15.877828610991498,
+              15.888283458120219,
+              15.861017230719387,
+              15.816558257877618,
+              15.896110086008346,
+              15.94739288091101,
+              15.976988339263128,
+              15.919030574170351,
+              15.935273761451327,
+              15.914451621748624
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 62.31488237457594,
+            "mean": 15.903293482126152,
+            "resolution_warning": false,
+            "sem_estimate": 0.01572979377546759,
+            "slope": 4.50283408827396e-06,
+            "tau_time": 160.4753089300532
+          },
+          "mean_degree": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0037568291003037095,
+              "20": 0.002965593257414279,
+              "5": 0.005170607169375803
+            },
+            "blocks": [
+              3.56161,
+              3.5688999999999997,
+              3.53639,
+              3.55479,
+              3.54525,
+              3.54508,
+              3.55404,
+              3.55102,
+              3.53418,
+              3.53328
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 17.403702051189516,
+            "mean": 3.548454,
+            "resolution_warning": false,
+            "sem_estimate": 0.0038443507684991765,
+            "slope": -1.3133625283406337e-06,
+            "tau_time": 574.5903929282974
+          },
+          "mean_edge_multiplicity": {
+            "blocking_sem_sensitivity": {
+              "10": 0.000422690674213512,
+              "20": 0.00032360740997975875,
+              "5": 0.0005269015928083817
+            },
+            "blocks": [
+              1.0271599821105222,
+              1.02821308944275,
+              1.028482983181055,
+              1.0260384801026328,
+              1.0255192093744712,
+              1.0241864898020225,
+              1.0253188619795572,
+              1.02586012712379,
+              1.0271759371081803,
+              1.0262835413198692
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 6.888811969463171,
+            "mean": 1.026423870154485,
+            "resolution_warning": true,
+            "sem_estimate": 0.0006189790317360102,
+            "slope": -9.381885671951395e-08,
+            "tau_time": 1451.6291117144945
+          },
+          "mean_rg2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.00608150556588508,
+              "20": 0.00476971183636277,
+              "5": 0.006874026677090984
+            },
+            "blocks": [
+              7.018775030434574,
+              7.024159490198736,
+              7.023930356390508,
+              7.000746481845385,
+              7.031919895025485,
+              7.045343664562736,
+              7.073438249175809,
+              7.0272997566579365,
+              7.040883196132438,
+              7.039608110353056
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 37.454316842036384,
+            "mean": 7.032610423077666,
+            "resolution_warning": false,
+            "sem_estimate": 0.006791091065217348,
+            "slope": 1.7063484533395238e-06,
+            "tau_time": 266.9919209092775
+          },
+          "min_permanent_bond": {
+            "blocking_sem_sensitivity": {
+              "10": 0.0001276066248001478,
+              "20": 0.00011964381955248454,
+              "5": 9.63115850569648e-05
+            },
+            "blocks": [
+              0.8602945311228446,
+              0.8594462050046724,
+              0.8594986936043182,
+              0.8604241459340801,
+              0.859310627879043,
+              0.8600417899612235,
+              0.8595409388445353,
+              0.8596517384686945,
+              0.8592941300108676,
+              0.859550944431914
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 1948.8062474908093,
+            "mean": 0.8597053745262193,
+            "resolution_warning": false,
+            "sem_estimate": 0.00012092378912419763,
+            "slope": -2.580721254442935e-08,
+            "tau_time": 5.131346439840044
+          },
+          "satellite_components": {
+            "blocking_sem_sensitivity": {
+              "10": 0.002006932429798716,
+              "20": 0.0016018081887929684,
+              "5": 0.0025
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.005,
+              0.02
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 589.8030589936101,
+            "mean": 0.0025,
+            "resolution_warning": false,
+            "sem_estimate": 0.0020562359422011856,
+            "slope": 6.525751631437907e-07,
+            "tau_time": 16.95481203007518
+          },
+          "satellite_stars": {
+            "blocking_sem_sensitivity": {
+              "10": 0.004013864859597432,
+              "20": 0.0032036163775859368,
+              "5": 0.005
+            },
+            "blocks": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0.01,
+              0.04
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 589.8030589936101,
+            "mean": 0.005,
+            "resolution_warning": false,
+            "sem_estimate": 0.004112471884402371,
+            "slope": 1.3051503262875815e-06,
+            "tau_time": 16.95481203007518
+          },
+          "second_degree_moment": {
+            "blocking_sem_sensitivity": {
+              "10": 0.021554608334285314,
+              "20": 0.017684897993843006,
+              "5": 0.028849446762459947
+            },
+            "blocks": [
+              13.19437,
+              13.22406,
+              13.03505,
+              13.15907,
+              13.07873,
+              13.09665,
+              13.15868,
+              13.15124,
+              13.05322,
+              13.03307
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 20.20023892332641,
+            "mean": 13.118414,
+            "resolution_warning": false,
+            "sem_estimate": 0.021956750263759886,
+            "slope": -6.336189384047357e-06,
+            "tau_time": 495.0436496299264
+          },
+          "stars_intra_loops_0": {
+            "blocking_sem_sensitivity": {
+              "10": 1.7128446855061512,
+              "20": 1.211485707064286,
+              "5": 2.5276737576277384
+            },
+            "blocks": [
+              912.835,
+              910.91,
+              902.115,
+              900.29,
+              900.835,
+              899.36,
+              898.515,
+              897.695,
+              897.37,
+              900.03
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.684916582909917,
+            "mean": 901.9955,
+            "resolution_warning": true,
+            "sem_estimate": 2.5264454930358533,
+            "slope": -0.0007212721053180266,
+            "tau_time": 2134.509723498375
+          },
+          "stars_intra_loops_1": {
+            "blocking_sem_sensitivity": {
+              "10": 1.7310979576236833,
+              "20": 1.2230722479413105,
+              "5": 2.5566315729881772
+            },
+            "blocks": [
+              86.165,
+              88.095,
+              96.885,
+              98.99,
+              99.165,
+              99.935,
+              100.485,
+              101.305,
+              101.63,
+              98.97
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 4.614881584488328,
+            "mean": 97.1625,
+            "resolution_warning": true,
+            "sem_estimate": 2.566805094281843,
+            "slope": 0.0007165112541278134,
+            "tau_time": 2166.902837466574
+          },
+          "stars_intra_loops_2": {
+            "blocking_sem_sensitivity": {
+              "10": 0.100874509499014,
+              "20": 0.07543767033295208,
+              "5": 0.12530812024765195
+            },
+            "blocks": [
+              1,
+              0.995,
+              1,
+              0.72,
+              0,
+              0.705,
+              1,
+              1,
+              1,
+              1
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 7.762510497954465,
+            "mean": 0.842,
+            "resolution_warning": true,
+            "sem_estimate": 0.13091321513888404,
+            "slope": 4.760851190212796e-06,
+            "tau_time": 1288.2430242941566
+          },
+          "temperature": {
+            "blocking_sem_sensitivity": {
+              "10": 8.89717807612548e-05,
+              "20": 9.382991846777005e-05,
+              "5": 9.80303574062481e-05
+            },
+            "blocks": [
+              0.9789328402174153,
+              0.9782608737732962,
+              0.9790823523649266,
+              0.9791171374672931,
+              0.9791857889072014,
+              0.9791315417132754,
+              0.9791651134841544,
+              0.9787367531649976,
+              0.9789303337912415,
+              0.9790603172310633
+            ],
+            "constant_not_mixing_evidence": false,
+            "effective_samples_estimate": 2000.0,
+            "mean": 0.9789603052114865,
+            "resolution_warning": false,
+            "sem_estimate": 8.643925491934447e-05,
+            "slope": 1.3525421166369562e-08,
+            "tau_time": 5.0
+          }
+        },
+        "population_normalized_rates": {
+          "creation_events_per_free_sticker_time": 0.0020256606582788224,
+          "rupture_events_per_active_bond_time": 0.0001689115548785204
+        },
+        "segment": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a",
+        "start_step_exclusive": 10000000
+      }
+    }
+  ],
+  "reference_record": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE10_EA04_12M_qualified_20261015_v1.json",
+  "reference_record_sha256": "9f8bd5598c8fc847fd11abc5217b0390055b7d8ace1764018e4fa3140c8c15aa",
+  "source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee10_12m_20261015/INTEGRITY.json": "54da2f03ea0651c16d5ce6c61fe549e3d8ebdbb48547ab15553846bb5a06b514",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee10_12m_20261015/evidence/summary.json": "aebcf2e6ed3b99b4a48000168c1276fb818259adad363dea3428e7fd29a904dd",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee12_16m_20261015/AUTHENTICATION.json": "15c493e4bf1292ca6f677dce05a2f6a59c3b1826f052640f3b2b43faebdbb75b",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ee12_16m_20261015/tabulate_ee12.py": "b96762c6adb5cdf1b95233cd038c854ec2af82128559f4154b71fcb729b9b842"
+  },
+  "system": "F04_N010_RP080_EE10_EA04"
+}

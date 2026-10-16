@@ -1,0 +1,137 @@
+{
+  "records": [
+    {
+      "intervals": [
+        {
+          "end_step": 16000000,
+          "episodes": [
+            {
+              "first_sample": 14090000,
+              "last_sample": 14097000,
+              "observed_sample_span_steps": 7000,
+              "right_censored_at_interval_end": false,
+              "samples": 8,
+              "stars": [
+                40,
+                285
+              ]
+            }
+          ],
+          "sampled_frames_with_satellites": 8,
+          "sampled_mean_satellite_stars": 0.004,
+          "start_step": 12000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 16000000
+        },
+        {
+          "end_step": 18000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 16000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 18000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 19000000
+        }
+      ],
+      "replica": 1
+    },
+    {
+      "intervals": [
+        {
+          "end_step": 16000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 12000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 16000000
+        },
+        {
+          "end_step": 18000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 16000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 18000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 19000000
+        }
+      ],
+      "replica": 2
+    },
+    {
+      "intervals": [
+        {
+          "end_step": 16000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 12000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 16000000
+        },
+        {
+          "end_step": 18000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 16000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 18000000
+        },
+        {
+          "end_step": 20000000,
+          "episodes": [],
+          "sampled_frames_with_satellites": 0,
+          "sampled_mean_satellite_stars": 0.0,
+          "start_step": 19000000
+        }
+      ],
+      "replica": 3
+    }
+  ],
+  "scope": "1000-step sampled identities and runs; transition times lie between frames; no exact satellite residence or lifetime distribution claimed"
+}

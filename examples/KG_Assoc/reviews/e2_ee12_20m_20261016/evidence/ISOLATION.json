@@ -1,0 +1,484 @@
+{
+  "definitions": "exact observed inter-bond degree-zero residence; chemical event identity is authenticated across 16M; crossing residence is labeled, not a stitched bond lifetime, IAT or stationary lifetime estimate",
+  "records": [
+    {
+      "intervals": [
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 13682000,
+              "overlap_steps": 20000,
+              "right_censored": false,
+              "star": 532,
+              "start": 13662000
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 14758600,
+              "overlap_steps": 2400,
+              "right_censored": false,
+              "star": 76,
+              "start": 14756200
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 12000000,
+          "time_averaged_isolated_stars": 1.0056,
+          "unique_isolated_stars": [
+            76,
+            532,
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 17610200,
+              "overlap_steps": 1500,
+              "right_censored": false,
+              "star": 619,
+              "start": 17608700
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 16000000,
+          "time_averaged_isolated_stars": 1.000375,
+          "unique_isolated_stars": [
+            619,
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 18000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 17610200,
+              "overlap_steps": 1500,
+              "right_censored": false,
+              "star": 619,
+              "start": 17608700
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 16000000,
+          "time_averaged_isolated_stars": 1.00075,
+          "unique_isolated_stars": [
+            619,
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 18000000,
+          "time_averaged_isolated_stars": 1.0,
+          "unique_isolated_stars": [
+            771
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            771
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 1000000,
+              "right_censored": true,
+              "star": 771,
+              "start": 0
+            }
+          ],
+          "start_step": 19000000,
+          "time_averaged_isolated_stars": 1.0,
+          "unique_isolated_stars": [
+            771
+          ]
+        }
+      ],
+      "replica": 1
+    },
+    {
+      "intervals": [
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 15532300,
+              "overlap_steps": 1000,
+              "right_censored": false,
+              "star": 965,
+              "start": 15531300
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 12000000,
+          "time_averaged_isolated_stars": 1.00025,
+          "unique_isolated_stars": [
+            491,
+            965
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 19740600,
+              "overlap_steps": 6500,
+              "right_censored": false,
+              "star": 885,
+              "start": 19734100
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 4000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 16000000,
+          "time_averaged_isolated_stars": 1.001625,
+          "unique_isolated_stars": [
+            491,
+            885
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 18000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 16000000,
+          "time_averaged_isolated_stars": 1.0,
+          "unique_isolated_stars": [
+            491
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 19740600,
+              "overlap_steps": 6500,
+              "right_censored": false,
+              "star": 885,
+              "start": 19734100
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 2000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 18000000,
+          "time_averaged_isolated_stars": 1.00325,
+          "unique_isolated_stars": [
+            491,
+            885
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            491
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 19740600,
+              "overlap_steps": 6500,
+              "right_censored": false,
+              "star": 885,
+              "start": 19734100
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 20000000,
+              "overlap_steps": 1000000,
+              "right_censored": true,
+              "star": 491,
+              "start": 11175200
+            }
+          ],
+          "start_step": 19000000,
+          "time_averaged_isolated_stars": 1.0065,
+          "unique_isolated_stars": [
+            491,
+            885
+          ]
+        }
+      ],
+      "replica": 2
+    },
+    {
+      "intervals": [
+        {
+          "continuously_isolated_stars": [
+            531
+          ],
+          "end_step": 16000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 12762800,
+              "overlap_steps": 100,
+              "right_censored": false,
+              "star": 414,
+              "start": 12762700
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 19499100,
+              "overlap_steps": 4000000,
+              "right_censored": false,
+              "star": 531,
+              "start": 7354500
+            }
+          ],
+          "start_step": 12000000,
+          "time_averaged_isolated_stars": 1.000025,
+          "unique_isolated_stars": [
+            414,
+            531
+          ]
+        },
+        {
+          "continuously_isolated_stars": [],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 17926000,
+              "overlap_steps": 600,
+              "right_censored": false,
+              "star": 493,
+              "start": 17925400
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 19499100,
+              "overlap_steps": 3499100,
+              "right_censored": false,
+              "star": 531,
+              "start": 7354500
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 20000000,
+              "overlap_steps": 1600400,
+              "right_censored": true,
+              "star": 684,
+              "start": 18399600
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 20000000,
+              "overlap_steps": 783400,
+              "right_censored": true,
+              "star": 868,
+              "start": 19216600
+            }
+          ],
+          "start_step": 16000000,
+          "time_averaged_isolated_stars": 1.470875,
+          "unique_isolated_stars": [
+            493,
+            531,
+            684,
+            868
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            531
+          ],
+          "end_step": 18000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": false,
+              "end": 17926000,
+              "overlap_steps": 600,
+              "right_censored": false,
+              "star": 493,
+              "start": 17925400
+            },
+            {
+              "crosses_md_reseeding": true,
+              "end": 19499100,
+              "overlap_steps": 2000000,
+              "right_censored": false,
+              "star": 531,
+              "start": 7354500
+            }
+          ],
+          "start_step": 16000000,
+          "time_averaged_isolated_stars": 1.0003,
+          "unique_isolated_stars": [
+            493,
+            531
+          ]
+        },
+        {
+          "continuously_isolated_stars": [],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": true,
+              "end": 19499100,
+              "overlap_steps": 1499100,
+              "right_censored": false,
+              "star": 531,
+              "start": 7354500
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 20000000,
+              "overlap_steps": 1600400,
+              "right_censored": true,
+              "star": 684,
+              "start": 18399600
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 20000000,
+              "overlap_steps": 783400,
+              "right_censored": true,
+              "star": 868,
+              "start": 19216600
+            }
+          ],
+          "start_step": 18000000,
+          "time_averaged_isolated_stars": 1.94145,
+          "unique_isolated_stars": [
+            531,
+            684,
+            868
+          ]
+        },
+        {
+          "continuously_isolated_stars": [
+            684
+          ],
+          "end_step": 20000000,
+          "spells": [
+            {
+              "crosses_md_reseeding": true,
+              "end": 19499100,
+              "overlap_steps": 499100,
+              "right_censored": false,
+              "star": 531,
+              "start": 7354500
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 20000000,
+              "overlap_steps": 1000000,
+              "right_censored": true,
+              "star": 684,
+              "start": 18399600
+            },
+            {
+              "crosses_md_reseeding": false,
+              "end": 20000000,
+              "overlap_steps": 783400,
+              "right_censored": true,
+              "star": 868,
+              "start": 19216600
+            }
+          ],
+          "start_step": 19000000,
+          "time_averaged_isolated_stars": 2.2825,
+          "unique_isolated_stars": [
+            531,
+            684,
+            868
+          ]
+        }
+      ],
+      "replica": 3
+    }
+  ]
+}

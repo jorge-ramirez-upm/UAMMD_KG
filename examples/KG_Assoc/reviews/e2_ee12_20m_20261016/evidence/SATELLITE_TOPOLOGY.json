@@ -1,0 +1,162 @@
+{
+  "records": [
+    {
+      "observations": [
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14090000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14091000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14092000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14093000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14094000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14095000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14096000
+        },
+        {
+          "inter_edges": [
+            [
+              40,
+              285,
+              2
+            ]
+          ],
+          "intra_loops": {
+            "285": 1,
+            "40": 0
+          },
+          "stars": [
+            40,
+            285
+          ],
+          "step": 14097000
+        }
+      ],
+      "replica": 1
+    },
+    {
+      "observations": [],
+      "replica": 2
+    },
+    {
+      "observations": [],
+      "replica": 3
+    }
+  ],
+  "scope": "exact accepted-event edge/loop state at sampled satellite frames, from 12M onward"
+}
