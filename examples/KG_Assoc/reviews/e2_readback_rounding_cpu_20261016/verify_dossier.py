@@ -14,7 +14,7 @@ for name in ('INTEGRITY.sha256', 'ARTIFACTS.sha256'):
     mapping = json.loads((HERE / name).read_text())
     e2.check_hashes(mapping)
     report[name] = len(mapping)
-build = REPO / 'examples/KG_Assoc/kg_assoc_100m/builds/readback_rounding_cpu_20261016_v1'
+build = REPO / 'examples/KG_Assoc/kg_assoc_100m/builds/readback_rounding_cpu_20261016_v2'
 e2.check_build(build)
 report['current_build_authenticated'] = True
 print(json.dumps(report, indent=2, sort_keys=True))

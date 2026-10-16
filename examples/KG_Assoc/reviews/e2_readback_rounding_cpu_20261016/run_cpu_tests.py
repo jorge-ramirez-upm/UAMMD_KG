@@ -42,8 +42,13 @@ for item in json.loads((prior / 'PREPARED.json').read_text()):
         commands.append((plan['system']['system_id'] + f"_r{entry['replica']:03d}_HOST_INIT", command))
 results = []
 for name, command in commands:
+    command_env = env
+    if name == 'FORENSIC_TESTS':
+        # This historical suite imports its sibling reproduce.py by module name.
+        command_env = dict(env, PYTHONPATH=str(prior) + ':' + env['PYTHONPATH'])
     with (output / (name + '.log')).open('x') as stream:
-        process = subprocess.run(command, cwd=REPO, env=env, stdout=stream, stderr=subprocess.STDOUT)
+        process = subprocess.run(command, cwd=REPO, env=command_env,
+                                 stdout=stream, stderr=subprocess.STDOUT)
     results.append(dict(name=name, argv=command, returncode=process.returncode))
     print(name, process.returncode, flush=True)
     if process.returncode:

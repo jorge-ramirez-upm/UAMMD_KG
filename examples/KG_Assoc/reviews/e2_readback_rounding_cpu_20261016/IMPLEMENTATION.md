@@ -55,3 +55,11 @@ reproducers are committed before the authenticated forced build. The subsequent
 receipt commit adds Markdown/log/hash evidence only, preserving the build's exact
 JSON/Python/native source map. BUILD_RESULTS.md and ASSESSMENT.md record the actual
 build, tests, preservation and readiness outcome.
+
+The first built test driver passed 149 shared and 14 transfer tests but selected
+an older sibling module for the five forensic tests because multiple historical
+reviews use the name reproduce.py. Its import error and stop are preserved. The
+driver now places the forensic review first only for that command, retaining the
+original shared-suite environment. A second source commit and new v2 build bind
+this driver correction; the first v1 build remains preserved. No native repair
+source changed between these two builds.
