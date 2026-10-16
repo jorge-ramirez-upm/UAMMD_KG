@@ -72,6 +72,38 @@ The previous Stage 0 smoke and correlator sources remain available unchanged.
 
 ## Running the current simulator
 
+Stage 4A.1 adds a separate **CPU equilibrium reference**, always in float64;
+`rouse` and its validated model are unchanged. There is no GPU `semiflexible`
+executable or semiflexible dynamics. The scientific contract, force derivation,
+sampling proof and UAMMD assessment are in [STAGE4A1_REPORT.md](STAGE4A1_REPORT.md).
+Run the bounded new tests from the repository root (Python 3 + NumPy):
+
+```sh
+python3 examples/slip-springs/tests/test_semiflexible_reference.py
+```
+
+A short independent-equilibrium example (N=4, 1024 chains, seed 41001,
+b0=1, kb=30, kappa=2, kBT=1; no dt, steps or sample stride because there is no
+time integration; results go to stdout):
+
+```sh
+PYTHONPATH=examples/slip-springs python3 - <<'PY'
+import numpy as np
+from semiflexible_reference import Chain
+model = Chain.homogeneous(4, b0=1, kb=30, kappa=2)
+r = model.sample(1024, np.random.default_rng(41001), kbt=1)
+print("Predictions:", model.equilibrium_predictions(kbt=1))
+print("Sample mean Re^2:", np.mean(np.sum(r[:, -1]**2, axis=1)))
+print("First chain energy:", model.energy_forces(r[0])[0])
+PY
+```
+
+Heterogeneous construction uses N-entry `b0`, `kb` and N+1-entry bead-indexed
+`kappa` with zero endpoints, e.g. `Chain([0.4,1,2], [3,10,5], [0,0.3,4,0])`.
+The Rouse build/run commands below remain the current GPU interface. Their
+bounded checks were rerun in both precisions for Stage 4A.1; no new long runs
+are needed for this CPU milestone.
+
 From the slip-springs repository root, target RTX 3060 Ti / CUDA13. Output
 child directories must not exist; the executable refuses overwrites. Both short
 streaming commands below were executed. The moderate command is **host-only**,
