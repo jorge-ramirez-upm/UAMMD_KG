@@ -1,6 +1,18 @@
 # Stage 2B.1 implementation report
 
-**STAGE 2B.1 IMPLEMENTED — AWAITING LINUX-HOST VALIDATION**
+**STAGE 2B.1 ACCEPTED — DEVELOPMENT-HOST SCIENCE, PERFORMANCE AND MEMORY VALIDATION PASSED**
+
+Implementation commit: `1029567096531a2654f362bf7b958359ec77f44c`.
+The implementation and bounded-check record below is retained. Subsequent
+user-executed Linux-host validation is recorded permanently in
+[STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md), with an artifact SHA-256
+manifest. Codex inspected accessible output files but did not independently
+execute or authenticate the host measurements. The reported 6.28x single-precision
+overall speedup, byte-identical correlations and 728/728 analytical memory-run
+checks support development-host acceptance. Prefer 16 workers and batch128 for
+the tested N32/4096-chain workload on the i7-12700 / RTX 3060 Ti. Production
+servers must be benchmarked separately; further optimization is not required
+before N100 terminal-relaxation experiments.
 
 Starting SHA: `6aadcc7edd6f2cfbb4051654b1a0dd881fd44718`, verified against
 fetched `origin/slip-springs` before edits. Worktree:
@@ -8,7 +20,8 @@ fetched `origin/slip-springs` before edits. Worktree:
 All source, tests, documentation and build changes are confined to this project.
 KG, KG_Assoc, UAMMD and global build files remain unchanged. No PR or Stage 3.
 The user's Stage 2B 54-run matrix and N32 terminal 504/504 result are the starting
-scientific evidence; no long validation or performance campaign was run here.
+scientific evidence; no long validation or performance campaign was run by
+Codex during implementation.
 
 ## Implementation
 
@@ -137,12 +150,12 @@ Changed files: `cpu_workers.h`, `stream_correlator.h`, `stream_pipeline.cuh`,
 `tests/test_stream.py`, `tests/stage2b1_regression.py`, `README.md`, `AGENTS.md`,
 this report and `STAGE2B1_VALIDATION_PLAN.md`.
 
-No performance acceptance or optimal worker count is claimed. Heterogeneous
-cores, memory bandwidth, thread-stack RSS and coordination can limit scaling;
-static ranges do not balance heterogeneous-core speeds. Existing KG sentinel,
-coarse-level export and finite precision limitations remain. Review the host
-worker sweep, batch sensitivity, memory traces and reproducibility before
-accepting Stage 2B.1 performance. Do not begin Stage 3.
+Development-host performance and memory validation are accepted as recorded in
+STAGE2B1_HOST_RESULTS.md; no universally optimal worker count is claimed.
+Heterogeneous cores, memory bandwidth, thread-stack RSS and coordination can
+limit scaling; static ranges do not balance heterogeneous-core speeds. Existing
+KG sentinel, coarse-level export and finite precision limitations remain.
+Production-server performance requires separate benchmarking. Do not begin Stage 3.
 
 Exact 1/2/4/8/12/16-worker, both-precision 4096-chain benchmark, historical
 regression, result-table Python and memory/replay commands are in

@@ -8,10 +8,16 @@ observables and direct-lag dynamic validation. Stage 2A adds double-accumulated
 GPU per-chain configurational stress, direct-lag stress correlations and permanent
 performance reporting. Stage 2B adds bounded synchronous/asynchronous Correlator6
 streaming and the chain-density-normalized relaxation modulus.
-**STAGE 2B.1 IMPLEMENTED — AWAITING LINUX-HOST VALIDATION**. The user reports
-Stage 2B's 54-simulation matrix and N32 terminal 504/504 checks passed. Stage
-2B.1 adds portable CPU correlation workers; its implementation checks do not
-establish performance acceptance. Stage 3 and new physics remain unauthorized.
+**STAGE 2B.1 ACCEPTED — DEVELOPMENT-HOST SCIENCE, PERFORMANCE AND MEMORY VALIDATION PASSED**.
+User-executed Linux-host results show byte-identical correlations across tested
+worker counts, 728/728 analytical 5-SE checks in the million-step memory run,
+and 6.28x single-precision overall speedup at 16 workers. On the RTX 3060 Ti /
+i7-12700 development host, prefer async streaming with `--cpu-workers 16 --batch 128`
+for the tested N32/4096-chain workload. Defaults remain unchanged. Production
+servers require separate benchmarking; this is not a universal optimum.
+See [STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md) for measurements,
+provenance and artifact hashes. Further optimization is not required before
+N100 terminal-relaxation experiments. Stage 3 and new physics remain unauthorized.
 
 A chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
@@ -104,7 +110,9 @@ make -C examples/slip-springs check CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PR
 ```
 
 Full scientific regressions, terminal relaxation, sampling/buffer sensitivity,
-performance and memory stability are **user-run host work**. Exact commands,
+performance and memory stability are **user-run host work**. Completed Stage 2B.1
+results are recorded in [STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md).
+Exact historical commands,
 fixed seeds and acceptance criteria are in
 [STAGE2B_VALIDATION_PLAN.md](STAGE2B_VALIDATION_PLAN.md). Do not execute these
 long campaigns in Codex. Short tests cannot establish scientific acceptance.
@@ -248,8 +256,8 @@ See [STAGE2B1_REPORT.md](STAGE2B1_REPORT.md) for implementation evidence and
 [STAGE2B1_VALIDATION_PLAN.md](STAGE2B1_VALIDATION_PLAN.md) for exact host commands,
 including the 4096-chain sweep at 1/2/4/8/12/16 workers and memory checks.
 
-Sync remains default. Short timing probes establish no general speedup claim;
-select async only after measuring the actual workload on the dedicated host.
+Sync remains default. Async streaming with 16 workers and batch128 is accepted
+for the tested development-host workload; benchmark other hosts separately.
 
 ## RNG and precision
 
@@ -366,7 +374,9 @@ output; it excludes metadata serialization, terminal logging and teardown.
 
 ## Roadmap
 
-Stages 0, 1 and 2A have recorded scientific validation. Stage 2B is implemented
-and has passed short pipeline tests; full scientific acceptance awaits the
-user-run plan and review. Stage 3 optimization, semiflexibility and slip-spring
-physics remain future unauthorized work. See [STAGE2B_REPORT.md](STAGE2B_REPORT.md).
+Stages 0, 1 and 2A have recorded scientific validation. Stage 2B passed the
+user-reported 54-simulation matrix and N32 terminal 504/504 checks. Stage 2B.1
+is accepted on the development host; see
+[STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md). Further optimization is not
+required before N100 terminal-relaxation experiments. Stage 3 optimization,
+semiflexibility and slip-spring physics remain future unauthorized work.
