@@ -1,0 +1,6 @@
+nvcc warning : Support for offline compilation for architectures prior to '<compute/sm/lto>_75' will be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
+<command-line>: warning: "__TIME__" redefined [-Wbuiltin-macro-redefined]
+<command-line>: warning: "__DATE__" redefined [-Wbuiltin-macro-redefined]
+nvcc warning : Support for offline compilation for architectures prior to '<compute/sm/lto>_75' will be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
+<command-line>: warning: "__TIME__" redefined [-Wbuiltin-macro-redefined]
+<command-line>: warning: "__DATE__" redefined [-Wbuiltin-macro-redefined]

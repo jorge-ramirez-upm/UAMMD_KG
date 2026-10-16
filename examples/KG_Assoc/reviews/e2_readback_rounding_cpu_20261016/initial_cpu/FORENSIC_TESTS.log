@@ -1,0 +1,18 @@
+test_diagnostic_analysis (unittest.loader._FailedTest) ... ERROR
+
+======================================================================
+ERROR: test_diagnostic_analysis (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_diagnostic_analysis
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/loader.py", line 154, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_gpu_diagnostic_retest_20261016/test_diagnostic_analysis.py", line 4, in <module>
+    from reproduce import float32, velocity_audit
+ImportError: cannot import name 'float32' from 'reproduce' (/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014/reproduce.py)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

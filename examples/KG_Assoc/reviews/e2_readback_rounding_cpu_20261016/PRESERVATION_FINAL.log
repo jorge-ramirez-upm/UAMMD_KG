@@ -1,0 +1,21 @@
+{
+  "GPU_calls": 0,
+  "additional_MD_steps": 0,
+  "formal_acceptances_validated": 12,
+  "preserved_bindings": 2145,
+  "source_transitions": {
+    "examples/KG_Assoc/kg_assoc_stars.cu": {
+      "after": "c98e20d500fa9e842b8525c9c354af2332edafd03e1ea9eb0b31aba13c38c83b",
+      "before": "78a2fbfd4134c09009674d1fb90517387fceff2aaef0a3989142fb183e23222b"
+    },
+    "examples/KG_Assoc/kg_assoc_validation_evidence.cuh": {
+      "after": "238c93182cfcda1eba7308e94edae0276b9b489d93947ed75d5e3140b0f08221",
+      "before": "d3873db0ee42bc9a75bf30723c142874e034cb7367d5b4a17982c3a6653b11de"
+    },
+    "examples/KG_Assoc/kg_assoc_validation_tests.cuh": {
+      "after": "560930e4a1c130cf5ee0563a4e35c398947c089f9b31f294a539d0d33c0ca85b",
+      "before": "3de3ff67b00b9d7a96f2dad6af6483dc4f949891b5e5680dc86d6d1f68e7cfe0"
+    }
+  },
+  "starting_sha": "b8f518d49c9b00f7d957bc42fcaf0a34a9317c82"
+}
