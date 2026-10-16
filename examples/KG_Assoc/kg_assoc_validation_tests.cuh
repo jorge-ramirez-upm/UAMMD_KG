@@ -204,11 +204,35 @@ inline void evidenceTests() {
                "corrupt initial readback was accepted");
     ::unlink(path.c_str());
   }
+  particles = valid;
+  particles[0].expectedVelocity = representedVelocity(0.270623, 0.266728, 0.876108);
+  particles[0].actualVelocity = particles[0].expectedVelocity;
+  const std::string roundedPath = root + "/rounded.tsv";
+  cpuRequire(writeInitialReadback(roundedPath, context, box, particles, true),
+             "materialized velocity was rejected");
+  ::unlink(roundedPath.c_str());
+  const auto roundedParticles = particles;
+  for (int axis = 0; axis < 3; ++axis) {
+    for (int direction : {-1, 1}) {
+      uammd::real corrupted = particles[0].expectedVelocity[axis];
+      for (int ulps = 1; ulps <= 2; ++ulps) {
+        corrupted = std::nextafter(corrupted, direction > 0 ?
+            std::numeric_limits<uammd::real>::infinity() :
+            -std::numeric_limits<uammd::real>::infinity());
+        particles = roundedParticles;
+        particles[0].actualVelocity[axis] = corrupted;
+        cpuRequire(!writeInitialReadback(roundedPath, context, box, particles, true),
+                   "one/two ULP velocity corruption was accepted");
+        ::unlink(roundedPath.c_str());
+      }
+    }
+  }
   ::unlink(mismatch.c_str());
   ::unlink(initial.c_str());
   ::rmdir(root.c_str());
   std::cout << "VALIDATION_EVIDENCE PASS missing extra active free provenance immutable "
-               "readback_position_velocity_ids_types_partners_nonfinite_mapping\n";
+               "readback_position_velocity_ids_types_partners_nonfinite_mapping "
+               "velocity_ulp_rejections=12\n";
 }
 
 }  // namespace kg_assoc_test

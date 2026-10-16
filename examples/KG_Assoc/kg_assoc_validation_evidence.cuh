@@ -178,6 +178,12 @@ inline void writeCandidateMismatch(
   writeExclusive(path, out.str());
 }
 
+inline std::array<double, 3> representedVelocity(double x, double y, double z) {
+  // Force real storage: optimized NVCC/GCC can elide cast-then-widen rounding.
+  volatile uammd::real rounded[3] = {uammd::real(x), uammd::real(y), uammd::real(z)};
+  return {{rounded[0], rounded[1], rounded[2]}};
+}
+
 struct InitialParticle {
   int expectedId = -1;
   int actualId = -1;

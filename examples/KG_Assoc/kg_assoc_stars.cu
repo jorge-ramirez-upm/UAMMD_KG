@@ -731,8 +731,8 @@ void initialDeviceReadback(const Parameters& parameters, const kg::LammpsData& d
     record.expectedPartner = state.partner(id);
     record.actualPartner = partners[id];  // Chemical partners are indexed by stable ID.
     record.expectedPosition = {{expectedPosition.x, expectedPosition.y, expectedPosition.z}};
-    record.expectedVelocity = {{uammd::real(data.vx[id]), uammd::real(data.vy[id]),
-                                uammd::real(data.vz[id])}};
+    record.expectedVelocity = kg_assoc_test::representedVelocity(
+        data.vx[id], data.vy[id], data.vz[id]);
     if (mapping[id] >= 0) {
       const int index = mapping[id];
       record.actualId = ids[index];

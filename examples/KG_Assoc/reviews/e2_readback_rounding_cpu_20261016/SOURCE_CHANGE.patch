@@ -1,0 +1,73 @@
+diff --git a/examples/KG_Assoc/kg_assoc_stars.cu b/examples/KG_Assoc/kg_assoc_stars.cu
+index 8471f6e..f4b6a06 100644
+--- a/examples/KG_Assoc/kg_assoc_stars.cu
++++ b/examples/KG_Assoc/kg_assoc_stars.cu
+@@ -731,8 +731,8 @@ void initialDeviceReadback(const Parameters& parameters, const kg::LammpsData& d
+     record.expectedPartner = state.partner(id);
+     record.actualPartner = partners[id];  // Chemical partners are indexed by stable ID.
+     record.expectedPosition = {{expectedPosition.x, expectedPosition.y, expectedPosition.z}};
+-    record.expectedVelocity = {{uammd::real(data.vx[id]), uammd::real(data.vy[id]),
+-                                uammd::real(data.vz[id])}};
++    record.expectedVelocity = kg_assoc_test::representedVelocity(
++        data.vx[id], data.vy[id], data.vz[id]);
+     if (mapping[id] >= 0) {
+       const int index = mapping[id];
+       record.actualId = ids[index];
+diff --git a/examples/KG_Assoc/kg_assoc_validation_evidence.cuh b/examples/KG_Assoc/kg_assoc_validation_evidence.cuh
+index 826f5be..f46d7a6 100644
+--- a/examples/KG_Assoc/kg_assoc_validation_evidence.cuh
++++ b/examples/KG_Assoc/kg_assoc_validation_evidence.cuh
+@@ -178,6 +178,12 @@ inline void writeCandidateMismatch(
+   writeExclusive(path, out.str());
+ }
+ 
++inline std::array<double, 3> representedVelocity(double x, double y, double z) {
++  // Force real storage: optimized NVCC/GCC can elide cast-then-widen rounding.
++  volatile uammd::real rounded[3] = {uammd::real(x), uammd::real(y), uammd::real(z)};
++  return {{rounded[0], rounded[1], rounded[2]}};
++}
++
+ struct InitialParticle {
+   int expectedId = -1;
+   int actualId = -1;
+diff --git a/examples/KG_Assoc/kg_assoc_validation_tests.cuh b/examples/KG_Assoc/kg_assoc_validation_tests.cuh
+index 9e7057f..16fc0b0 100644
+--- a/examples/KG_Assoc/kg_assoc_validation_tests.cuh
++++ b/examples/KG_Assoc/kg_assoc_validation_tests.cuh
+@@ -204,11 +204,35 @@ inline void evidenceTests() {
+                "corrupt initial readback was accepted");
+     ::unlink(path.c_str());
+   }
++  particles = valid;
++  particles[0].expectedVelocity = representedVelocity(0.270623, 0.266728, 0.876108);
++  particles[0].actualVelocity = particles[0].expectedVelocity;
++  const std::string roundedPath = root + "/rounded.tsv";
++  cpuRequire(writeInitialReadback(roundedPath, context, box, particles, true),
++             "materialized velocity was rejected");
++  ::unlink(roundedPath.c_str());
++  const auto roundedParticles = particles;
++  for (int axis = 0; axis < 3; ++axis) {
++    for (int direction : {-1, 1}) {
++      uammd::real corrupted = particles[0].expectedVelocity[axis];
++      for (int ulps = 1; ulps <= 2; ++ulps) {
++        corrupted = std::nextafter(corrupted, direction > 0 ?
++            std::numeric_limits<uammd::real>::infinity() :
++            -std::numeric_limits<uammd::real>::infinity());
++        particles = roundedParticles;
++        particles[0].actualVelocity[axis] = corrupted;
++        cpuRequire(!writeInitialReadback(roundedPath, context, box, particles, true),
++                   "one/two ULP velocity corruption was accepted");
++        ::unlink(roundedPath.c_str());
++      }
++    }
++  }
+   ::unlink(mismatch.c_str());
+   ::unlink(initial.c_str());
+   ::rmdir(root.c_str());
+   std::cout << "VALIDATION_EVIDENCE PASS missing extra active free provenance immutable "
+-               "readback_position_velocity_ids_types_partners_nonfinite_mapping\n";
++               "readback_position_velocity_ids_types_partners_nonfinite_mapping "
++               "velocity_ulp_rejections=12\n";
+ }
+ 
+ }  // namespace kg_assoc_test
