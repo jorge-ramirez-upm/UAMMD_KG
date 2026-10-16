@@ -17,7 +17,8 @@ change; never silently remove it. Use an isolated worktree when needed.
 
 Stage 1 is implemented and scientifically validated: independent GPU Rouse chains.
 Stage 2A is implemented: per-chain configurational stress and direct-lag validation.
-Stage 2B (Correlator6 streaming) is authorized; scientific acceptance is pending.
+Stage 2B is validated according to the user-supplied 54-run/terminal summary.
+Stage 2B.1 portable parallel CPU processing is authorized; host validation is pending.
 Stages 3–4 and new physics are not authorized.
 The project stages are:
 1. Independent Rouse chains on the GPU.
@@ -134,7 +135,7 @@ BEFORE averaging over origins. Preserve raw per-chain samples/contributions.
 ## Stage 2B workflow and streaming conventions
 
 The current user authorization supersedes the historical stage gate above:
-Stage 2B is implemented, awaiting external scientific validation. Later stages
+Stage 2B.1 is implemented, awaiting Linux-host validation. Later stages
 remain unauthorized. Never declare scientific acceptance from smoke tests.
 Review the actual Linux-host validation results before accepting this stage.
 
@@ -149,8 +150,9 @@ Streaming is explicit (`--output-mode stream`); historical CSV behavior remains
 the default. Streaming samples step 0 after equilibration and exact multiples of
 `--sample`; it integrates but does not correlate a shorter final interval.
 Batches count observation frames, not integration steps. Never allocate a full
-stress history. CPU ownership is exclusive: main thread in sync mode, one
-consumer in async mode. Join/drain before evaluation and release CUDA resources
+stress history. CPU ownership is exclusive: main thread in sync mode; in async mode each
+persistent worker owns one fixed contiguous chain range. Worker 0 is the existing
+consumer and coordinates N−1 helpers, without a dispatcher. Join/drain before evaluation and release CUDA resources
 only after pending producers/transfers/consumers have completed. Keep backpressure
 and exception propagation. Never copy/move or resize the owning Correlator6 adapter.
 
@@ -168,3 +170,27 @@ commands, current CLI/output documentation and runnable external long-test
 commands. Every simulation must print/save measured ns/bead/step (null/N/A for
 zero steps), integration and overall wall costs. Report GPU sampling/D2H and CPU
 worker times separately; overlapping times must not be added as wall time.
+
+## Stage 2B.1 CPU worker conventions
+
+Preserve `--cpu-workers 1` as default and serial reference; 0 auto respects Linux
+CPU affinity and standard cgroup quotas when readable, with a portable hardware
+concurrency/one fallback. Explicit counts >chains or >1024 are rejected; N>1
+requires async streaming. Record requested/effective counts. Do not assume
+physical-core counts, homogeneous cores or Intel-specific APIs.
+
+Workers read the same completed pinned batch, with no redundant batch copy.
+Dispatch and completion synchronization stay outside the frame/chain inner loops.
+Only after all workers complete may the consumer free a slot, including errors.
+No concurrent writes to one correlator. Join consumer/helpers before bank release;
+evaluate and reduce in deterministic ascending-chain order after finish.
+Thread stacks/counters scale with workers; chain banks/buffers do not multiply.
+Do not present summed worker execution time as elapsed correlation time. Worker 0
+barrier waits are a subset of pool wall time; consumer queue idle and transfer
+wait are separate, overlapping producer/GPU scopes. Keep the primary production
+ns/bead/step metric and unchanged sampling/math/RNG/uncertainty conventions.
+
+Run only bounded checks in Codex, including check-workers ASan/UBSan/LSan and both
+precision checks. The exact Linux performance/memory campaign is in
+STAGE2B1_VALIDATION_PLAN.md. Implementation acceptance is distinct from reviewing
+actual Linux-host performance. Do not begin Stage 3 or claim performance acceptance.

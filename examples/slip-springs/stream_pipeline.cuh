@@ -1,6 +1,6 @@
 #pragma once
 #include "rouse.cuh"
-#include "stream_correlator.h"
+#include "cpu_workers.h"
 #include <chrono>
 #include <condition_variable>
 #include <exception>
@@ -46,6 +46,7 @@ class Pipeline {
   std::size_t capacity;
   bool asynchronous;
   Bank bank;
+  CpuWorkers cpu;
   cudaStream_t transfer=nullptr;
   std::vector<std::unique_ptr<Slot>> slots;
   std::size_t producer=0,consumer=0,fill=0;
@@ -62,7 +63,7 @@ class Pipeline {
     transfer_seconds+=duration(s.copyStart,s.copyDone);
     for (std::size_t f=0;f<s.frames;++f) sampling_gpu_seconds+=duration(*s.starts[f],*s.stops[f]);
     const auto begin=Clock::now();
-    bank.consume(s.host,s.frames);
+    cpu.consume(s.host,s.frames);
     correlation_seconds+=elapsed(begin);
   }
   void consume() noexcept {
@@ -72,7 +73,9 @@ class Pipeline {
         Slot* s;
         {
           std::unique_lock<std::mutex> lock(mutex);
+          const auto idle=Clock::now();
           changed.wait(lock,[&]{ return closing || slots[consumer]->state==Slot::queued; });
+          consumer_idle_seconds+=elapsed(idle);
           s=slots[consumer].get();
           if (s->state!=Slot::queued) return;
           s->state=Slot::processing;
@@ -107,9 +110,9 @@ class Pipeline {
   }
 public:
   double sampling_gpu_seconds=0,enqueue_seconds=0,transfer_seconds=0,
-         transfer_wait_seconds=0,buffer_wait_seconds=0,correlation_seconds=0;
-  Pipeline(int c,int beads,std::size_t batch,bool async,Parameters cfg,std::size_t budget)
-      :chains(c),m(beads),capacity(batch),asynchronous(async),bank(c,cfg,budget) {
+         transfer_wait_seconds=0,buffer_wait_seconds=0,correlation_seconds=0,consumer_idle_seconds=0;
+  Pipeline(int c,int beads,std::size_t batch,bool async,Parameters cfg,std::size_t budget,unsigned workers=1)
+      :chains(c),m(beads),capacity(batch),asynchronous(async),bank(c,cfg,budget),cpu(bank,c,workers) {
     rouse::check(cudaGetDevice(&deviceId),"producer device");
     try {
       rouse::check(cudaStreamCreateWithFlags(&transfer,cudaStreamNonBlocking),"transfer stream");
@@ -163,6 +166,7 @@ public:
     }
     rethrow(); joined=true;
   }
+  const CpuWorkers& workers() const { return cpu; }
   std::uint64_t frames() const { return bank.frames; }
   void write(const std::string& path,double spacing) {
     if (!joined) throw std::runtime_error("finish streaming before evaluation");

@@ -36,7 +36,7 @@ $(GPU_BUILD)/smoke_test: $(PROJECT_DIR)/smoke_test.cu $(PROJECT_DIR)/Makefile
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -MMD -MP -MF $@.d $< -o $@ $(LDLIBS)
 
-$(GPU_BUILD)/rouse: $(PROJECT_DIR)/rouse.cu $(PROJECT_DIR)/rouse.cuh $(PROJECT_DIR)/stream_correlator.h $(PROJECT_DIR)/stream_pipeline.cuh $(KG_DIR)/correlator.cpp $(PROJECT_DIR)/Makefile
+$(GPU_BUILD)/rouse: $(PROJECT_DIR)/rouse.cu $(PROJECT_DIR)/rouse.cuh $(PROJECT_DIR)/stream_correlator.h $(PROJECT_DIR)/stream_pipeline.cuh $(PROJECT_DIR)/cpu_workers.h $(KG_DIR)/correlator.cpp $(PROJECT_DIR)/Makefile
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 
@@ -50,7 +50,7 @@ $(BUILD)/correlator_smoke: $(PROJECT_DIR)/correlator_smoke.cpp $(KG_DIR)/correla
 
 check-correlator: correlator
 	$(BUILD)/correlator_smoke
-check: all pipeline-tests
+check: all pipeline-tests check-workers
 	$(BUILD)/correlator_smoke
 	$(GPU_BUILD)/smoke_test
 	$(GPU_BUILD)/rouse_tests
@@ -66,7 +66,7 @@ double:
 
 # Explicit artifact list: never follow a configurable output/root variable here.
 clean:
-	rm -f $(PROJECT_DIR)/build/single/smoke_test $(PROJECT_DIR)/build/single/smoke_test.d $(PROJECT_DIR)/build/double/smoke_test $(PROJECT_DIR)/build/double/smoke_test.d $(PROJECT_DIR)/build/correlator_smoke $(PROJECT_DIR)/build/stream_lifetime_asan $(foreach p,single double,$(PROJECT_DIR)/build/$(p)/rouse $(PROJECT_DIR)/build/$(p)/rouse.d $(PROJECT_DIR)/build/$(p)/rouse_tests $(PROJECT_DIR)/build/$(p)/rouse_tests.d $(PROJECT_DIR)/build/$(p)/pipeline_tests)
+	rm -f $(PROJECT_DIR)/build/single/smoke_test $(PROJECT_DIR)/build/single/smoke_test.d $(PROJECT_DIR)/build/double/smoke_test $(PROJECT_DIR)/build/double/smoke_test.d $(PROJECT_DIR)/build/correlator_smoke $(PROJECT_DIR)/build/stream_lifetime_asan $(PROJECT_DIR)/build/cpu_workers_asan $(foreach p,single double,$(PROJECT_DIR)/build/$(p)/rouse $(PROJECT_DIR)/build/$(p)/rouse.d $(PROJECT_DIR)/build/$(p)/rouse_tests $(PROJECT_DIR)/build/$(p)/rouse_tests.d $(PROJECT_DIR)/build/$(p)/pipeline_tests)
 
 -include $(GPU_BUILD)/smoke_test.d $(GPU_BUILD)/rouse.d $(GPU_BUILD)/rouse_tests.d
 
@@ -76,8 +76,14 @@ check-lifetime:
 	$(CXX) -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer $(PROJECT_DIR)/tests/stream_lifetime.cpp $(KG_DIR)/correlator.cpp -o $(BUILD)/stream_lifetime_asan
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 $(BUILD)/stream_lifetime_asan
 
-$(GPU_BUILD)/pipeline_tests: $(PROJECT_DIR)/tests/pipeline_tests.cu $(PROJECT_DIR)/stream_pipeline.cuh $(PROJECT_DIR)/stream_correlator.h $(PROJECT_DIR)/rouse.cuh $(KG_DIR)/correlator.cpp
+$(GPU_BUILD)/pipeline_tests: $(PROJECT_DIR)/tests/pipeline_tests.cu $(PROJECT_DIR)/stream_pipeline.cuh $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(PROJECT_DIR)/rouse.cuh $(KG_DIR)/correlator.cpp
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 .PHONY: pipeline-tests
 pipeline-tests: $(GPU_BUILD)/pipeline_tests
+
+.PHONY: check-workers
+check-workers:
+	mkdir -p $(BUILD)
+	$(CXX) -std=c++17 -O1 -g -pthread -fsanitize=address,undefined -fno-omit-frame-pointer $(PROJECT_DIR)/tests/cpu_workers.cpp $(KG_DIR)/correlator.cpp -o $(BUILD)/cpu_workers_asan
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 $(BUILD)/cpu_workers_asan

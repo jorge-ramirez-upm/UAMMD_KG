@@ -1,4 +1,4 @@
-# GPU Rouse chains and streaming stress modulus: Stage 2B
+# GPU Rouse chains and parallel streaming stress modulus: Stage 2B.1
 
 This standalone UAMMD/CUDA example simulates independent Gaussian chains with
 local Euler–Maruyama Brownian dynamics. It is a distinct coarse-grained model
@@ -8,9 +8,10 @@ observables and direct-lag dynamic validation. Stage 2A adds double-accumulated
 GPU per-chain configurational stress, direct-lag stress correlations and permanent
 performance reporting. Stage 2B adds bounded synchronous/asynchronous Correlator6
 streaming and the chain-density-normalized relaxation modulus.
-**IMPLEMENTED — AWAITING SCIENTIFIC VALIDATION**: only short pipeline tests were
-run for Stage 2B; full Linux-host validation and review are pending. Semiflexibility,
-slip-springs and later-stage optimization remain unauthorized.
+**STAGE 2B.1 IMPLEMENTED — AWAITING LINUX-HOST VALIDATION**. The user reports
+Stage 2B's 54-simulation matrix and N32 terminal 504/504 checks passed. Stage
+2B.1 adds portable CPU correlation workers; its implementation checks do not
+establish performance acceptance. Stage 3 and new physics remain unauthorized.
 
 A chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
@@ -69,9 +70,9 @@ provided for external validation rather than claimed as tested in Codex.
 ```sh
 make -C examples/slip-springs rouse CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
 make -C examples/slip-springs rouse CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double
-RUNS=$(mktemp -d /tmp/rouse-stage2b-examples.XXXXXX)
-examples/slip-springs/build/single/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620008 --output-mode stream --backend async --batch 7 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/single"
-examples/slip-springs/build/double/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620009 --output-mode stream --backend async --batch 7 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/double"
+RUNS=$(mktemp -d /tmp/rouse-stage2b1-examples.XXXXXX)
+examples/slip-springs/build/single/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620008 --output-mode stream --backend async --cpu-workers 4 --batch 7 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/single"
+examples/slip-springs/build/double/rouse --springs 8 --chains 64 --dt .005 --steps 200 --sample 10 --equil 0 --seed 620009 --output-mode stream --backend async --cpu-workers 4 --batch 7 --corr-levels 16 --corr-slots 16 --corr-m 2 --output "$RUNS/double"
 ls "$RUNS/single/" "$RUNS/double/"
 ```
 
@@ -119,6 +120,7 @@ volume, checkpoint/resume or new physics are introduced. New options:
 |---|---:|---|
 | `--output-mode` | csv | csv diagnostic history or compact stream |
 | `--backend` | sync | sync or async; requires explicit stream mode |
+| `--cpu-workers` | 1 | Async workers: 0 auto, or exact N <= chains and <= 1024 |
 | `--batch` | 64 | Observation frames per bounded buffer, 1–4096 |
 | `--corr-levels` | 16 | KG multi-tau level count L |
 | `--corr-slots` | 16 | Slots p per level; divisible by m |
@@ -181,7 +183,12 @@ arrays in its destructor, and lets KG destructors release tables/scalars.
 Original add/initialize/evaluate calculations remain linked read-only.
 
 Sync uses one device/pinned buffer and correlates on the main thread. Async uses
-two buffers and one dedicated CPU consumer. CUDA producer events precede copies
+two buffers and N dedicated CPU workers. The existing consumer is worker 0;
+N−1 persistent helpers process fixed contiguous ranges `[C*i/N,C*(i+1)/N)`.
+No dispatcher is added. All workers read the same pinned batch without copying.
+A condition-variable generation and completion counter release the slot only
+after every range completes, including on failure. Each range sees frames in
+chronological order; final evaluation still reduces chains in ascending order. CUDA producer events precede copies
 on a nonblocking transfer stream; completion events precede CPU access. Slot
 states free/filling/queued/processing and a condition variable impose bounded
 backpressure and chronological consumption. No correlator has simultaneous
@@ -201,6 +208,45 @@ correlator budget is 512 MiB; it excludes allocator overhead/events/buffers.
 GPU coordinates/RNG identities remain O(total beads). Event intervals can include
 host submission gaps. These are estimates,
 not guarantees of available memory; allocation failures propagate safely.
+
+`--cpu-workers 1` preserves the serial reference; both backend and worker defaults
+remain unchanged. Explicit N>1 requires async streaming and is rejected before
+output creation if N exceeds chain count or 1024. Explicit N may oversubscribe
+available CPUs by user choice. Zero selects min(chains, available CPUs, 1024),
+or one for synchronous streaming; CSV has zero effective correlation workers
+and accepts 0/1. Requested/effective counts are stored in metadata.
+
+On Linux, automatic selection reads the calling thread's dynamic affinity mask
+(including cpusets), then applies integer CPU budgets from cgroup v2 `cpu.max`
+or v1 CPU quotas at standard mounts and ancestors. Fractional quotas round down
+with a minimum of one. Custom cgroup mounts/unreadable restrictions may be missed;
+elsewhere or when affinity fails, `std::thread::hardware_concurrency()` falls
+back to one if unknown. This is a resource bound, not a physical-core or hybrid-CPU
+performance model. No pinning, Intel APIs or OpenMP dependency is introduced.
+
+Worker memory adds O(N) thread handles, counters and OS thread stacks; correlator
+and device/pinned allocations do not multiply with N. The queue remains two
+slots. Pool construction failure joins all started helpers; worker exceptions
+wait for all ranges before rethrowing to the consumer and producer. Failed banks
+are not evaluated. Helpers stop before the bank is destroyed. Repeated pool
+creation/destruction and failures are covered by CPU leak tests.
+
+`cpu_correlation_seconds` retains its outer batch-processing wall scope;
+`cpu_correlation_wall_seconds` times pool calls (dispatch through completion).
+Both are sums of nonoverlapping batch wall intervals and exclude transfer waits.
+`cpu_worker_execution_sum_seconds` sums per-range execution intervals across all
+workers and can exceed elapsed time; it excludes dispatch and barrier waits.
+`cpu_worker_barrier_wait_seconds` measures only worker 0's wait for helper
+completion, inside the correlation wall timer. `cpu_consumer_idle_seconds` is
+worker 0 waiting for queued batches, excluding D2H completion waits (reported
+separately). Helpers' idle waits are not instrumented. Buffer waits measure the
+producer waiting for a free slot. These timers overlap GPU/D2H and each other;
+never add them to obtain production wall time. Existing GPU throughput, final
+output and production scopes are unchanged. Overall ns/bead/step remains primary.
+
+See [STAGE2B1_REPORT.md](STAGE2B1_REPORT.md) for implementation evidence and
+[STAGE2B1_VALIDATION_PLAN.md](STAGE2B1_VALIDATION_PLAN.md) for exact host commands,
+including the 4096-chain sweep at 1/2/4/8/12/16 workers and memory checks.
 
 Sync remains default. Short timing probes establish no general speedup claim;
 select async only after measuring the actual workload on the dedicated host.

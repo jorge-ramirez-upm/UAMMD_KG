@@ -19,7 +19,9 @@ def compare(csv, stream):
     assert len(series) == meta['stress_frames'] == meta['steps']//meta['sample']+1
     assert not (stream/'samples.csv').exists()
     for field in ('transfer_seconds','sampling_gpu_seconds','cpu_correlation_seconds',
-                  'buffer_wait_seconds','transfer_wait_seconds','final_output_seconds'):
+                  'buffer_wait_seconds','transfer_wait_seconds','final_output_seconds',
+                  'cpu_correlation_wall_seconds','cpu_worker_execution_sum_seconds',
+                  'cpu_worker_barrier_wait_seconds','cpu_consumer_idle_seconds'):
         assert meta[field]>=0
     if not meta['steps']:
         for field in ('integration_ns_per_bead_step','overall_ns_per_bead_step','bead_updates_per_second'):
@@ -58,7 +60,7 @@ def main():
         # final batch, irregular final MD interval, exact batch boundary and N=1.
         cases = [(0,0,3,4,1),(0,3,3,4,8),(7,3,2,3,1),(76,2,2,4,8),(76,0,2,1,8),(0,0,2,4,1)]
         for index,(steps,equil,stride,batch,n) in enumerate(cases):
-            args = [binary,'--springs',str(n),'--chains',('1' if index==5 else '8'),'--dt','0.005','--steps',str(steps),
+            args = [binary,'--springs',str(n),'--chains',('1' if index==5 else '9'),'--dt','0.005','--steps',str(steps),
                     '--equil',str(equil),'--sample',str(stride),'--seed','582001',
                     '--corr-levels','5','--corr-slots',('12' if index==4 else '8'),
                     '--corr-m',('3' if index==4 else '2'),'--batch',str(batch)]
@@ -75,20 +77,24 @@ def main():
                 compare(paths['csv'],paths['async'])
                 assert (paths['sync']/'relaxation.csv').read_bytes()==(paths['async']/'relaxation.csv').read_bytes()
             assert len(sync)>0
-            if index==3 and not sync_only:
-                for other_batch in (1,39,40):
-                    dest=root/f'batch-{other_batch}'
-                    completed=subprocess.run(args+['--batch',str(other_batch),'--output-mode','stream',
-                       '--backend','async','--output',str(dest)],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
-                    if completed.returncode: raise AssertionError(completed.stdout)
-                    assert (dest/'relaxation.csv').read_bytes()==(paths['sync']/'relaxation.csv').read_bytes()
-        for index,extra in enumerate((['--batch','0'],['--batch','4097'],['--backend','other'],
+            if index in (0,3) and not sync_only:
+                for workers in (1,2,4,8,0):
+                    for other_batch in (1,7,39,40):
+                        dest=root/f'{index}-workers-{workers}-batch-{other_batch}'
+                        completed=subprocess.run(args+['--batch',str(other_batch),'--output-mode','stream',
+                           '--backend','async','--cpu-workers',str(workers),'--output',str(dest)],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+                        if completed.returncode: raise AssertionError(completed.stdout)
+                        assert (dest/'relaxation.csv').read_bytes()==(paths['sync']/'relaxation.csv').read_bytes()
+                        meta=json.loads((dest/'metadata.json').read_text())
+                        assert meta['cpu_workers_requested']==workers
+                        assert meta['cpu_workers_effective']==workers if workers else 1<=meta['cpu_workers_effective']<=9
+        for index,extra in enumerate((['--cpu-workers','-1'],['--cpu-workers','abc'],['--cpu-workers','1.5'],['--cpu-workers','1025'],['--chains','3','--backend','async','--cpu-workers','4'],['--backend','sync','--cpu-workers','2'],['--batch','0'],['--batch','4097'],['--backend','other'],
                 ['--corr-slots','7'],['--corr-m','1'],['--corr-levels','48','--corr-slots','65536'],
                 ['--chains','100000','--correlator-mib','1'],['--chains','100000','--batch','4096'])):
             dest=root/f'invalid-{index}'
             completed=subprocess.run([binary,'--output-mode','stream','--output',str(dest)]+extra,
                                      stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
             assert completed.returncode!=0 and not dest.exists(), completed.stdout
-        print(f'PASS: {len(cases)} bounded pipeline cases; all raw channels, paired g SE, lag/count/block/timer conventions; 8 input guards')
+        print(f'PASS: {len(cases)} bounded pipeline cases; all raw channels, paired g SE, lag/count/block/timer conventions; 14 input guards')
 
 if __name__=='__main__': main()

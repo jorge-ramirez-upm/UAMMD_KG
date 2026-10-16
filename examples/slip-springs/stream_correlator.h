@@ -115,6 +115,10 @@ public:
       ++frames;
     }
   }
+  void consumeRange(const Sample* data,std::size_t count,std::size_t first,std::size_t last) {
+    for (std::size_t f=0;f<count;++f)
+      for (std::size_t c=first;c<last;++c) chains[c]->push(data[f*chains.size()+c]);
+  }
   void write(const std::string& path,double spacing) {
     struct Bin { double lag; unsigned long pairs; std::array<Moments,7> moments; };
     std::vector<Bin> bins;

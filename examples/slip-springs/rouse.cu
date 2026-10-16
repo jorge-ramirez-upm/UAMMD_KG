@@ -23,6 +23,7 @@ struct Options {
   int springs=8, chains=512;
   bool stream=false, asynchronous=false, backendSpecified=false;
   std::size_t batch=64, correlatorMiB=512;
+  unsigned cpuWorkers=1, effectiveWorkers=0;
   streaming::Parameters corr;
   double dt=0.005;
   Counter steps=1000, seed=12345, sample=100, equil=0;
@@ -44,7 +45,7 @@ Options parse(int argc, char** argv) {
       std::cout << "rouse [--springs N] [--chains C] [--dt H] [--steps S] "
                    "[--seed K] [--sample STRIDE] [--equil S] [--output NEW_DIRECTORY]\n"
                    "[--output-mode csv|stream] [--backend sync|async] [--batch FRAMES]\n"
-                   "[--corr-levels L] [--corr-slots P] [--corr-m M] [--correlator-mib MiB]\n";
+                   "[--cpu-workers N] [--corr-levels L] [--corr-slots P] [--corr-m M] [--correlator-mib MiB]\n";
       std::exit(0);
     }
     if (++i==argc) throw std::runtime_error("missing value for "+key);
@@ -69,6 +70,7 @@ Options parse(int argc, char** argv) {
       else if (key=="--seed") o.seed=n;
       else if (key=="--sample") o.sample=n;
       else if (key=="--equil") o.equil=n;
+      else if (key=="--cpu-workers" && n<=1024) o.cpuWorkers=n;
       else if (key=="--batch" && n>0 && n<=4096) o.batch=n;
       else if (key=="--correlator-mib" && n>0 && n<=65536) o.correlatorMiB=n;
       else if (key=="--corr-levels" && n<=48) o.corr.levels=n;
@@ -86,7 +88,11 @@ Options parse(int argc, char** argv) {
     throw std::runtime_error("sample must be positive; equil+steps must not exceed floor(UINT64_MAX/8)");
   o.corr.validate();
   if (!o.stream && o.backendSpecified) throw std::runtime_error("backend requires --output-mode stream");
+  if (!o.stream && o.cpuWorkers>1) throw std::runtime_error("multiple CPU workers require --output-mode stream --backend async");
   if (o.stream) {
+    o.effectiveWorkers=streaming::workerCount(o.cpuWorkers,o.chains);
+    if (!o.asynchronous && o.cpuWorkers==0) o.effectiveWorkers=1;
+    if (!o.asynchronous && o.effectiveWorkers!=1) throw std::runtime_error("multiple CPU workers require --backend async");
     if ((o.steps/o.sample+1)>std::numeric_limits<unsigned long>::max()/o.chains)
       throw std::runtime_error("stream pair counts would overflow");
     if (o.batch*std::size_t(o.chains)*sizeof(streaming::Sample)*(o.asynchronous?4:2)>512ULL*1024*1024)
@@ -166,7 +172,7 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
   rouse::check(cudaGetLastError(),"initialize launch");
   rouse::check(cudaDeviceSynchronize(),"initialize sync");
   std::unique_ptr<streaming::Pipeline> pipeline;
-  if (o.stream) pipeline=std::make_unique<streaming::Pipeline>(o.chains,m,o.batch,o.asynchronous,o.corr,o.correlatorMiB*1024*1024);
+  if (o.stream) pipeline=std::make_unique<streaming::Pipeline>(o.chains,m,o.batch,o.asynchronous,o.corr,o.correlatorMiB*1024*1024,o.effectiveWorkers);
   std::ofstream samples,ensemble;
   if (!o.stream) {
   samples.open(output/"samples.csv"); ensemble.open(output/"ensemble.csv");
@@ -297,6 +303,12 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
        << ",\"transfer_seconds\":" << (pipeline?pipeline->transfer_seconds:0)
        << ",\"transfer_wait_seconds\":" << (pipeline?pipeline->transfer_wait_seconds:0)
        << ",\"buffer_wait_seconds\":" << (pipeline?pipeline->buffer_wait_seconds:0)
+       << ",\"cpu_consumer_idle_seconds\":" << (pipeline?pipeline->consumer_idle_seconds:0)
+       << ",\"cpu_workers_requested\":" << o.cpuWorkers
+       << ",\"cpu_workers_effective\":" << o.effectiveWorkers
+       << ",\"cpu_correlation_wall_seconds\":" << (pipeline?pipeline->workers().wall_seconds:0)
+       << ",\"cpu_worker_execution_sum_seconds\":" << (pipeline?pipeline->workers().aggregateSeconds():0)
+       << ",\"cpu_worker_barrier_wait_seconds\":" << (pipeline?pipeline->workers().barrier_seconds:0)
        << ",\"cpu_correlation_seconds\":" << (pipeline?pipeline->correlation_seconds:0)
        << ",\"measured_simulation_seconds\":" << measuredSimulationTime
        << ",\"sampling_timer_scope\":\"" << (pipeline?"GPU stress event sum plus D2H event sum; may overlap integration":"blocking observation kernel plus D2H wall time") << "\""
@@ -304,8 +316,11 @@ void simulate(const Options& o, const fs::path& output, std::shared_ptr<uammd::S
        << ",\"modulus_normalization\":\"G/(n_ch*kBT)\"\n}\n";
   meta.close();
   if (pipeline) std::cerr << "Streaming: frames=" << pipeline->frames() << " backend=" << (o.asynchronous?"async":"sync")
-    << " batch_frames=" << o.batch << " sampling_GPU=" << pipeline->sampling_gpu_seconds
+    << " cpu_workers=" << o.effectiveWorkers << " batch_frames=" << o.batch << " sampling_GPU=" << pipeline->sampling_gpu_seconds
     << " s; D2H=" << pipeline->transfer_seconds << " s; CPU_correlations=" << pipeline->correlation_seconds
+    << " s; worker_execution_sum=" << pipeline->workers().aggregateSeconds()
+    << " s; worker_barrier_wait=" << pipeline->workers().barrier_seconds
+    << " s; consumer_idle=" << pipeline->consumer_idle_seconds
     << " s; free_buffer_wait=" << pipeline->buffer_wait_seconds << " s; transfer_wait=" << pipeline->transfer_wait_seconds
     << " s. Overlapping timers must not be summed.\n";
   std::cerr << "Performance: chains=" << o.chains << " springs/chain=" << o.springs
