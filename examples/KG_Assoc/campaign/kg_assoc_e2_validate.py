@@ -57,15 +57,20 @@ def read_parent(entry):
     metadata, pairs = analysis.restart.read_metadata(parent['prefix'] + '.assoc_restart')
     expected = dict(entry['physics'], Ea=entry['parent_Ea'])
     check_physics(metadata, expected)
+    parent_seed = entry['chemistry_seed']
+    if 'lineage' in entry:
+        import kg_assoc_e2_transfer as transfer
+        transfer.validate_lineage(entry, metadata, pairs)
+        parent_seed = entry['lineage']['parent_chemistry_seed']
     require(int(metadata['completed_steps']) == entry['start_step'] and
-            int(metadata['seed']) == entry['chemistry_seed'], 'parent step/chemistry seed mismatch')
+            int(metadata['seed']) == parent_seed, 'parent step/chemistry seed mismatch')
     initial = dict(pairs=pairs, creations=int(metadata['creations']), breaks=int(metadata['breaks']))
     require(initial['creations'] >= initial['breaks'] >= 0 and
             initial['creations'] - initial['breaks'] == len(pairs), 'parent counters invalid')
     # Uses the same strict stable-ID, reciprocal valence-one reader as event analysis.
     analysis.dynamics.read_restart(parent['prefix'] + '.assoc_restart', system,
                                   dict(start_step=entry['start_step'],
-                                       seed=entry['chemistry_seed'], dt=entry['physics']['dt']))
+                                       seed=parent_seed, dt=entry['physics']['dt']))
     data = campaign.parse_lammps_data(path)
     require(all(analysis.restart.distance(data['positions'][a], data['positions'][b],
                                          data['bounds']) < entry['physics']['R0']
@@ -122,6 +127,16 @@ def validate(entry, oracle=False):
     dt, every = expected['dt'], expected['Nevery']
     metadata, rows = analysis.stationarity.read_state(str(prefix) + '.state')
     check_physics(metadata, expected, state=True)
+    if 'lineage' in entry:
+        lineage = entry['lineage']
+        expected_lineage = dict(lineage_mode=lineage['mode'], branch_id=lineage['branch_id'],
+            parent_chemistry_seed=lineage['parent_chemistry_seed'],
+            reference_control=int(lineage['reference_control']),
+            branch_origin_step=lineage['branch_origin_step'],
+            parent_creations=lineage['parent_creations'], parent_breaks=lineage['parent_breaks'],
+            branch_age_start=0, bitwise_md_continuation=0)
+        for key, value in expected_lineage.items():
+            require(str(metadata.get(key)) == str(value), 'derived metadata mismatch: ' + key)
     geometry = campaign.expected_geometry(entry['system'])
     for key, value in dict(seed=entry['chemistry_seed'], md_seed=entry['md_seed'],
                            start_step=start, total_requested_steps=end, diagnostic_every=1000,
@@ -154,6 +169,9 @@ def validate(entry, oracle=False):
                 (key != 'input_file' and float(event_metadata[key]) == float(metadata[key])),
                 'event provenance mismatch: ' + key)
     check_physics(event_metadata, expected, state=True)
+    if 'lineage' in entry:
+        require(all(event_metadata.get(key) == metadata.get(key) for key in expected_lineage),
+                'derived event/state lineage differs')
     require(all(start < step <= end and step % every == 0 for step, _, _ in events),
             'event outside absolute chemistry cadence')
     active, event_rows = analysis.replay(rows, events, system, network=True, initial=initial)

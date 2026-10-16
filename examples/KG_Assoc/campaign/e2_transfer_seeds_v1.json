@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "reservation_id": "Ea_reference_transfer_first_validation_v1",
+  "purpose": "reserved streams only; no execution or acceptance authorization",
+  "streams": [
+    {
+      "system_id": "F04_N010_RP080_EE08_EA04",
+      "reference_control": true,
+      "replica": 1,
+      "chemistry_seed": 620401,
+      "md_seed": 630401
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA04",
+      "reference_control": true,
+      "replica": 2,
+      "chemistry_seed": 620402,
+      "md_seed": 630402
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA04",
+      "reference_control": true,
+      "replica": 3,
+      "chemistry_seed": 620403,
+      "md_seed": 630403
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA06",
+      "reference_control": false,
+      "replica": 1,
+      "chemistry_seed": 620601,
+      "md_seed": 630601
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA06",
+      "reference_control": false,
+      "replica": 2,
+      "chemistry_seed": 620602,
+      "md_seed": 630602
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA06",
+      "reference_control": false,
+      "replica": 3,
+      "chemistry_seed": 620603,
+      "md_seed": 630603
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA08",
+      "reference_control": false,
+      "replica": 1,
+      "chemistry_seed": 620801,
+      "md_seed": 630801
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA08",
+      "reference_control": false,
+      "replica": 2,
+      "chemistry_seed": 620802,
+      "md_seed": 630802
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA08",
+      "reference_control": false,
+      "replica": 3,
+      "chemistry_seed": 620803,
+      "md_seed": 630803
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA10",
+      "reference_control": false,
+      "replica": 1,
+      "chemistry_seed": 621001,
+      "md_seed": 631001
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA10",
+      "reference_control": false,
+      "replica": 2,
+      "chemistry_seed": 621002,
+      "md_seed": 631002
+    },
+    {
+      "system_id": "F04_N010_RP080_EE08_EA10",
+      "reference_control": false,
+      "replica": 3,
+      "chemistry_seed": 621003,
+      "md_seed": 631003
+    }
+  ]
+}

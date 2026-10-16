@@ -1,0 +1,36 @@
+{
+  "excluded": [
+    "INTEGRITY.json (containing Git commit)",
+    "BUILD_RESULTS.md (post-build Git commit receipt)"
+  ],
+  "scope": "CPU-only Ea reference transfer implementation and validation",
+  "sha256": {
+    "examples/KG_Assoc/Makefile": "ebdd8aa69fda00841508c466dbde8088e70f81fc27fe1e74eba5c75314bb1fff",
+    "examples/KG_Assoc/campaign/catalog_model.py": "66560108bf563756487993f3086ed9ce63e787976ea375eda02a66814e66f62a",
+    "examples/KG_Assoc/campaign/e2_acceptance.schema.json": "80bae0ecc0a5c4b0968515c767ba0faebb92f9cee79e58043434ab5d99748862",
+    "examples/KG_Assoc/campaign/e2_reference_transfer.schema.json": "3266fc546279c25e635cc08ea77559b6d1c73fd626f6f38979d8fa2dedbb0db8",
+    "examples/KG_Assoc/campaign/e2_transfer_seeds_v1.json": "a0e5f5257d11348f08db52749e3602eb727c821c98d1ba68af8b0b33a88d0656",
+    "examples/KG_Assoc/campaign/kg_assoc_e2.py": "00abd0715edae39bd59c4ef2526e60358746efc9ddf9a47d87de0c32578204b4",
+    "examples/KG_Assoc/campaign/kg_assoc_e2_registry.py": "d351e62feb10063b791c4439bce2acbbfccea4a35feed35ff56f41d745595723",
+    "examples/KG_Assoc/campaign/kg_assoc_e2_transfer.py": "0cd575dcacd4da05352c12681a8d426271b2682498804ad751a392f95d1b34ed",
+    "examples/KG_Assoc/campaign/kg_assoc_e2_validate.py": "ef44ab128cf2b8cbbbecb82027dfc890b105a00b0a572c8630ccb77cfc9f9505",
+    "examples/KG_Assoc/campaign/test_e2_transfer.py": "0ff5640075cd65abe6280baf287fe6dc61b5f03633bb14a7ba6dff98552ed83d",
+    "examples/KG_Assoc/kg_assoc_chemical_reseed.cuh": "ff0b9f2dbcdcbd0070ef316935aded422d1f491996214e30534d14c5e8b8592b",
+    "examples/KG_Assoc/kg_assoc_stars.cu": "dc4cc68dbfbb4300dbab17748912f2401acfac4a311e76e814a25dde210501a6",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/ACCEPTANCE_INTEGRITY.json": "b308d02f8a2ed30e361ee3d1875d6c29d7c8b9afa7edd5cb2883179a2ffb2854",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/BASELINE_SHA256.json": "5f7f7e30e6245cd570676da9547f8f7836821544eeb2accae7729f1e04cc2e9b",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/CPU_BUILD.json": "48005212ee0510cec0961d7428842286a494f7554364281ad45ac8955c755251",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/CPU_BUILD_commands.json": "33084b1d0186850a0cf477fd417cbd123e8acb23781d92e23e6a9fa512233bde",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/CPU_BUILD_kg_assoc_stars.build.log": "4a9039e3453232c01f7268ec2cf78f30738e225eb22be0155616a8713600c863",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/CPU_BUILD_kg_assoc_stars_candidate_smoke.build.log": "4a9039e3453232c01f7268ec2cf78f30738e225eb22be0155616a8713600c863",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/HOST_SELF_TESTS.log": "ae744d84f5e66bb539576a1c25f915a4fd57ccb67e152de957ab781883754c9e",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/IMPLEMENTATION.md": "ad34d885b9ba0be9fb32b55936fca428f8e7e6673c892ec7cea5fd9d70137578",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/INSPECTION.json": "fa614c8a252937b09db3c31be159794be706af5e559ea291e11d7176fe06b62a",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/PRESERVATION.json": "1a2f987432f99c66b9ea62d7e442ca5fc96a0bc7a5f5a04d1b661ab69d6b01bd",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/REGRESSION_TESTS.log": "6faac153b75c8380091dbbf627790a1e54e346e4bccaa17ba408204dc1b150a6",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/TRANSFER_TESTS.log": "07a0b42eae2dc20681fac1c40797ed9c7e1e0bd9f7583d1c65e0cc4cb4dd8f7d",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/VALIDATION.md": "56c0509572e8203b647e9e4f1250acc9a9fbe2a18bfb9f2ecd2c587fcb1e7615",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/verify_preservation.py": "06c983d8d4fd3821becfcbd7e084d20cdf5db087a823f96a38005513de34278c"
+  },
+  "starting_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1"
+}

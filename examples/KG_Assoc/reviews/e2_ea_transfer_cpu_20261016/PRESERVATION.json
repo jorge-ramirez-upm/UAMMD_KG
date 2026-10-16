@@ -1,0 +1,50 @@
+{
+  "authenticated_source_transitions": [
+    {
+      "new_sha256": "ebdd8aa69fda00841508c466dbde8088e70f81fc27fe1e74eba5c75314bb1fff",
+      "path": "examples/KG_Assoc/Makefile",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "6b3a9f5781c0d5dd11c70dd9326052b047798291d2b6d656e9684d57da1956e8"
+    },
+    {
+      "new_sha256": "66560108bf563756487993f3086ed9ce63e787976ea375eda02a66814e66f62a",
+      "path": "examples/KG_Assoc/campaign/catalog_model.py",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "3421ec08804312814f1aa1032469e9a889d4d4279cf24ab010d796be25aa657f"
+    },
+    {
+      "new_sha256": "80bae0ecc0a5c4b0968515c767ba0faebb92f9cee79e58043434ab5d99748862",
+      "path": "examples/KG_Assoc/campaign/e2_acceptance.schema.json",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "86993a658d787ea7e525717282d5d147217c4ada13efaa542040be55c39e110c"
+    },
+    {
+      "new_sha256": "00abd0715edae39bd59c4ef2526e60358746efc9ddf9a47d87de0c32578204b4",
+      "path": "examples/KG_Assoc/campaign/kg_assoc_e2.py",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "09e7681b0396a1931198ecac5811e332a1e49bbc375710698d7be5437c58de58"
+    },
+    {
+      "new_sha256": "d351e62feb10063b791c4439bce2acbbfccea4a35feed35ff56f41d745595723",
+      "path": "examples/KG_Assoc/campaign/kg_assoc_e2_registry.py",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "5c295346ab7ef9d8257e5e0f86635a8762f4fdd9927274a3165feb88fb58b804"
+    },
+    {
+      "new_sha256": "ef44ab128cf2b8cbbbecb82027dfc890b105a00b0a572c8630ccb77cfc9f9505",
+      "path": "examples/KG_Assoc/campaign/kg_assoc_e2_validate.py",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "dfe7f60b1daf5c89a9d1c9df5f69388217ebb36bb0b097de055d5ff92a3869d4"
+    },
+    {
+      "new_sha256": "dc4cc68dbfbb4300dbab17748912f2401acfac4a311e76e814a25dde210501a6",
+      "path": "examples/KG_Assoc/kg_assoc_stars.cu",
+      "prior_git_sha": "283ac81058fe49a75ea0c75e44e443c1ff9928e1",
+      "prior_sha256": "a1d894caf9bd7414ebc0faad118a7f34f49784fb594622c486e07af95883c69c"
+    }
+  ],
+  "baseline_bindings": 1334,
+  "historical_manifests_modified": false,
+  "physics_kernels_modified": false,
+  "unchanged_live_bindings": 1327
+}

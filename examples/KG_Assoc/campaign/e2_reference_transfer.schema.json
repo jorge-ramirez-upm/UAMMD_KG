@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Explicit Ea reference-transfer E2-G1 plan",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "stage",
+    "lineage_mode",
+    "system",
+    "attempt",
+    "histories",
+    "reference_control",
+    "reservation_id",
+    "reservation_sha256",
+    "initial_state_checks",
+    "build",
+    "executable_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "stage": {
+      "const": "E2-G1"
+    },
+    "lineage_mode": {
+      "const": "Ea_reference_transfer_v1"
+    },
+    "reference_control": {
+      "type": "boolean"
+    },
+    "histories": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "replica",
+          "system",
+          "parent",
+          "physics",
+          "start_step",
+          "end_step",
+          "chemistry_seed",
+          "md_seed",
+          "effective_md_seed",
+          "lineage",
+          "command"
+        ],
+        "properties": {
+          "start_step": {
+            "const": 8000000
+          },
+          "lineage": {
+            "type": "object",
+            "required": [
+              "mode",
+              "system_id",
+              "branch_id",
+              "parent_chemistry_seed",
+              "reference_acceptance",
+              "reference_acceptance_sha256",
+              "parent_creations",
+              "parent_breaks",
+              "branch_origin_step"
+            ],
+            "properties": {
+              "mode": {
+                "const": "Ea_reference_transfer_v1"
+              },
+              "branch_origin_step": {
+                "const": 8000000
+              },
+              "bitwise_md_continuation": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "initial_state_checks": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "pattern": "INITIAL_STATE_VALIDATED"
+      }
+    }
+  }
+}

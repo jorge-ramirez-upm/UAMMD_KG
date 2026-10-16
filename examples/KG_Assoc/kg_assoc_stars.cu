@@ -7,6 +7,7 @@
 #include "kg_assoc_star_runtime.cuh"
 #include "kg_assoc_conformation.cuh"
 #include "kg_assoc_ea_switch.cuh"
+#include "kg_assoc_chemical_reseed.cuh"
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
 #include "kg_assoc_candidate_oracle.cuh"
 #endif
@@ -14,6 +15,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstdint>
 #include <functional>
 #include <fstream>
 #include <iomanip>
@@ -58,6 +60,15 @@ struct Parameters {
   bool seedExplicit = false;
   bool eaExplicit = false;
   bool eeExplicit = false;
+  std::string derivedBranchId;
+  bool reseedChemistry = false;
+  bool referenceControl = false;
+  bool validateInitialState = false;
+  unsigned long long parentChemicalSeed = 0;
+  long long branchOriginStep = 0;
+  long long parentCreations = 0;
+  long long parentBreaks = 0;
+  std::set<std::string> explicitPhysics;
   bool switchEa = false;
   double switchEaFrom = 0.0;
 };
@@ -77,12 +88,22 @@ std::string nextArgument(int& index, int argc, char** argv) {
   return argv[index];
 }
 
+unsigned long long parseSeed(const std::string& value) {
+  if (value.empty() || value.find_first_not_of("0123456789") != std::string::npos) {
+    throw std::runtime_error("seed must be an unsigned decimal integer");
+  }
+  return std::stoull(value);
+}
+
 void printHelp() {
   std::cout << "kg_assoc_stars (--input FILE | --restart-prefix PREFIX) [options]\n"
             << "  --steps N --dt DT --temperature T --Ea E --Ee E --nu0 X\n"
             << "  --Nevery N --r-assoc R --damp D --K K --R0 R --seed S\n"
             << "  --diagnostic-every N --md-seed S (fresh MD stream; chemistry seed unchanged)\n"
             << "  --switch-ea-from E --Ea E (explicit restart kinetics switch)\n"
+            << "  --reseed-chemistry-from OLD --seed NEW (guarded Ea transfer)\n"
+            << "  --reference-control (explicit Ea4 reseeded validation control)\n"
+            << "  --validate-initial-state (host-only; creates no outputs)\n"
             << "  --md-seed-info S (host-only effective kernel seed)\n"
             << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
 }
@@ -91,7 +112,17 @@ Parameters parseArguments(int argc, char** argv) {
   Parameters parameters;
   for (int index = 1; index < argc; ++index) {
     const std::string option = argv[index];
-    if (option == "--input") {
+    parameters.explicitPhysics.insert(option);
+    if (option == "--derived-branch-id") {
+      parameters.derivedBranchId = nextArgument(index, argc, argv);
+    } else if (option == "--reseed-chemistry-from") {
+      parameters.parentChemicalSeed = parseSeed(nextArgument(index, argc, argv));
+      parameters.reseedChemistry = true;
+    } else if (option == "--reference-control") {
+      parameters.referenceControl = true;
+    } else if (option == "--validate-initial-state") {
+      parameters.validateInitialState = true;
+    } else if (option == "--input") {
       parameters.input = nextArgument(index, argc, argv);
     } else if (option == "--restart-prefix") {
       parameters.restartPrefix = nextArgument(index, argc, argv);
@@ -130,10 +161,10 @@ Parameters parseArguments(int argc, char** argv) {
     } else if (option == "--R0") {
       parameters.feneR0 = std::stod(nextArgument(index, argc, argv));
     } else if (option == "--seed") {
-      parameters.seed = std::stoull(nextArgument(index, argc, argv));
+      parameters.seed = parseSeed(nextArgument(index, argc, argv));
       parameters.seedExplicit = true;
     } else if (option == "--md-seed") {
-      parameters.mdSeed = std::stoull(nextArgument(index, argc, argv));
+      parameters.mdSeed = parseSeed(nextArgument(index, argc, argv));
       if (parameters.mdSeed == 0) {
         throw std::runtime_error("--md-seed must be positive");
       }
@@ -152,6 +183,17 @@ Parameters parseArguments(int argc, char** argv) {
   }
   if (parameters.switchEa && (parameters.restartPrefix.empty() || !parameters.eaExplicit)) {
     throw std::runtime_error("Ea switching requires --restart-prefix and --Ea");
+  }
+  if ((parameters.reseedChemistry || parameters.referenceControl) &&
+      (parameters.restartPrefix.empty() || !parameters.eaExplicit || parameters.force)) {
+    throw std::runtime_error("derived reseeding requires restart, explicit Ea and no --force");
+  }
+  if ((!parameters.derivedBranchId.empty() && !parameters.reseedChemistry) ||
+      (parameters.reseedChemistry && parameters.derivedBranchId.empty())) {
+    throw std::runtime_error("derived branch identity requires explicit chemical reseeding");
+  }
+  if (parameters.validateInitialState && parameters.restartPrefix.empty()) {
+    throw std::runtime_error("initial-state inspection requires a restart");
   }
   if (parameters.selfTest) {
     return parameters;
@@ -546,6 +588,18 @@ void writeProvenance(std::ofstream& stateFile,
             << " total_requested_steps=" << startStep + parameters.steps
             << " original_lammps_atom_ids=1_based\n";
   eventFile.precision(previousPrecision);
+  if (parameters.reseedChemistry) {
+    for (std::ofstream* output : {&stateFile, &eventFile}) {
+      *output << "# lineage_mode=Ea_reference_transfer_v1"
+              << " branch_id=" << parameters.derivedBranchId
+              << " parent_chemistry_seed=" << parameters.parentChemicalSeed
+              << " reference_control=" << parameters.referenceControl
+              << " branch_origin_step=" << parameters.branchOriginStep
+              << " parent_creations=" << parameters.parentCreations
+              << " parent_breaks=" << parameters.parentBreaks
+              << " branch_age_start=0 bitwise_md_continuation=0\n";
+    }
+  }
 }
 
 void writeConformation(std::ofstream& output, long long step, const Parameters& parameters,
@@ -631,12 +685,55 @@ int main(int argc, char** argv) {
       if (parameters.rAssocExplicit && !near(parameters.rAssoc, restart.parameters.rAssoc)) {
         throw std::runtime_error("--r-assoc does not match restart metadata");
       }
-      if (parameters.seedExplicit && parameters.seed != restart.parameters.seed) {
-        throw std::runtime_error("--seed does not match restart metadata");
+      const double targetEa = parameters.referenceControl ? parameters.ea :
+          kg_assoc::restartEa(restart.parameters.ea, parameters.ea,
+                              parameters.eaExplicit, parameters.switchEa, parameters.switchEaFrom);
+      const auto requestedSeed = kg_assoc::restartChemicalSeed(
+          restart.parameters.seed, parameters.seed, parameters.seedExplicit,
+          parameters.reseedChemistry, parameters.parentChemicalSeed, restart.parameters.ea,
+          targetEa, parameters.switchEa, parameters.referenceControl, parameters.mdSeed);
+      if (parameters.reseedChemistry) {
+        const auto& parent = restart.parameters;
+        auto unchanged = [&](const char* option, double requested, double actual) {
+          if (parameters.explicitPhysics.count(option) && requested != actual) {
+            throw std::runtime_error(std::string("derived physical mismatch: ") + option);
+          }
+        };
+        unchanged("--arms", parameters.arms, parent.arms);
+        unchanged("--narm", parameters.beadsPerArm, parent.beadsPerArm);
+        unchanged("--dt", parameters.dt, parent.dt);
+        unchanged("--temperature", parameters.temperature, parent.temperature);
+        unchanged("--Ee", parameters.ee, parent.ee);
+        unchanged("--nu0", parameters.nu0, parent.nu0);
+        unchanged("--Nevery", parameters.every, parent.every);
+        unchanged("--r-assoc", parameters.rAssoc, parent.rAssoc);
+        unchanged("--damp", parameters.damping, parent.damping);
+        unchanged("--K", parameters.feneK, parent.feneK);
+        unchanged("--R0", parameters.feneR0, parent.feneR0);
+        if (parent.arms != 4 || parent.beadsPerArm != 10 || parent.ee != 8.0 ||
+            parent.dt != .01 || parent.temperature != 1.0 || parent.nu0 != 20.0 ||
+            parent.every != 100 || parent.rAssoc != 1.25 || parent.damping != 2.0 ||
+            parent.feneK != 30.0 || parent.feneR0 != 1.5 || restart.completedSteps != 8000000) {
+          throw std::runtime_error("derived reference physics or absolute step mismatch");
+        }
+        const std::string systemId = "F04_N010_RP080_EE08_EA" +
+            std::string(targetEa < 10 ? "0" : "") + std::to_string(int(targetEa));
+        const auto parentSeed = restart.parameters.seed;
+        const std::string suffix = ":r00" + std::to_string(parentSeed - 22000);
+        if (parentSeed < 22001 || parentSeed > 22003 ||
+            parameters.derivedBranchId.find(systemId + ":derived_" + systemId + "_") != 0 ||
+            parameters.derivedBranchId.size() < suffix.size() ||
+            parameters.derivedBranchId.compare(parameters.derivedBranchId.size() - suffix.size(),
+                                               suffix.size(), suffix) != 0 ||
+            parameters.derivedBranchId.find_first_not_of(
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_:") != std::string::npos) {
+          throw std::runtime_error("derived branch/system/parent identity differs");
+        }
+        parameters.branchOriginStep = restart.completedSteps;
+        parameters.parentCreations = restart.creations;
+        parameters.parentBreaks = restart.breaks;
       }
-      const double requestedEa = kg_assoc::restartEa(
-          restart.parameters.ea, parameters.ea, parameters.eaExplicit,
-          parameters.switchEa, parameters.switchEaFrom);
+      const double requestedEa = targetEa;
       if (parameters.eeExplicit && parameters.ee != restart.parameters.ee) {
         throw std::runtime_error("--Ee does not match restart metadata");
       }
@@ -653,7 +750,7 @@ int main(int argc, char** argv) {
       parameters.damping = restart.parameters.damping;
       parameters.feneK = restart.parameters.feneK;
       parameters.feneR0 = restart.parameters.feneR0;
-      parameters.seed = restart.parameters.seed;
+      parameters.seed = requestedSeed;
       parameters.diagnosticEvery = requestedDiagnosticEvery;
       parameters.input = parameters.restartPrefix + ".restart.lammpsdat";
       initialStep = restart.completedSteps;
@@ -667,6 +764,46 @@ int main(int argc, char** argv) {
     }
     const std::set<std::pair<int, int>> permanentBonds =
         kg_assoc::permanentBondPairs(data);
+
+    // Validate the decoded initial chemical microstate before any GPU construction.
+    if (!parameters.restartPrefix.empty()) {
+      if (!data.hasVelocities) {
+        throw std::runtime_error("restart requires stored velocities");
+      }
+      std::set<int> occupied;
+      for (const auto& bond : restart.activeBonds) {
+        const int first = bond.first - 1;
+        const int second = bond.second - 1;
+        if (first < 0 || second >= data.natoms || data.type[first] != 2 ||
+            data.type[second] != 2 || !occupied.insert(first).second ||
+            !occupied.insert(second).second) {
+          throw std::runtime_error("invalid reciprocal valence-one initial partners");
+        }
+        double squared = 0.0;
+        for (const auto& axis : {std::make_pair(&data.x, data.xhi - data.xlo),
+                                std::make_pair(&data.y, data.yhi - data.ylo),
+                                std::make_pair(&data.z, data.zhi - data.zlo)}) {
+          const double distance = (*axis.first)[first] - (*axis.first)[second];
+          const double image = distance - axis.second * std::round(distance / axis.second);
+          squared += image * image;
+        }
+        if (!std::isfinite(squared) || squared >= parameters.feneR0 * parameters.feneR0) {
+          throw std::runtime_error("invalid initial temporary FENE geometry");
+        }
+      }
+    }
+
+    if (parameters.reseedChemistry && (topology.stars != 1000 || data.natoms != 43563)) {
+      throw std::runtime_error("derived reference geometry mismatch");
+    }
+    for (int id = 0; id < data.natoms; ++id) {
+      if (!std::isfinite(data.x[id]) || !std::isfinite(data.y[id]) ||
+          !std::isfinite(data.z[id]) || (data.hasVelocities &&
+          (!std::isfinite(data.vx[id]) || !std::isfinite(data.vy[id]) ||
+           !std::isfinite(data.vz[id])))) {
+        throw std::runtime_error("nonfinite restart physical state");
+      }
+    }
 
     const std::string statePath = parameters.output + ".state";
     const std::string eventPath = parameters.output + ".events";
@@ -691,6 +828,57 @@ int main(int argc, char** argv) {
       throw std::runtime_error("candidate validation output already exists");
     }
 #endif
+    if (parameters.validateInitialState) {
+      // A comparison fingerprint of the actual loader representation, not an auth hash.
+      const auto box = kg::makeSimulationBox(data);
+      std::uint64_t fingerprint = UINT64_C(14695981039346656037);
+      auto mix = [&](const auto& value) {
+        const auto* bytes = reinterpret_cast<const unsigned char*>(&value);
+        for (std::size_t index = 0; index < sizeof(value); ++index) {
+          fingerprint = (fingerprint ^ bytes[index]) * UINT64_C(1099511628211);
+        }
+      };
+      for (int id = 0; id < data.natoms; ++id) {
+        const auto position = box.box.apply_pbc(uammd::make_real3(
+            uammd::real(data.x[id]) - box.center.x,
+            uammd::real(data.y[id]) - box.center.y,
+            uammd::real(data.z[id]) - box.center.z));
+        mix(id);
+        mix(data.type[id]);
+        mix(data.mol[id]);
+        mix(position.x);
+        mix(position.y);
+        mix(position.z);
+        mix(uammd::real(data.vx[id]));
+        mix(uammd::real(data.vy[id]));
+        mix(uammd::real(data.vz[id]));
+      }
+      for (const auto& bond : data.bonds) {
+        mix(bond.first);
+        mix(bond.second);
+      }
+      mix(data.xlo);
+      mix(data.xhi);
+      mix(data.ylo);
+      mix(data.yhi);
+      mix(data.zlo);
+      mix(data.zhi);
+      const auto physicalFingerprint = fingerprint;
+      fingerprint = UINT64_C(14695981039346656037);
+      for (const auto& bond : restart.activeBonds) {
+        mix(bond.first);
+        mix(bond.second);
+      }
+      std::cout << "INITIAL_STATE_VALIDATED start_step=" << initialStep
+                << " target_Ea=" << parameters.ea << " seed=" << parameters.seed
+                << " parent_seed=" << restart.parameters.seed
+                << " creations=" << restart.creations << " breaks=" << restart.breaks
+                << " active_bonds=" << restart.activeBonds.size()
+                << " particles=" << data.natoms << " physical_fingerprint=" << std::hex
+                << physicalFingerprint << " chemical_fingerprint=" << fingerprint
+                << std::dec << " branch_age=0 bitwise_md_continuation=0\n";
+      return 0;
+    }
     std::ofstream stateFile(statePath);
     std::ofstream eventFile(eventPath);
     std::ofstream numericsFile(numericsPath);

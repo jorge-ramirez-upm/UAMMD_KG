@@ -499,7 +499,8 @@ class Catalog:
                 source_sha256=plan.get('source_sha256'), build=plan.get('build'),
                 completion=complete_record['id'] if complete_record else None,
                 completion_data=complete, started=started, failure=failed, historical_failure=historical_failure,
-                parent_attempt=plan.get('parent_attempt'), segment_index=plan.get('segment_index'))
+                parent_attempt=plan.get('parent_attempt'), segment_index=plan.get('segment_index'),
+                lineage_mode=plan.get('lineage_mode'), lineage=history.get('lineage'))
             switch_from = history.get('parent_Ea')
             if switch_from != physics.get('Ea'):
                 command = history.get('command', [])
@@ -658,7 +659,18 @@ class Catalog:
                     if attempt['start_step'] != predecessor['end_step']:
                         r.issue('step_discontinuity', attempt['id'], predecessor['id'])
                     if attempt['chemistry_seed'] != predecessor['chemistry_seed']:
-                        r.issue('chemical_rng_changed', attempt['id'], predecessor['id'])
+                        lineage = attempt.get('lineage') or {}
+                        if (attempt.get('lineage_mode') == 'Ea_reference_transfer_v1' and
+                            lineage.get('mode') == attempt['lineage_mode'] and
+                            lineage.get('parent_chemistry_seed') == predecessor['chemistry_seed'] and
+                            lineage.get('branch_origin_step') == attempt['start_step'] == 8000000 and
+                            (attempt.get('parent') or {}).get('reference_acceptance_sha256') ==
+                            '525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22'):
+                            attempt['chemical_reseed'] = dict(
+                                parent_seed=predecessor['chemistry_seed'],
+                                new_seed=attempt['chemistry_seed'], authentication='payload_deferred')
+                        else:
+                            r.issue('chemical_rng_changed', attempt['id'], predecessor['id'])
                     if attempt['md_seed'] == predecessor['md_seed']:
                         r.issue('MD_seed_not_reseeded', attempt['id'], predecessor['id'])
                     if attempt['replica'] != predecessor['replica']:

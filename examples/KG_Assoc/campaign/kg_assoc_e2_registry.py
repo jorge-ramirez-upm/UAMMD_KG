@@ -44,6 +44,9 @@ def accept(root, output, attempt, reviewer, evidence, identifiers, qualification
         plan = e2.verify(root, e2.inside(root, attempt))
         require(not plan['smoke'] and campaign.e2_bank_id(plan['system']) == bank,
                 'smokes or wrong banks cannot be accepted')
+        if plan.get('lineage_mode'):
+            require(not plan['reference_control'] and qualification.strip(),
+                    'derived controls cannot be accepted; derived targets require qualification')
         source = attempt / 'plan.json'
         for entry in plan['histories']:
             prefix = entry['output_prefix']
@@ -51,6 +54,8 @@ def accept(root, output, attempt, reviewer, evidence, identifiers, qualification
                                 chemistry_seed=entry['chemistry_seed'], physics=entry['physics'],
                                 sha256=e2.hash_files([Path(prefix + suffix) for suffix in e2.validation.OUTPUTS] +
                                                     [Path(prefix).parent / 'complete.json', source])))
+            if entry.get('lineage'):
+                entries[-1]['lineage'] = entry['lineage']
     record = dict(schema_version=1, stage='E2_acceptance', bank_id=bank,
                   provenance_kind='corrected_C1_8M' if c1 else 'E2_G1_segment',
                   status='accepted_with_qualification' if qualification else 'accepted',
@@ -88,6 +93,15 @@ def exclusive_validate(record, systems):
             require(source.get('stage') == 'E2-G1' and source.get('smoke') is False,
                     'accepted source is not an ordinary E2 segment')
             history = source['histories'][entry['replica'] - 1]
+            if source.get('lineage_mode'):
+                import kg_assoc_e2_transfer as transfer
+                require(source['lineage_mode'] == transfer.MODE and not source['reference_control'] and
+                        record['permitted_systems'] == [source['system']['system_id']] and
+                        record['status'] == 'accepted_with_qualification' and
+                        entry.get('lineage') == history['lineage'], 'derived acceptance lineage differs')
+                transfer.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
+            else:
+                require('lineage' not in entry, 'unexpected acceptance lineage')
             require(history['output_prefix'] == entry['prefix'] and
                     history['end_step'] == entry['end_step'] and
                     history['physics'] == entry['physics'] and

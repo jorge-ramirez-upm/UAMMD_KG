@@ -26,6 +26,7 @@
           "end_step": {"type": "integer", "minimum": 1},
           "chemistry_seed": {"type": "integer", "minimum": 1},
           "physics": {"type": "object"},
+          "lineage": {"type": "object", "required": ["mode", "reference_acceptance", "reference_acceptance_sha256", "branch_id", "parent_chemistry_seed", "branch_origin_step", "parent_creations", "parent_breaks"], "properties": {"mode": {"const": "Ea_reference_transfer_v1"}, "reference_control": {"const": false}, "bitwise_md_continuation": {"const": false}}},
           "sha256": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
         },
         "additionalProperties": false

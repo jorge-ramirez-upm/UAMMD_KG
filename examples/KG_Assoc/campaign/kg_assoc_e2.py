@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import shlex
 import subprocess
 import time
 
@@ -84,27 +85,43 @@ def live_code(plan=None):
         if plan.get('build'):
             check_hashes(plan['build']['build_log_sha256'])
             check_hashes(plan['build']['executable_sha256'])
-    subprocess.run(['make', '-q', *EXECUTABLES], cwd=HERE.parent, check=True)
+    if not (plan and plan.get('lineage_mode') == 'Ea_reference_transfer_v1' and
+            plan.get('build', {}).get('out_of_tree')):
+        subprocess.run(['make', '-q', *EXECUTABLES], cwd=HERE.parent, check=True)
 
 
-def build(root, output):
+def build(root, output, out_of_tree=False):
     """Force header-based compilation and retain immutable build provenance; never runs MD."""
     clean_tree()
     output = inside(root, output)
     require(output.parent == root / 'builds' and not output.exists(), 'choose a new build directory')
     before = sources()
     output.mkdir(parents=True, exist_ok=False)
-    command = ['make', '-B', '-j2', *BUILD_TARGETS]
+    targets = EXECUTABLES if out_of_tree else BUILD_TARGETS
+    command = ['make', '-n', '-B', *targets] if out_of_tree else ['make', '-B', '-j2', *targets]
+    compile_commands = []
+    binaries = [output / target for target in targets] if out_of_tree else [
+        HERE.parent / target for target in targets]
     started = time.monotonic()
     try:
         with (output / 'stdout.log').open('x') as stdout, (output / 'stderr.log').open('x') as stderr:
-            subprocess.run(command, cwd=HERE.parent, stdout=stdout, stderr=stderr, check=True)
+            if out_of_tree:
+                commands = subprocess.check_output(command, cwd=HERE.parent, text=True).splitlines()
+                for line in commands:
+                    native = shlex.split(line)
+                    index = native.index('-o') + 1
+                    require(native[index] in targets, 'unexpected build target')
+                    native[index] = str(output / native[index])
+                    compile_commands.append(native)
+                    subprocess.run(native, cwd=HERE.parent, stdout=stdout, stderr=stderr, check=True)
+            else:
+                subprocess.run(command, cwd=HERE.parent, stdout=stdout, stderr=stderr, check=True)
         clean_tree()
         check_hashes(before)
         exclusive_json(output / 'manifest.json', dict(
             schema_version=1, status='built', git_sha=campaign.git_sha(), source_sha256=before,
-            executable_sha256=hash_files([HERE.parent / name for name in BUILD_TARGETS]),
-            command=command, cwd=str(HERE.parent), wall_seconds=time.monotonic() - started,
+            executable_sha256=hash_files(binaries), out_of_tree=out_of_tree,
+            command=command, compile_commands=compile_commands, cwd=str(HERE.parent), wall_seconds=time.monotonic() - started,
             nvcc=subprocess.check_output(['/usr/local/cuda-12.8/bin/nvcc', '--version'], text=True),
             compiler=subprocess.check_output(['/usr/local/gcc-11.2.0/bin/g++', '--version'], text=True),
             build_log_sha256=hash_files([output / 'stdout.log', output / 'stderr.log']),
@@ -141,7 +158,10 @@ def check_build(path):
             'build evidence differs from current committed scientific sources/history')
     check_hashes(record['executable_sha256'])
     check_hashes(record['build_log_sha256'])
-    require(set(record['executable_sha256']) == {str((HERE.parent / target).resolve()) for target in BUILD_TARGETS},
+    binary_directory = manifest_path.parent if record.get('out_of_tree') else HERE.parent
+    targets = EXECUTABLES if record.get('out_of_tree') else BUILD_TARGETS
+    require(set(record['executable_sha256']) ==
+            {str((binary_directory / target).resolve()) for target in targets},
             'build evidence lacks required executables')
     return record, manifest_path
 
@@ -185,7 +205,8 @@ def corrected_c1(root, replica, replay=True):
 
 
 def command(entry, smoke):
-    executable = HERE.parent / ('kg_assoc_stars_candidate_smoke' if smoke else 'kg_assoc_stars')
+    executable = Path(entry.get('executable_directory', HERE.parent)) / (
+        'kg_assoc_stars_candidate_smoke' if smoke else 'kg_assoc_stars')
     parent = entry['parent']
     result = [str(executable), '--input' if parent['kind'] == 'e1' else '--restart-prefix',
               parent['snapshot'] if parent['kind'] == 'e1' else parent['prefix']]
@@ -198,6 +219,11 @@ def command(entry, smoke):
             result += [option, str(p[key])]
     elif entry['parent_Ea'] != entry['physics']['Ea']:
         result += ['--switch-ea-from', str(entry['parent_Ea']), '--Ea', str(entry['physics']['Ea'])]
+    if entry.get('lineage'):
+        result += ['--reseed-chemistry-from', str(entry['lineage']['parent_chemistry_seed']),
+                   '--derived-branch-id', entry['lineage']['branch_id']]
+        if entry['lineage']['reference_control']:
+            result += ['--reference-control', '--Ea', '4']
     result += ['--steps', str(entry['end_step'] - entry['start_step']), '--diagnostic-every', '1000',
                '--seed', str(entry['chemistry_seed']), '--md-seed', str(entry['md_seed']),
                '--output', entry['output_prefix']]
@@ -209,6 +235,12 @@ def check_plan(root, attempt, live=False):
     plan = campaign.load_json(attempt / 'plan.json')
     require(plan['schema_version'] == 1 and plan['stage'] == 'E2-G1' and
             plan['dataset_root'] == str(root) and plan['attempt'] == str(attempt), 'wrong E2 plan')
+    if plan.get('lineage_mode'):
+        import kg_assoc_e2_transfer as transfer
+        require(plan['lineage_mode'] == transfer.MODE, 'unknown derived lineage mode')
+        return transfer.check_plan(root, attempt, plan, live)
+    require(not any('lineage' in h or 'executable_directory' in h for h in plan['histories']),
+            'derived lineage/executable paths require explicit mode')
     system = system_by_id(plan['system']['system_id'])
     require(system == plan['system'], 'system differs from frozen campaign matrix')
     require([entry['replica'] for entry in plan['histories']] == [1, 2, 3], 'three histories required')
@@ -267,6 +299,11 @@ def check_plan(root, attempt, live=False):
 def allocate_md_seeds(root):
     policy = campaign.load_json(HERE / 'e2_seed_map.json')
     reserved = {validation.effective_md_seed(seed) for seed in policy['reserved_md_system_seeds']}
+    for policy_path in [HERE / 'e2_transfer_seeds_v1.json',
+                        *(root / 'banks/e2_seed_reservations').glob('*.json')]:
+        transfer_policy = campaign.load_json(policy_path)
+        reserved.update(validation.effective_md_seed(row['md_seed'])
+                        for row in transfer_policy['streams'])
     used = set()
     for path in (root / 'banks/e2_attempts').glob('*/*/plan.json'):
         plan = campaign.load_json(path)
@@ -293,7 +330,8 @@ def prepare(root, output, identifier, steps, evidence, parent_attempt=None, smok
             'choose a NEW direct attempt child of banks/e2_attempts/<bank>')
     require(type(steps) is int and steps >= 3000 and
             (not smoke or steps <= 10000), 'at least 3000 steps for diagnostic validation; smoke capped at 10000')
-    require(ea == 4 or (smoke and c1 and ea in (6, 8, 10)), 'fresh preparation requires Ea=4')
+    require(ea == 4 or (smoke and c1 and ea in (6, 8, 10)) or
+            (parent_attempt is not None and ea in (6, 8, 10)), 'fresh preparation requires Ea=4')
     require(evidence.is_file(), 'review evidence is required')
     require(not (c1 and parent_attempt), 'choose one parent mode')
     require(not c1 or (bank == 'F04_N010_RP080_EE08' and smoke),
@@ -302,13 +340,15 @@ def prepare(root, output, identifier, steps, evidence, parent_attempt=None, smok
             'accepted C1 must not be replaced with a fresh bank')
     live_code()
     build_record, build_manifest = check_build(build_evidence)
+    require(not build_record.get('out_of_tree'), 'ordinary preparation requires a standard build')
     protocol = root / 'campaign_protocol.json'
     require(campaign.load_json(protocol) == campaign.load_json(campaign.PROTOCOL_PATH), 'dataset protocol mismatch')
     require(set(campaign.load_json(root / 'manifest.json')['systems']) ==
             {s['system_id'] for s in campaign.campaign_systems()}, 'dataset manifest matrix mismatch')
     previous = verify(root, inside(root, parent_attempt)) if parent_attempt else None
     if previous:
-        require(previous['system'] == system and not previous['smoke'],
+        require(previous['system'] == system and not previous['smoke'] and
+                all(h['physics'] == validation.physics(system, ea) for h in previous['histories']),
                 'extension parent must be a complete ordinary segment of the same condition')
     lock = root / 'banks/.e2.prepare.lock'
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -410,8 +450,12 @@ def matching_smoke(root, attempt, plan):
     require(smoke['smoke'] and smoke['steps'] <= 10000 and
             smoke_code_compatible(smoke, plan), 'smoke code/build differs from segment')
     for test, entry in zip(smoke['histories'], plan['histories']):
+        derived = plan.get('lineage_mode') == 'Ea_reference_transfer_v1'
         require(test['physics'] == entry['physics'] and test['parent']['sha256'] == entry['parent']['sha256'] and
-                test['chemistry_seed'] == entry['chemistry_seed'] and test['parent_Ea'] == entry['parent_Ea'],
+                (test['chemistry_seed'] == entry['chemistry_seed'] or (derived and
+                 smoke.get('lineage_mode') == plan['lineage_mode'] and
+                 test['lineage']['reference_control'] == entry['lineage']['reference_control'])) and
+                test['parent_Ea'] == entry['parent_Ea'],
                 'smoke did not test this parent/chemistry path')
     return hash_files([attempt / 'plan.json'] +
                       [attempt / f'r{replica:03d}/complete.json' for replica in (1, 2, 3)])
@@ -424,7 +468,9 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None):
     if not execute:
         print(json.dumps(dict(executed=False, commands=[e['command'] for e in plan['histories']]), indent=2))
         return
-    approval_record(approval, attempt / 'plan.json', 'e2_smoke' if plan['smoke'] else 'e2_segment')
+    purpose = ('e2_derived_smoke' if plan['smoke'] else 'e2_derived_segment') if plan.get(
+        'lineage_mode') else ('e2_smoke' if plan['smoke'] else 'e2_segment')
+    approval_record(approval, attempt / 'plan.json', purpose)
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
     lock = attempt / '.launch.lock'
     with lock.open('x') as stream:
@@ -433,7 +479,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None):
         for entry in plan['histories']:
             check_plan(root, attempt, live=True)
             check_hashes(smoke_hashes)
-            approval_record(approval, attempt / 'plan.json', 'e2_smoke' if plan['smoke'] else 'e2_segment')
+            approval_record(approval, attempt / 'plan.json', purpose)
             directory = Path(entry['output_prefix']).parent
             require(not any(directory.iterdir()), 'replica outputs appeared during preflight')
             exclusive_json(directory / 'started.json', dict(plan_sha256=campaign.sha256(attempt / 'plan.json'),
@@ -480,6 +526,7 @@ def main():
     parser.add_argument('--parent-attempt', type=Path)
     parser.add_argument('--smoke', action='store_true')
     parser.add_argument('--c1', action='store_true')
+    parser.add_argument('--out-of-tree', action='store_true', help='build into NEW evidence directory')
     parser.add_argument('--ea', type=float, default=4)
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--approval', type=Path)
@@ -487,7 +534,7 @@ def main():
     args = parser.parse_args()
     root, output = args.dataset_root.resolve(), args.output.resolve()
     if args.action == 'build':
-        build(root, output)
+        build(root, output, args.out_of_tree)
     elif args.action == 'prepare':
         require(args.system and args.steps and args.evidence, 'prepare needs system, steps and evidence')
         prepare(root, output, args.system, args.steps, args.evidence.resolve(),

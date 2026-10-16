@@ -1,0 +1,17 @@
+kg_assoc_stars --self-test
+MD_SEED SELF_TEST requested=22001 effective=3924086680
+MD_SEED SELF_TEST requested=22002 effective=3949264792
+MD_SEED SELF_TEST requested=22003 effective=3940888472
+MD_SEED SELF_TEST requested=32001 effective=3928609932
+MD_SEED SELF_TEST requested=32002 effective=3937019018
+MD_SEED SELF_TEST requested=32003 effective=3945428108
+STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants
+
+kg_assoc_stars_candidate_smoke --self-test
+MD_SEED SELF_TEST requested=22001 effective=3924086680
+MD_SEED SELF_TEST requested=22002 effective=3949264792
+MD_SEED SELF_TEST requested=22003 effective=3940888472
+MD_SEED SELF_TEST requested=32001 effective=3928609932
+MD_SEED SELF_TEST requested=32002 effective=3937019018
+MD_SEED SELF_TEST requested=32003 effective=3945428108
+STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants
