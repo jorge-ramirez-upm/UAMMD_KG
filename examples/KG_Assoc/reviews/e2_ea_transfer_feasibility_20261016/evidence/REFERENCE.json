@@ -1,0 +1,77 @@
+[
+  {
+    "chemical_seed": 22001,
+    "counts": {
+      "breaks": 36429,
+      "creations": 36437,
+      "neighbor_gains": 33080,
+      "neighbor_losses": 33065
+    },
+    "end_step": 8000000,
+    "endpoint_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.assoc_restart": "9eb4e566d96f0080d9a03677e5d23d231ce389193c71a57f68c58f22035e9ecc",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.restart.lammpsdat": "09e1a9f5329a2be06e28112c5bc53e399f54c7aba74369684f12968f68d6b21b"
+    },
+    "host": "titan",
+    "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state",
+    "rates_per_physical_time": {
+      "breaks": 1.82145,
+      "creations": 1.82185,
+      "neighbor_gains": 1.654,
+      "neighbor_losses": 1.65325
+    },
+    "replica": 1,
+    "start_step": 6000000,
+    "wall_seconds": 592.4768164870329
+  },
+  {
+    "chemical_seed": 22002,
+    "counts": {
+      "breaks": 36329,
+      "creations": 36346,
+      "neighbor_gains": 32869,
+      "neighbor_losses": 32822
+    },
+    "end_step": 8000000,
+    "endpoint_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.assoc_restart": "7fd18a27d4d989881397b33b94ffe92de21a05c1e318f8236586b737ee697674",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.restart.lammpsdat": "ae1599f3d2ffcfd333058b2867bbc7ba897b7dccd84e8b2e7a2996aaa6df3c5b"
+    },
+    "host": "titan",
+    "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state",
+    "rates_per_physical_time": {
+      "breaks": 1.81645,
+      "creations": 1.8173,
+      "neighbor_gains": 1.64345,
+      "neighbor_losses": 1.6411
+    },
+    "replica": 2,
+    "start_step": 6000000,
+    "wall_seconds": 594.2682376170997
+  },
+  {
+    "chemical_seed": 22003,
+    "counts": {
+      "breaks": 36351,
+      "creations": 36387,
+      "neighbor_gains": 33005,
+      "neighbor_losses": 32944
+    },
+    "end_step": 8000000,
+    "endpoint_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.assoc_restart": "8a260fd5a6e5b3408ba71e10ccb2e47437cf61691036e5c82fcf1c9ac058427c",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.restart.lammpsdat": "10a7885b6e704258dee322e4c310f26bfe921b586e769a477600d515ef888e2a"
+    },
+    "host": "titan",
+    "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state",
+    "rates_per_physical_time": {
+      "breaks": 1.81755,
+      "creations": 1.81935,
+      "neighbor_gains": 1.65025,
+      "neighbor_losses": 1.6472
+    },
+    "replica": 3,
+    "start_step": 6000000,
+    "wall_seconds": 593.544653093908
+  }
+]

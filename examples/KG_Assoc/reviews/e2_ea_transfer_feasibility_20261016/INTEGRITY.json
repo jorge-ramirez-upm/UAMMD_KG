@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "starting_git_sha": "bd77a09daa28791972810fc81ffc82b8a9024460",
+  "scope": "new CPU-only Ea transfer feasibility review; containing commit binds this manifest",
+  "sha256": {
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/ASSESSMENT.md": "60f85ebf5ccbc0cf8f19d8040532e2a79345f2f1267acd2af0eb40bb237ae0da",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/CODE_REFERENCES.md": "49b3ffd8f7e9088c360ee6a38d7b06c1060d141c0e1ca1e6f42c12aa70f669db",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/CPU_REPLAY.log": "8f4742689243b99b742a1d704d1dec2d32ac89d32813e66a59546ac07eaeb68e",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/CPU_REPRODUCTION.log": "8f4742689243b99b742a1d704d1dec2d32ac89d32813e66a59546ac07eaeb68e",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/CPU_TESTS.log": "0e27b1747499452bddd6f61639248c8c0687c1772c5f57b9a043291b4cea5d9e",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/KINETICS.md": "85edd490a7a23f0ee083258d406866af9a536cba33f788d03e17a197acf1cb60",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/PRESERVED_SHA256.json": "bc6df2589f4308561d93962a73dac6232c97704051235f954aeb9f80a829238b",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/PROTOCOL.md": "9ecf90e20fc7d8454c2d0a98b094d179e2520d601ea8e1a78c4277bc12d68fb5",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/PROVENANCE.json": "0b477ed7baa1d8b3f70f9247af2591bae687b3f39c90d83f10b60663ac68936b",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/PROVENANCE.md": "c3343db1e11c85fa69216849428e929fe799abf95f59de6e7fc5871159b6afc2",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/REGRESSION_TESTS.log": "efdb987ca07ccaf5dd6d7f2052fac911887ef42dee0248fe933268a7dc1995d7",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/REPRODUCIBILITY.json": "2579a79e9665759f147da6bb2947d411852206368fa31a28b39afc4f2c3a9641",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/S2_SELF_TEST.log": "6f03db780e0c535dd32fc2d3e0a0b7e4f0e30c3f71905c7a1626237b0cd1d57f",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/SOURCE_SHA256.json": "15808604c3199568660dfcc5f08b0677a25a70a11b39e77f562b3375b65edeed",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/VALIDATION.md": "3d2fc56a62d8f76a8a8ad1ddcc530c19bc7ae495051988aa754baaab10f18ac6",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/evidence/ACCEPTANCES.json": "174388c2536745f8d7fa7a0202b9309f1d8f52ebb3c9031edaf5797c0f56bbce",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/evidence/CALCULATIONS.json": "a3bee9dfcc9965defdf4cfdda418c85100e67be485a4dbbe2bddec4d7bfdec6b",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/evidence/REFERENCE.json": "dbf4f1d5e496b684a7454d9ab3a43a08b2fa94b451fc93ca06d493e00d26c6ad",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/kinetics_host_check.cpp": "70f3bc156d03179a441bdacb014dcc61fe1bad845c45c5dcf7177bf6bad233e5",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/reproduce.py": "7c7704609f05c27a413c43337cc9ca13a830e5c5d1fee5eecf0cf309143606e2",
+    "examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/test_feasibility.py": "33b0f189d3d767d2935a659f7459da15fa9c1de6cf50bffca857a76453a9feaf"
+  }
+}

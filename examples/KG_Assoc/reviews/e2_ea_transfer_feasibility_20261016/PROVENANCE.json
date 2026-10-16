@@ -1,0 +1,59 @@
+{
+  "starting_git_sha": "bd77a09daa28791972810fc81ffc82b8a9024460",
+  "branch": "KremerGrest",
+  "reference_acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json",
+  "reference_acceptance_sha256": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22",
+  "reference_qualification": "User-approved qualified scientific acceptance for production initialization only. Slow network-topology decorrelation has not been fully demonstrated. No registry activation or production launch authorization. Corrected-from-PBC-defective historical lineage retained; historical 6M banks remain ineligible. Historic executable bytes unavailable; legacy plan, declared digests, code commit and Makefile authenticated; legacy source-build provenance is less comprehensive than E2-G1.",
+  "reference_numerical_qualification": "q cancels in fixed-configuration forward/reverse ratio; exact coupled integrator invariance unproven",
+  "reference_histories": [
+    {
+      "replica": 1,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state",
+      "end_step": 8000000,
+      "chemical_seed": 22001,
+      "endpoint_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.assoc_restart": "9eb4e566d96f0080d9a03677e5d23d231ce389193c71a57f68c58f22035e9ecc",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.restart.lammpsdat": "09e1a9f5329a2be06e28112c5bc53e399f54c7aba74369684f12968f68d6b21b"
+      }
+    },
+    {
+      "replica": 2,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state",
+      "end_step": 8000000,
+      "chemical_seed": 22002,
+      "endpoint_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.assoc_restart": "7fd18a27d4d989881397b33b94ffe92de21a05c1e318f8236586b737ee697674",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.restart.lammpsdat": "ae1599f3d2ffcfd333058b2867bbc7ba897b7dccd84e8b2e7a2996aaa6df3c5b"
+      }
+    },
+    {
+      "replica": 3,
+      "prefix": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state",
+      "end_step": 8000000,
+      "chemical_seed": 22003,
+      "endpoint_sha256": {
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.assoc_restart": "8a260fd5a6e5b3408ba71e10ccb2e47437cf61691036e5c82fcf1c9ac058427c",
+        "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.restart.lammpsdat": "10a7885b6e704258dee322e4c310f26bfe921b586e769a477600d515ef888e2a"
+      }
+    }
+  ],
+  "lammps": {
+    "path": "/home/jramirez/lammps",
+    "branch": "feature/associating-stickers",
+    "git_sha": "1c6faf70e94aef2389c208e8c80c60c084a96907",
+    "source_sha256": {
+      "/home/jramirez/lammps/src/ASSOCIATING/fix_associating_kinetics.cpp": "8c81565fcbc12a32228712cefd819083602b2987cf54762899afd62f596917a4",
+      "/home/jramirez/lammps/src/ASSOCIATING/fix_associating_kinetics.h": "e8690683744d19e934cce62a130e7bd4a652e5f99727a95dd6bee462ad024af8",
+      "/home/jramirez/lammps/src/ASSOCIATING/pair_associating.cpp": "c24dd128694246acb59ed7968b1f883afc0b356fbd5275cba14997c68966ec3e",
+      "/home/jramirez/lammps/src/ASSOCIATING/pair_associating.h": "d21e03f6bb3d686513126cb2b248de155d0d84c93007e13d354365ababac6be1"
+    }
+  },
+  "preserved_file_bindings": 1312,
+  "reviewed_source_and_evidence_bindings": 47,
+  "prior_acceptance_count": 12,
+  "implemented_transfer": false,
+  "gpu_runs": false,
+  "registry_selection": false,
+  "production_preparation": false,
+  "additional_acceptance": false
+}

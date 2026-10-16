@@ -1,0 +1,4 @@
+PASS reference r001: numerical/event/network replay and rates
+PASS reference r002: numerical/event/network replay and rates
+PASS reference r003: numerical/event/network replay and rates
+PASS twelve acceptances, all preserved/source bindings, no selection or production authority

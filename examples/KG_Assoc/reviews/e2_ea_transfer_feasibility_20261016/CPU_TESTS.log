@@ -1,0 +1,16 @@
+test_actual_header_probabilities_and_pair_ratio (test_feasibility.FeasibilityTests) ... ok
+test_actual_sequential_sweep_order_hash_and_availability (test_feasibility.FeasibilityTests) ... ok
+test_current_planner_refuses_higher_ea_ordinary_preparation (test_feasibility.FeasibilityTests) ... ok
+test_existing_restart_ea_guards (test_feasibility.FeasibilityTests) ... ok
+test_fresh_chemical_seed_rejected_by_current_parent_reader (test_feasibility.FeasibilityTests) ... ok
+test_full_sweep_is_not_a_uniform_clock_rescaling (test_feasibility.FeasibilityTests) ... ok
+test_illustrative_seed_triplets_have_no_known_plan_collisions (test_feasibility.FeasibilityTests) ... ok
+test_invariance_does_not_require_sweep_reversibility (test_feasibility.FeasibilityTests) ... ok
+test_matching_gibbs_invariance_with_competing_reactions (test_feasibility.FeasibilityTests) ... ok
+test_preserved_sources_and_twelve_immutable_acceptances (test_feasibility.FeasibilityTests) ... ok
+test_reference_acceptance_does_not_permit_higher_ea (test_feasibility.FeasibilityTests) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 40.333s
+
+OK

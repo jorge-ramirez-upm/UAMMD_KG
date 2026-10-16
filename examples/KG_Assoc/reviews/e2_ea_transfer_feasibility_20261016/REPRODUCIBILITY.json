@@ -1,0 +1,8 @@
+{
+  "method": "two fresh CPU-only replays into separate new directories; byte-identical outputs",
+  "sha256": {
+    "REFERENCE.json": "dbf4f1d5e496b684a7454d9ab3a43a08b2fa94b451fc93ca06d493e00d26c6ad",
+    "CALCULATIONS.json": "a3bee9dfcc9965defdf4cfdda418c85100e67be485a4dbbe2bddec4d7bfdec6b",
+    "ACCEPTANCES.json": "174388c2536745f8d7fa7a0202b9309f1d8f52ebb3c9031edaf5797c0f56bbce"
+  }
+}
