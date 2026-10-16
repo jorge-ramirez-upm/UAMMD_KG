@@ -1,0 +1,9 @@
+{
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/ASSESSMENT.md": "2293eaacce18256d8af2780e890ebded931738cfb44340066d2181b58bb628ae",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/BASELINE.sha256": "9c49b156411b4330f8e71d53298ead355b8511b06229b990369ff3b104f6b88d",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/NATIVE_CANDIDATES.log": "5a99ec02ffc6ef8e5cc208c77bd02cc256a2e07b442f7058295c5597dbe2989a",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/NATIVE_SELF_TEST.log": "a014fff9b36e59a0c5ebdbabb8fbe3827f97818bebd2f4f577a8bc8c91ce0a92",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/PREFLIGHT.log": "8f96710d26d55f8cbb0710fcd969fce24ca409470454b485433bd7ef4c6865f7",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/READBACK_CPU_TESTS.log": "58dd02bb05f158771477d0714159f9b7195460146e48c11297dca72179e6e243",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_preflight_20261016/SMOKE_HOST_SELF_TEST.log": "a014fff9b36e59a0c5ebdbabb8fbe3827f97818bebd2f4f577a8bc8c91ce0a92"
+}

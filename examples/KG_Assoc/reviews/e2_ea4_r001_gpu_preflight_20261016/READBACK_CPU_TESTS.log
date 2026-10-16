@@ -1,0 +1,14 @@
+test_authenticated_parent_and_build_tampering (test_e2_readback.ReadbackTests) ... ok
+test_missing_malformed_and_failed_evidence (test_e2_readback.ReadbackTests) ... ok
+test_parent_representation_and_periodic_folding (test_e2_readback.ReadbackTests) ... ok
+test_valid_and_exact_periodic_image (test_e2_readback.ReadbackTests) ... ok
+test_actual_one_float_step_corruption_is_not_tolerated (test_diagnostic_analysis.DiagnosticAnalysisTests) ... ok
+test_correctly_rounded_expected_and_actual_match_exactly (test_diagnostic_analysis.DiagnosticAnalysisTests) ... ok
+test_nonfinite_evidence_is_rejected (test_diagnostic_analysis.DiagnosticAnalysisTests) ... ok
+test_saved_failure_pattern_has_correct_actual_and_wrong_expected (test_diagnostic_analysis.DiagnosticAnalysisTests) ... ok
+test_serialized_double_and_loader_float_are_distinct (test_diagnostic_analysis.DiagnosticAnalysisTests) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.006s
+
+OK
