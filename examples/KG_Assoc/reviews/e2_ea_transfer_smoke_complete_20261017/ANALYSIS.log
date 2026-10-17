@@ -1,0 +1,51 @@
+{
+  "decision": "smoke_complete_and_passed",
+  "starting_sha": "e85441dec103659ced660933e5d8df410b92c353",
+  "launch_source_sha": "dd83add6eab03c795fc5343764af23410ebdc736",
+  "new_GPU_histories": 11,
+  "new_MD_steps": 110000,
+  "existing_Ea4_r001_MD_steps_not_rerun": 10000,
+  "combined_numerical_evidence_MD_steps": 120000,
+  "new_device_readbacks": 11,
+  "new_candidate_comparisons": 1100,
+  "combined_candidate_comparisons": 1200,
+  "statistical_preparation_units": 3,
+  "paired_parent_families": [
+    {
+      "parent_family": 1,
+      "barriers": [
+        4,
+        6,
+        8,
+        10
+      ],
+      "initial_device_payload_sha256": "c7ee296ab115ee58b46c8615cc90b5b45e916b5191f5d301b7b185542ac34e04",
+      "exact_initial_payloads_identical": true
+    },
+    {
+      "parent_family": 2,
+      "barriers": [
+        4,
+        6,
+        8,
+        10
+      ],
+      "initial_device_payload_sha256": "90156b6cbedac3974e584283078ab8856d383377474110f313158693fd6e13f2",
+      "exact_initial_payloads_identical": true
+    },
+    {
+      "parent_family": 3,
+      "barriers": [
+        4,
+        6,
+        8,
+        10
+      ],
+      "initial_device_payload_sha256": "9dafd9a44232a4b8fd083d0c5b6f0735264dcc3752e90a90b3ea5388020f1177",
+      "exact_initial_payloads_identical": true
+    }
+  ],
+  "oracle": "corrected independent host all-pairs on synchronized GPU-evolved positions",
+  "kinetic_screen_authorized": false,
+  "equilibrium_or_slow_topology_mixing_established": false
+}

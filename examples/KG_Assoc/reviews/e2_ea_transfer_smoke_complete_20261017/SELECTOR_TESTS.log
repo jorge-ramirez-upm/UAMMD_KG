@@ -1,0 +1,26 @@
+test_default_unscoped_launch_retains_three_history_behavior (test_e2_single_history.SingleHistoryTests) ... ok
+test_dry_run_shows_exactly_one_command_and_no_process (test_e2_single_history.SingleHistoryTests) ... ok
+test_failed_selected_history_stops_without_retry (test_e2_single_history.SingleHistoryTests) ... ok
+test_live_plan_failure_prevents_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_and_step_approval_required_before_any_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_is_rechecked_immediately_before_start (test_e2_single_history.SingleHistoryTests) ... ok
+test_scoped_approval_cannot_launch_default_triplet (test_e2_single_history.SingleHistoryTests) ... ok
+test_selected_success_never_starts_other_histories (test_e2_single_history.SingleHistoryTests) ... ok
+test_used_unselected_directory_still_fails_closed (test_e2_single_history.SingleHistoryTests) ... ok
+test_wrong_mode_target_replica_or_duration_is_rejected (test_e2_single_history.SingleHistoryTests) ... ok
+test_approval_is_rechecked_between_selected_histories (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_approval_requires_exact_system_subset_and_both_caps (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_control_r001_and_malformed_selections_are_prohibited (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_exact_authorized_identity_set_and_all_nonempty_subsets (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_first_failure_stops_remaining_selected_histories_and_prevents_reuse (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_omitted_selector_or_scope_field_cannot_launch (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_seed_collision_and_live_source_checks_still_precede_execution (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_selected_and_unselected_output_reuse_rejected_before_start (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_selected_controls_leave_r001_completely_untouched (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_target_subset_never_starts_omitted_replicas (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_wrong_system_mode_control_or_duration_is_prohibited (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.068s
+
+OK

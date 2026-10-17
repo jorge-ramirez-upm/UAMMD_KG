@@ -1,0 +1,58 @@
+[92m[MESSAGE] [0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+[92m[MESSAGE] [0m[94m╻[0m [94m╻┏━┓┏┳┓┏┳┓╺┳┓[0m
+[92m[MESSAGE] [0m[94m┃[0m [94m┃┣━┫┃┃[34m┃┃┃┃[0m [34m┃┃[0m Version: 3.0.0
+[92m[MESSAGE] [0m[34m┗━┛╹[0m [34m╹╹[0m [34m╹╹[0m [34m╹╺┻┛[0m
+[92m[MESSAGE] [0mCompiled at: Oct 16 2026 20:43:45
+[92m[MESSAGE] [0mCompiled in single precision mode
+[92m[MESSAGE] [0mComputation started at Sat Oct 17 09:27:56 2026
+
+[92m[MESSAGE] [0m[System] CUDA initialized
+[92m[MESSAGE] [0m[System] Using device: NVIDIA TITAN Xp with id: 0
+[92m[MESSAGE] [0m[System] Compute capability of the device: 6.1
+[92m[MESSAGE] [0m━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ 
+[92m[MESSAGE] [0m[ParticleData] Created with 43563 particles.
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Initialized
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 0 0 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 0 1 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 0 2 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 1 0 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 1 1 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 1 2 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 2 0 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 2 1 parameters added
+[92m[MESSAGE] [0m[RadialPotential/LJFunctor] Type pair 2 2 parameters added
+[92m[MESSAGE] [0m[ParticleGroup] Group All created with All selector
+[92m[MESSAGE] [0m[ParticleGroup] Group All contains 43563 particles.
+[92m[MESSAGE] [0m[VerletList] Created
+[92m[MESSAGE] [0m[ParticleGroup] Group All created with All selector
+[92m[MESSAGE] [0m[ParticleGroup] Group All contains 43563 particles.
+[92m[MESSAGE] [0m[Interactor] PairForces/VerletList/Potential::Radial<Potential::LJFunctor, Potential::BasicParameterHandler<Potential::LJFunctor> > created.
+[92m[MESSAGE] [0m[Interactor] Acting on group All
+[92m[MESSAGE] [0m[PairForces] Using Box with size: 37.145 37.145 37.145
+[92m[MESSAGE] [0m[ParticleGroup] Group All created with All selector
+[92m[MESSAGE] [0m[ParticleGroup] Group All contains 43563 particles.
+[92m[MESSAGE] [0m[Interactor] BondedForces/uammd::BondedType::FENE created.
+[92m[MESSAGE] [0m[Interactor] Acting on group All
+[92m[MESSAGE] [0m[BondedForces] Initialized
+[92m[MESSAGE] [0m[BondedForces] Using: uammd::BondedType::FENE
+[92m[MESSAGE] [0m[BondedForces] Detected: 40000 bonds
+[92m[MESSAGE] [0m[BondedForces] 41000 particles are involved in at least one bond.
+[92m[MESSAGE] [0m[ParticleGroup] Group All created with All selector
+[92m[MESSAGE] [0m[ParticleGroup] Group All contains 43563 particles.
+[92m[MESSAGE] [0m[Interactor] KG_Assoc/FENE created.
+[92m[MESSAGE] [0m[Interactor] Acting on group All
+[92m[MESSAGE] [0m[E2 MD stream] requested_seed=930602 effective_seed=466893908 internal_start_step=0
+[92m[MESSAGE] [0m[ParticleGroup] Group All created with All selector
+[92m[MESSAGE] [0m[ParticleGroup] Group All contains 43563 particles.
+[92m[MESSAGE] [0m[Integrator] VerletNVT::GronbechJensen created.
+[92m[MESSAGE] [0m[Integrator] Acting on group All
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Temperature: 1.000000
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Time step: 0.010000
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Friction: 0.500000
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Adding Interactor PairForces/VerletList/Potential::Radial<Potential::LJFunctor, Potential::BasicParameterHandler<Potential::LJFunctor> >...
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Adding updatable
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Adding Interactor BondedForces/uammd::BondedType::FENE...
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Adding updatable
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Adding Interactor KG_Assoc/FENE...
+[92m[MESSAGE] [0m[VerletNVT::GronbechJensen] Adding updatable
+[92m[MESSAGE] [0m[BondedForces] Destroyed

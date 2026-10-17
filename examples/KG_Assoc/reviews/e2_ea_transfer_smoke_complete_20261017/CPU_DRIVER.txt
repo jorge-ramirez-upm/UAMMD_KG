@@ -1,0 +1,15 @@
+# CPU tests only; native calls use host modes and all launcher subprocess tests are mocked.
+import os,re,subprocess,sys
+from pathlib import Path
+r=Path.cwd();c=r/'examples/KG_Assoc';w=c/'kg_assoc_100m/aggregate/e2/ea_transfer_remaining_smoke_20261017_v1'
+env=dict(os.environ,PYTHONPATH=':'.join(str(c/p) for p in ['campaign','analysis','reviews/e2_rp040_ee8_6m_20261014','reviews/e2_rp040_ee8_8m_20261014']),PYTHONWARNINGS='ignore::ResourceWarning',KG_ASSOC_TRANSFER_HOST_EXE=str(c/'kg_assoc_100m/builds/readback_rounding_cpu_20261016_v2/kg_assoc_stars'))
+previous=(c/'reviews/e2_ea4_r001_gpu_diagnostic_20261016/REGRESSION_TESTS.log').read_text()
+modules=sorted(set(re.findall(r'\((test_\w+)\.',previous)))
+for label,mods in [('REGRESSION_TESTS',modules+['test_e2_remaining_smoke']),('TRANSFER_TESTS',['test_e2_transfer'])]:
+ with (w/(label+'.log')).open('x') as stream:
+  result=subprocess.run([sys.executable,'-m','unittest','-v',*mods],env=env,stdout=stream,stderr=subprocess.STDOUT)
+ print(label,result.returncode,flush=True);assert result.returncode==0
+forensic=dict(env,PYTHONPATH=str(c/'reviews/e2_ea_transfer_gpu_diagnostic_retest_20261016')+':'+env['PYTHONPATH'])
+with (w/'FORENSIC_TESTS.log').open('x') as stream:
+ result=subprocess.run([sys.executable,'-m','unittest','-v','test_diagnostic_analysis'],env=forensic,stdout=stream,stderr=subprocess.STDOUT)
+assert result.returncode==0

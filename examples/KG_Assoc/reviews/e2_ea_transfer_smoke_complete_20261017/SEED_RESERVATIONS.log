@@ -1,0 +1,91 @@
+{
+  "purpose": "Only the eleven remaining histories under explicit scoped approvals; Ea4 r001 row is format-required, reserved only and unauthorized. Retire entire set after completion or first failure. No seed reclamation.",
+  "reservation_id": "Ea_transfer_remaining_smoke_20261017_v1",
+  "schema_version": 1,
+  "streams": [
+    {
+      "chemistry_seed": 920401,
+      "md_seed": 930401,
+      "reference_control": true,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 920402,
+      "md_seed": 930402,
+      "reference_control": true,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 920403,
+      "md_seed": 930403,
+      "reference_control": true,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 920601,
+      "md_seed": 930601,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 920602,
+      "md_seed": 930602,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 920603,
+      "md_seed": 930603,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 920801,
+      "md_seed": 930801,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 920802,
+      "md_seed": 930802,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 920803,
+      "md_seed": 930803,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 921001,
+      "md_seed": 931001,
+      "reference_control": false,
+      "replica": 1,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 921002,
+      "md_seed": 931002,
+      "reference_control": false,
+      "replica": 2,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 921003,
+      "md_seed": 931003,
+      "reference_control": false,
+      "replica": 3,
+      "system_id": "F04_N010_RP080_EE08_EA10"
+    }
+  ]
+}

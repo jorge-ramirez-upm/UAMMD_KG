@@ -1,0 +1,29 @@
+{
+  "approval_sha256": "6a8ba9a6992f7fe5877a9ef0148b98eb7e15262d9a17ad32279b2e605fbef17f",
+  "command": [
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/readback_rounding_cpu_20261016_v2/kg_assoc_stars_candidate_smoke",
+    "--restart-prefix",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state",
+    "--reseed-chemistry-from",
+    "22003",
+    "--derived-branch-id",
+    "F04_N010_RP080_EE08_EA04:derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1:r003",
+    "--reference-control",
+    "--Ea",
+    "4",
+    "--steps",
+    "10000",
+    "--diagnostic-every",
+    "1000",
+    "--seed",
+    "920403",
+    "--md-seed",
+    "930403",
+    "--output",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1/r003/state"
+  ],
+  "host": "titan",
+  "plan_sha256": "e080866731b67724b5db582d867152065edb8d8ebb45edc3b0158e166378a0cb",
+  "smoke_sha256": {},
+  "started_at": "2026-10-17T07:27:10.826561+00:00"
+}

@@ -1,0 +1,18 @@
+{
+  "approved": true,
+  "approved_at": "2026-10-17T07:24:13.254632+00:00",
+  "authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_remaining_smoke_20261017_v1/AUTHORIZATION.json",
+  "authorization_sha256": "b9bf631bbc15883e8d8f3ba4fffe556d29944c8dd376244b6a511a56e23f00be",
+  "authorized_replicas": [
+    2,
+    3
+  ],
+  "authorized_system": "F04_N010_RP080_EE08_EA04",
+  "maximum_additional_MD_steps": 20000,
+  "maximum_additional_MD_steps_per_history": 10000,
+  "plan_sha256": "e080866731b67724b5db582d867152065edb8d8ebb45edc3b0158e166378a0cb",
+  "purpose": "e2_derived_smoke",
+  "reviewer": "User explicit eleven-history capped smoke authorization, 2026-10-17",
+  "schema_version": 1,
+  "selector_scope": "Ea_transfer_remaining_smoke_v1"
+}

@@ -1,0 +1,46 @@
+# Archive of one immutable preparation, not authority to rerun or allocate more streams.
+import copy,json,sys
+from pathlib import Path
+r=Path.cwd();c=r/'examples/KG_Assoc';root=c/'kg_assoc_100m';w=root/'aggregate/e2/ea_transfer_remaining_smoke_20261017_v1'
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_transfer as transfer
+chemical,requested,effective,_=transfer.streams_in_use(root)
+for path in [transfer.RESERVATIONS,*(root/'banks/e2_seed_reservations').glob('*.json')]:
+ for row in e2.campaign.load_json(path)['streams']:
+  chemical.add(row['chemistry_seed']);requested.add(row['md_seed']);effective.add(e2.validation.effective_md_seed(row['md_seed']))
+reservation=copy.deepcopy(e2.campaign.load_json(transfer.RESERVATIONS))
+reservation['reservation_id']='Ea_transfer_remaining_smoke_20261017_v1'
+reservation['purpose']='Only the eleven remaining histories under explicit scoped approvals; Ea4 r001 row is format-required, reserved only and unauthorized. Retire entire set after completion or first failure. No seed reclamation.'
+for row in reservation['streams']:
+ row['chemistry_seed']+=300000;row['md_seed']+=300000
+new_chemical=[row['chemistry_seed'] for row in reservation['streams']];new_md=[row['md_seed'] for row in reservation['streams']];new_effective=[e2.validation.effective_md_seed(seed) for seed in new_md]
+assert len(set(new_chemical+new_md))==24 and len(set(new_effective))==12
+assert not set(new_chemical+new_md)&(chemical|requested) and not set(new_effective)&effective
+policy=root/'banks/e2_seed_reservations/ea_transfer_remaining_smoke_20261017_v1.json'
+e2.exclusive_json(policy,reservation);transfer.reserved_streams(root,seed_reservations=policy)
+prior=c/'reviews/e2_ea4_r001_gpu_diagnostic_20261016'
+docs=[prior/'ASSESSMENT.md',prior/'COMPLETION.log',c/'reviews/e2_ea_transfer_cpu_20261016/IMPLEMENTATION.md',c/'reviews/e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md',c/'reviews/e2_readback_rounding_cpu_20261016/ASSESSMENT.md',c/'reviews/e2_readback_rounding_cpu_20261016/BUILD_RESULTS.md']
+scopes=[(transfer.REFERENCE,[2,3])]+[(sid,[1,2,3]) for sid in transfer.TARGETS]
+assert sum(len(replicas) for _,replicas in scopes)==11
+source=e2.campaign.git_sha()
+authority=dict(schema_version=1,authorized_by='Explicit user milestone in this conversation: complete eleven remaining capped GPU smoke histories and scoped administrative support',starting_sha='e85441dec103659ced660933e5d8df410b92c353',launch_source_sha=source,authorized_histories=[dict(system=sid,replicas=replicas) for sid,replicas in scopes],maximum_additional_MD_steps_per_history=10000,maximum_aggregate_additional_MD_steps=110000,absolute_start_step=8000000,maximum_absolute_end_step=8010000,stop_at_first_failure=True,historical_Ea4_r001_not_rerun=True,scientific_evidence_sha256=e2.hash_files(docs),seed_reservations=str(policy),seed_reservations_sha256=e2.campaign.sha256(policy))
+evidence=w/'AUTHORIZATION.json';e2.exclusive_json(evidence,authority)
+prepared=[]
+for sid,replicas in scopes:
+ attempt=root/'banks/e2_attempts/F04_N010_RP080_EE08'/('derived_'+sid+'_remaining_smoke_20261017_v1')
+ plan=transfer.prepare(root,attempt,sid,10000,evidence,smoke=True,control=sid==transfer.REFERENCE,build_evidence=root/'builds/readback_rounding_cpu_20261016_v2',seed_reservations=policy)
+ approval=dict(e2.campaign.load_json(attempt/'approval.example.json'),approved=True,reviewer='User explicit eleven-history capped smoke authorization, 2026-10-17',approved_at=e2.timestamp(),selector_scope='Ea_transfer_remaining_smoke_v1',authorized_system=sid,authorized_replicas=replicas,maximum_additional_MD_steps_per_history=10000,maximum_additional_MD_steps=10000*len(replicas),authorization=str(evidence),authorization_sha256=e2.campaign.sha256(evidence))
+ e2.exclusive_json(attempt/'approval.json',approval)
+ e2.check_plan(root,attempt,live=True);e2.scoped_launch_approval(attempt/'approval.json',attempt,'e2_derived_smoke',plan,None,replicas)
+ selected=e2.launch_scope(plan,None,replicas)
+ assert [entry['replica'] for entry in selected]==replicas
+ assert all((entry['start_step'],entry['end_step'])==(8000000,8010000) for entry in selected)
+ prepared.append(dict(system=sid,selected_replicas=replicas,attempt=str(attempt),plan_sha256=e2.campaign.sha256(attempt/'plan.json'),approval_sha256=e2.campaign.sha256(attempt/'approval.json')))
+ print('PREPARED',sid,replicas,flush=True)
+assert sum(len(item['selected_replicas']) for item in prepared)==11
+result=dict(starting_sha=authority['starting_sha'],source_git_sha=source,plans=prepared,authorization_sha256=e2.campaign.sha256(evidence),reservation_sha256=e2.campaign.sha256(policy),reservation=str(policy),maximum_additional_MD_steps=110000)
+e2.exclusive_json(w/'PREPARED.json',result)
+for item in prepared:
+ e2.check_plan(root,Path(item['attempt']),live=True)
+print('ALL_ELEVEN_SCOPES_AUTHENTICATED',flush=True)

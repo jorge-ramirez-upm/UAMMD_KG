@@ -1,0 +1,13 @@
+{
+  "preserved_bindings": 2255,
+  "intended_administrative_transitions": 1,
+  "formal_acceptances_validated": 12,
+  "exact_results_reproduced": true,
+  "GPU_histories_executed": 1,
+  "additional_MD_steps": 10000,
+  "device_readback": "valid",
+  "live_trajectory_oracle_comparisons": 100,
+  "oracle_CUDA_kernel_executed": false,
+  "unselected_histories_unexecuted": true,
+  "current_native_build_authenticated": true
+}

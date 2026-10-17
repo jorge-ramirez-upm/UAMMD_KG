@@ -1,0 +1,12 @@
+{
+  "decision": "smoke_complete_and_passed",
+  "preserved_bindings": 2331,
+  "formal_acceptances_and_payloads_authenticated": 12,
+  "new_validated_histories": 11,
+  "new_MD_steps": 110000,
+  "existing_Ea4_r001_unchanged": true,
+  "new_candidate_comparisons": 1100,
+  "combined_candidate_comparisons": 1200,
+  "paired_parent_families": 3,
+  "native_build_authenticated": true
+}

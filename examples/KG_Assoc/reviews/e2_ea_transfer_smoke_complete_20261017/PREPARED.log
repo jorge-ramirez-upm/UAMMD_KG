@@ -1,0 +1,53 @@
+{
+  "authorization_sha256": "b9bf631bbc15883e8d8f3ba4fffe556d29944c8dd376244b6a511a56e23f00be",
+  "maximum_additional_MD_steps": 110000,
+  "plans": [
+    {
+      "approval_sha256": "6a8ba9a6992f7fe5877a9ef0148b98eb7e15262d9a17ad32279b2e605fbef17f",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1",
+      "plan_sha256": "e080866731b67724b5db582d867152065edb8d8ebb45edc3b0158e166378a0cb",
+      "selected_replicas": [
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "approval_sha256": "b829de8be2cf4a1cedecb685ef0a2179ace9fe132449a23751f45b1f6b8b332b",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1",
+      "plan_sha256": "325e990e437f2c286a58a9c4b2c14e0d7ba9669b5ebeac336e51a15f22d044bd",
+      "selected_replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "approval_sha256": "d0f4cbfd8c682410926adc399efbcf20d08d85b6b6a97f1d83b34fc9ca009948",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1",
+      "plan_sha256": "067b6e2716ac2f8af6d32ea2431a9f112dd73a43f3143f6dd9e7f5a2d8d78484",
+      "selected_replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "approval_sha256": "a5e5b72a1113b7bac1e75dff6ffa3c7fb4967aa8939f56e382b5860d85f7cb92",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1",
+      "plan_sha256": "87ea9f4ce3eb9b3cc1419f10f0135bb44aab5a7059435941b1789d612dea5e1e",
+      "selected_replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ],
+  "reservation": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_seed_reservations/ea_transfer_remaining_smoke_20261017_v1.json",
+  "reservation_sha256": "88bbece88d3d33a2784fe6417731fef944a683c5526a76afb82e60fec71fb28f",
+  "source_git_sha": "dd83add6eab03c795fc5343764af23410ebdc736",
+  "starting_sha": "e85441dec103659ced660933e5d8df410b92c353"
+}

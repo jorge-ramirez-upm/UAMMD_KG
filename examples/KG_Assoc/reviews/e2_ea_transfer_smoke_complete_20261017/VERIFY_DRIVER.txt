@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""Read-only authentication of all numerical evidence; no native executable invocation."""
+import hashlib
+import json
+from pathlib import Path
+import sys
+import subprocess
+
+HERE = Path(__file__).resolve().parent
+REPO = Path.cwd()
+ROOT = REPO / 'examples/KG_Assoc/kg_assoc_100m'
+sys.path.insert(0, str(REPO / 'examples/KG_Assoc/campaign'))
+import kg_assoc_e2 as e2
+
+for name in ('INTEGRITY.sha256', 'ARTIFACTS.sha256'):
+    e2.check_hashes(e2.campaign.load_json(HERE / name))
+preservation = e2.campaign.load_json(HERE / 'PRESERVATION.log')
+baseline = e2.campaign.load_json(HERE / 'BASELINE.sha256')
+transitions = preservation['intended_administrative_transitions']
+unchanged = 0
+for name, expected in baseline.items():
+    path = Path(name)
+    relative = str(path.relative_to(REPO))
+    actual = e2.campaign.sha256(path)
+    if relative in transitions:
+        change = transitions[relative]
+        assert actual == change['after'] and expected == change['before']
+        original = subprocess.check_output(['git', 'show',
+            'e85441dec103659ced660933e5d8df410b92c353:' + relative])
+        assert hashlib.sha256(original).hexdigest() == expected
+    else:
+        assert actual == expected, name
+        unchanged += 1
+assert unchanged == 2331 and len(transitions) == 1
+records = e2.campaign.load_json(REPO / 'examples/KG_Assoc/reviews/'
+    'e2_ea_transfer_gpu_diagnostic_retest_20261016/PREFLIGHT.json')['acceptance_records']
+assert len(records) == 12
+assert set((ROOT / 'banks/e2_acceptance').glob('*.json')) == {REPO/row['record'] for row in records}
+for row in records:
+    record = e2.campaign.load_json(REPO / row['record'])
+    assert e2.campaign.sha256(REPO / row['record']) == row['sha256']
+    e2.check_hashes({record['evidence']: record['evidence_sha256'],
+                     record['source_plan']: record['source_plan_sha256']})
+    for entry in record['histories']:
+        e2.check_hashes(entry['sha256'])
+result = e2.campaign.load_json(HERE / 'RESULTS.log')
+prepared = e2.campaign.load_json(HERE / 'PREPARED.log')
+assert result['decision'] == 'smoke_complete_and_passed'
+assert result['new_MD_steps'] == prepared['maximum_additional_MD_steps'] == 110000
+assert len(result['histories']) == 12 and result['statistical_preparation_units'] == 3
+new = [history for history in result['histories'] if history['origin'] == 'new_remaining_smoke']
+assert len(new) == 11 and sum(history['additional_MD_steps'] for history in new) == 110000
+assert all(history['candidate_comparisons'] == 100 for history in new)
+assert all(pair['exact_initial_payloads_identical'] for pair in result['paired_parent_families'])
+completed = 0
+for item in prepared['plans']:
+    attempt = Path(item['attempt'])
+    plan = e2.check_plan(ROOT, attempt)
+    e2.check_hashes(plan['source_sha256'])
+    e2.check_hashes(plan['executable_sha256'])
+    assert e2.campaign.sha256(attempt/'plan.json') == item['plan_sha256']
+    assert e2.campaign.sha256(attempt/'approval.json') == item['approval_sha256']
+    e2.scoped_launch_approval(attempt/'approval.json', attempt, 'e2_derived_smoke',
+                             plan, None, item['selected_replicas'])
+    for entry in e2.launch_scope(plan, None, item['selected_replicas']):
+        receipt = e2.campaign.load_json(Path(entry['output_prefix']).parent/'complete.json')
+        assert receipt['status'] == 'validated' and receipt['end_step'] == 8010000
+        assert receipt['plan_sha256'] == item['plan_sha256']
+        e2.check_hashes(receipt['output_sha256'])
+        completed += 1
+    if item['system'].endswith('EA04'):
+        assert not list((attempt/'r001').iterdir())
+assert completed == 11
+old = next(history for history in result['histories'] if history['origin'] == 'existing_Ea4_r001')
+e2.check_hashes(old['output_sha256'])
+assert old['chemistry_seed'] == 820401 and old['effective_MD_seed'] == 106569476
+e2.check_build(ROOT / 'builds/readback_rounding_cpu_20261016_v2')
+print(json.dumps(dict(decision=result['decision'], preserved_bindings=unchanged,
+    formal_acceptances_and_payloads_authenticated=12, new_validated_histories=completed,
+    new_MD_steps=110000, existing_Ea4_r001_unchanged=True,
+    new_candidate_comparisons=1100, combined_candidate_comparisons=1200,
+    paired_parent_families=3, native_build_authenticated=True), indent=2))

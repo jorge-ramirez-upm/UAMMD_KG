@@ -1,0 +1,55 @@
+{
+  "absolute_start_step": 8000000,
+  "authorized_by": "Explicit user milestone in this conversation: complete eleven remaining capped GPU smoke histories and scoped administrative support",
+  "authorized_histories": [
+    {
+      "replicas": [
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ],
+  "historical_Ea4_r001_not_rerun": true,
+  "launch_source_sha": "dd83add6eab03c795fc5343764af23410ebdc736",
+  "maximum_absolute_end_step": 8010000,
+  "maximum_additional_MD_steps_per_history": 10000,
+  "maximum_aggregate_additional_MD_steps": 110000,
+  "schema_version": 1,
+  "scientific_evidence_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_diagnostic_20261016/ASSESSMENT.md": "58411f2f92f9ad4b9a0d51edfed7a3fbcaa9225e26981703956b6ca50a79d716",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea4_r001_gpu_diagnostic_20261016/COMPLETION.log": "fe8301255ae36cb4e0296a8f6c377565bb369428465d4a1d4ef318eb6bc395b1",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md": "809060e0da31e6508138bcaf136c3880cd2da8766332ecf19fa93082ad6d7f8e",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/IMPLEMENTATION.md": "ad34d885b9ba0be9fb32b55936fca428f8e7e6673c892ec7cea5fd9d70137578",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_readback_rounding_cpu_20261016/ASSESSMENT.md": "48bb2d583ab82aafbb3269274cd939db9dbab098d684f5ab603939e8b9ed39b8",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_readback_rounding_cpu_20261016/BUILD_RESULTS.md": "0f89523ec6e65e392c7600a40b2b92392f637269f76127d00b971a72a9134b4c"
+  },
+  "seed_reservations": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_seed_reservations/ea_transfer_remaining_smoke_20261017_v1.json",
+  "seed_reservations_sha256": "88bbece88d3d33a2784fe6417731fef944a683c5526a76afb82e60fec71fb28f",
+  "starting_sha": "e85441dec103659ced660933e5d8df410b92c353",
+  "stop_at_first_failure": true
+}

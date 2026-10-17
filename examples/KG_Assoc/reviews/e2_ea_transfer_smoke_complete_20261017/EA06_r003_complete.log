@@ -1,0 +1,47 @@
+{
+  "end_step": 8010000,
+  "finished_at": "2026-10-17T07:28:27.638409+00:00",
+  "output_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/environment.json": "5f4ab29ef78faffa1b36d8cea93ffb93870d3d38852d8964e3b26fd797d6571d",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/started.json": "0d4c22e2086897cec0542802084a6bdc4fd795a1efae0f6558980f03bc517007",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.assoc_restart": "37021c0abc889d5f3ff3321a527a5a55e2bf13be694a1e81ed9df4c3de5d0525",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.candidate_validation.tsv": "43b6a6f01175ca4811b8f46151bed64b2eecdc8fdc7c3e0c4576fb736dd372ec",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.conformation.tsv": "b1924882436612e0ea1ca1c9d7d6f05cd7322a977b8ab10a37fed20b9fb5117c",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.events": "052c25d53bc25aaa66414618333f29959e2b9df51e9e444ddd610d6fad9c0109",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.final_associations": "b0427173bbb33f7f062d304ae94e56b5d7a101eefe499e4d00e6755c00f90199",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.final_permanent.lammpsdat": "55de7ad1874974c18c27f6e52455963102878593a37d9cc931b867df93794b28",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.initial_device_validation.tsv": "35d34a66d0281bd7dc3133bbb09b5bb5da5a184fb1f22c00657dc217b849c6a5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.numerics.tsv": "15a4316a84c6b6cacd0e40cd950d90f3de4c074e0d27a4c060a57ac63c5020e5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.restart.lammpsdat": "b79b2e892150e23608a15e9a7cb46155a0847316c29eb6a03abcd68028014275",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.state": "b76f9040d45b9289ca48d02ce53d1142c620bb8ce76b12c676a565e910e5e142",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/stderr.log": "673423e2b03c56258fafe9fb82a975c76dbba71fd75884774d24af6026d88d31",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/stdout.log": "ad29c53defcbda22c6bb836d36cbf9415571a09b0cb9c30a8bc8af3f6f3c872c"
+  },
+  "plan_sha256": "325e990e437f2c286a58a9c4b2c14e0d7ba9669b5ebeac336e51a15f22d044bd",
+  "status": "validated",
+  "validation": {
+    "accepted_events": 43,
+    "final_bonds": 1802,
+    "initial_device_readback": {
+      "particles": 43563,
+      "sha256": "35d34a66d0281bd7dc3133bbb09b5bb5da5a184fb1f22c00657dc217b849c6a5",
+      "status": "valid"
+    },
+    "numerical_status": "valid",
+    "oracle_sweeps": 100,
+    "output_sha256": {
+      ".assoc_restart": "37021c0abc889d5f3ff3321a527a5a55e2bf13be694a1e81ed9df4c3de5d0525",
+      ".candidate_validation.tsv": "43b6a6f01175ca4811b8f46151bed64b2eecdc8fdc7c3e0c4576fb736dd372ec",
+      ".conformation.tsv": "b1924882436612e0ea1ca1c9d7d6f05cd7322a977b8ab10a37fed20b9fb5117c",
+      ".events": "052c25d53bc25aaa66414618333f29959e2b9df51e9e444ddd610d6fad9c0109",
+      ".final_associations": "b0427173bbb33f7f062d304ae94e56b5d7a101eefe499e4d00e6755c00f90199",
+      ".final_permanent.lammpsdat": "55de7ad1874974c18c27f6e52455963102878593a37d9cc931b867df93794b28",
+      ".numerics.tsv": "15a4316a84c6b6cacd0e40cd950d90f3de4c074e0d27a4c060a57ac63c5020e5",
+      ".restart.lammpsdat": "b79b2e892150e23608a15e9a7cb46155a0847316c29eb6a03abcd68028014275",
+      ".state": "b76f9040d45b9289ca48d02ce53d1142c620bb8ce76b12c676a565e910e5e142"
+    },
+    "samples": 11,
+    "scientific_status": "review_required"
+  },
+  "wall_seconds": 12.348506655078381
+}

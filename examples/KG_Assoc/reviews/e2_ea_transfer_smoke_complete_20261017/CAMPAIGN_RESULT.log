@@ -1,0 +1,63 @@
+{
+  "additional_MD_steps": 110000,
+  "completed": [
+    {
+      "additional_MD_steps": 10000,
+      "replica": 2,
+      "system": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 3,
+      "system": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 2,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 3,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 2,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 3,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 2,
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "additional_MD_steps": 10000,
+      "replica": 3,
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ],
+  "finished_at": "2026-10-17T07:30:37.242519+00:00",
+  "historical_Ea4_r001_not_executed": true,
+  "status": "passed"
+}

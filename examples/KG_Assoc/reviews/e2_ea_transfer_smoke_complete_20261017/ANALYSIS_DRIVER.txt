@@ -1,0 +1,188 @@
+#!/usr/bin/env python3
+"""Read-only replay of the eleven new histories plus preserved Ea4 r001 evidence."""
+import argparse
+import hashlib
+import json
+import math
+from pathlib import Path
+import runpy
+import struct
+import sys
+
+REPO = Path.cwd()
+ASSOC = REPO / 'examples/KG_Assoc'
+ROOT = ASSOC / 'kg_assoc_100m'
+WORK = ROOT / 'aggregate/e2/ea_transfer_remaining_smoke_20261017_v1'
+PRIOR = ASSOC / 'reviews/e2_ea4_r001_gpu_diagnostic_20261016'
+sys.path.insert(0, str(ASSOC / 'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_transfer as transfer
+import kg_assoc_e2_readback as readback
+
+previous = runpy.run_path(str(PRIOR / 'ANALYSIS_DRIVER.txt'))
+integer_exposure = previous['integer_exposure']
+graph_summary = previous['prior'].graph_summary
+
+
+def device_payload(path):
+    digest = hashlib.sha256()
+    count = 0
+    with Path(path).open() as stream:
+        for line in stream:
+            if not line.startswith('particle '):
+                continue
+            row = line.split()
+            assert len(row) == 20 and int(row[1]) == int(row[2]) == count
+            values = list(map(float, row[11:14] + row[17:20]))
+            assert all(math.isfinite(value) for value in values)
+            digest.update(struct.pack('<iiidddddd', int(row[2]), int(float(row[5])),
+                                      int(row[7]), *values))
+            count += 1
+    assert count == 43563
+    return digest.hexdigest()
+
+
+def history(entry, plan, item, origin):
+    directory = Path(entry['output_prefix']).parent
+    prefix = entry['output_prefix']
+    complete = e2.campaign.load_json(directory / 'complete.json')
+    assert complete['status'] == 'validated' and complete['end_step'] == 8010000
+    assert complete['plan_sha256'] == item['plan_sha256']
+    assert not (directory / 'incomplete.json').exists()
+    assert not Path(prefix + '.candidate_mismatch.tsv').exists()
+    e2.check_hashes(complete['output_sha256'])
+    rows, events, validation = e2.validation.validate(entry, oracle=True)
+    assert validation == complete['validation']
+    system, initial = e2.validation.read_parent(entry)
+    parent = e2.campaign.parse_lammps_data(entry['parent']['snapshot'])
+    device_path = prefix + '.initial_device_validation.tsv'
+    device = readback.check(device_path, entry, parent, initial['pairs'])
+    _, raw = e2.validation.analysis.dynamics.read_events(prefix + '.events', system)
+    _, final_pairs = e2.validation.analysis.restart.read_metadata(prefix + '.assoc_restart')
+    exposure = integer_exposure(raw, len(initial['pairs']), 8000000, 8010000, 4000)
+    assert exposure['final_bonds'] == len(final_pairs) == rows[-1]['bonds']
+    counts = dict(creations=sum(event['type'] == 'C' for event in events),
+                  breaks=sum(event['type'] == 'B' for event in events),
+                  neighbor_gains=sum(event['neighbor_gain'] for event in events),
+                  neighbor_losses=sum(event['neighbor_loss'] for event in events))
+    assert counts['creations'] == rows[-1]['creations'] - initial['creations']
+    assert counts['breaks'] == rows[-1]['breaks'] - initial['breaks']
+    assert counts['creations'] + counts['breaks'] == validation['accepted_events']
+    checks = [list(map(int, line.split())) for line in
+              Path(prefix + '.candidate_validation.tsv').read_text().splitlines()[1:]]
+    assert len(checks) == validation['oracle_sweeps'] == 100
+    assert [row[0] for row in checks] == list(range(8000100, 8010001, 100))
+    numeric = e2.validation.analysis.numerics(Path(prefix + '.numerics.tsv'), rows, 43563)
+    physics = entry['physics']
+    q = -math.expm1(-physics['nu0'] * math.exp(-physics['Ea'] / physics['temperature']) *
+                   physics['Nevery'] * physics['dt'])
+    return dict(system=entry['system']['system_id'], Ea=physics['Ea'], replica=entry['replica'],
+        origin=origin, status='validated', parent_family=entry['replica'],
+        start_step=8000000, end_step=8010000, additional_MD_steps=10000,
+        source_git_sha=plan['git_sha'], executable_sha256=plan['executable_sha256'],
+        native_build_identity=dict(source_git_sha=plan['build']['git_sha'],
+            manifest=str(Path(entry['command'][0]).parent / 'manifest.json'),
+            manifest_sha256=e2.campaign.sha256(Path(entry['command'][0]).parent / 'manifest.json')),
+        attempt=plan['attempt'], prefix=prefix, command=entry['command'],
+        plan_sha256=item['plan_sha256'], approval_sha256=item['approval_sha256'],
+        complete_sha256=e2.campaign.sha256(directory / 'complete.json'), complete=complete,
+        parent=entry['parent'], lineage=entry['lineage'],
+        chemistry_seed=entry['chemistry_seed'], requested_MD_seed=entry['md_seed'],
+        effective_MD_seed=entry['effective_md_seed'],
+        initial_host_receipt=plan['initial_state_checks'][entry['replica'] - 1],
+        initial_device_readback=device, initial_device_payload_sha256=device_payload(device_path),
+        candidate_comparisons=100, geometric_candidate_observations=sum(row[1] for row in checks),
+        active_candidate_observations=sum(row[2] for row in checks),
+        counts=counts, exact_integer_step_exposure=exposure,
+        active_bond_time=exposure['bond_steps'] / 100,
+        free_sticker_time=exposure['free_sticker_steps'] / 100,
+        physical_duration=100, rates_per_time={key: value / 100 for key, value in counts.items()},
+        q=q, initial=rows[0], final=rows[-1], timeseries=rows,
+        initial_graph=graph_summary(initial['pairs'], system),
+        final_graph=graph_summary(final_pairs, system),
+        numeric_extrema=dict(temperature=[min(row[3] for row in numeric),max(row[3] for row in numeric)],
+                            permanent_bond=[min(row[4] for row in numeric),max(row[5] for row in numeric)],
+                            sampled_kinetic_energy=[min(row[2] for row in numeric),max(row[2] for row in numeric)]),
+        validation=validation,
+        output_sha256={str(path): e2.campaign.sha256(path) for path in directory.iterdir() if path.is_file()})
+
+
+def analyze():
+    assert integer_exposure([(100, 'C', None), (100, 'B', None), (200, 'B', None)],
+                            2, 0, 300, 8) == dict(bond_steps=500, free_sticker_steps=1400, final_bonds=1)
+    campaign = e2.campaign.load_json(WORK / 'CAMPAIGN_RESULT.json')
+    assert campaign['status'] == 'passed' and campaign['additional_MD_steps'] == 110000
+    assert not (WORK / 'CAMPAIGN_STOP.json').exists()
+    prepared = e2.campaign.load_json(WORK / 'PREPARED.json')
+    expected = [(transfer.REFERENCE, [2, 3])] + [(sid, [1, 2, 3]) for sid in transfer.TARGETS]
+    assert [(item['system'], item['selected_replicas']) for item in prepared['plans']] == expected
+    old_result = e2.campaign.load_json(PRIOR / 'RESULTS.log')
+    old_attempt = Path(old_result['command'][old_result['command'].index('--output') + 1]).parents[1]
+    old_plan = e2.check_plan(ROOT, old_attempt)
+    old_item = dict(plan_sha256=old_result['plan_sha256'], approval_sha256=old_result['approval_sha256'])
+    assert e2.campaign.sha256(old_attempt / 'plan.json') == old_item['plan_sha256']
+    assert e2.campaign.sha256(old_attempt / 'approval.json') == old_item['approval_sha256']
+    e2.scoped_launch_approval(old_attempt / 'approval.json', old_attempt,
+                             'e2_derived_smoke', old_plan, 1)
+    histories = [history(old_plan['histories'][0], old_plan, old_item, 'existing_Ea4_r001')]
+    assert histories[0]['counts'] == old_result['counts']
+    assert histories[0]['initial_device_readback'] == old_result['device_readback']
+    for item in prepared['plans']:
+        attempt = Path(item['attempt'])
+        plan = e2.check_plan(ROOT, attempt)
+        assert e2.campaign.sha256(attempt / 'plan.json') == item['plan_sha256']
+        assert e2.campaign.sha256(attempt / 'approval.json') == item['approval_sha256']
+        e2.scoped_launch_approval(attempt / 'approval.json', attempt, 'e2_derived_smoke',
+                                 plan, None, item['selected_replicas'])
+        selected = e2.launch_scope(plan, None, item['selected_replicas'])
+        for entry in selected:
+            histories.append(history(entry, plan, item, 'new_remaining_smoke'))
+        if item['system'] == transfer.REFERENCE:
+            assert not list((attempt / 'r001').iterdir())
+    assert len(histories) == 12
+    histories.sort(key=lambda item: (item['Ea'], item['replica']))
+    pairings = []
+    for replica in (1, 2, 3):
+        family = [item for item in histories if item['replica'] == replica]
+        assert [item['Ea'] for item in family] == [4, 6, 8, 10]
+        assert len({item['initial_device_payload_sha256'] for item in family}) == 1
+        assert len({item['parent']['sha256'][item['parent']['snapshot']] for item in family}) == 1
+        pairings.append(dict(parent_family=replica, barriers=[4,6,8,10],
+                             initial_device_payload_sha256=family[0]['initial_device_payload_sha256'],
+                             exact_initial_payloads_identical=True))
+        control = family[0]
+        for item in family:
+            item['q_ratio_to_Ea4'] = item['q'] / control['q']
+            item['breaks_per_bond_time'] = item['counts']['breaks'] / item['active_bond_time']
+            item['creations_per_free_sticker_time'] = item['counts']['creations'] / item['free_sticker_time']
+            if item['Ea'] != 4:
+                expected_breaks = control['counts']['breaks'] / control['active_bond_time'] * item['active_bond_time'] * item['q_ratio_to_Ea4']
+                expected_creations = control['counts']['creations'] / control['free_sticker_time'] * item['free_sticker_time'] * item['q_ratio_to_Ea4']
+                item['conditional_prediction'] = dict(control_attempt=control['attempt'],
+                    control_origin=control['origin'], expected_breaks=expected_breaks,
+                    observed_breaks=item['counts']['breaks'],
+                    observed_to_expected_breaks=item['counts']['breaks'] / expected_breaks,
+                    expected_creations=expected_creations, observed_creations=item['counts']['creations'],
+                    observed_to_expected_creations=item['counts']['creations'] / expected_creations)
+    new = [item for item in histories if item['origin'] == 'new_remaining_smoke']
+    assert len(new) == 11 and sum(item['additional_MD_steps'] for item in new) == 110000
+    assert len({item['chemistry_seed'] for item in histories}) == 12
+    assert len({item['effective_MD_seed'] for item in histories}) == 12
+    return dict(decision='smoke_complete_and_passed', starting_sha=prepared['starting_sha'],
+        launch_source_sha=prepared['source_git_sha'], new_GPU_histories=11, new_MD_steps=110000,
+        existing_Ea4_r001_MD_steps_not_rerun=10000, combined_numerical_evidence_MD_steps=120000,
+        new_device_readbacks=11, new_candidate_comparisons=1100, combined_candidate_comparisons=1200,
+        statistical_preparation_units=3, paired_parent_families=pairings, histories=histories,
+        authenticated_native_build=e2.check_build(ROOT / 'builds/readback_rounding_cpu_20261016_v2')[0],
+        oracle='corrected independent host all-pairs on synchronized GPU-evolved positions',
+        kinetic_screen_authorized=False, equilibrium_or_slow_topology_mixing_established=False)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', required=True, type=Path)
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=False)
+    result = analyze()
+    (args.output / 'RESULTS.log').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+    print(json.dumps({key: value for key, value in result.items() if key not in ('histories', 'authenticated_native_build')}, indent=2))
