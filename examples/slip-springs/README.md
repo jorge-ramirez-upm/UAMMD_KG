@@ -103,27 +103,132 @@ PY
 `virials` returns `stretch`, `bend`, `total` (3x3), plus total-tensor `symmetric`
 (xx,yy,zz,xy,xz,yz), `shears` and `normal_differences`. No volume division,
 symmetrization or trace projection is performed. All-zero bending skips angular
-operations; inactive angles are skipped individually. The existing reference,
-accepted dynamics, RNGs, tests, builds and frozen plans remain unchanged.
+operations; inactive angles are skipped individually. That CPU milestone left the existing reference,
+accepted dynamics, RNGs, tests, builds and frozen plans unchanged.
 
 For future isotropic Green–Kubo calculations, the existing raw six-channel
 weights 1/5 for shears and 1/30 for normal-difference products remain valid.
 If their weighted raw-W covariance is H, `G=(C/V)*H/kBT` and
 `g=G/[(C/V)*kBT]=H/(kBT)^2`. The existing Rouse convention has kBT=1.
 Stretch/bend cross-correlations must be retained in the total stress; no
-arbitrary physical melt modulus is assigned here. **Independent review of this
-derivation/tests and separate authorization are required before Stage 4A.3b.**
+arbitrary physical melt modulus is assigned here. The Stage 4A.3b extension
+below uses this accepted derivation; its implementation requires independent
+review before any Stage 4A.3c scientific host execution.
 
 Do not run work expected to exceed 10 minutes in Codex; provide instructions
 for the dedicated Linux host instead, as recorded in AGENTS.md. No production
 campaign is needed for these static CPU checks.
 
+## GPU stress and streaming (Stage 4A.3b; review pending)
+
+[STAGE4A3B_REPORT.md](STAGE4A3B_REPORT.md) documents the complete read-only GPU
+virial and the unchanged Stage 2B `Bank`/persistent `CpuWorkers` reuse. This
+initial adapter is **synchronous**: no background consumer or transfer overlap.
+Forces/update/RNG kernels and Rouse code remain unchanged. The nonlinear model
+is not assigned Gaussian Rouse relaxation times. No stress-relaxation scientific
+acceptance is claimed from bounded verification.
+
+```sh
+make -C examples/slip-springs check-semiflexible-stress CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
+make -C examples/slip-springs check-semiflexible-stress CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double
+```
+
+Both short examples below are bounded and tested (N8,C64,dt0.0001,20 steps,
+stride5,seed433101,kBT1.7,kb30,b0=1,kappa2). Output child directories must be new:
+
+```sh
+STRESS_RUNS=$(mktemp -d /tmp/semiflexible-stress.XXXXXX)
+examples/slip-springs/build/single/semiflexible --springs 8 --chains 64 --dt 0.0001 --steps 20 --sample 5 --seed 433101 --kbt 1.7 --kappa 2 --stress-mode stream --stress-batch 7 --cpu-workers 2 --corr-levels 5 --corr-slots 8 --output "$STRESS_RUNS/single"
+examples/slip-springs/build/double/semiflexible --springs 8 --chains 64 --dt 0.0001 --steps 20 --sample 5 --seed 433101 --kbt 1.7 --kappa 2 --stress-mode stream --stress-batch 7 --cpu-workers 2 --corr-levels 5 --corr-slots 8 --output "$STRESS_RUNS/double"
+```
+
+A moderately long **user-host** example (not run in Codex), N8,C512,
+20,000 steps,dt0.0001,stride100,seed433108; review before execution:
+
+```sh
+examples/slip-springs/build/double/semiflexible --springs 8 --chains 512 --dt 0.0001 --steps 20000 --sample 100 --seed 433108 --kappa 2 --stress-mode stream --cpu-workers 4 --stress-batch 32 --output "$STRESS_RUNS/moderate"
+```
+
+`--stress-mode off` is the default and allocates no stress resources.
+`--stress-input FILE` evaluates prescribed configurations without integration,
+using the existing whitespace x y z format and parameter-file pathway; it
+selects diagnostic mode. `--stress-mode diagnostic` can also record tensors
+at observation frames of a short trajectory. `stress_tensors.csv` contains
+separate stretch/bend/total **raw nine-entry** W tensors, so symmetry and bending
+trace are checked before channel extraction. Input force/position buffers are
+compared byte-for-byte after a prescribed-configuration stress probe. Both
+precisions use double stress arithmetic/reductions on stored coordinates and
+precision-rounded parameters. No stock angular virial is substituted.
+
+Streaming produces:
+
+* `stress_correlations_raw.csv`: exact reused Bank output; its legacy `g,g_se`
+  column names represent raw **H,H_se** for this model at arbitrary kBT.
+* `stress_correlations.csv`: unambiguous H,H_se, six raw channel product correlations/SE,
+  lag/count/block fields, and dimensionless g,g_se=H,H_se/(kBT)^2. Supply a
+  positive `--chain-density NC` to add G,G_se=NC*H,H_se/kBT. Without density,
+  G columns are absent and metadata density is null; no volume is assigned.
+* `stress_moments.csv`: per-chain final-half frame count, six means, and all
+  36 raw channel products. These do not subtract empirical trajectory means.
+  With no selected final-half frame the count is zero and moments are nan.
+* `stress_metadata.json`: frame/worker/batch counts, actual GPU capacities,
+  force-independent angular launch counters, timing scopes and estimates.
+* Optional `--stress-dump 1`: `stress_samples.csv` with step,chain and the six
+  raw channels. It grows with frames and is for bounded/direct reference runs;
+  it is disabled in ordinary streaming. Existing scalar conformation output
+  and its fixed cadence remain unchanged, and grow as already documented.
+
+Channels remain xy,xz,yz,xx-yy,xx-zz,yy-zz without factors1/2 or1/4. The total
+virial is assembled before correlation, automatically retaining cross terms.
+The estimator is a raw product of complete nonoverlapping block means with
+chain-cluster SE, not a finite-trajectory mean-subtracted connected estimator.
+All measured frames enter the bank; a partial last batch is drained. Incomplete
+coarse blocks are not padded, and the legacy highest-populated-level export
+omission is preserved. Sample timing is step0 and exact stride multiples;
+a partial final integration interval is not an extra observation. The inherited
+KG admission limit `xy > -1e10` is checked explicitly and is not regularized.
+
+At all-zero kappa there is no angular stress allocation, geometry or kernel
+launch. Active streaming angles add directly to the total tensor; their
+separate diagnostic buffer is also absent in stream mode. Skipped inactive
+angles and finite-result/symmetry/trace diagnostics are regression conditions.
+Stress failures abort with `stress_failure.json` and a coordinate snapshot;
+force/input errors retain the accepted existing diagnostics.
+
+The adapter has O(chains*levels*slots + batch*chains) CPU memory and O(chains)
+additional GPU memory, independent of steps. Buffer/bank budgets are checked
+alongside the existing 2 GiB workspace estimate (excluding CUDA context,
+allocator overhead and worker stacks). GPU integration ns/bead/step remains
+separate from overall production cost. Stress GPU, D2H, synchronization, CPU
+pool, barrier/worker-time sum, moment/dump output and finalization are reported
+separately. Subset/overlapping timers must not be summed. Stress-on main metadata
+uses timer_version2 because final output includes stress exports/metadata;
+stress-off retains version1. No sampling-frequency optimization is applied.
+
+The **frozen, unexecuted** Stage 4A.3c plan is
+[STAGE4A3C_VALIDATION_PLAN.md](STAGE4A3C_VALIDATION_PLAN.md). Generate/review only:
+
+```sh
+STRESS_HOST=$(mktemp -d /tmp/semiflexible-stress-host.XXXXXX)
+python3 examples/slip-springs/tests/semiflexible_stress_host.py --output "$STRESS_HOST/campaign"
+```
+
+This generates 282 commands in diagnostic, main stream, direct-reference and
+memory scripts plus a plan hash; it never runs them. There is no --run option.
+Independent review and separate authorization are required before host execution;
+scripts require `STAGE4A3B_REVIEWED`. Some proposed runs can take hours and
+must never run in Codex. The plan includes explicit failure/terminal-support
+gates; its diagnostic/direct tools are not a complete scientific acceptance
+analyzer. Stage 4A.3c experiments and Stage 4B remain unauthorized here.
+
 ## Running the current simulator
 
 Stage 4A.2 provides a separate **`semiflexible`** executable: exact finite-rest-
 length harmonic stretching plus Kratky–Porod bending, free ends, unwrapped
-coordinates and Euler–Maruyama overdamped Brownian dynamics. It has no stress
-correlator, excluded volume, hydrodynamics or slip-springs. This model's bounded
+coordinates and Euler–Maruyama overdamped Brownian dynamics. Default mode retains
+the accepted backbone behavior. Stage 4A.3b optionally adds stress streaming
+under bounded verification, pending independent review/host acceptance. There
+is no excluded volume, hydrodynamics or slip-spring interaction. This model's bounded
 checks pass; **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC
 VALIDATION PASSED** (17 October 2026). The original 204-run analysis has zero
 statistical failures. The [permanent evidence archive](validation/stage4a2-acceptance/README.md)

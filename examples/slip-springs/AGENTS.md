@@ -310,3 +310,31 @@ not zero; the mean bending tensor and mean deviatoric stresses vanish. Future
 Green–Kubo normalization requires explicit chain density and thermal-energy
 factors, including total stretch/bend cross-correlations. No modulus or new
 stress-relaxation acceptance is established by CPU static checks.
+
+
+## Stage 4A.3b implementation authorization and host-review boundary
+
+The user's 17 October 2026 Stage 4A.3b task supersedes historical prohibitions
+only for complete GPU virials, six-channel streaming, bounded tests and a frozen
+Stage 4A.3c plan. Use STAGE4A3A_REPORT.md and semiflexible_stress_reference.py
+as the accepted science; see STAGE4A3B_REPORT.md for implementation scope.
+Accepted force/update/RNG kernels, Rouse, CPU references, old tests, evidence
+and frozen prior plans remain unchanged. Stress is opt-in; default-off dynamics
+and precision-specific replay must be preserved. No stock angular virial.
+
+The isolated synchronous stress adapter reuses Bank/CpuWorkers/KG unchanged.
+Do not fork the multi-tau estimator or modify Rouse's scientific definitions.
+All frames and final partial batches must be consumed; incomplete coarse blocks
+are not padded and legacy deepest-populated-level export behavior is preserved.
+Keep raw products (no empirical mean subtraction), per-chain clusters and raw
+xy,xz,yz,xx-yy,xx-zz,yy-zz channels. Assemble total W before the correlator.
+Export H, g=H/(kBT)^2 and G=n_chain*H/kBT only for explicit density. Preserve
+read-only stress probes, individual stretch/bend validation, raw symmetry/trace
+checks and zero-angular-allocation/launch conditions. No force regularization.
+
+Record stress GPU,D2H,synchronization,CPU pool,barrier,output and total production
+costs; do not add subset timers or reduce sampling frequency. Existing CPU
+conformation observations remain an explicit cost. The frozen new plan and host
+generator are preparation only: no --run option, no Stage 4A.3c experiments.
+Stage 4A.3b needs independent review BEFORE scientific host execution and further
+user authorization. Respect the ten-minute rule above. No Stage 4B/slip-springs.

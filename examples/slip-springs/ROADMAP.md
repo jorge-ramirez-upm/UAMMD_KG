@@ -149,13 +149,37 @@ that work instead of running it in Codex. Keep local verification bounded and
 preserve the existing prohibition on production campaigns. This milestone's
 CPU tests take seconds, with no time integration or long run required.
 
+## 8. Stage 4A.3b implementation: independent review before host experiments
+
+The user's explicit 17 October 2026 task authorizes GPU virial evaluation,
+streaming and bounded verification using the accepted Stage 4A.3a theory.
+See [STAGE4A3B_REPORT.md](STAGE4A3B_REPORT.md). The added read-only observer
+keeps accepted force/update/RNG kernels intact. Raw tensors expose separate
+stretch/bend diagnostics; ordinary correlations receive total virials, retaining
+cross terms. Zero bending must have zero angular allocation and launches.
+
+Reuse is concrete: the validated Bank, CpuWorkers and KG correlator are used
+unchanged. The separate synchronous adapter avoids changing Rouse's pipeline;
+asynchronous overlap is not implemented or claimed. Default-off trajectories,
+fixed-seed replay, worker/batch output and independent block-product comparisons
+are bounded regression gates. No performance superiority over UAMMD is inferred.
+
+The new frozen [Stage 4A.3c plan](STAGE4A3C_VALIDATION_PLAN.md) and generator
+prepare 282 unexecuted diagnostic, stream, direct-reference and memory commands.
+Review the implementation and plan independently before any scientific host
+execution; separate authorization is required. The generator has no --run
+option. It does not implement every acceptance analysis, particularly nonlinear
+terminal-support/replica/static-covariance gates. Those require a reviewed host
+report. Neither nonlinear relaxation spectra nor a physical melt density are
+assigned. Stage 4A.3c experiments and Stage 4B slip-springs remain unauthorized.
+
 ## Stage boundaries
 
-Current authorization is limited to Stage 4A.3a static stress theory/CPU checks
-and documentation, while preserving accepted campaign evidence and any running
+Current authorization covers Stage 4A.3b implementation and bounded verification,
+plus frozen host-plan preparation, while preserving accepted evidence and any running
 campaigns. The infrastructure reuse review and comparisons above are future
 proposals, not blanket permission for refactoring or optimization. Stage 3 benchmarking/optimization still requires
-explicit authorization. Stage 4A.3b GPU stress sampling/correlations, slip-springs,
+explicit authorization. Stage 4A.3c scientific experiments, Stage 4B slip-springs,
 excluded volume and hydrodynamics remain unauthorized.
 
 Relevant evidence: [Stage 4A.1 assessment](STAGE4A1_REPORT.md),

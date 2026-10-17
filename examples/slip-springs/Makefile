@@ -91,9 +91,9 @@ check-workers:
 # Separate Stage 4A.2 targets; historical all/check/Rouse rules are unchanged.
 .PHONY: semiflexible check-semiflexible
 semiflexible: $(GPU_BUILD)/semiflexible
-$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh
+$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
 	mkdir -p $(GPU_BUILD)
-	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< -o $@ $(LDLIBS)
+	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 check-semiflexible: semiflexible
 	python3 $(PROJECT_DIR)/tests/test_semiflexible_gpu.py $(GPU_BUILD)/semiflexible
 	python3 $(PROJECT_DIR)/tests/test_semiflexible_host.py $(GPU_BUILD)/semiflexible
@@ -103,3 +103,10 @@ check-semiflexible: semiflexible
 .PHONY: clean-semiflexible
 clean-semiflexible:
 	rm -f $(PROJECT_DIR)/build/single/semiflexible $(PROJECT_DIR)/build/single/semiflexible.d $(PROJECT_DIR)/build/double/semiflexible $(PROJECT_DIR)/build/double/semiflexible.d
+
+.PHONY: check-semiflexible-stress
+$(BUILD)/semiflexible_stress_correlator: $(PROJECT_DIR)/tests/semiflexible_stress_correlator.cpp $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
+	mkdir -p $(BUILD)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< $(KG_DIR)/correlator.cpp -pthread -o $@ $(LDLIBS)
+check-semiflexible-stress: semiflexible $(BUILD)/semiflexible_stress_correlator
+	timeout 180s python3 $(PROJECT_DIR)/tests/test_semiflexible_stress_gpu.py $(GPU_BUILD)/semiflexible $(BUILD)/semiflexible_stress_correlator

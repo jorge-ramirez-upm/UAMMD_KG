@@ -1,4 +1,5 @@
 #include "semiflexible.cuh"
+#include "semiflexible_stress.cuh"
 #include <thrust/device_vector.h>
 #include <array>
 #include <chrono>
@@ -11,6 +12,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 using namespace semiflexible;
 namespace fs=std::filesystem;
@@ -22,6 +24,7 @@ struct Options {
   int n=8,chains=64; Counter steps=1000,sample=100,seed=42001;
   double dt=0.0001,b0=1,kb=30,kappa=2,kbt=1,zeta=1;
   fs::path output,parameters,initial; bool forceOnly=false;
+  stress3b::Settings stress;
 };
 Counter integer(std::string s) {
   if(s.empty()||s.find_first_not_of("0123456789")!=std::string::npos) throw std::runtime_error("expected unsigned integer");
@@ -39,6 +42,8 @@ Options parse(int argc,char** argv) {
     if(key=="--help") {
       std::cout<<"semiflexible --output NEW_DIR [--springs N --chains C --dt H --steps S --sample STRIDE --seed K]\n"
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
+        "[--stress-mode off|diagnostic|stream --stress-input FILE --stress-dump 0|1]\n"
+        "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
         "parameters: N, then N (b0 kb) pairs, then N+1 bead-indexed kappa values; --springs must match.\n"
         "initial/force-input: chains*(N+1) Cartesian triples; force-input disables integration.\n";
       std::exit(0);
@@ -48,6 +53,19 @@ Options parse(int argc,char** argv) {
     if(key=="--output") o.output=v;
     else if(key=="--parameters") o.parameters=v;
     else if(key=="--initial"||key=="--force-input") { o.initial=v;o.forceOnly=key=="--force-input"; }
+    else if(key=="--stress-input") {o.initial=v;o.forceOnly=true;o.stress.mode="diagnostic";}
+    else if(key=="--stress-mode")o.stress.mode=v;
+    else if(key=="--chain-density")o.stress.density=number(v);
+    else if(key=="--stress-batch"||key=="--cpu-workers"||key=="--corr-levels"||key=="--corr-slots"||key=="--corr-m"||key=="--correlator-mib"||key=="--stress-dump") {
+      auto value=integer(v);if(value>65536)throw std::runtime_error("stress option out of range");
+      if(key=="--stress-batch")o.stress.batch=value;
+      else if(key=="--cpu-workers")o.stress.workers=value;
+      else if(key=="--corr-levels")o.stress.correlation.levels=value;
+      else if(key=="--corr-slots")o.stress.correlation.slots=value;
+      else if(key=="--corr-m")o.stress.correlation.coarsening=value;
+      else if(key=="--correlator-mib")o.stress.correlatorMiB=value;
+      else {if(value>1)throw std::runtime_error("stress-dump must be 0 or 1");o.stress.dump=value;}
+    }
     else if(key=="--steps") o.steps=integer(v);
     else if(key=="--sample") o.sample=integer(v);
     else if(key=="--seed") o.seed=integer(v);
@@ -69,6 +87,12 @@ Options parse(int argc,char** argv) {
   if(!(real(o.dt/o.zeta)>0&&std::isfinite(real(o.dt/o.zeta))&&real(std::sqrt(2*o.kbt*o.dt/o.zeta))>0&&std::isfinite(real(std::sqrt(2*o.kbt*o.dt/o.zeta)))))
     throw std::runtime_error("update scales not representable");
   if(!std::isfinite(double(o.steps)*o.dt)) throw std::runtime_error("time overflow");
+  o.stress.validate(o.chains);
+  if(o.stress.enabled()&&!(std::isfinite(double(o.sample)*o.dt)&&double(o.sample)*o.dt>0))throw std::runtime_error("stress sample spacing outside double range");
+  if(o.stress.streaming()&&!(std::isfinite(o.kbt*o.kbt)&&o.kbt*o.kbt>0))throw std::runtime_error("stress thermal normalization outside double range");
+  if(o.stress.streaming()&&o.forceOnly)throw std::runtime_error("stream mode requires dynamics (zero steps allowed)");
+  if(o.stress.streaming()&&o.steps/o.sample+1>std::numeric_limits<unsigned long>::max()/o.chains)throw std::runtime_error("correlation pair count overflow");
+  if(o.stress.enabled()&&stress3b::Observer::estimatedBytes(o.stress,o.chains,true)>2ULL*1024*1024*1024)throw std::runtime_error("stress workspace exceeds budget");
   return o;
 }
 std::ofstream outputFile(fs::path p) {
@@ -184,7 +208,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   int m=o.n+1,count=m*o.chains; size_t bytes=count*sizeof(real4);
   // Explicit bounded allocations, independent of number of steps/frames.
   size_t estimate=bytes*8+size_t(count)*1024;
-  if(estimate>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
+  if(estimate+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
   thrust::device_vector<real4> r(host),next(count),forces(count);
   thrust::device_vector<real2> bonds(p.bonds);
@@ -225,6 +249,15 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
     auto f=outputFile(out/"forces.csv");f<<"chain,bead,fx,fy,fz,energy\n";
     for(int i=0;i<count;++i) f<<i/m<<','<<i%m<<','<<hf[i].x<<','<<hf[i].y<<','<<hf[i].z<<','<<hf[i].w<<'\n';
   }
+  std::unique_ptr<stress3b::Observer> stressObserver;
+  if(o.stress.enabled())stressObserver=std::make_unique<stress3b::Observer>(o.stress,o.chains,m,ptr(bonds),ptr(angles),p.active,o.sample*o.dt,o.kbt,o.seed,o.forceOnly?0:o.steps/2,out);
+  if(o.forceOnly&&stressObserver){
+    stressObserver->sample(current,0);
+    std::vector<real4> afterForce(count),afterPosition(count);
+    check(cudaMemcpy(afterForce.data(),ptr(forces),bytes,cudaMemcpyDeviceToHost),"stress immutable forces");
+    check(cudaMemcpy(afterPosition.data(),current,bytes,cudaMemcpyDeviceToHost),"stress immutable positions");
+    if(std::memcmp(afterForce.data(),hf.data(),bytes)||std::memcmp(afterPosition.data(),host.data(),bytes))throw std::runtime_error("stress modified positions or forces");
+  }
   auto samples=outputFile(out/"samples.csv");
   samples<<"step,time,chain,mean_r,mean_r2,re2,rg2,cm_msd,monomer_msd,min_length";
   int sep=std::min(4,o.n-1);for(int s=1;s<=sep;++s)samples<<",tangent"<<s;samples<<'\n';
@@ -239,6 +272,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   std::vector<Vec> initialCm(o.chains);
   for(int c=0;c<o.chains;++c)for(int j=0;j<m;++j){auto v=initial[c*m+j];initialCm[c][0]+=double(v.x)/m;initialCm[c][1]+=double(v.y)/m;initialCm[c][2]+=double(v.z)/m;}
   auto observe=[&](Counter step) {
+    if(stressObserver)stressObserver->sample(current,step);
     auto t=Clock::now();check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"observation readback");
     // CPU observation reductions use double, from the stored precision.
     std::ostringstream rows,initialRows;rows<<std::setprecision(17);initialRows<<std::setprecision(17);
@@ -286,7 +320,9 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
     // Validate final state even if it is not an observation frame.
     evaluate(o.steps);
   }
+  if(stressObserver)stressObserver->finish();
   double productionTime=seconds(productionStart);auto finalStart=Clock::now();
+  if(stressObserver)stressObserver->write();
   check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"final positions");positionsFile(out/"final.csv",host,m);
   auto stats=outputFile(out/"bond_statistics.csv");stats<<"chain,bond,frames,mean_r,mean_r2";for(int b=0;b<33;++b)stats<<",bin"<<b;stats<<'\n';
   if(observations)for(size_t i=0;i<bn;++i){stats<<i/o.n<<','<<i%o.n<<','<<observations<<','<<sums[i]/observations<<','<<squares[i]/observations;for(int b=0;b<33;++b)stats<<','<<hist[i*33+b];stats<<'\n';}
@@ -295,7 +331,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   size_t deviceBytes=3*bytes+p.bonds.size()*sizeof(real2)+(angles.capacity()*sizeof(real))+sizeof(int);
   double denominator=double(count)*(o.forceOnly?0:o.steps);auto rate=[&](double x){if(denominator>0)return std::to_string(x/denominator*1e9);return std::string("null");};
   auto meta=outputFile(out/"metadata.json");
-  meta<<"{\n\"model\":\"finite-rest-length-Kratky-Porod\",\"timer_version\":1,\"precision_bits\":"<<8*sizeof(real)
+  meta<<"{\n\"model\":\"finite-rest-length-Kratky-Porod\",\"timer_version\":"<<(stressObserver?2:1)<<",\"precision_bits\":"<<8*sizeof(real)
       <<",\"gpu\":\""<<prop.name<<"\",\"chains\":"<<o.chains<<",\"springs\":"<<o.n<<",\"beads_per_chain\":"<<m<<",\"total_beads\":"<<count
       <<",\"dt\":"<<o.dt<<",\"effective_mobility_step\":"<<double(real(o.dt/o.zeta))<<",\"effective_noise\":"<<double(real(std::sqrt(2*o.kbt*o.dt/o.zeta)))
       <<",\"steps\":"<<(o.forceOnly?0:o.steps)<<",\"production_time\":"<<(o.forceOnly?0:o.steps*o.dt)<<",\"sample\":"<<o.sample<<",\"seed\":"<<o.seed<<",\"rng_domain\":3,\"kbt\":"<<o.kbt<<",\"zeta\":"<<o.zeta
@@ -308,7 +344,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       <<",\"bead_updates_per_second\":"<<(updateTime>0?std::to_string(denominator/updateTime):"null")
       <<",\"histogram_max\":"<<histogramMax<<",\"histogram_finite_bins\":32,\"histogram_overflow_bin\":32,\"minimum_sampled_bond\":"<<jsonNumber(minLength)
       <<",\"integration_timer_scope\":\"CUDA events: forces, update, diagnostic D2H and host launch/synchronization gaps; excludes observations and output\",\"observation_scope\":\"D2H full positions, CPU reductions and formatting; output writes separate\"}\n";
-  meta.close(); // Metadata/terminal telemetry excluded from production/final-output timers.
+  meta.close(); // Main metadata/terminal telemetry excluded; v2 final time includes stress exports/metadata.
   std::cout<<"semiflexible N="<<o.n<<" chains="<<o.chains<<" beads="<<count<<" steps="<<(o.forceOnly?0:o.steps)
     <<" physical_time="<<(o.forceOnly?0:o.steps*o.dt)<<" updates/s="<<(updateTime>0?denominator/updateTime:0)<<" init_s="<<initializationTime<<" integration_s="<<updateTime<<" production_s="<<productionTime
     <<" integration_ns/bead/step="<<rate(updateTime)<<" overall_ns/bead/step="<<rate(productionTime)
