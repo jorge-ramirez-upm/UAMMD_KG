@@ -5,6 +5,7 @@ import copy
 import getpass
 import json
 import os
+import signal
 from pathlib import Path
 import subprocess
 import sys
@@ -216,6 +217,10 @@ def execute(root, build, state_path):
         return 0
 
 
+def request_stop(signum, frame):
+    raise KeyboardInterrupt
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group()
@@ -223,6 +228,9 @@ def main():
     group.add_argument('--status', action='store_true')
     group.add_argument('--check', action='store_true', help='CPU authentication only; no MD or reservations')
     args = parser.parse_args()
+    if args.execute:
+        signal.signal(signal.SIGINT, request_stop)
+        signal.signal(signal.SIGTERM, request_stop)
     root = run_e2.discover()
     state_path = root / 'aggregate/e2/manual_ea16m_v1/state.json'
     if args.status:

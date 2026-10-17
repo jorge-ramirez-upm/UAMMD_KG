@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Read-only authentication; never launches a native executable or allocates seeds."""
+import contextlib
+import io
+import json
+from pathlib import Path
+import runpy
+import sys
+
+r=Path.cwd();c=r/'examples/KG_Assoc';d=c/'reviews/e2_ea_transfer_16m_20261017'
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+for name in ('INTEGRITY.sha256','ARTIFACTS.sha256','USER_CODE.sha256','STOPPED_OUTPUTS.sha256'):
+    e2.check_hashes(e2.campaign.load_json(d/name))
+stream=io.StringIO()
+with contextlib.redirect_stdout(stream):
+    runpy.run_path(str(d/'PRESERVATION_DRIVER.txt'))
+observed=json.loads(stream.getvalue())
+assert observed==e2.campaign.load_json(d/'PRESERVATION_FINAL.log')
+assert observed['formal_acceptances_and_payloads_authenticated']==12
+stop=e2.campaign.load_json(d/'USER_STOP.log')
+assert stop['status']=='user_cancelled_not_numerical_failure'
+assert (stop['histories_started'],stop['histories_completed'],stop['histories_not_started'])==(1,0,8)
+assert stop['additional_MD_steps_lower_bound']==2332900
+prepared=e2.campaign.load_json(d/'PREPARED.log')
+for item in prepared['plans']:
+    attempt=Path(item['attempt'])
+    assert e2.campaign.sha256(attempt/'plan.json')==item['plan_sha256']
+    assert e2.campaign.sha256(attempt/'approval.json')==item['approval_sha256']
+    assert not (attempt/'.launch.lock').exists()
+    for replica in (1,2,3):
+        directory=attempt/f'r{replica:03d}'
+        assert not (directory/'complete.json').exists()
+        if not (item['system'].endswith('EA06') and replica==1):
+            assert not list(directory.iterdir())
+e2.check_build(c/'kg_assoc_100m/builds/ea_transfer_16m_20261017_v1')
+assert 'CHECK PASS' in (d/'HANDOFF_CHECK.log').read_text()
+print(json.dumps(dict(user_cancelled=True,completed_24M_endpoints=0,
+    protected_bindings_unchanged=observed['unchanged_bindings'],formal_acceptances_authenticated=12,
+    current_native_build_authenticated=True,self_run_CPU_check_pass=True,
+    simulations_launched_by_verifier=0),indent=2))

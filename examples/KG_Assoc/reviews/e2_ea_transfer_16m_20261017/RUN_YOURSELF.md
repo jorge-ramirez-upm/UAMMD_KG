@@ -41,9 +41,12 @@ already on the host, for example:
 cd /home/jramirez/UAMMD_KG
 nohup python3 -u examples/KG_Assoc/campaign/run_ea_preparation.py --execute \
   >> examples/KG_Assoc/kg_assoc_100m/ea16m_console.log 2>&1 &
+EA_RUN_PID=$!
 ```
 
-Use either foreground execution or `nohup`, not both at once. The shared OS lock
+To stop that background runner from the same shell, use `kill -TERM "$EA_RUN_PID"`.
+The runner catches SIGINT/SIGTERM, stops its native child and saves its interrupted
+status. Use either foreground execution or `nohup`, not both at once. The shared OS lock
 prevents concurrent workflow launches and releases automatically after a process
 ends. Keep the source checkout fixed during execution; the native executable and
 plan are authenticated. No packages need to be installed for this runner.

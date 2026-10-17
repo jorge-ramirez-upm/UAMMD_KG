@@ -1,0 +1,2 @@
+CHECK PASS: exact parents, native build, branch and clean sources authenticated. No GPU execution.
+Run this script with --execute on titan. Rerun the same command after Ctrl+C.
