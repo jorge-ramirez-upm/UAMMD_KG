@@ -223,6 +223,13 @@ analyzer. Stage 4A.3c experiments and Stage 4B remain unauthorized here.
 
 ## Host-validation readiness (Stage 4A.3b.1)
 
+The subsequent [scalar-output audit](STAGE4A3B2_OUTPUT_AUDIT.md) identifies the
+9.876GB pilot scalar CSV and proposes compact per-chain summaries plus selected
+scalar records, preserving every stress frame. Review it before further campaign
+execution. This is a documentation-only proposal: no optimization, plan/profile
+amendment, pilot restart or new scientific execution is authorized or applied.
+
+
 [STAGE4A3B1_REPORT.md](STAGE4A3B1_REPORT.md) describes the complete host analyzer,
 resumable serial runner and scientific limitations. Simulator, build, accepted
 references, correlators, original generator and frozen plan are unchanged.

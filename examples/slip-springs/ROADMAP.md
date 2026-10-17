@@ -189,9 +189,22 @@ completions. Full pilot timing/disk growth, not tiny functional measurements,
 will inform execution planning. No frozen experiment has been executed in this
 readiness stage. Scientific host execution and Stage4B remain unauthorized.
 
+## 10. Stage 4A.3b.2a read-only scalar-output audit
+
+[STAGE4A3B2_OUTPUT_AUDIT.md](STAGE4A3B2_OUTPUT_AUDIT.md) traces the excessive
+scalar CSV to one conformational row per chain at every stress frame. The
+recommended next implementation, if separately authorized, is opt-in compact
+per-chain summaries/coverage plus selected scalar records, keeping full mode,
+all stress frames, accepted physics and existing Stage4A.2 behavior. It requires
+versioned output-schema/analyzer compatibility and an explicit operational
+addendum/derived manifest; original criteria/commands stay immutable. This audit
+implements none of those changes. Preserve the interrupted pilot and its failed
+execution receipt; metadata alone does not establish scientific completion.
+
 ## Stage boundaries
 
-Current authorization covers Stage4A.3b.1 host-readiness tools and bounded tests, while preserving accepted evidence and any running
+Current authorization covers only the Stage4A.3b.2a read-only audit and written
+proposal, while preserving accepted evidence and any running
 campaigns. The infrastructure reuse review and comparisons above are future
 proposals, not blanket permission for refactoring or optimization. Stage 3 benchmarking/optimization still requires
 explicit authorization. Stage 4A.3c scientific experiments, Stage 4B slip-springs,
