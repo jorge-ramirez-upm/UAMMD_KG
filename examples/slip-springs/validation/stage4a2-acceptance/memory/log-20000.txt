@@ -1,0 +1,1 @@
+semiflexible N=8 chains=2048 beads=18432 steps=20000 physical_time=1 updates/s=5.17003e+08 init_s=0.247183 integration_s=0.713032 production_s=1.07862 integration_ns/bead/step=1.934223 overall_ns/bead/step=2.925933 observation_s=0.282793 recurrent_output_s=0.00766335 final_output_s=0.0311019 bending_bytes=36 bending_launches=20002

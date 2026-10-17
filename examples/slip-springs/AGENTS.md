@@ -213,9 +213,14 @@ scientific decisions and implementation authorization.
 
 The explicit 16 October 2026 user authorization supersedes the historical
 Stage 4 gate only for Stage 4A.1/4A.2. A separate `semiflexible` CPU/GPU model
-is implemented; full scientific acceptance is PENDING user-executed Linux-host
-experiments under `STAGE4A2_VALIDATION_PLAN.md`. Do not infer acceptance from
-bounded tests. Stage 4A.3, stress extensions and slip-springs remain unauthorized.
+is implemented. **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC
+VALIDATION PASSED** on 17 October 2026, under the unchanged frozen
+`STAGE4A2_VALIDATION_PLAN.md`: 204 user-host experiments, zero statistical
+failures, archived original analysis/metadata and separate memory evidence in
+`validation/stage4a2-acceptance/`. Acceptance is limited to tested cases and
+tolerances. All 456 coarse-bias comparisons were unresolved: never claim a
+measured convergence order. Do not infer future acceptance from bounded tests.
+Stage 4A.3, stress extensions and slip-springs remain unauthorized.
 
 Keep `rouse`, its RNG, CLI, correlator, physical model and existing thresholds
 unchanged. New local files are `semiflexible.cuh/.cu`; independent force and
@@ -251,3 +256,30 @@ analysis smoke tests are bounded; `tests/semiflexible_host.py --run` is strictly
 user-host work, never run its full campaign in Codex. Keep the acceptance plan
 frozen before long experiments; archive deviations separately. Production-server
 performance and memory behavior require separate host evidence.
+
+## Reuse roadmap and active-campaign protection
+
+Before future implementation work, read [ROADMAP.md](ROADMAP.md). It records the
+user's reuse-first requirement, the unproven performance advantage of the local
+kernels, and proposed UAMMD-backed comparisons. It does not authorize those
+refactors or benchmarks. Preserve running campaign binaries, scripts, frozen
+criteria and inputs; queued runs reuse executable paths. Documentation-only
+roadmap changes must not trigger rebuilds or alter campaign artifacts.
+
+
+## Stage 4A.2 acceptance evidence and scope
+
+`STAGE4A2_REPORT.md` records the accepted tested model and provenance limits.
+Keep the frozen plan and thresholds unchanged. Preserve the zero-angle GPU
+capacity/active-count/launch regression condition: all three are zero for the
+flexible path; active configurations execute bending. Archived original metadata
+verifies 114 inactive and 90 active cases. Preserve archive byte identity and
+verify SHA256SUMS before relying on copies; indexes are derived evidence aids.
+The memory run plateau was 145 MiB whole-device (nvidia-smi), not process-specific
+allocation evidence. CPU RSS differences are not meaningful growth/shrinkage.
+No original compiler-toolkit identity is proved by a no-op host build; reported
+system CUDA 11.5.119 and development CUDA 13.0.88 are distinct provenance facts.
+Acceptance gives no universal timestep/stiffness/chain-length guarantee and no
+production-server performance claim. Synchronous diagnostic transfers and CPU
+observations remain costs. Rouse, RNGs, methods, tests and builds are unchanged.
+No stress-relaxation extensions or slip-springs; Stage 4A.3 remains unauthorized.

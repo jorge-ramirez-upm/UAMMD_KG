@@ -1,8 +1,16 @@
 # Stage 4A.2 — GPU semiflexible backbone dynamics
 
-16 October 2026. **Implementation and bounded verification complete; full
-scientific acceptance pending independent Linux-host experiments.** No Stage
-4A.3, stress relaxation extensions, slip-springs, excluded volume or hydrodynamics.
+Implementation recorded 16 October 2026; scientific acceptance recorded
+17 October 2026 (Europe/Madrid).
+
+**STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC VALIDATION PASSED**
+
+The independent user-executed Linux-host campaign completed 204 experiments
+under the frozen plan with zero automated statistical failures. Acceptance
+applies to the tested configurations and numerical tolerances, not arbitrary
+stiffness, timestep or chain length. No Stage 4A.3, stress-relaxation extensions,
+slip-springs, excluded volume or hydrodynamics are implemented. The archival
+closure below distinguishes inspected evidence from user-supplied provenance.
 
 ## Provenance and isolation
 
@@ -57,7 +65,7 @@ beads; bending energy is evaluated as kappa*|u-v|^2/2 and split into thirds.
 Thus the force-only interface's per-bead energies sum to the Hamiltonian.
 No acos, sine denominator, force clamp or angular regularization is introduced.
 
-Local gather kernels are simpler here than the generic UAMMD adjacency builder:
+The implementation uses local gather kernels:
 each bead thread reads its one/two bonds and up to three incident angles and
 writes only its own force slot. Stretch overwrites the force/energy buffer;
 bend adds on the same CUDA stream. There is no non-atomic scatter, shared force
@@ -142,7 +150,8 @@ guaranteed for the singular orientation potential over all possible thermal
 configurations. Minimum sampled lengths are recorded; unsampled minima may be
 smaller. Coordinate cancellation in long single-precision runs is another host
 validation concern. There is no unapproved cutoff, adaptive step or implicit
-integrator. Scientific acceptance therefore requires the frozen host campaign.
+integrator. The accepted frozen host campaign below covers specified test cases;
+it does not supply a universal timestep guarantee.
 
 ## Observations, performance and memory
 
@@ -231,7 +240,7 @@ NumPy 2.2.4. Both new CUDA precisions were compiled and executed.
   were executed successfully. The moderate example and full host campaign were
   **not run**. Python compilation, diff whitespace and path isolation checks pass.
 
-## Frozen scientific acceptance and remaining work
+## Frozen scientific acceptance plan and implementation-handoff limitations
 
 `STAGE4A2_VALIDATION_PLAN.md` is frozen before long experiments. SHA256:
 `fd57af47349304a9f71bae89ff6c23a4fae844894e2b12658d25b1f009cb60c2`.
@@ -245,11 +254,13 @@ No full scientific acceptance is claimed from bounded checks.
 Remaining limitations are explicit CPU initialization/observation costs,
 per-step diagnostic synchronization, uniform friction (heterogeneous force
 parameters are supported), no restart/checkpointing, and no universal timestep
-bound near singular geometries. The full host campaign, host report and separate
+bound near singular geometries. At the 16 October implementation handoff, the full host campaign and host report
+were outstanding; the 17 October closure below records their acceptance. Separate
 production-server memory/performance measurements remain outstanding. Stage
 4A.3 and slip-spring physics remain unauthorized.
 
-From the repository root, the useful current commands are:
+The following commands were supplied at implementation handoff for independent
+replication. The campaign has now completed; no rerun was performed for archival:
 
 ```sh
 make -C examples/slip-springs check-semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single
@@ -259,4 +270,145 @@ python3 examples/slip-springs/tests/semiflexible_host.py --output "$SEMI_HOST/ca
 # Review commands first. The following two commands are user-host work only:
 bash "$SEMI_HOST/campaign/commands.sh"
 python3 examples/slip-springs/tests/semiflexible_host.py --analyze "$SEMI_HOST/campaign"
+```
+
+
+## Final scientific acceptance and archival — 17 October 2026
+
+**STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC VALIDATION PASSED**
+
+The user reports successful independent Linux-host execution and authorizes
+scientific acceptance. Codex inspected accessible original records and archived
+them; it did not independently execute/authenticate the experiments or rerun
+large statistical analyses. This is a documentation/evidence-only closure.
+
+### Campaign and statistical interpretation
+
+The original directory is `/tmp/semiflexible-host.CR6bWs/campaign/`. Its original
+manifest contains **204 experiments**, 102 per precision and 68 per seed across
+420201,420202,420203. Coverage includes homogeneous N=1,8,32 and kappa=0,2,10;
+heterogeneous stretching/bending; three timesteps; exact-equilibrium radial and
+conditional angular initialization; bond-length/angular statistics; Re^2,Rg^2;
+COM diffusion; controlled Gaussian-limit monomer MSD; noise and timestep checks.
+The nonlinear finite-rest-length model is not a Gaussian Rouse chain. The
+Gaussian limit is a separate explicitly controlled test case.
+
+The unchanged original analysis contains 198 non-noise summaries, six noise
+experiments covered by its gates, an empty failure list, and the status:
+
+    statistical gates passed; manual host evidence still required failures: 0
+
+All automated statistical gates passed. The JSON preserves its literal status
+`statistical gates passed; manual host evidence still required` and the empty
+`failures` list; it is not rewritten to change that provenance. The separate
+manual host evidence and the user's acceptance instruction complete this
+closure. The original plan and all validation thresholds remain unchanged;
+plan SHA-256 is
+`fd57af47349304a9f71bae89ff6c23a4fae844894e2b12658d25b1f009cb60c2`.
+
+**Coarse-timestep bias was not statistically resolved:** all **456/456**
+reported timestep comparisons have `coarse_bias_resolved=false`. Agreement
+within the stated uncertainty/tolerances is supported; an experimentally
+measured Euler–Maruyama convergence order is not. No order is inferred from
+these unresolved comparisons.
+
+### Permanent archive and integrity
+
+Original compact records are copied byte-for-byte to
+[validation/stage4a2-acceptance/](validation/stage4a2-acceptance/). The archive
+contains 230 original files: campaign manifest/analysis/commands, 12 small
+parameter inputs, **all 204 metadata files**, and 11 memory-experiment files.
+The original supplied review/memory tar members match their accessible loose
+files. Redundant tar containers, large per-chain/trajectory observations and
+executables are not committed. The originals are left untouched.
+
+[ORIGINAL_FILES.json](validation/stage4a2-acceptance/ORIGINAL_FILES.json) lists
+all original source paths, archived paths, sizes and hashes.
+[BENDING_METADATA_INDEX.json](validation/stage4a2-acceptance/BENDING_METADATA_INDEX.json)
+is a derived index. Both indexes are labeled as derived rather than additional
+independent measurements. [SHA256SUMS](validation/stage4a2-acceptance/SHA256SUMS)
+covers all archive payloads. Source/copy SHA-256 comparisons and the complete
+archive checksum check passed. Checksums identify preserved bytes, not the
+identity of the experimenter or original executable build.
+
+The worktree initially contained the prior user-requested ROADMAP.md and its
+AGENTS link, so it was **not initially clean**. Only those known documentation
+changes were present; they were preserved, updated for this closure and included.
+The closure starting HEAD and live remote were verified as
+`cde9d092a29ac3f6fc4f9729992948dd8f09d547`. No simulator, test, RNG, numerical
+method, validation plan/threshold or build file was changed.
+
+### Separate memory-stability experiment
+
+Original directory: `/tmp/semiflexible-memory.wLFbVS/`. Both single-precision
+runs use N=8,2048 chains,kappa=10,dt=0.00005,sample400,seed420201, with the same
+recorded parameters. Original time reports, GPU-monitor readings, execution
+logs, build-command output and both run metadata/parameter files were accessible
+and are archived under `memory/` with verified hashes.
+
+| Measurement | 20,000 steps | 400,000 steps |
+| --- | ---: | ---: |
+| Physical production time | 1 | 20 |
+| Peak CPU RSS (KiB) | 108,556 | 108,392 |
+| Observed GPU run plateau (MiB) | 145 | 145 |
+| GPU integration (ns/bead/step) | 1.934 | 1.944 |
+| Overall production (ns/bead/step) | 2.926 | 2.939 |
+
+The underlying log values are 1.934223/1.944431 for GPU integration and
+2.925933/2.939158 overall. GPU memory remained at a monitored 145 MiB plateau
+during the longer experiment; the monitoring files also retain startup readings
+of 1/2 MiB. `nvidia-smi` reports **whole-device memory**, not process-specific
+allocations. The small RSS difference is not meaningful evidence of growth or
+shrinkage. These measurements support bounded observed memory for this duration
+comparison; they are not proof for every workload or a production-server claim.
+Timer scopes retain diagnostic synchronization costs and separate observation,
+recurrent output and final-output costs, as recorded in the original metadata.
+
+### Hardware, software and build provenance
+
+| Item | Recorded provenance |
+| --- | --- |
+| User-reported campaign Git SHA | `cde9d092a29ac3f6fc4f9729992948dd8f09d547` |
+| GPU | NVIDIA GeForce RTX 3060 Ti; corroborated in run metadata |
+| GPU memory | 8192 MiB, user-supplied host provenance |
+| NVIDIA driver | 580.178.04, user-supplied host provenance |
+| NumPy | 2.2.4, user-supplied host provenance |
+| System nvcc | CUDA 11.5.119, user-supplied host provenance |
+| Historical development toolkit | CUDA 13.0.88, recorded in the implementation section |
+| Original campaign executable compiler toolkit | **Not independently established** |
+
+The archived user-host build-command output says `Nothing to be done for
+'semiflexible'`; it does not prove which CUDA toolkit originally compiled the
+executables. Do not assign system CUDA 11.5.119 or development CUDA 13.0.88 to
+the campaign binaries without build evidence. No original campaign commit file,
+executable hashes, hardware/compiler terminal transcript or campaign-wide stdout
+log was present in the supplied evidence directories. The stated provenance is
+retained as user-reported where not corroborated; no missing record or checksum
+is fabricated. Inspection verifies the result records, not their executable
+source/compiler identity.
+
+### Structural zero-bending regression and remaining limits
+
+All 204 accessible original metadata files were inspected. **114** have zero
+active angles and report zero angular GPU capacity (`bending_device_bytes=0`)
+and zero bending-kernel launches. The other **90** report active angles, nonzero
+angular capacity and nonzero launches. For example, archived single N32,kappa0
+has 0/0/0 bytes/angles/launches; single N32,kappa10 has 132 bytes,31 angles,
+1,000,002 launches; double N32,kappa10 has 264 bytes,31 angles,1,000,002 launches.
+This structural optimization is a permanent scientific/computational regression
+condition; zero resulting bending force alone is insufficient evidence.
+
+Acceptance is limited to the tested configurations and frozen tolerances.
+There is no universal timestep guarantee near singular configurations and no
+measured convergence order from this campaign. Synchronous diagnostic transfers
+and CPU observations remain performance costs. No production-server performance
+or superiority over equivalent UAMMD infrastructure is established. The reuse
+review in ROADMAP.md remains future work, requiring separate authorization and
+validation. Existing `rouse` is unchanged. No slip-springs or stress-relaxation
+extensions are implemented; Stage 4A.3 is neither implemented nor authorized.
+
+Verify the permanent archive without rerunning simulations:
+
+```sh
+(cd examples/slip-springs/validation/stage4a2-acceptance && sha256sum -c SHA256SUMS)
 ```

@@ -22,8 +22,10 @@ for the tested N32/4096-chain workload. Defaults remain unchanged. Production
 servers require separate benchmarking; this is not a universal optimum.
 See [STAGE2B1_HOST_RESULTS.md](STAGE2B1_HOST_RESULTS.md) for measurements,
 provenance and artifact hashes. Stage 3 remains unauthorized. Stage 4A.2 adds a
-separate semiflexible executable with bounded verification; scientific acceptance
-is pending the independent Linux-host campaign. Stage 4A.3 is not authorized.
+separate semiflexible executable. **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE
+BACKBONE SCIENTIFIC VALIDATION PASSED** on the independent 204-experiment host
+campaign. Acceptance is limited to tested configurations/tolerances; coarse-step
+bias was unresolved, so no convergence order is claimed. Stage 4A.3 is not authorized.
 
 A Rouse chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
@@ -78,7 +80,12 @@ Stage 4A.2 provides a separate **`semiflexible`** executable: exact finite-rest-
 length harmonic stretching plus Kratky–Porod bending, free ends, unwrapped
 coordinates and Euler–Maruyama overdamped Brownian dynamics. It has no stress
 correlator, excluded volume, hydrodynamics or slip-springs. This model's bounded
-checks pass; **full scientific acceptance remains pending host experiments**.
+checks pass; **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC
+VALIDATION PASSED** (17 October 2026). The original 204-run analysis has zero
+statistical failures. The [permanent evidence archive](validation/stage4a2-acceptance/README.md)
+preserves original analysis, metadata and separate memory evidence. All 456
+timestep bias comparisons were unresolved; no convergence order is inferred.
+Acceptance covers the frozen tested cases/tolerances, not arbitrary parameters.
 See [STAGE4A2_REPORT.md](STAGE4A2_REPORT.md) and the frozen
 [host plan](STAGE4A2_VALIDATION_PLAN.md).
 
@@ -178,8 +185,10 @@ Workspace has a conservative 2 GiB cap excluding the CUDA context; storage is
 O(C*N) and independent of trajectory length. Scalar sample files grow with
 C*frames. No observation-frequency optimization is applied.
 
-Independent **user-host** campaign commands (204 runs; long work, never executed
-in Codex). First generate/review commands without running simulations:
+Independent **user-host** replication commands (204 runs; long work, never
+executed in Codex). The original campaign is now accepted and archived; no
+rerun is needed for this documentation closure. For a separately authorized
+replication, first generate/review commands without running simulations:
 
 ```sh
 SEMI_HOST=$(mktemp -d /tmp/semiflexible-host.XXXXXX)
@@ -194,11 +203,26 @@ python3 examples/slip-springs/tests/semiflexible_host.py --analyze "$SEMI_HOST/c
 
 The analyzer writes `analysis.json` and returns nonzero on a statistical gate
 failure. It streams input rows and clusters by chain. Passing it is necessary;
-full acceptance also requires the frozen plan's repeatability, isolation,
-sanitizer, memory/performance evidence and archived host report. It refuses to
+the frozen plan also requires manual host evidence. The completed campaign's
+user-supplied acceptance and archived memory records are documented in the report.
+For future replications, preserve the same evidence requirements. It refuses to
 overwrite `analysis.json`; retain each analysis as evidence. Do not apply Gaussian
 Rouse predictions to finite-rest-length dynamics. The Gaussian controlled case
 in the plan has b0=0,kappa=0 specifically to provide an independent exact test.
+
+The separate memory comparison (N=8,C=2048,kappa10,dt0.00005,sample400,
+seed420201) measured peak RSS 108556/108392 KiB and GPU run plateaus of 145/145
+MiB at 20000/400000 steps. GPU monitoring is whole-device, not process-specific;
+the small RSS difference is not interpreted as growth/shrinkage. Integration
+costs were 1.934/1.944 and overall costs 2.926/2.939 ns/bead/step on this host.
+No production-server claim follows. Host system nvcc was reported as CUDA
+11.5.119; development used CUDA 13.0.88, but the host build was a no-op, so the
+original campaign compilation toolkit remains unverified. See the report for
+full provenance. Synchronous diagnostics/CPU observations and singular-geometry
+timestep limitations remain. `rouse` is unchanged; no stress extensions or
+slip-springs are introduced. [ROADMAP.md](ROADMAP.md) retains the UAMMD reuse
+review as future work; scientific acceptance does not establish faster or
+simpler infrastructure.
 
 The Stage 4A.1 CPU reference remains available independently:
 
