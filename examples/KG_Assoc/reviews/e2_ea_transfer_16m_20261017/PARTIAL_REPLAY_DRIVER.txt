@@ -1,0 +1,57 @@
+"""Read-only validation of a fully buffered prefix; never claims endpoint completion."""
+import argparse,json,math,sys
+from pathlib import Path
+r=Path.cwd();c=r/'examples/KG_Assoc';w=c/'kg_assoc_100m/aggregate/e2/ea_transfer_16m_20261017_v1'
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_readback as readback
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--Ea',type=int,choices=(6,8,10),required=True)
+parser.add_argument('--replica',type=int,choices=(1,2,3),required=True)
+parser.add_argument('--additional-steps',type=int,required=True)
+a=parser.parse_args();assert 0<a.additional_steps<=16000000 and a.additional_steps%500000==0
+prepared=e2.campaign.load_json(w/'PREPARED.json')
+item=next(item for item in prepared['plans'] if item['system'].endswith(f'EA{a.Ea:02d}'))
+attempt=Path(item['attempt']);assert e2.campaign.sha256(attempt/'plan.json')==item['plan_sha256']
+plan=e2.campaign.load_json(attempt/'plan.json');entry=plan['histories'][a.replica-1]
+start=8000000;end=start+a.additional_steps;prefix=entry['output_prefix']
+out=w/f'partial_EA{a.Ea:02d}_R{a.replica:03d}_{a.additional_steps}_validated'
+retained_files={}
+for suffix in ('.state','.events','.numerics.tsv','.conformation.tsv','.candidate_validation.tsv'):
+ data=Path(prefix+suffix).read_bytes();lines=data.splitlines(keepends=True)
+ if data and not data.endswith(b'\n'):lines.pop()
+ records=[line for line in lines if line and not line.startswith(b'#')]
+ # A strictly later complete record proves the requested prefix is fully flushed.
+ assert records and int(records[-1].split()[0])>end,(suffix,'wait for writer buffers')
+ retained=[line for line in lines if line.startswith(b'#') or int(line.split()[0])<=end]
+ retained_files['state'+suffix]=b''.join(retained)
+out.mkdir(exist_ok=False)
+for name,data in retained_files.items():(out/name).write_bytes(data)
+metadata,rows=e2.validation.analysis.stationarity.read_state(str(out/'state.state'))
+e2.validation.check_physics(metadata,entry['physics'],state=True)
+assert [row['step'] for row in rows]==list(range(start,end+1,1000))
+for key,expected in dict(seed=entry['chemistry_seed'],md_seed=entry['md_seed'],start_step=start,total_requested_steps=24000000).items():
+ assert int(metadata[key])==expected
+system,initial=e2.validation.read_parent(entry)
+_,raw=e2.validation.analysis.dynamics.read_events(str(out/'state.events'),system)
+active,events=e2.validation.analysis.replay(rows,raw,system,initial=initial)
+numeric=e2.validation.analysis.numerics(out/'state.numerics.tsv',rows,43563)
+shapes=[list(map(float,line.split())) for line in (out/'state.conformation.tsv').read_text().splitlines() if line and not line.startswith('#')]
+assert len(shapes)==len(rows)
+assert [int(row[0]) for row in shapes]==[row['step'] for row in rows]
+assert all(all(math.isfinite(value) for value in row) and row[2]>0 and row[3]>0 for row in shapes)
+checks=[list(map(int,line.split())) for line in (out/'state.candidate_validation.tsv').read_text().splitlines() if line and not line.startswith('#')]
+assert len(checks)==a.additional_steps//100
+assert [row[0] for row in checks]==list(range(start+100,end+1,100))
+parent=e2.campaign.parse_lammps_data(entry['parent']['snapshot'])
+device=readback.check(prefix+'.initial_device_validation.tsv',entry,parent,initial['pairs'])
+result=dict(status='validated_partial_prefix_not_endpoint',Ea=a.Ea,replica=a.replica,start_step=start,
+ validated_through_absolute_step=end,validated_additional_steps=a.additional_steps,samples=len(rows),
+ candidate_comparisons=len(checks),initial_device_readback=device,accepted_events=len(events),
+ creations=rows[-1]['creations']-initial['creations'],breaks=rows[-1]['breaks']-initial['breaks'],
+ neighbor_gains=sum(event['neighbor_gain'] for event in events),neighbor_losses=sum(event['neighbor_loss'] for event in events),
+ initial=rows[0],partial_final=rows[-1],finite_sampled_numerics=True,event_network_replay_pass=True,
+ endpoint_restart_validation=False,scientific_stationarity_claim=False,
+ source_sha256=e2.hash_files([Path(__file__)]),prefix_copy_sha256=e2.hash_files(out.iterdir()))
+e2.exclusive_json(out/'RESULT.json',result)
+print(json.dumps({key:value for key,value in result.items() if key not in ('initial','partial_final','source_sha256','prefix_copy_sha256')},indent=2))

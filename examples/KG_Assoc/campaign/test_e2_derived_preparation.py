@@ -50,7 +50,7 @@ class DerivedPreparationTests(unittest.TestCase):
 
     def test_subsets_and_old_smoke_approvals_cannot_launch(self):
         self.configure()
-        for replica, replicas in ((1, None), (None, [1]), (None, [1, 2, 3])):
+        for replica, replicas in ((1, None), (None, []), (None, [3, 1]), (None, [4])):
             with self.subTest(replica=replica, replicas=replicas), self.assertRaises(ValueError):
                 e2.launch_scope(self.plan, replica, replicas)
         for mutation in (dict(selector_scope='Ea_transfer_remaining_smoke_v1'),

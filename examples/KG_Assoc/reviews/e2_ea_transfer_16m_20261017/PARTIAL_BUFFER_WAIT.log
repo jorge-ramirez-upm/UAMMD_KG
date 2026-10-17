@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/aggregate/e2/ea_transfer_16m_20261017_v1/PARTIAL_REPLAY_DRIVER.py", line 25, in <module>
+    assert records and int(records[-1].split()[0])>end,(suffix,'wait for writer buffers')
+AssertionError: ('.conformation.tsv', 'wait for writer buffers')

@@ -135,7 +135,7 @@ def build(root, output, out_of_tree=False):
 def scientific_source_hashes(hashes):
     # Administrative entry points/tests do not change simulation or validation semantics.
     ignored = {'run_e2.py', 'kg_assoc_e2.py', 'kg_assoc_e2_recover.py',
-               'catalog.py', 'catalog_model.py'}
+               'catalog.py', 'catalog_model.py', 'run_ea_preparation.py'}
     def administrative(name):
         path = Path(name)
         campaign_file = (len(path.parts) == 1 or
@@ -532,8 +532,13 @@ def matching_smoke(root, attempt, plan):
 def launch_scope(plan, replica, replicas=None):
     require(replica is None or replicas is None, 'choose one explicit selector')
     if derived_preparation(plan):
-        require(replica is None and replicas is None, '16M preparation requires the exact target triplet')
-        return plan['histories']
+        require(replica is None, 'use an explicitly approved replica list for 16M preparation')
+        selected = [1, 2, 3] if replicas is None else replicas
+        require(type(selected) is list and bool(selected) and
+                all(type(value) is int for value in selected) and
+                selected == sorted(set(selected)) and set(selected) <= {1, 2, 3},
+                '16M preparation selector must be a nonempty target-replica subset')
+        return [entry for entry in plan['histories'] if entry['replica'] in selected]
     if replicas is not None:
         import kg_assoc_e2_transfer as transfer
         sid = plan['system']['system_id']
@@ -566,14 +571,14 @@ def launch_scope(plan, replica, replicas=None):
 def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None):
     record = approval_record(path, attempt / 'plan.json', purpose)
     if derived_preparation(plan):
-        launch_scope(plan, replica, replicas)
+        selected = launch_scope(plan, replica, replicas)
         require(record.get('selector_scope') == 'Ea_transfer_16M_preparation_v1' and
                 record.get('authorized_system') == plan['system']['system_id'] and
-                record.get('authorized_replicas') == [1, 2, 3] and
+                record.get('authorized_replicas') == [entry['replica'] for entry in selected] and
                 all(type(value) is int for value in record['authorized_replicas']) and
                 all(type(record.get(key)) is int and record[key] == value for key, value in (
                     ('maximum_additional_MD_steps_per_history', 16000000),
-                    ('maximum_additional_MD_steps', 48000000),
+                    ('maximum_additional_MD_steps', 16000000 * len(selected)),
                     ('absolute_start_step', 8000000), ('absolute_end_step', 24000000))),
                 '16M preparation approval scope, endpoint or cap differs')
     elif replicas is not None:
@@ -604,7 +609,8 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
            replica=None, replicas=None):
     plan = check_plan(root, attempt, live=execute)
     histories = launch_scope(plan, replica, replicas)
-    for entry in plan['histories']:
+    checked_histories = histories if derived_preparation(plan) else plan['histories']
+    for entry in checked_histories:
         require(not any(Path(entry['output_prefix']).parent.iterdir()), 'attempt already used; preserve it')
     if not execute:
         print(json.dumps(dict(executed=False, commands=[e['command'] for e in histories]), indent=2))

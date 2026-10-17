@@ -1,0 +1,19 @@
+{
+  "absolute_end_step": 24000000,
+  "absolute_start_step": 8000000,
+  "approved": true,
+  "approved_at": "2026-10-17T09:56:42.602277+00:00",
+  "authorized_replicas": [
+    1,
+    2,
+    3
+  ],
+  "authorized_system": "F04_N010_RP080_EE08_EA06",
+  "maximum_additional_MD_steps": 48000000,
+  "maximum_additional_MD_steps_per_history": 16000000,
+  "plan_sha256": "9be86dad050df20182ffd3a6df13be93ef114ce2d5614cce79651af8ac3b29a8",
+  "purpose": "e2_derived_segment",
+  "reviewer": "Explicit user authorization in this conversation; recorded by Codex",
+  "schema_version": 1,
+  "selector_scope": "Ea_transfer_16M_preparation_v1"
+}

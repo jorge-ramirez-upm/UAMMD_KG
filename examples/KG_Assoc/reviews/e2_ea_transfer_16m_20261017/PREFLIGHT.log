@@ -1,0 +1,8 @@
+{
+  "gpu": "NVIDIA TITAN Xp GPU-8170bfc5-0914-1b23-e2b6-fdb85300a2b6",
+  "preserved_bindings": 2629,
+  "prior_smoke_verifier_pass": true,
+  "remote_sha": "798cf932510a9345a0103f2706e1744e4d3b17a9",
+  "starting_sha": "798cf932510a9345a0103f2706e1744e4d3b17a9",
+  "working_tree_clean": true
+}

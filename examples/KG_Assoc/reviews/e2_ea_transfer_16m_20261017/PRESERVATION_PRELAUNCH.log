@@ -1,0 +1,19 @@
+{
+  "unchanged_bindings": 2626,
+  "intended_administrative_validation_transitions": {
+    "examples/KG_Assoc/campaign/kg_assoc_e2.py": {
+      "before": "f2edd4c2f8e34690d7435601f179fa9012a046979f925792222ff7cc2e2239e3",
+      "after": "9a8f8e38ae2cd6127d4a3b42b2dafbd50ccc5d230c027902c6269b407fb2e9fe"
+    },
+    "examples/KG_Assoc/campaign/kg_assoc_e2_validate.py": {
+      "before": "51d241cdb7a3b86881118c1aa9d608847949aaa159ec91332f3ee6b303290880",
+      "after": "a4eaf62e336cce516ab8e475b284e5345f0dbb65551a93304bd4d401d13d493a"
+    },
+    "examples/KG_Assoc/kg_assoc_stars.cu": {
+      "before": "c98e20d500fa9e842b8525c9c354af2332edafd03e1ea9eb0b31aba13c38c83b",
+      "after": "c4f918e1cb4f489fbb818ac8a90976da5bbbdf5c404887185036dc3dbe5b6f86"
+    }
+  },
+  "formal_acceptances_and_payloads_authenticated": 12,
+  "protected_directories_unchanged": true
+}

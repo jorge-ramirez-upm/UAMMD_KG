@@ -1,0 +1,44 @@
+# One authorized immutable preparation, not permission to allocate or execute again.
+import copy,sys
+from pathlib import Path
+r=Path.cwd();c=r/'examples/KG_Assoc';root=c/'kg_assoc_100m';w=root/'aggregate/e2/ea_transfer_16m_20261017_v1'
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_transfer as transfer
+build=root/'builds/ea_transfer_16m_20261017_v1'
+e2.clean_tree();e2.check_build(build)
+record,parents=transfer.reference(root)
+chemical,requested,effective,_=transfer.streams_in_use(root)
+for path in [transfer.RESERVATIONS,*(root/'banks/e2_seed_reservations').glob('*.json')]:
+ for row in e2.campaign.load_json(path)['streams']:
+  chemical.add(row['chemistry_seed']);requested.add(row['md_seed']);effective.add(e2.validation.effective_md_seed(row['md_seed']))
+reservation=copy.deepcopy(e2.campaign.load_json(transfer.RESERVATIONS))
+reservation['reservation_id']='Ea_transfer_16M_preparation_20261017_v1'
+reservation['purpose']='Exactly nine Ea6/8/10 ordinary derived 16M histories; Ea4 rows are format-required reservations only, never authorized. Retire entire set after completion or failure; no reclamation.'
+for row in reservation['streams']:
+ row['chemistry_seed']+=400000;row['md_seed']+=400000
+new_chemical=[row['chemistry_seed'] for row in reservation['streams']];new_md=[row['md_seed'] for row in reservation['streams']];new_effective=[e2.validation.effective_md_seed(seed) for seed in new_md]
+assert len(set(new_chemical+new_md))==24 and len(set(new_effective))==12
+assert not set(new_chemical+new_md)&(chemical|requested) and not set(new_effective)&effective
+policy=root/'banks/e2_seed_reservations/ea_transfer_16m_20261017_v1.json'
+e2.exclusive_json(policy,reservation);transfer.reserved_streams(root,seed_reservations=policy)
+docs=[c/'reviews'/path for path in ['e2_ea_transfer_smoke_complete_20261017/ASSESSMENT.md','e2_ea_transfer_smoke_complete_20261017/RESULTS.log','e2_ea_transfer_cpu_20261016/IMPLEMENTATION.md','e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md','e2_readback_rounding_cpu_20261016/ASSESSMENT.md','e2_readback_rounding_cpu_20261016/BUILD_RESULTS.md','e2_ea_transfer_feasibility_20261016/PROTOCOL.md','e2_ea_transfer_16m_20261017/IMPLEMENTATION.md']]
+source=e2.campaign.git_sha()
+authority=dict(schema_version=1,authorized_by='Explicit user milestone: 16M-step E2 preparation of three remaining Ea systems',starting_sha='798cf932510a9345a0103f2706e1744e4d3b17a9',launch_source_sha=source,host='titan',authorized_histories=[dict(system=sid,replicas=[1,2,3]) for sid in transfer.TARGETS],maximum_additional_MD_steps_per_history=16000000,maximum_aggregate_additional_MD_steps=144000000,absolute_start_step=8000000,absolute_end_step=24000000,window_steps=500000,windows_per_replica=32,stop_at_first_failure=True,scientific_evidence_sha256=e2.hash_files(docs),seed_reservations=str(policy),seed_reservations_sha256=e2.campaign.sha256(policy))
+evidence=w/'AUTHORIZATION.json';e2.exclusive_json(evidence,authority)
+prepared=[]
+for sid in transfer.TARGETS:
+ attempt=root/'banks/e2_attempts/F04_N010_RP080_EE08'/('derived_'+sid+'_16m_20261017_v1')
+ plan=transfer.prepare(root,attempt,sid,16000000,evidence,smoke=False,control=False,build_evidence=build,seed_reservations=policy)
+ approval=dict(schema_version=1,approved=True,purpose='e2_derived_segment',plan_sha256=e2.campaign.sha256(attempt/'plan.json'),reviewer='Explicit user authorization in this conversation; recorded by Codex',approved_at=e2.timestamp(),selector_scope='Ea_transfer_16M_preparation_v1',authorized_system=sid,authorized_replicas=[1,2,3],maximum_additional_MD_steps_per_history=16000000,maximum_additional_MD_steps=48000000,absolute_start_step=8000000,absolute_end_step=24000000)
+ e2.exclusive_json(attempt/'approval.json',approval)
+ smoke=root/'banks/e2_attempts/F04_N010_RP080_EE08'/('derived_'+sid+'_remaining_smoke_20261017_v1')
+ e2.scoped_launch_approval(attempt/'approval.json',attempt,'e2_derived_segment',plan,None)
+ smoke_hashes=e2.matching_smoke(root,smoke,plan)
+ prepared.append(dict(system=sid,attempt=str(attempt),plan_sha256=e2.campaign.sha256(attempt/'plan.json'),approval_sha256=e2.campaign.sha256(attempt/'approval.json'),smoke_attempt=str(smoke),smoke_sha256=smoke_hashes))
+ e2.exclusive_json(w/('PREPARED_'+sid+'.json'),prepared[-1])
+ print('PREPARED',sid,flush=True)
+e2.exclusive_json(w/'PREPARED.json',dict(starting_sha=authority['starting_sha'],source_git_sha=source,plans=prepared,reservation=str(policy),reservation_sha256=e2.campaign.sha256(policy),authorization_sha256=e2.campaign.sha256(evidence),maximum_additional_MD_steps=144000000))
+for item in prepared:
+ e2.check_plan(root,Path(item['attempt']),live=True)
+print('ALL_NINE_HISTORIES_AUTHENTICATED',flush=True)

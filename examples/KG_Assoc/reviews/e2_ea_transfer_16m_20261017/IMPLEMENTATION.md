@@ -22,9 +22,11 @@ all affected targets must be rebuilt in a fresh authenticated out-of-tree build.
 
 The existing derived planner already supports ordinary segments and full parent
 provenance. The launcher now selects the diagnostic executable for its exact 16M
-branches, rejects other ordinary derived lengths/targets or replica selections,
+branches, rejects other ordinary derived lengths/targets or malformed replica selections,
 and requires a plan-bound `e2_derived_segment` approval explicitly binding target,
-replicas [1,2,3], 16M/history, 48M/triplet, start 8M and end 24M. Only titan can launch.
+selected replica identities, 16M/history, the selected aggregate cap, start 8M and
+end 24M. The initial agent launch used complete triplets; the later user-run
+handoff adds explicitly approved subsets to skip completed histories safely. Only titan can launch.
 The existing global preparation lock, immutable paths, live source checks, stream
 collision checks, matching-smoke requirement and stop-on-first-failure behavior stay.
 The endpoint validator requires readback and every chemistry-sweep oracle record
@@ -59,3 +61,11 @@ returns, network identity coverage/residence, conformation, event-integrated
 exposures, correlation/ESS and 5/10/20-block sensitivity where resolved. Existing
 E2 scientific qualifications remain. Recommendations do not register acceptance.
 No registry selection, activation, production preparation or extra MD is allowed.
+
+## User cancellation and durable execution policy
+
+The user stopped the agent-run campaign on 2026-10-17. Only Ea6 r001 had started;
+no 24M endpoint completed. No numerical mismatch was reported. All outputs remain
+preserved. AGENTS.md now prohibits assistant-run jobs longer than ten minutes.
+Long computations are handed to the user through RUN_YOURSELF.md and the tested
+run_ea_preparation.py command. No further GPU execution was performed by the agent.

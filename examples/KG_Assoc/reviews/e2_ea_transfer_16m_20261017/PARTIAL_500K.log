@@ -1,0 +1,24 @@
+{
+  "status": "validated_partial_prefix_not_endpoint",
+  "Ea": 6,
+  "replica": 1,
+  "start_step": 8000000,
+  "validated_through_absolute_step": 8500000,
+  "validated_additional_steps": 500000,
+  "samples": 501,
+  "candidate_comparisons": 5000,
+  "initial_device_readback": {
+    "status": "valid",
+    "particles": 43563,
+    "sha256": "17c281f6a244a849c2f68c025d62b792fef225cbd9207646f626f8b52d5550d2"
+  },
+  "accepted_events": 2838,
+  "creations": 1416.0,
+  "breaks": 1422.0,
+  "neighbor_gains": 1278,
+  "neighbor_losses": 1273,
+  "finite_sampled_numerics": true,
+  "event_network_replay_pass": true,
+  "endpoint_restart_validation": false,
+  "scientific_stationarity_claim": false
+}

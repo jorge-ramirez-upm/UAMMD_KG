@@ -1,0 +1,53 @@
+# One authorized campaign only. Never rerun or extend these immutable attempts.
+import sys
+from pathlib import Path
+r=Path.cwd();root=r/'examples/KG_Assoc/kg_assoc_100m';w=root/'aggregate/e2/ea_transfer_16m_20261017_v1'
+sys.path.insert(0,str(r/'examples/KG_Assoc/campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_transfer as transfer
+prepared=e2.campaign.load_json(w/'PREPARED.json')
+assert [item['system'] for item in prepared['plans']]==list(transfer.TARGETS)
+assert prepared['source_git_sha']==e2.campaign.git_sha()
+assert prepared['maximum_additional_MD_steps']==144000000
+assert e2.campaign.load_json(w/'PRESERVATION_PRELAUNCH.json')['formal_acceptances_and_payloads_authenticated']==12
+for name,count in [('REGRESSION_TESTS',178),('TRANSFER_TESTS',14),('FORENSIC_TESTS',5)]:
+ text=(w/(name+'.log')).read_text();assert 'Ran '+str(count)+' tests' in text and '\nOK\n' in text
+for name in ('NATIVE_HOST_SELF_TESTS','SMOKE_HOST_SELF_TESTS','CANDIDATE_CPU_TESTS'):
+ assert 'PASS' in (w/(name+'.log')).read_text()
+assert len(e2.campaign.load_json(w/'NATIVE_CAP_PROBES.json')['cases'])==12
+assert e2.campaign.load_json(w/'optimized_parent_probe/PROBE.json')['exact_components']==130689
+assert e2.campaign.load_json(w/'ORDINARY_SOURCE_REFINED.log')['ordinary_simulation_tokens_unchanged_except_two_CUDA_error_line_numbers']
+e2.clean_tree();e2.check_build(root/'builds/ea_transfer_16m_20261017_v1')
+for item in prepared['plans']:
+ attempt=Path(item['attempt']);plan=e2.check_plan(root,attempt,live=True)
+ assert e2.campaign.sha256(attempt/'plan.json')==item['plan_sha256']
+ assert e2.campaign.sha256(attempt/'approval.json')==item['approval_sha256']
+ e2.scoped_launch_approval(attempt/'approval.json',attempt,'e2_derived_segment',plan,None)
+ e2.check_hashes(item['smoke_sha256'])
+ assert e2.derived_preparation(plan)
+ assert all(not list((attempt/f'r{replica:03d}').iterdir()) for replica in (1,2,3))
+completed=[]
+try:
+ for item in prepared['plans']:
+  print('LAUNCH',item['system'],'r001-r003','16M_each',flush=True)
+  attempt=Path(item['attempt'])
+  e2.launch(root,attempt,execute=True,approval=attempt/'approval.json',smoke_attempt=Path(item['smoke_attempt']))
+  for replica in (1,2,3):
+   receipt=e2.campaign.load_json(attempt/f'r{replica:03d}/complete.json')
+   assert receipt['status']=='validated' and receipt['end_step']==24000000
+   assert receipt['validation']['oracle_sweeps']==160000
+   completed.append(dict(system=item['system'],replica=replica,additional_MD_steps=16000000))
+  assert sum(entry['additional_MD_steps'] for entry in completed)<=144000000
+  print('BRANCH_PASS',item['system'],'aggregate_MD_steps',len(completed)*16000000,flush=True)
+ assert len(completed)==9
+ e2.exclusive_json(w/'CAMPAIGN_RESULT.json',dict(status='passed',completed=completed,additional_MD_steps=144000000,finished_at=e2.timestamp()))
+ print('ALL_NINE_PASS',144000000,flush=True)
+except BaseException as error:
+ receipts=[]
+ for branch in prepared['plans']:
+  for replica in (1,2,3):
+   directory=Path(branch['attempt'])/f'r{replica:03d}'
+   receipts.append(dict(system=branch['system'],replica=replica,started=(directory/'started.json').exists(),complete=(directory/'complete.json').exists(),incomplete=(directory/'incomplete.json').exists()))
+ e2.exclusive_json(w/'CAMPAIGN_STOP.json',dict(status='stopped_at_first_failure',error=str(error),system=item['system'],receipts=receipts,finished_at=e2.timestamp(),no_retry=True))
+ print('CAMPAIGN_STOP',repr(error),flush=True)
+ raise

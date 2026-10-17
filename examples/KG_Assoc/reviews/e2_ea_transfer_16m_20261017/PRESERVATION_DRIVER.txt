@@ -1,0 +1,27 @@
+# Read-only integrity check; no native execution or acceptance registration.
+import hashlib,json,subprocess,sys
+from pathlib import Path
+r=Path.cwd();c=r/'examples/KG_Assoc';root=c/'kg_assoc_100m';w=root/'aggregate/e2/ea_transfer_16m_20261017_v1';sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+baseline=e2.campaign.load_json(w/'BASELINE.sha256')
+allowed={'examples/KG_Assoc/kg_assoc_stars.cu','examples/KG_Assoc/campaign/kg_assoc_e2.py','examples/KG_Assoc/campaign/kg_assoc_e2_validate.py'}
+changes={};unchanged=0
+for name,expected in baseline.items():
+ relative=str(Path(name).relative_to(r));actual=e2.campaign.sha256(Path(name))
+ if relative in allowed:
+  original=subprocess.check_output(['git','show','798cf932510a9345a0103f2706e1744e4d3b17a9:'+relative])
+  assert hashlib.sha256(original).hexdigest()==expected
+  changes[relative]=dict(before=expected,after=actual)
+ else:
+  assert actual==expected,name
+  unchanged+=1
+assert set(changes)==allowed
+records=e2.campaign.load_json(c/'reviews/e2_ea_transfer_gpu_diagnostic_retest_20261016/PREFLIGHT.json')['acceptance_records']
+assert len(records)==12
+assert set((root/'banks/e2_acceptance').glob('*.json'))=={r/row['record'] for row in records}
+for row in records:
+ record=e2.campaign.load_json(r/row['record'])
+ assert e2.campaign.sha256(r/row['record'])==row['sha256']
+ e2.check_hashes({record['evidence']:record['evidence_sha256'],record['source_plan']:record['source_plan_sha256']})
+ for entry in record['histories']:e2.check_hashes(entry['sha256'])
+print(json.dumps(dict(unchanged_bindings=unchanged,intended_administrative_validation_transitions=changes,formal_acceptances_and_payloads_authenticated=12,protected_directories_unchanged=True),indent=2))

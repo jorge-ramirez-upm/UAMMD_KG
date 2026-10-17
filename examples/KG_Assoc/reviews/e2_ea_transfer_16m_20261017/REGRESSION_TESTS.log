@@ -1,0 +1,426 @@
+test_23_conditions_69_slots_24_shared_starts_without_runtime (test_catalog.CatalogTests) ... ok
+test_C1_Ea_switch_must_be_explicit_in_recorded_command (test_catalog.CatalogTests) ... ok
+test_C1_defective_and_corrected_and_documented_not_formal (test_catalog.CatalogTests) ... ok
+test_acceptance_of_a_different_endpoint_fails_metadata_identity (test_catalog.CatalogTests) ... ok
+test_active_E1_retry_selected_without_promoting_original (test_catalog.CatalogTests) ... ok
+test_approval_is_checked_and_not_created (test_catalog.CatalogTests) ... ok
+test_bad_extension_rng_steps_and_missing_parent (test_catalog.CatalogTests) ... ok
+test_changed_metadata_dependency_invalidates_acceptance (test_catalog.CatalogTests) ... ok
+test_changed_while_reading_and_malformed_adapter_visible (test_catalog.CatalogTests) ... ok
+test_completion_hash_mismatch_and_wrong_step (test_catalog.CatalogTests) ... ok
+test_declared_root_relocation_without_basename_guessing (test_catalog.CatalogTests) ... ok
+test_discovery_independent_of_cwd_and_environment (test_catalog.CatalogTests) ... ok
+test_documented_hold_does_not_silently_replace_registry_selection (test_catalog.CatalogTests) ... ok
+test_documented_joint_hold_never_registers_formal_acceptance (test_catalog.CatalogTests) ... ok
+test_documented_review_cannot_masquerade_as_formal_acceptance (test_catalog.CatalogTests) ... ok
+test_duplicate_fresh_chemical_seeds_diagnosed (test_catalog.CatalogTests) ... ok
+test_end_to_end_cli_report_show_status_and_no_launch_commands (test_catalog.CatalogTests) ... ok
+test_explicit_documented_supersession_recommends_without_accepting (test_catalog.CatalogTests) ... ok
+test_extension_seed_and_absolute_step_continuity (test_catalog.CatalogTests) ... ok
+test_failed_publication_retains_evidence_and_collision_never_overwrites (test_catalog.CatalogTests) ... ok
+test_formal_acceptance_without_registry_is_not_an_active_start (test_catalog.CatalogTests) ... ok
+test_immutable_snapshots_html_escaping_and_csv_formula (test_catalog.CatalogTests) ... ok
+test_joint_summary_v2_is_metadata_supported_not_acceptance (test_catalog.CatalogTests) ... ok
+test_legacy_E1_and_C1_reviews_are_navigable_without_acceptance (test_catalog.CatalogTests) ... ok
+test_legacy_output_hashes_are_relative_to_receipt_directory (test_catalog.CatalogTests) ... ok
+test_lineage_cycles_and_forks_visible (test_catalog.CatalogTests) ... ok
+test_metadata_projection_deterministic_and_unknown_registry_rejected (test_catalog.CatalogTests) ... ok
+test_partial_failed_and_remote_liveness_not_inferred (test_catalog.CatalogTests) ... ok
+test_path_traversal_symlink_and_external_reference (test_catalog.CatalogTests) ... ok
+test_plan_condition_and_selected_E1_parent_disagreements (test_catalog.CatalogTests) ... ok
+test_production_completion_does_not_authorize_or_accept (test_catalog.CatalogTests) ... ok
+test_recommendation_does_not_implicitly_supersede_old_hold (test_catalog.CatalogTests) ... ok
+test_recovered_completion_retains_and_authenticates_historical_failure (test_catalog.CatalogTests) ... ok
+test_registry_selection_explicit_and_permitted_conditions_only (test_catalog.CatalogTests) ... ok
+test_runtime_tree_unchanged_and_giant_payload_never_opened (test_catalog.CatalogTests) ... ok
+test_smoke_formal_acceptance_rejected (test_catalog.CatalogTests) ... ok
+test_smoke_success_never_equilibrium_or_production_authorization (test_catalog.CatalogTests) ... ok
+test_truncated_unknown_oversize_metadata_are_visible (test_catalog.CatalogTests) ... ok
+test_changed_receipt_and_endpoint_bytes_reject_record (test_e2_acceptance.AcceptanceTests) ... ok
+test_committed_acceptances_cover_only_the_approved_endpoint_sets (test_e2_acceptance.AcceptanceTests) ... ok
+test_f3_8m_record_is_bound_to_approved_pins_and_only_one_system (test_e2_acceptance.AcceptanceTests) ... ok
+test_f3_registration_preserves_four_records_and_has_no_activation (test_e2_acceptance.AcceptanceTests) ... ok
+test_f3_rejects_6m_smoke_step_seed_physics_and_replica_substitution (test_e2_acceptance.AcceptanceTests) ... ok
+test_f6_endpoint_substitution_and_activation_without_registry_fail_closed (test_e2_acceptance.AcceptanceTests) ... ok
+test_f6_formal_record_binds_only_the_three_approved_6m_endpoints (test_e2_acceptance.AcceptanceTests) ... ok
+test_historical_C1_cannot_masquerade_as_corrected_import (test_e2_acceptance.AcceptanceTests) ... ok
+test_n20_6m_record_binds_exact_approved_endpoints_and_qualifications (test_e2_acceptance.AcceptanceTests) ... ok
+test_n20_registration_keeps_five_records_and_cannot_overwrite_or_activate (test_e2_acceptance.AcceptanceTests) ... ok
+test_n20_rejects_earlier_smoke_other_attempt_seed_and_geometry_substitution (test_e2_acceptance.AcceptanceTests) ... ok
+test_qualified_acceptance_is_immutable_and_does_not_activate (test_e2_acceptance.AcceptanceTests) ... ok
+test_smoke_duplicate_and_unmatched_source_fail_closed (test_e2_acceptance.AcceptanceTests) ... ok
+test_no_overwrite_or_wrong_plan_before_authentication (test_e2_continuous4m_review.Continuous4mTests) ... ok
+test_rejects_incomplete_or_extended_histories (test_e2_continuous4m_review.Continuous4mTests) ... ok
+test_shifted_windows_are_paired_and_not_extra_replicates (test_e2_continuous4m_review.Continuous4mTests) ... ok
+test_8m_scope_and_metric_restoration (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_existing_output_and_wrong_plan_fail_before_replay (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_pairs_preserve_three_units_and_reject_gaps (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_real_dossier_bindings_and_catalog_recommendation (test_e2_continuous8m_review.Continuous8MTests) ... ok
+test_exact_6m_scope_and_metric_restoration_on_failure (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_exact_diagnostic_and_event_means_keep_source_unchanged (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_fractional_window_comparisons_preserve_three_histories (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_no_overwrite_and_wrong_plan_fail_before_authentication (test_e2_continuous_review.ContinuousReviewTests) ... ok
+test_all_new_bank_chemical_seeds_and_kernel_seed_query (test_e2_g1.E2G1Tests) ... ok
+test_approval_dry_run_no_overwrite_and_fail_fast (test_e2_g1.E2G1Tests) ... ok
+test_approval_hash_and_smoke_parent_gates (test_e2_g1.E2G1Tests) ... ok
+test_arbitrary_segment_endpoint_and_host_switch_front_end (test_e2_g1.E2G1Tests) ... ok
+test_forced_build_evidence_authentication (test_e2_g1.E2G1Tests) ... ok
+test_generalized_exact_exposure_and_constant_warning (test_e2_g1.E2G1Tests) ... ok
+test_legacy_execution_dirty_source_and_cross_bank_rejection (test_e2_g1.E2G1Tests) ... ok
+test_non_aligned_final_endpoint_validation (test_e2_g1.E2G1Tests) ... ok
+test_non_c1_geometry_and_inherited_switch_validation (test_e2_g1.E2G1Tests) ... ok
+test_parent_identity_and_final_permanent_state_rejection (test_e2_g1.E2G1Tests) ... ok
+test_prepare_manifest_dry_run_and_analysis_pipeline (test_e2_g1.E2G1Tests) ... ok
+test_registry_mandatory_missing_acceptance_and_explicit_switch_command (test_e2_g1.E2G1Tests) ... ok
+test_registry_publication_authentication_and_use_restrictions (test_e2_g1.E2G1Tests) ... ok
+test_wrong_events_time_seeds_conformation_and_missing_oracle (test_e2_g1.E2G1Tests) ... ok
+test_misaligned_histograms_and_impossible_component_accounting_fail (test_e2_peripheral_network.PeripheralTests) ... ok
+test_published_f3_hold_dossier_binds_derived_sources_and_three_histories (test_e2_peripheral_network.PeripheralTests) ... ok
+test_subtracts_isolates_within_history_before_paired_statistics (test_e2_peripheral_network.PeripheralTests) ... ok
+test_authenticated_parent_and_build_tampering (test_e2_readback.ReadbackTests) ... ok
+test_missing_malformed_and_failed_evidence (test_e2_readback.ReadbackTests) ... ok
+test_parent_representation_and_periodic_folding (test_e2_readback.ReadbackTests) ... ok
+test_valid_and_exact_periodic_image (test_e2_readback.ReadbackTests) ... ok
+test_admin_changes_allowed_and_new_science_rejected (test_e2_recover.RecoveryTests) ... ok
+test_after_recovery_MD_before_validation_repeated_invocation_never_repeats_MD (test_e2_recover.RecoveryTests) ... ok
+test_all_preserved_endpoints_validate_before_missing_MD (test_e2_recover.RecoveryTests) ... ok
+test_ambiguous_attempt_not_selected_by_timestamp (test_e2_recover.RecoveryTests) ... ok
+test_bad_start_approval_parent_and_original_lock_fail_closed (test_e2_recover.RecoveryTests) ... ok
+test_before_MD_interruption_retains_administrative_files (test_e2_recover.RecoveryTests) ... ok
+test_completed_output_tampering_fails_before_missing_MD (test_e2_recover.RecoveryTests) ... ok
+test_documentation_commit_during_recovery_keeps_scientific_gate (test_e2_recover.RecoveryTests) ... ok
+test_incompatible_science_or_executable_fails_before_MD (test_e2_recover.RecoveryTests) ... ok
+test_interrupted_endpoint_hashing_uses_authenticated_recovery_start (test_e2_recover.RecoveryTests) ... ok
+test_nonancestor_checkout_and_redirected_replica_fail_closed (test_e2_recover.RecoveryTests) ... ok
+test_one_command_mock_workflow_review_500k_no_build_or_smoke_launch (test_e2_recover.RecoveryTests) ... ok
+test_partial_MD_or_changed_outputs_never_relaunched (test_e2_recover.RecoveryTests) ... ok
+test_preserved_r001_r002_only_r003_MD_and_repeated_invocation (test_e2_recover.RecoveryTests) ... ok
+test_review_reuse_is_hash_bound_and_never_accepts_equilibrium (test_e2_recover.RecoveryTests) ... ok
+test_approval_is_rechecked_between_selected_histories (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_approval_requires_exact_system_subset_and_both_caps (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_control_r001_and_malformed_selections_are_prohibited (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_exact_authorized_identity_set_and_all_nonempty_subsets (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_first_failure_stops_remaining_selected_histories_and_prevents_reuse (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_omitted_selector_or_scope_field_cannot_launch (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_seed_collision_and_live_source_checks_still_precede_execution (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_selected_and_unselected_output_reuse_rejected_before_start (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_selected_controls_leave_r001_completely_untouched (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_target_subset_never_starts_omitted_replicas (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_wrong_system_mode_control_or_duration_is_prohibited (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_component_definition_includes_only_non_singleton_satellites (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_existing_output_is_never_overwritten_or_reauthenticated (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_seeded_continuation_uses_validator_and_restores_callback (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_window_cannot_cross_reseed_and_pairing_is_three_histories (test_e2_satellite_continuation.SatelliteContinuationTests) ... ok
+test_default_unscoped_launch_retains_three_history_behavior (test_e2_single_history.SingleHistoryTests) ... ok
+test_dry_run_shows_exactly_one_command_and_no_process (test_e2_single_history.SingleHistoryTests) ... ok
+test_failed_selected_history_stops_without_retry (test_e2_single_history.SingleHistoryTests) ... ok
+test_live_plan_failure_prevents_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_and_step_approval_required_before_any_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_is_rechecked_immediately_before_start (test_e2_single_history.SingleHistoryTests) ... ok
+test_scoped_approval_cannot_launch_default_triplet (test_e2_single_history.SingleHistoryTests) ... ok
+test_selected_success_never_starts_other_histories (test_e2_single_history.SingleHistoryTests) ... ok
+test_used_unselected_directory_still_fails_closed (test_e2_single_history.SingleHistoryTests) ... ok
+test_wrong_mode_target_replica_or_duration_is_rejected (test_e2_single_history.SingleHistoryTests) ... ok
+test_degree_histograms_reuse_graph_replay_and_keep_rows_unchanged (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_duration_weighted_mean_does_not_average_sem_or_iat (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_gaps_boundary_crossing_partial_windows_transient_and_replica_mismatch_fail (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_pairing_and_overlap_remain_three_units_and_leave_inputs_unchanged (test_e2_window_sensitivity.SensitivityTests) ... ok
+test_continuous_six_window_history_has_two_stationary_long_windows (test_joint_e2.JointReviewTests) ... ok
+test_f6_dossier_keeps_transient_three_units_and_exact_endpoints (test_joint_e2.JointReviewTests) ... ok
+test_historical_review_driver_is_checked_against_committed_bytes (test_joint_e2.JointReviewTests) ... ok
+test_latest_executable_tampering_fails_after_historical_record_validation (test_joint_e2.JointReviewTests) ... {
+  "executed": false,
+  "commands": [
+    [
+      "never-execute"
+    ],
+    [
+      "never-execute"
+    ],
+    [
+      "never-execute"
+    ]
+  ]
+}
+{
+  "executed": false,
+  "commands": [
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+      "--input",
+      "/tmp/tmp5k6c8nyn/h1/parent/state.e1.lammpsdat",
+      "--arms",
+      "3",
+      "--narm",
+      "10",
+      "--dt",
+      "0.01",
+      "--temperature",
+      "1",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8",
+      "--nu0",
+      "20",
+      "--Nevery",
+      "100",
+      "--r-assoc",
+      "1.25",
+      "--damp",
+      "2",
+      "--K",
+      "30",
+      "--R0",
+      "1.5",
+      "--steps",
+      "12000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "420001",
+      "--md-seed",
+      "520001",
+      "--output",
+      "/tmp/tmp5k6c8nyn/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r001/state"
+    ],
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+      "--input",
+      "/tmp/tmp5k6c8nyn/h2/parent/state.e1.lammpsdat",
+      "--arms",
+      "3",
+      "--narm",
+      "10",
+      "--dt",
+      "0.01",
+      "--temperature",
+      "1",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8",
+      "--nu0",
+      "20",
+      "--Nevery",
+      "100",
+      "--r-assoc",
+      "1.25",
+      "--damp",
+      "2",
+      "--K",
+      "30",
+      "--R0",
+      "1.5",
+      "--steps",
+      "12000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "420002",
+      "--md-seed",
+      "520002",
+      "--output",
+      "/tmp/tmp5k6c8nyn/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r002/state"
+    ],
+    [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars",
+      "--input",
+      "/tmp/tmp5k6c8nyn/h3/parent/state.e1.lammpsdat",
+      "--arms",
+      "3",
+      "--narm",
+      "10",
+      "--dt",
+      "0.01",
+      "--temperature",
+      "1",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8",
+      "--nu0",
+      "20",
+      "--Nevery",
+      "100",
+      "--r-assoc",
+      "1.25",
+      "--damp",
+      "2",
+      "--K",
+      "30",
+      "--R0",
+      "1.5",
+      "--steps",
+      "12000",
+      "--diagnostic-every",
+      "1000",
+      "--seed",
+      "420003",
+      "--md-seed",
+      "520003",
+      "--output",
+      "/tmp/tmp5k6c8nyn/banks/e2_attempts/F03_N010_RP080_EE08/probe_v1/r003/state"
+    ]
+  ]
+}
+VALIDATED attempt0: three original histories
+ok
+test_pairing_uses_three_replica_changes_not_frames (test_joint_e2.JointReviewTests) ... ok
+test_prior_estimates_reused_without_mutating_prior_evidence (test_joint_e2.JointReviewTests) ... ok
+test_published_6m_dossier_is_bound_and_remains_only_a_recommendation (test_joint_e2.JointReviewTests) ... ok
+test_report_no_overwrite_and_no_automatic_acceptance (test_joint_e2.JointReviewTests) ... ok
+test_restart_boundary_keeps_histories_and_windows_separate (test_joint_e2.JointReviewTests) ... ok
+test_seed_parent_step_boundary_and_replica_mismatches_fail (test_joint_e2.JointReviewTests) ... ok
+test_six_windows_and_separate_long_windows_keep_three_units (test_joint_e2.JointReviewTests) ... ok
+test_wrong_4m_restart_seed_or_counter_is_rejected (test_joint_e2.JointReviewTests) ... ok
+test_boundary_never_stitches_correlation_windows (test_joint_rp040_8m.Joint8mTests) ... ok
+test_complete_exports_conserve_multigraph_and_peripheral_populations (test_joint_rp040_8m.Joint8mTests) ... ok
+test_existing_output_cannot_authenticate_or_overwrite (test_joint_rp040_8m.Joint8mTests) ... ok
+test_metric_selection_is_restored_on_estimation_failure (test_joint_rp040_8m.Joint8mTests) ... ok
+test_pairing_preserves_three_history_changes (test_joint_rp040_8m.Joint8mTests) ... ok
+test_wrong_endpoint_scope_cannot_create_output (test_joint_rp040_8m.Joint8mTests) ... ok
+test_cached_mean_executes_identical_iat_arithmetic (test_reproduce.ReviewGuards) ... ok
+test_existing_output_and_wrong_plan_never_authenticate (test_reproduce.ReviewGuards) ... ok
+test_exported_histories_and_window_means_preserve_graph_identities (test_reproduce.ReviewGuards) ... ok
+test_four_parallel_bonds_and_invalid_valence (test_reproduce.ReviewGuards) ... ok
+test_iat_is_restored_after_success_or_failure (test_reproduce.ReviewGuards) ... ok
+test_paired_windows_keep_transient_as_context (test_reproduce.ReviewGuards) ... ok
+test_parallel_bonds_and_intra_loops_keep_permanent_star_ids (test_reproduce.ReviewGuards) ... ok
+test_wrong_endpoint_or_system_creates_no_output (test_reproduce.ReviewGuards) ... ok
+test_authorization_boundaries_and_no_automatic_extension (test_run_e2.WorkflowTests) ... ok
+test_build_reuse_across_administrative_commits_keeps_original_provenance (test_run_e2.WorkflowTests) ... ok
+test_build_reuse_and_incompatible_rebuild (test_run_e2.WorkflowTests) ... BUILD reused authenticated old
+BUILD rebuilding six targets; logs: /tmp/tmpv2o1cet5/builds/run_e2_build_d317bc2cefe144789525d8433dcffb48
+ok
+test_c1_selects_corrected_parents_and_explicit_switch (test_run_e2.WorkflowTests) ... SMOKE F04_N010_RP080_EE08_EA08: /tmp/tmpfmz77ksl/banks/e2_attempts/F04_N010_RP080_EE08/smoke_0a10808ca32e44488758413d77803385
+ok
+test_clean_end_to_end_mock_smoke_all_then_skips_without_gpu (test_run_e2.WorkflowTests) ... SKIP verified compatible F04_N010_RP080_EE04_EA04: existing
+SKIP verified compatible F04_N010_RP020_EE08_EA04: existing
+SMOKE F03_N010_RP080_EE08_EA04: /tmp/tmphse6548d/banks/e2_attempts/F03_N010_RP080_EE08/smoke_018977007f1649b5a35057810a93c363
+PASS F03_N010_RP080_EE08_EA04 (three replicas; numerical validation)
+SMOKE F06_N010_RP080_EE08_EA04: /tmp/tmphse6548d/banks/e2_attempts/F06_N010_RP080_EE08/smoke_7284ebc67e00469aa66c6e12bde0e0bc
+PASS F06_N010_RP080_EE08_EA04 (three replicas; numerical validation)
+SMOKE F04_N020_RP080_EE08_EA04: /tmp/tmphse6548d/banks/e2_attempts/F04_N020_RP080_EE08/smoke_f2b402a0af98498da392b76036d59dd3
+PASS F04_N020_RP080_EE08_EA04 (three replicas; numerical validation)
+SMOKE F04_N040_RP080_EE08_EA04: /tmp/tmphse6548d/banks/e2_attempts/F04_N040_RP080_EE08/smoke_f7c9373d6940477f80a74dd08c3a5496
+PASS F04_N040_RP080_EE08_EA04 (three replicas; numerical validation)
+SMOKE F04_N010_RP080_EE08_EA08: /tmp/tmphse6548d/banks/e2_attempts/F04_N010_RP080_EE08/smoke_348fd28e81d64d068c561e63cf99691e
+PASS F04_N010_RP080_EE08_EA08 (three replicas; numerical validation)
+
+SKIPPED_VERIFIED F04_N010_RP080_EE04_EA04
+SKIPPED_VERIFIED F04_N010_RP020_EE08_EA04
+PASSED F03_N010_RP080_EE08_EA04
+PASSED F06_N010_RP080_EE08_EA04
+PASSED F04_N020_RP080_EE08_EA04
+PASSED F04_N040_RP080_EE08_EA04
+PASSED F04_N010_RP080_EE08_EA08
+Evidence: /tmp/tmphse6548d/aggregate/e2/workflow/smoke-all_544f37769e904522b05022b77ba0d14b/report.json
+No equilibrium acceptance or production launch is implied.
+SKIP verified compatible F04_N010_RP080_EE04_EA04: existing
+SKIP verified compatible F04_N010_RP020_EE08_EA04: existing
+SKIP verified compatible F03_N010_RP080_EE08_EA04: smoke_018977007f1649b5a35057810a93c363
+SKIP verified compatible F06_N010_RP080_EE08_EA04: smoke_7284ebc67e00469aa66c6e12bde0e0bc
+SKIP verified compatible F04_N020_RP080_EE08_EA04: smoke_f2b402a0af98498da392b76036d59dd3
+SKIP verified compatible F04_N040_RP080_EE08_EA04: smoke_f7c9373d6940477f80a74dd08c3a5496
+SKIP verified compatible F04_N010_RP080_EE08_EA08: smoke_348fd28e81d64d068c561e63cf99691e
+ok
+test_discovery_verified_skip_and_tamper_or_physics_mismatch_reject (test_run_e2.WorkflowTests) ... 
+SKIPPED_VERIFIED F04_N010_RP080_EE04_EA04
+SKIPPED_VERIFIED F04_N010_RP020_EE08_EA04
+SKIPPED_VERIFIED F03_N010_RP080_EE08_EA04
+SKIPPED_VERIFIED F06_N010_RP080_EE08_EA04
+SKIPPED_VERIFIED F04_N020_RP080_EE08_EA04
+SKIPPED_VERIFIED F04_N040_RP080_EE08_EA04
+SKIPPED_VERIFIED F04_N010_RP080_EE08_EA08
+Evidence: /tmp/tmphse6548d/aggregate/e2/workflow/smoke-all_dca96bd6ab184739b2c31871fe652758/report.json
+No equilibrium acceptance or production launch is implied.
+SKIP verified compatible F04_N010_RP080_EE04_EA04: old
+NOT REUSABLE old: tampered outputs
+ok
+test_exclusive_directories_lock_and_no_overwrite (test_run_e2.WorkflowTests) ... ok
+test_explicit_equilibration_launches_only_named_steps_and_scope (test_run_e2.WorkflowTests) ... CHECKPOINT: 3/3 histories validated; 12000 steps/history; 2 review windows of 6000 steps.
+ok
+test_failure_retains_attempt_logs_and_rerun_gets_new_identity (test_run_e2.WorkflowTests) ... 
+SCIENTIFIC_REVIEW_REQUIRED F04_N010_RP080_EE04_EA04 — /tmp/tmp_pqhup0h/report.md
+Evidence: /tmp/tmp_pqhup0h/aggregate/e2/workflow/equilibrate_2be0ac36d3f644d0b93e1afbbe4a8d6c/report.json
+No equilibrium acceptance or production launch is implied.
+SMOKE F04_N010_RP080_EE04_EA04: /tmp/tmp10c8q61k/banks/e2_attempts/F04_N010_RP080_EE04/smoke_8ad1e880bc40411c9253b1596f354a71
+SMOKE F04_N010_RP080_EE04_EA04: /tmp/tmp10c8q61k/banks/e2_attempts/F04_N010_RP080_EE04/smoke_f3398f7e135d416cab2d6e557dc46462
+ok
+test_invalid_review_window_fails_before_md_and_analysis_failure_is_retained (test_run_e2.WorkflowTests) ... ok
+test_paths_discovered_independent_of_cwd_and_wrong_branch_rejected (test_run_e2.WorkflowTests) ... ok
+test_pending_failed_and_running_status (test_run_e2.WorkflowTests) ... ok
+test_plan_bound_automatic_approval_and_provenance (test_run_e2.WorkflowTests) ... ok
+test_review_automatically_analyzes_without_launching (test_run_e2.WorkflowTests) ... ok
+test_shared_smoke_gate_rejects_binary_or_validation_changes (test_run_e2.WorkflowTests) ... ok
+test_status_and_review_cannot_launch_or_accept_equilibrium (test_run_e2.WorkflowTests) ... ok
+test_wave_a_checkpoint_default_four_windows_and_no_extension (test_run_e2.WorkflowTests) ... 
+SCIENTIFIC_REVIEW_REQUIRED F04_N010_RP080_EE04_EA04 — /tmp/tmpwooy22p2/report.md
+Evidence: /tmp/tmpwooy22p2/aggregate/e2/workflow/review_3da7d01cb5fb4b42841131dce7e5a792/report.json
+No equilibrium acceptance or production launch is implied.
+CHECKPOINT: 3/3 histories validated; 2000000 steps/history; 4 review windows of 500000 steps.
+ok
+test_compatibility_canonicalizes_only_exact_validation_changes (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_diagnostic_executable_selected_for_ordinary_16m (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_exact_three_target_triplets (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_first_failure_stops_and_used_outputs_cannot_restart (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_missing_or_wrong_typed_approval_fields (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_only_titan_and_matching_smoke_are_allowed (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_subsets_and_old_smoke_approvals_cannot_launch (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_wrong_target_control_duration_and_endpoints (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_genuine_failure_stops_campaign_and_subsequent_invocation (test_run_ea_preparation.ManualExecutionTests) ... 
+SCIENTIFIC_REVIEW_REQUIRED F04_N010_RP080_EE04_EA04 — /tmp/tmpfh31f4va/report.md
+Evidence: /tmp/tmpfh31f4va/aggregate/e2/workflow/equilibrate_9904a552390647db856ce25fe6fe77de/report.json
+No equilibrium acceptance or production launch is implied.
+RUN F04_N010_RP080_EE08_EA06 r001 8M -> 24M; logs: /tmp/tmpsa8rr693/manual/attempt_0/r001
+ok
+test_same_command_skips_completed_and_replaces_only_interrupted_history (test_run_ea_preparation.ManualExecutionTests) ... RUN F04_N010_RP080_EE08_EA06 r001 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_0/r001
+PASS F04_N010_RP080_EE08_EA06 1
+RUN F04_N010_RP080_EE08_EA06 r002 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_1/r002
+
+Stopped. Run the same command to continue; earlier outputs are preserved.
+SKIP validated F04_N010_RP080_EE08_EA06 1
+PRESERVE interrupted; restart this history from its 8M parent: F04_N010_RP080_EE08_EA06 2
+RUN F04_N010_RP080_EE08_EA06 r002 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_2/r002
+PASS F04_N010_RP080_EE08_EA06 2
+RUN F04_N010_RP080_EE08_EA06 r003 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_3/r003
+PASS F04_N010_RP080_EE08_EA06 3
+RUN F04_N010_RP080_EE08_EA08 r001 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_4/r001
+PASS F04_N010_RP080_EE08_EA08 1
+RUN F04_N010_RP080_EE08_EA08 r002 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_5/r002
+PASS F04_N010_RP080_EE08_EA08 2
+RUN F04_N010_RP080_EE08_EA08 r003 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_6/r003
+PASS F04_N010_RP080_EE08_EA08 3
+RUN F04_N010_RP080_EE08_EA10 r001 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_7/r001
+PASS F04_N010_RP080_EE08_EA10 1
+RUN F04_N010_RP080_EE08_EA10 r002 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_8/r002
+PASS F04_N010_RP080_EE08_EA10 2
+RUN F04_N010_RP080_EE08_EA10 r003 8M -> 24M; logs: /tmp/tmp6boqvgtm/manual/attempt_9/r003
+PASS F04_N010_RP080_EE08_EA10 3
+ALL NINE 24M ENDPOINTS VALIDATED. Scientific acceptance is still separate.
+SKIP validated F04_N010_RP080_EE08_EA06 1
+SKIP validated F04_N010_RP080_EE08_EA06 2
+SKIP validated F04_N010_RP080_EE08_EA06 3
+SKIP validated F04_N010_RP080_EE08_EA08 1
+SKIP validated F04_N010_RP080_EE08_EA08 2
+SKIP validated F04_N010_RP080_EE08_EA08 3
+SKIP validated F04_N010_RP080_EE08_EA10 1
+SKIP validated F04_N010_RP080_EE08_EA10 2
+SKIP validated F04_N010_RP080_EE08_EA10 3
+ALL NINE 24M ENDPOINTS VALIDATED. Scientific acceptance is still separate.
+ok
+test_completed_receipt_is_validated_without_launch (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_empty_prepared_partial_and_numerical_failure_classification (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_nonempty_failure_or_mismatch_evidence_never_triggers_new_seed_retry (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_post_md_interrupt_recovers_receipt_without_repeating_md (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_scope_is_exact_nine_and_atomic_status_updates_do_not_overwrite_outputs (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_existing_unused_approval_is_authenticated_and_reused_after_prepare_interrupt (test_run_ea_preparation.ReservationAndPreparationTests) ... ok
+test_fresh_reservations_exclude_all_prior_requested_and_effective_streams (test_run_ea_preparation.ReservationAndPreparationTests) ... ok
+test_single_replica_scope_and_unselected_outputs_are_preserved (test_run_ea_preparation.SelectedPreparationTests) ... ok
+test_subsets_are_bound_exactly_and_cannot_implicitly_expand (test_run_ea_preparation.SelectedPreparationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 189 tests in 17.414s
+
+OK

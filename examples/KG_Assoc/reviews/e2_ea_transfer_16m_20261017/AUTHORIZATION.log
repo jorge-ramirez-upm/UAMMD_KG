@@ -1,0 +1,52 @@
+{
+  "absolute_end_step": 24000000,
+  "absolute_start_step": 8000000,
+  "authorized_by": "Explicit user milestone: 16M-step E2 preparation of three remaining Ea systems",
+  "authorized_histories": [
+    {
+      "replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "replicas": [
+        1,
+        2,
+        3
+      ],
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ],
+  "host": "titan",
+  "launch_source_sha": "e1f31a830cb50cc03196c821c784f1a0179d4b41",
+  "maximum_additional_MD_steps_per_history": 16000000,
+  "maximum_aggregate_additional_MD_steps": 144000000,
+  "schema_version": 1,
+  "scientific_evidence_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_cutoff_contract_cpu_20261016/CONTRACT.md": "809060e0da31e6508138bcaf136c3880cd2da8766332ecf19fa93082ad6d7f8e",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_16m_20261017/IMPLEMENTATION.md": "9272a48757ab7540cc15defd0f1648e1534d54e665787712d74f381f299c5d6b",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_cpu_20261016/IMPLEMENTATION.md": "ad34d885b9ba0be9fb32b55936fca428f8e7e6673c892ec7cea5fd9d70137578",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_feasibility_20261016/PROTOCOL.md": "9ecf90e20fc7d8454c2d0a98b094d179e2520d601ea8e1a78c4277bc12d68fb5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_smoke_complete_20261017/ASSESSMENT.md": "608139f5ba1134b9a23981b3d9613853ed77436cbcc6baaad8116f63572d44e9",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea_transfer_smoke_complete_20261017/RESULTS.log": "d45649ae8621fa1b1f331b457e7fe21d4629d24171c7e1d961033f0f44c809b3",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_readback_rounding_cpu_20261016/ASSESSMENT.md": "48bb2d583ab82aafbb3269274cd939db9dbab098d684f5ab603939e8b9ed39b8",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_readback_rounding_cpu_20261016/BUILD_RESULTS.md": "0f89523ec6e65e392c7600a40b2b92392f637269f76127d00b971a72a9134b4c"
+  },
+  "seed_reservations": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_seed_reservations/ea_transfer_16m_20261017_v1.json",
+  "seed_reservations_sha256": "3633fcd534c2e341f670826c26852e867799c3570cb525f10c4537dbe0b9d88b",
+  "starting_sha": "798cf932510a9345a0103f2706e1744e4d3b17a9",
+  "stop_at_first_failure": true,
+  "window_steps": 500000,
+  "windows_per_replica": 32
+}

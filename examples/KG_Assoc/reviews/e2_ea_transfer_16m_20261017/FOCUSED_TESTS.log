@@ -1,0 +1,80 @@
+test_compatibility_canonicalizes_only_exact_validation_changes (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_diagnostic_executable_selected_for_ordinary_16m (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_exact_three_target_triplets (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_first_failure_stops_and_used_outputs_cannot_restart (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_missing_or_wrong_typed_approval_fields (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_only_titan_and_matching_smoke_are_allowed (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_subsets_and_old_smoke_approvals_cannot_launch (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_wrong_target_control_duration_and_endpoints (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_default_unscoped_launch_retains_three_history_behavior (test_e2_single_history.SingleHistoryTests) ... ok
+test_dry_run_shows_exactly_one_command_and_no_process (test_e2_single_history.SingleHistoryTests) ... ok
+test_failed_selected_history_stops_without_retry (test_e2_single_history.SingleHistoryTests) ... ok
+test_live_plan_failure_prevents_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_and_step_approval_required_before_any_execution (test_e2_single_history.SingleHistoryTests) ... ok
+test_scope_is_rechecked_immediately_before_start (test_e2_single_history.SingleHistoryTests) ... ok
+test_scoped_approval_cannot_launch_default_triplet (test_e2_single_history.SingleHistoryTests) ... ok
+test_selected_success_never_starts_other_histories (test_e2_single_history.SingleHistoryTests) ... ok
+test_used_unselected_directory_still_fails_closed (test_e2_single_history.SingleHistoryTests) ... ok
+test_wrong_mode_target_replica_or_duration_is_rejected (test_e2_single_history.SingleHistoryTests) ... ok
+test_approval_is_rechecked_between_selected_histories (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_approval_requires_exact_system_subset_and_both_caps (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_control_r001_and_malformed_selections_are_prohibited (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_exact_authorized_identity_set_and_all_nonempty_subsets (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_first_failure_stops_remaining_selected_histories_and_prevents_reuse (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_omitted_selector_or_scope_field_cannot_launch (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_seed_collision_and_live_source_checks_still_precede_execution (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_selected_and_unselected_output_reuse_rejected_before_start (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_selected_controls_leave_r001_completely_untouched (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_target_subset_never_starts_omitted_replicas (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_wrong_system_mode_control_or_duration_is_prohibited (test_e2_remaining_smoke.RemainingSmokeTests) ... ok
+test_genuine_failure_stops_campaign_and_subsequent_invocation (test_run_ea_preparation.ManualExecutionTests) ... RUN F04_N010_RP080_EE08_EA06 r001 8M -> 24M; logs: /tmp/tmpsfl6wydt/manual/attempt_0/r001
+ok
+test_same_command_skips_completed_and_replaces_only_interrupted_history (test_run_ea_preparation.ManualExecutionTests) ... RUN F04_N010_RP080_EE08_EA06 r001 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_0/r001
+PASS F04_N010_RP080_EE08_EA06 1
+RUN F04_N010_RP080_EE08_EA06 r002 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_1/r002
+
+Stopped. Run the same command to continue; earlier outputs are preserved.
+SKIP validated F04_N010_RP080_EE08_EA06 1
+PRESERVE interrupted; restart this history from its 8M parent: F04_N010_RP080_EE08_EA06 2
+RUN F04_N010_RP080_EE08_EA06 r002 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_2/r002
+PASS F04_N010_RP080_EE08_EA06 2
+RUN F04_N010_RP080_EE08_EA06 r003 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_3/r003
+PASS F04_N010_RP080_EE08_EA06 3
+RUN F04_N010_RP080_EE08_EA08 r001 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_4/r001
+PASS F04_N010_RP080_EE08_EA08 1
+RUN F04_N010_RP080_EE08_EA08 r002 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_5/r002
+PASS F04_N010_RP080_EE08_EA08 2
+RUN F04_N010_RP080_EE08_EA08 r003 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_6/r003
+PASS F04_N010_RP080_EE08_EA08 3
+RUN F04_N010_RP080_EE08_EA10 r001 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_7/r001
+PASS F04_N010_RP080_EE08_EA10 1
+RUN F04_N010_RP080_EE08_EA10 r002 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_8/r002
+PASS F04_N010_RP080_EE08_EA10 2
+RUN F04_N010_RP080_EE08_EA10 r003 8M -> 24M; logs: /tmp/tmph9n5oyak/manual/attempt_9/r003
+PASS F04_N010_RP080_EE08_EA10 3
+ALL NINE 24M ENDPOINTS VALIDATED. Scientific acceptance is still separate.
+SKIP validated F04_N010_RP080_EE08_EA06 1
+SKIP validated F04_N010_RP080_EE08_EA06 2
+SKIP validated F04_N010_RP080_EE08_EA06 3
+SKIP validated F04_N010_RP080_EE08_EA08 1
+SKIP validated F04_N010_RP080_EE08_EA08 2
+SKIP validated F04_N010_RP080_EE08_EA08 3
+SKIP validated F04_N010_RP080_EE08_EA10 1
+SKIP validated F04_N010_RP080_EE08_EA10 2
+SKIP validated F04_N010_RP080_EE08_EA10 3
+ALL NINE 24M ENDPOINTS VALIDATED. Scientific acceptance is still separate.
+ok
+test_completed_receipt_is_validated_without_launch (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_empty_prepared_partial_and_numerical_failure_classification (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_nonempty_failure_or_mismatch_evidence_never_triggers_new_seed_retry (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_post_md_interrupt_recovers_receipt_without_repeating_md (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_scope_is_exact_nine_and_atomic_status_updates_do_not_overwrite_outputs (test_run_ea_preparation.ManualLifecycleTests) ... ok
+test_existing_unused_approval_is_authenticated_and_reused_after_prepare_interrupt (test_run_ea_preparation.ReservationAndPreparationTests) ... ok
+test_fresh_reservations_exclude_all_prior_requested_and_effective_streams (test_run_ea_preparation.ReservationAndPreparationTests) ... ok
+test_single_replica_scope_and_unselected_outputs_are_preserved (test_run_ea_preparation.SelectedPreparationTests) ... ok
+test_subsets_are_bound_exactly_and_cannot_implicitly_expand (test_run_ea_preparation.SelectedPreparationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 0.119s
+
+OK

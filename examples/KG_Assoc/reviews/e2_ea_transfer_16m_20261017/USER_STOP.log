@@ -1,0 +1,37 @@
+{
+  "additional_MD_steps_lower_bound": 2332900,
+  "exact_interruption_step_not_serialized": true,
+  "gpu_compute_processes_after_stop": [],
+  "histories_completed": 0,
+  "histories_not_started": 8,
+  "histories_started": 1,
+  "last_written": {
+    "state.candidate_validation.tsv": {
+      "complete_rows": 23042,
+      "last_absolute_step": 10304200
+    },
+    "state.conformation.tsv": {
+      "complete_rows": 2207,
+      "last_absolute_step": 10206000
+    },
+    "state.events": {
+      "complete_rows": 13344,
+      "last_absolute_step": 10332900
+    },
+    "state.numerics.tsv": {
+      "complete_rows": 2320,
+      "last_absolute_step": 10319000
+    },
+    "state.state": {
+      "complete_rows": 2313,
+      "last_absolute_step": 10312000
+    }
+  },
+  "no_new_acceptance": true,
+  "original_seed_reservations_retired": true,
+  "reason": "Explicit user request: stop immediately and provide a self-run workflow; no assistant jobs longer than 10 minutes.",
+  "recorded_at": "2026-10-17T10:37:48.811406+00:00",
+  "simulation_outputs_preserved": true,
+  "status": "user_cancelled_not_numerical_failure",
+  "stopped_at": "2026-10-17T10:30:18.918563+00:00"
+}

@@ -1,0 +1,72 @@
+{
+  "error": "",
+  "finished_at": "2026-10-17T10:30:18.919037+00:00",
+  "no_retry": true,
+  "receipts": [
+    {
+      "complete": false,
+      "incomplete": true,
+      "replica": 1,
+      "started": true,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 2,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 3,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 1,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 2,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 3,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 1,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 2,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "complete": false,
+      "incomplete": false,
+      "replica": 3,
+      "started": false,
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ],
+  "status": "stopped_at_first_failure",
+  "system": "F04_N010_RP080_EE08_EA06"
+}

@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Compare ordinary (non-diagnostic) preprocessed source using the production compiler."""
+import hashlib
+import json
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import tempfile
+
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parents[3]
+ASSOC = REPO / 'examples/KG_Assoc'
+START = '798cf932510a9345a0103f2706e1744e4d3b17a9'
+command = shlex.split(subprocess.check_output(
+    ['make', '-n', '-B', 'kg_assoc_stars'], cwd=ASSOC, text=True).strip())
+source_index = command.index('kg_assoc_stars.cu')
+output_index = command.index('-o')
+del command[output_index:output_index + 2]
+command.remove('-lz')
+# Freeze only build timestamps for this comparison; production builds keep actual timestamps.
+command.extend(['-E', '-I' + str(ASSOC), '-D__TIME__="00:00:00"',
+                '-D__DATE__="Oct 16 2026"'])
+original = subprocess.check_output(['git', 'show', START + ':examples/KG_Assoc/kg_assoc_stars.cu'], cwd=REPO)
+current = (ASSOC / 'kg_assoc_stars.cu').read_bytes()
+results = []
+with tempfile.TemporaryDirectory(prefix='readback_ordinary_') as temporary:
+    source = Path(temporary) / 'ordinary.cu'
+    command[source_index] = str(source)
+    for content in (original, current):
+        source.write_bytes(content)
+        output = subprocess.check_output(command, cwd=ASSOC, text=True)
+        lines = [line for line in output.splitlines() if not re.match(r'^\s*#\s*(?:line\s+)?\d', line)]
+        # Only CUDA error-report __LINE__ metadata moved; compare every other token exactly.
+        for before, after in ((1103, 1113), (1159, 1169)):
+            number = before if not results else after
+            pattern = r'(__cudaSafeCall\(cudaStreamSynchronize\(integrator->getStream\(\)\), "[^"]+/ordinary.cu", )' + str(number) + r'(\);)'
+            joined = '\n'.join(lines)
+            joined, count = re.subn(pattern, lambda match: match[1] + 'CUDA_ERROR_LINE' + match[2], joined)
+            assert count == 1, (number, count)
+            lines = joined.splitlines()
+        normalized = ' '.join(' '.join(lines).split())
+        results.append(hashlib.sha256(normalized.encode()).hexdigest())
+assert results[0] == results[1], 'ordinary preprocessed source changed'
+print(json.dumps(dict(ordinary_simulation_tokens_unchanged_except_two_CUDA_error_line_numbers=True, normalized_sha256=results,
+                      command=command, GPU_calls=0), indent=2))
