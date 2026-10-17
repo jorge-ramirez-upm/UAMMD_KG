@@ -2,6 +2,7 @@
 """Authenticated, immutable three-history E2 segments; MD requires hash-bound approval."""
 
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import json
 import os
@@ -205,8 +206,9 @@ def corrected_c1(root, replica, replay=True):
 
 
 def command(entry, smoke):
+    preparation = bool(entry.get('lineage')) and entry['end_step'] - entry['start_step'] == 16000000
     executable = Path(entry.get('executable_directory', HERE.parent)) / (
-        'kg_assoc_stars_candidate_smoke' if smoke else 'kg_assoc_stars')
+        'kg_assoc_stars_candidate_smoke' if smoke or preparation else 'kg_assoc_stars')
     parent = entry['parent']
     result = [str(executable), '--input' if parent['kind'] == 'e1' else '--restart-prefix',
               parent['snapshot'] if parent['kind'] == 'e1' else parent['prefix']]
@@ -438,10 +440,76 @@ def approval_record(path, plan_path, purpose):
     return record
 
 
+def derived_preparation(plan):
+    if plan.get('lineage_mode') != 'Ea_reference_transfer_v1' or plan['smoke']:
+        return False
+    import kg_assoc_e2_transfer as transfer
+    require(plan['system']['system_id'] in transfer.TARGETS and
+            plan.get('reference_control') is False and type(plan['steps']) is int and
+            plan['steps'] == 16000000 and
+            [h['replica'] for h in plan['histories']] == [1, 2, 3] and
+            all(h['start_step'] == 8000000 and h['end_step'] == 24000000
+                for h in plan['histories']), 'ordinary derived preparation requires exact 8M-to-24M target triplet')
+    return True
+
+
+# Canonicalize ONLY these validation/front-end changes when inheriting the completed smoke.
+# Every physical source byte and all other scientific sources must remain identical.
+VALIDATION_TRANSITIONS = {
+    'kg_assoc_stars.cu': [
+        ("""    const bool derivedPreparation =
+        parameters.steps == 16000000 && parameters.reseedChemistry &&
+        !parameters.referenceControl && parameters.switchEa && parameters.switchEaFrom == 4.0 &&
+        (parameters.ea == 6.0 || parameters.ea == 8.0 || parameters.ea == 10.0) &&
+        !parameters.restartPrefix.empty() && !parameters.derivedBranchId.empty();
+    if (parameters.steps > 10000 && !derivedPreparation) {
+      throw std::runtime_error("candidate-oracle smoke executable is limited to 10000 MD steps");
+    }
+""", """    if (parameters.steps > 10000) {
+      throw std::runtime_error("candidate-oracle smoke executable is limited to 10000 MD steps");
+    }
+"""),
+        ("""#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+      if (derivedPreparation && restart.completedSteps != 8000000) {
+        throw std::runtime_error("derived diagnostic preparation requires the absolute 8M parent");
+      }
+#endif
+""", ''),
+    ],
+    'campaign/kg_assoc_e2_validate.py': [
+        ("""    # Ordinary 16M Ea transfers retain every smoke diagnostic; callers cannot disable them.
+    oracle = oracle or (bool(entry.get('lineage')) and
+                        entry['end_step'] - entry['start_step'] == 16000000)
+""", ''),
+    ],
+}
+
+
 def smoke_code_compatible(smoke, plan):
-    return (smoke['executable_sha256'] == plan['executable_sha256'] and
-            scientific_source_hashes(smoke['source_sha256']) ==
-            scientific_source_hashes(plan['source_sha256']))
+    before = scientific_source_hashes(smoke['source_sha256'])
+    after = scientific_source_hashes(plan['source_sha256'])
+    if smoke['executable_sha256'] == plan['executable_sha256'] and before == after:
+        return True
+    if not derived_preparation(plan) or set(before) != set(after):
+        return False
+    for relative, transitions in VALIDATION_TRANSITIONS.items():
+        path = (HERE.parent / relative).resolve()
+        name = str(path)
+        text = path.read_text()
+        if hashlib.sha256(text.encode()).hexdigest() != after[name]:
+            return False
+        for new, old in transitions:
+            if text.count(new) != 1:
+                return False
+            text = text.replace(new, old, 1)
+        if hashlib.sha256(text.encode()).hexdigest() != before[name]:
+            return False
+        after[name] = before[name]
+    if before != after:
+        return False
+    check_hashes(smoke['executable_sha256'])
+    check_hashes(plan['executable_sha256'])
+    return True
 
 
 def matching_smoke(root, attempt, plan):
@@ -463,6 +531,9 @@ def matching_smoke(root, attempt, plan):
 
 def launch_scope(plan, replica, replicas=None):
     require(replica is None or replicas is None, 'choose one explicit selector')
+    if derived_preparation(plan):
+        require(replica is None and replicas is None, '16M preparation requires the exact target triplet')
+        return plan['histories']
     if replicas is not None:
         import kg_assoc_e2_transfer as transfer
         sid = plan['system']['system_id']
@@ -494,7 +565,18 @@ def launch_scope(plan, replica, replicas=None):
 
 def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None):
     record = approval_record(path, attempt / 'plan.json', purpose)
-    if replicas is not None:
+    if derived_preparation(plan):
+        launch_scope(plan, replica, replicas)
+        require(record.get('selector_scope') == 'Ea_transfer_16M_preparation_v1' and
+                record.get('authorized_system') == plan['system']['system_id'] and
+                record.get('authorized_replicas') == [1, 2, 3] and
+                all(type(value) is int for value in record['authorized_replicas']) and
+                all(type(record.get(key)) is int and record[key] == value for key, value in (
+                    ('maximum_additional_MD_steps_per_history', 16000000),
+                    ('maximum_additional_MD_steps', 48000000),
+                    ('absolute_start_step', 8000000), ('absolute_end_step', 24000000))),
+                '16M preparation approval scope, endpoint or cap differs')
+    elif replicas is not None:
         histories = launch_scope(plan, replica, replicas)
         require(record.get('selector_scope') == 'Ea_transfer_remaining_smoke_v1' and
                 record.get('authorized_system') == plan['system']['system_id'] and
@@ -530,6 +612,8 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
     purpose = ('e2_derived_smoke' if plan['smoke'] else 'e2_derived_segment') if plan.get(
         'lineage_mode') else ('e2_smoke' if plan['smoke'] else 'e2_segment')
     scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
+    if derived_preparation(plan):
+        require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
     lock = attempt / '.launch.lock'
     with lock.open('x') as stream:

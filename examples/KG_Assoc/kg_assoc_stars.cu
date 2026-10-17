@@ -772,7 +772,12 @@ int main(int argc, char** argv) {
       return 0;
     }
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
-    if (parameters.steps > 10000) {
+    const bool derivedPreparation =
+        parameters.steps == 16000000 && parameters.reseedChemistry &&
+        !parameters.referenceControl && parameters.switchEa && parameters.switchEaFrom == 4.0 &&
+        (parameters.ea == 6.0 || parameters.ea == 8.0 || parameters.ea == 10.0) &&
+        !parameters.restartPrefix.empty() && !parameters.derivedBranchId.empty();
+    if (parameters.steps > 10000 && !derivedPreparation) {
       throw std::runtime_error("candidate-oracle smoke executable is limited to 10000 MD steps");
     }
 #endif
@@ -781,6 +786,11 @@ int main(int argc, char** argv) {
     long long initialStep = 0;
     if (!parameters.restartPrefix.empty()) {
       restart = readRestartMetadata(parameters.restartPrefix + ".assoc_restart");
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+      if (derivedPreparation && restart.completedSteps != 8000000) {
+        throw std::runtime_error("derived diagnostic preparation requires the absolute 8M parent");
+      }
+#endif
       if (parameters.rAssocExplicit && !near(parameters.rAssoc, restart.parameters.rAssoc)) {
         throw std::runtime_error("--r-assoc does not match restart metadata");
       }

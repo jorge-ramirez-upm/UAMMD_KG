@@ -118,6 +118,9 @@ def diagnostic_steps(start, end, cadence=1000):
 
 
 def validate(entry, oracle=False):
+    # Ordinary 16M Ea transfers retain every smoke diagnostic; callers cannot disable them.
+    oracle = oracle or (bool(entry.get('lineage')) and
+                        entry['end_step'] - entry['start_step'] == 16000000)
     prefix = Path(entry['output_prefix'])
     for suffix in OUTPUTS:
         require(Path(str(prefix) + suffix).is_file(), 'missing E2 output: ' + suffix)
