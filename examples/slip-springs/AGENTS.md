@@ -338,3 +338,29 @@ conformation observations remain an explicit cost. The frozen new plan and host
 generator are preparation only: no --run option, no Stage 4A.3c experiments.
 Stage 4A.3b needs independent review BEFORE scientific host execution and further
 user authorization. Respect the ten-minute rule above. No Stage 4B/slip-springs.
+
+
+## Stage 4A.3b.1 host readiness; no production execution authorization
+
+The user accepts Stage 4A.3b. Current authorization permits host analysis,
+resumable execution-management tools, bounded fixtures and documentation ONLY.
+See STAGE4A3B1_REPORT.md. Do not modify simulator/kernels/dynamics/RNG,
+correlators, Rouse, accepted CPU references, build behavior, original generator,
+old tests, archives or frozen scientific criteria. Preserve all282 commands and
+plan SHA efd040ceba8cd903dee7a145296dce08435e3df3efa940c65170f4bcf98acb36.
+Clarification proposal V1 is not an applied plan amendment.
+
+Authenticate plan/manifest/inputs before analysis or execution. Cache only
+completed authenticated work, use atomic integrity-protected checkpoints,
+retain invalid/missing/support/provenance records, and never accept partial
+outputs. Independent chains remain statistical clusters. Unknown compilation
+provenance cannot be inferred from system nvcc or a no-op build. Keep raw
+multi-tau definitions and all existing thresholds unchanged. Unresolved bias
+is not a convergence order; unsupported terminal tails cannot pass.
+
+The runner is serial, requires an explicit user-host execution flag, refuses
+partial/failed/orphan evidence and preserves original argv. That flag is not
+user authorization by itself. No frozen pilot/campaign member or large CPU
+reference ensemble may run in Codex during readiness work. The10-minute limit
+remains; only tiny noncampaign GPU fixtures and bounded tests are permitted.
+Stage4A.3c production and Stage4B require separate explicit authorization.

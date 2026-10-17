@@ -112,14 +112,14 @@ If their weighted raw-W covariance is H, `G=(C/V)*H/kBT` and
 `g=G/[(C/V)*kBT]=H/(kBT)^2`. The existing Rouse convention has kBT=1.
 Stretch/bend cross-correlations must be retained in the total stress; no
 arbitrary physical melt modulus is assigned here. The Stage 4A.3b extension
-below uses this accepted derivation; its implementation requires independent
-review before any Stage 4A.3c scientific host execution.
+below uses this accepted derivation; Stage 4A.3b is accepted; Stage 4A.3c scientific host execution
+still requires separate authorization.
 
 Do not run work expected to exceed 10 minutes in Codex; provide instructions
 for the dedicated Linux host instead, as recorded in AGENTS.md. No production
 campaign is needed for these static CPU checks.
 
-## GPU stress and streaming (Stage 4A.3b; review pending)
+## GPU stress and streaming (Stage 4A.3b accepted; host validation pending)
 
 [STAGE4A3B_REPORT.md](STAGE4A3B_REPORT.md) documents the complete read-only GPU
 virial and the unchanged Stage 2B `Bank`/persistent `CpuWorkers` reuse. This
@@ -215,11 +215,81 @@ python3 examples/slip-springs/tests/semiflexible_stress_host.py --output "$STRES
 
 This generates 282 commands in diagnostic, main stream, direct-reference and
 memory scripts plus a plan hash; it never runs them. There is no --run option.
-Independent review and separate authorization are required before host execution;
+Stage 4A.3b is accepted. Separate authorization is required before host execution;
 scripts require `STAGE4A3B_REVIEWED`. Some proposed runs can take hours and
 must never run in Codex. The plan includes explicit failure/terminal-support
 gates; its diagnostic/direct tools are not a complete scientific acceptance
 analyzer. Stage 4A.3c experiments and Stage 4B remain unauthorized here.
+
+## Host-validation readiness (Stage 4A.3b.1)
+
+[STAGE4A3B1_REPORT.md](STAGE4A3B1_REPORT.md) describes the complete host analyzer,
+resumable serial runner and scientific limitations. Simulator, build, accepted
+references, correlators, original generator and frozen plan are unchanged.
+No Stage 4A.3c experiment or Stage 4B work is authorized by this readiness task.
+[Clarification proposal V1](STAGE4A3C_CLARIFICATION_PROPOSAL_V1.md) records
+operational ambiguities separately; it does not amend the frozen criteria.
+
+Bounded tests (existing single/double binaries, no rebuild needed):
+
+```sh
+timeout 180s python3 examples/slip-springs/tests/test_semiflexible_stress_campaign.py examples/slip-springs/build/single/semiflexible examples/slip-springs/build/double/semiflexible
+```
+
+Preparation only, without executing experiments:
+
+```sh
+HOST_ROOT=$(mktemp -d /tmp/semiflexible-readiness.XXXXXX)
+python3 examples/slip-springs/tests/semiflexible_stress_host.py --output "$HOST_ROOT/campaign"
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$HOST_ROOT/campaign" list --pilot
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$HOST_ROOT/campaign" analyze --pilot
+```
+
+An unexecuted pilot returns **INCOMPLETE/exit2**, as intended. Analysis authenticates
+all282 commands, copied plan/hash and parameter inputs before looking at results.
+JSON/CSV validation rejects missing or duplicate frames/IDs, malformed parameters,
+wrong counts/normalization, singular/nonfinite failures and incomplete outputs.
+It checks separate tensors, independent static ensembles, exact finite-acquisition
+Gaussian EM theory, direct multi-tau references, timestep/replica gates, operational
+terminal support, and memory/performance evidence. Independent chains are clusters;
+no empirical trajectory-mean subtraction or nonlinear Rouse spectrum is introduced.
+
+Outputs are `scientific-analysis.json`, `scientific-summary.txt` and authenticated
+`analysis-checkpoint.json`. Repeated analysis reuses unchanged completed results;
+`--verify-hashes` performs a deep file-content audit. Live outputs are not scanned.
+Scientific status and provenance readiness are separate; missing data/support,
+unknown compiler evidence and unresolved bias are not silently labeled passing.
+Raw long CSVs are streamed; only frozen short direct-reference sequences use a
+bounded32MiB workspace. Fixed65536-chain CPU reference preparation is host-only.
+
+For a **separately authorized** Linux-host pilot, run the following there. The
+pilot is the unchanged frozen N8,kappa10,single,seed433201,dt0.000025 member:
+8,000,000 steps,C2048,stride400, plus its matching zero-step tensor diagnostic.
+Runtime/disk planning comes from the completed full pilot, never the tiny tests.
+
+```sh
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$HOST_ROOT/campaign" prerequisites --authorize-host-execution STAGE4A3C
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$HOST_ROOT/campaign" run --pilot --phase diagnostic --authorize-host-execution STAGE4A3C
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$HOST_ROOT/campaign" run --pilot --authorize-host-execution STAGE4A3C
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$HOST_ROOT/campaign" pilot-report
+```
+
+The runner preserves original argv, serializes GPU processes, saves executable/
+repository/environment identities, exit/timestamp receipts, process-tree RSS,
+whole-device GPU monitoring and disk growth. Partial/failed/orphan outputs are
+preserved and refused; verified completions skip, optionally with deep hashes.
+No automatic failed-trajectory restart or overwrite. Use `--phase` or `--run-id`
+for eventual authorized phases; the same commands resume between complete runs.
+An original `--build-log FILE` can be supplied on the first execution-management
+command; an archived no-op build still does not prove original compiler identity.
+System nvcc is reported separately.
+
+After separate campaign authorization, `references --authorize-host-execution
+STAGE4A3C` prepares the fixed independent CPU ensembles resumably, and `analyze`
+without selection incrementally processes the entire manifest. Missing references
+or sparse monitoring remain incomplete. Scientific acceptance requires the full
+frozen gates and provenance review, not a successful pilot or exit status alone.
+No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
@@ -227,7 +297,7 @@ Stage 4A.2 provides a separate **`semiflexible`** executable: exact finite-rest-
 length harmonic stretching plus Kratky–Porod bending, free ends, unwrapped
 coordinates and Euler–Maruyama overdamped Brownian dynamics. Default mode retains
 the accepted backbone behavior. Stage 4A.3b optionally adds stress streaming
-under bounded verification, pending independent review/host acceptance. There
+with accepted Stage 4A.3b implementation; scientific host acceptance is pending. There
 is no excluded volume, hydrodynamics or slip-spring interaction. This model's bounded
 checks pass; **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC
 VALIDATION PASSED** (17 October 2026). The original 204-run analysis has zero

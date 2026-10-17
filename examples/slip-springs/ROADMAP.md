@@ -173,10 +173,25 @@ terminal-support/replica/static-covariance gates. Those require a reviewed host
 report. Neither nonlinear relaxation spectra nor a physical melt density are
 assigned. Stage 4A.3c experiments and Stage 4B slip-springs remain unauthorized.
 
+## 9. Stage 4A.3b.1 host-validation readiness
+
+Stage4A.3b is accepted by the user. Host readiness adds an authenticated scientific
+analyzer, incremental checkpoints and a serial resumable execution manager; see
+[STAGE4A3B1_REPORT.md](STAGE4A3B1_REPORT.md). Frozen scientific commands/criteria,
+accepted dynamics/references/correlators and builds remain unchanged. Clarification
+proposal V1 is separate and unapplied. Missing provenance and unsupported terminal
+relaxation remain explicit; no acceptance follows from tiny tests or a pilot.
+
+Prepare the unchanged N8,kappa10,single,seed433201,finest-dt pilot and matching
+diagnostic for separate host authorization. The runner preserves exact commands,
+records hashes/environment/exit/monitoring evidence, and skips only verified
+completions. Full pilot timing/disk growth, not tiny functional measurements,
+will inform execution planning. No frozen experiment has been executed in this
+readiness stage. Scientific host execution and Stage4B remain unauthorized.
+
 ## Stage boundaries
 
-Current authorization covers Stage 4A.3b implementation and bounded verification,
-plus frozen host-plan preparation, while preserving accepted evidence and any running
+Current authorization covers Stage4A.3b.1 host-readiness tools and bounded tests, while preserving accepted evidence and any running
 campaigns. The infrastructure reuse review and comparisons above are future
 proposals, not blanket permission for refactoring or optimization. Stage 3 benchmarking/optimization still requires
 explicit authorization. Stage 4A.3c scientific experiments, Stage 4B slip-springs,
