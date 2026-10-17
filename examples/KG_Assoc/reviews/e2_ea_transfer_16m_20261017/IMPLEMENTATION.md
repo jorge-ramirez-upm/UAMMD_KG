@@ -15,7 +15,8 @@ candidate oracle. The diagnostic executable previously rejected any length over
 chemical reseeding and Ea4-to-Ea6/8/10 switching, a nonempty restart/branch identity,
 no reference-control flag, and absolute parent step exactly 8M. This code is inside
 `KG_ASSOC_VALIDATE_CANDIDATES`; the ordinary executable's preprocessed simulation
-source is unchanged. No loader, integrator, reaction, candidate search, force or
+tokens are unchanged except two CUDA error-report line numbers (1103→1113 and
+1159→1169). These metadata changes do not alter a successful trajectory. No loader, integrator, reaction, candidate search, force or
 frozen physics implementation is modified. Historical executables are preserved;
 all affected targets must be rebuilt in a fresh authenticated out-of-tree build.
 
