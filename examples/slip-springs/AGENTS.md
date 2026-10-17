@@ -283,3 +283,30 @@ Acceptance gives no universal timestep/stiffness/chain-length guarantee and no
 production-server performance claim. Synchronous diagnostic transfers and CPU
 observations remain costs. Rouse, RNGs, methods, tests and builds are unchanged.
 No stress-relaxation extensions or slip-springs; Stage 4A.3 remains unauthorized.
+
+## Stage 4A.3a scope and ten-minute execution limit
+
+The user's 17 October 2026 authorization supersedes the historical Stage 4A.3
+prohibition ONLY for Stage 4A.3a: analytical stress derivation, independent CPU
+stress reference, bounded CPU tests and documentation. See STAGE4A3A_REPORT.md.
+Do not modify accepted dynamics, RNG, existing tests, build behavior or frozen
+plans. No GPU stress sampling, correlations/multi-tau, slip-springs or production
+runs. Stage 4A.3b requires independent review of the Stage 4A.3a derivation/tests
+and separate authorization before implementation.
+
+Do not run any test, simulation or experiment expected to take longer than
+10 minutes in Codex. Supply exact commands and resource/output expectations for
+the dedicated Linux host; the user will execute them and return the results.
+Split/reduce bounded verification where scientifically valid, never weaken
+acceptance thresholds to fit the limit. Unknown-cost work must be bounded with
+an appropriate timeout or deferred to the host. This reinforces the existing
+ban on long campaigns; it does not authorize ten-minute production simulations.
+
+The CPU virial uses W=V*sigma=+sum(g outer q)=-sum(F outer (r-r_ref)); no volume
+or physical chain density is silently assigned. Stretch and bend stay separate;
+validate raw tensors without symmetry/trace projection. Preserve raw channel
+ordering xy,xz,yz,xx-yy,xx-zz,yy-zz. At isotropic equilibrium <W>=N*kBT*I,
+not zero; the mean bending tensor and mean deviatoric stresses vanish. Future
+Green–Kubo normalization requires explicit chain density and thermal-energy
+factors, including total stretch/bend cross-correlations. No modulus or new
+stress-relaxation acceptance is established by CPU static checks.

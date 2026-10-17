@@ -122,14 +122,41 @@ shown to meet all three user conditions. Retain local code only for genuine
 missing requirements or demonstrated advantages. Any selected replacement needs
 its own regression and host scientific validation before inheriting acceptance.
 
+## 7. Stage 4A.3a: static CPU stress theory, pending independent review
+
+The user authorized analytical derivation, a separate CPU stress reference and
+bounded CPU tests on 17 October 2026. See [STAGE4A3A_REPORT.md](STAGE4A3A_REPORT.md).
+The implementation reuses the accepted Chain parameter validation and direct
+sampler, leaving all dynamics/RNG/build/test sources and frozen plans unchanged.
+
+The complete virial is the positive affine derivative W=sum(g outer q), with
+explicit stretch and bend terms. Every bending-angle tensor is symmetric and
+traceless. Equilibrium has <W>=N*kBT*I, zero mean bending and zero deviatoric
+means. Future normalization must preserve explicit chain density and kBT
+factors, raw deviatoric channel ordering and stretch/bend cross-correlations.
+CPU affine/force-virial and independent metric-tensor checks are implemented;
+there is no GPU stress sampling, relaxation calculation or assigned melt modulus.
+
+Before Stage 4A.3b, obtain independent review of the derivation, signs, tensor
+indexing, normalization and tests, then explicit implementation authorization.
+Future GPU work must follow the reuse-first assessment and reproduce the CPU
+angular virial without changing accepted dynamics or weakening existing gates.
+No GPU or multi-tau implementation is authorized by this roadmap or Stage 4A.3a.
+
+The user prefers all work expected to exceed **10 minutes** on the dedicated
+Linux host. Supply reproducible commands and return-evidence instructions for
+that work instead of running it in Codex. Keep local verification bounded and
+preserve the existing prohibition on production campaigns. This milestone's
+CPU tests take seconds, with no time integration or long run required.
+
 ## Stage boundaries
 
-Current work is documentation and preserving the accepted campaign evidence
-and any future running campaigns. The reuse
-review and comparisons above are future proposals, not blanket permission for
-refactoring or optimization. Stage 3 benchmarking/optimization still requires
-explicit authorization. Stage 4A.3 stress extensions, slip-springs, excluded
-volume and hydrodynamics remain unauthorized.
+Current authorization is limited to Stage 4A.3a static stress theory/CPU checks
+and documentation, while preserving accepted campaign evidence and any running
+campaigns. The infrastructure reuse review and comparisons above are future
+proposals, not blanket permission for refactoring or optimization. Stage 3 benchmarking/optimization still requires
+explicit authorization. Stage 4A.3b GPU stress sampling/correlations, slip-springs,
+excluded volume and hydrodynamics remain unauthorized.
 
 Relevant evidence: [Stage 4A.1 assessment](STAGE4A1_REPORT.md),
 [Stage 4A.2 report](STAGE4A2_REPORT.md), and the unchanged

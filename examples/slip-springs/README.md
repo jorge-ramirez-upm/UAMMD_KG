@@ -74,6 +74,50 @@ precision behavior. Clean and rebuild after changing compiler/flags/header root.
 `make clean` removes only named executables/dependency files, preserving run data.
 The previous Stage 0 smoke and correlator sources remain available unchanged.
 
+## CPU stress theory and reference (Stage 4A.3a)
+
+Stage 4A.3a adds a separate float64 CPU reference and bounded independent tests;
+it does not add GPU stress sampling or correlations to either simulator.
+[STAGE4A3A_REPORT.md](STAGE4A3A_REPORT.md) derives the full positive affine virial
+`W=V*sigma=sum(g outer q)=-sum(F outer (r-r_ref))`, including bending.
+Each angular contribution is symmetric and traceless. At isotropic equilibrium,
+`<W_stretch>=N*kBT*I`, `<W_bend>=0`; the full configurational mean is hydrostatic,
+not zero. Volume and chain density are external normalization inputs.
+
+From the repository root (Python 3 + NumPy; the new suite takes a few seconds):
+
+```sh
+timeout 120s python3 examples/slip-springs/tests/test_semiflexible_stress.py
+python3 examples/slip-springs/tests/test_semiflexible_reference.py
+PYTHONPATH=examples/slip-springs python3 - <<'PY'
+from semiflexible_reference import Chain
+from semiflexible_stress_reference import virials
+model = Chain.homogeneous(2, b0=1, kb=3, kappa=4)
+result = virials(model, [[0,0,0], [1,0,0], [1,1,0]])
+print("Unnormalized virial W:", result['total'])
+print("Shears xy,xz,yz:", result['shears'])
+print("Raw normal differences xx-yy,xx-zz,yy-zz:", result['normal_differences'])
+PY
+```
+
+`virials` returns `stretch`, `bend`, `total` (3x3), plus total-tensor `symmetric`
+(xx,yy,zz,xy,xz,yz), `shears` and `normal_differences`. No volume division,
+symmetrization or trace projection is performed. All-zero bending skips angular
+operations; inactive angles are skipped individually. The existing reference,
+accepted dynamics, RNGs, tests, builds and frozen plans remain unchanged.
+
+For future isotropic Green–Kubo calculations, the existing raw six-channel
+weights 1/5 for shears and 1/30 for normal-difference products remain valid.
+If their weighted raw-W covariance is H, `G=(C/V)*H/kBT` and
+`g=G/[(C/V)*kBT]=H/(kBT)^2`. The existing Rouse convention has kBT=1.
+Stretch/bend cross-correlations must be retained in the total stress; no
+arbitrary physical melt modulus is assigned here. **Independent review of this
+derivation/tests and separate authorization are required before Stage 4A.3b.**
+
+Do not run work expected to exceed 10 minutes in Codex; provide instructions
+for the dedicated Linux host instead, as recorded in AGENTS.md. No production
+campaign is needed for these static CPU checks.
+
 ## Running the current simulator
 
 Stage 4A.2 provides a separate **`semiflexible`** executable: exact finite-rest-
