@@ -25,7 +25,8 @@ provenance and artifact hashes. Stage 3 remains unauthorized. Stage 4A.2 adds a
 separate semiflexible executable. **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE
 BACKBONE SCIENTIFIC VALIDATION PASSED** on the independent 204-experiment host
 campaign. Acceptance is limited to tested configurations/tolerances; coarse-step
-bias was unresolved, so no convergence order is claimed. Stage 4A.3 is not authorized.
+bias was unresolved, so no convergence order is claimed. Stage 4A.3b implementation
+is accepted; Stage 4A.3c scientific host execution requires separate authorization.
 
 A Rouse chain has **N springs and N+1 beads**, numbered 0 through N. Units are
 b=kBT=zeta=1 per bead, tau_0=1, tau_s=1/3. Its energy is
@@ -223,11 +224,13 @@ analyzer. Stage 4A.3c experiments and Stage 4B remain unauthorized here.
 
 ## Host-validation readiness (Stage 4A.3b.1)
 
-The subsequent [scalar-output audit](STAGE4A3B2_OUTPUT_AUDIT.md) identifies the
-9.876GB pilot scalar CSV and proposes compact per-chain summaries plus selected
-scalar records, preserving every stress frame. Review it before further campaign
-execution. This is a documentation-only proposal: no optimization, plan/profile
-amendment, pilot restart or new scientific execution is authorized or applied.
+The [scalar-output audit](STAGE4A3B2_OUTPUT_AUDIT.md) identified the 9.876GB pilot
+scalar CSV. Stage 4A.3b.2b implements its opt-in compact profile, with every
+scalar still evaluated and every stress frame retained. See the
+[implementation report](STAGE4A3B2_IMPLEMENTATION_REPORT.md) and
+[output schema V1](STAGE4A3C_OUTPUT_SCHEMA_V1.md). The frozen scientific plan
+and original campaign remain unchanged. No pilot restart or scientific host
+execution is authorized by this implementation task.
 
 
 [STAGE4A3B1_REPORT.md](STAGE4A3B1_REPORT.md) describes the complete host analyzer,
@@ -299,6 +302,46 @@ frozen gates and provenance review, not a successful pilot or exit status alone.
 No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
+
+`--scalar-output full|compact` defaults to `full`, preserving existing files and
+Stage 4A.2 behavior. `compact` requires `--stress-mode stream`. It replaces
+`samples.csv` with `scalar_statistics.csv` (per-chain original final-half means,
+all-frame minima/counts), `scalar_metadata.json` (coverage/checksums/version) and
+`scalar_selected.csv` (scheduled exact quarter-time frames). It retains all
+stress and bond outputs. These summaries cannot reconstruct the omitted scalar
+trajectory. Stress stride, physics, RNG and correlator are unchanged.
+
+Use separate binaries to protect existing campaigns. From the repository root:
+
+```sh
+SCALAR_BUILD="$PWD/examples/slip-springs/build/scalar-v1"
+make -C examples/slip-springs semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single GPU_BUILD="$SCALAR_BUILD/single"
+make -C examples/slip-springs semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double GPU_BUILD="$SCALAR_BUILD/double"
+timeout 240s python3 examples/slip-springs/tests/test_semiflexible_scalar_output.py "$SCALAR_BUILD/single/semiflexible" "$SCALAR_BUILD/double/semiflexible"
+SCALAR_DEMO=$(mktemp -d /tmp/semiflexible-compact-demo.XXXXXX)
+"$SCALAR_BUILD/single/semiflexible" --output "$SCALAR_DEMO/run" --springs 8 --chains 128 --kappa 10 --kbt 1.7 --dt .0001 --steps 400 --sample 1 --seed 433501 --stress-mode stream --scalar-output compact --stress-batch 7 --cpu-workers 2 --corr-levels 5 --corr-slots 8
+```
+
+The new suite ran both precisions, including this bounded configuration. Prepare
+a new compact-profile host pilot **without executing it**:
+
+```sh
+SCALAR_HOST=$(mktemp -d /tmp/semiflexible-compact-host.XXXXXX)
+python3 examples/slip-springs/tests/semiflexible_stress_host.py --output "$SCALAR_HOST/full-parent" --build "$SCALAR_BUILD"
+python3 examples/slip-springs/tests/semiflexible_stress_profile.py --base "$SCALAR_HOST/full-parent" --output "$SCALAR_HOST/compact-v1"
+python3 examples/slip-springs/tests/semiflexible_stress_campaign.py "$SCALAR_HOST/compact-v1" list --pilot
+```
+
+Keep the parent root: overlay authentication verifies its unchanged 282 commands
+and inputs. All derived IDs/outputs/receipts/checkpoints are separate. There are
+174 compact stream/memory runs and 108 unchanged full diagnostic/reference runs.
+The selected host pilot remains N8,C2048,kappa10,dt0.000025,8,000,000 steps,
+stride400,seed433201,single precision. It was not executed here. After separate
+host authorization, existing manager actions operate on the **new** root; first
+run its `prerequisites` action with the explicit host-execution flag. Never adopt
+the interrupted legacy pilot or overwrite its files. Long host durations cannot
+be inferred from the tiny output-size fixture. A moderately long example is the
+unchanged pilot command prepared above; it is host-only and not a Codex test.
 
 Stage 4A.2 provides a separate **`semiflexible`** executable: exact finite-rest-
 length harmonic stretching plus Kratky–Porod bending, free ends, unwrapped

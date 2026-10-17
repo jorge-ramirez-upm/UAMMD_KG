@@ -364,3 +364,32 @@ user authorization by itself. No frozen pilot/campaign member or large CPU
 reference ensemble may run in Codex during readiness work. The10-minute limit
 remains; only tiny noncampaign GPU fixtures and bounded tests are permitted.
 Stage4A.3c production and Stage4B require separate explicit authorization.
+
+## Stage 4A.3b.2b compact output and operational identities
+
+The current explicit user task authorizes host scalar serialization, compatible
+analysis/runner changes and bounded tests; it supersedes the preceding source/
+build prohibition only for this scope. See STAGE4A3B2_IMPLEMENTATION_REPORT.md
+and STAGE4A3C_OUTPUT_SCHEMA_V1.md. Full remains the default with original output
+semantics; compact requires stress streaming. Every original scalar computation
+and stress frame, including step0, must remain. Do not thin observations, change
+windows, kernels, initializers, RNGs, stress/correlator math or thresholds.
+Preserve full mode, existing references/tests and Stage4A.2/Rouse behavior.
+
+Compact summaries retain independent-chain clusters, all-frame finite/minimum/
+coverage evidence and exact scheduled quarter frames. Checksums detect accidental
+corruption; SHA256 receipts authenticate files. Do not claim reconstruction of
+the omitted scalar trajectory. Reject partial/nonfinite evidence. Smooth zero-
+rest-length collapsed bonds are force-defined, but undefined tangents still fail
+the unchanged frozen analyzer domain rules.
+
+Keep the original scientific plan/hash and 282-command generator unchanged.
+Use semiflexible_stress_profile.py to create a separate authenticated compact-v1
+root against a preserved original full parent; profile IDs/outputs/receipts/
+checkpoints cannot be mixed. Source/executable/version proofs must be explicit.
+Use separate GPU_BUILD paths; never replace binaries queued by another campaign.
+Run the new scalar suite in both precisions, existing Rouse/semiflexible/stress/
+host-analysis regressions and required sanitizers with bounded timeouts. No
+Stage4A.3c production run or old interrupted-pilot restart is authorized. Do not
+touch the interrupted /tmp/semiflexible-readiness.oH8Vnc pilot. The ten-minute
+Codex limit remains; provide host preparation commands without running them.

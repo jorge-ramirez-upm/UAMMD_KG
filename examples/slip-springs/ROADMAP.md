@@ -201,10 +201,29 @@ addendum/derived manifest; original criteria/commands stay immutable. This audit
 implements none of those changes. Preserve the interrupted pilot and its failed
 execution receipt; metadata alone does not establish scientific completion.
 
+## 11. Stage 4A.3b.2b compact scalar serialization
+
+The reviewed audit is implemented as an opt-in output profile; see
+[STAGE4A3B2_IMPLEMENTATION_REPORT.md](STAGE4A3B2_IMPLEMENTATION_REPORT.md) and
+[STAGE4A3C_OUTPUT_SCHEMA_V1.md](STAGE4A3C_OUTPUT_SCHEMA_V1.md). Full stays the
+default. Compact retains every original scalar computation/stress observation,
+per-chain final-half summaries, all-frame minima/coverage and scheduled quarter
+frames. Existing bond statistics and complete-stress streaming stay unchanged.
+There is no scalar-trajectory reconstruction promise. Preserve the full profile
+for debugging and Stage 4A.2 regressions.
+
+Prepare a separately authenticated derived manifest/root against a preserved
+original 282-run parent. Never mutate frozen scientific commands, adopt old
+partial runs or reuse cross-profile caches/receipts. New source/binary identity
+and output schema are explicit operational provenance, not a scientific-plan
+amendment. The bounded both-precision replay/schema tests establish software
+equivalence; they do not establish Stage 4A.3c scientific acceptance or production
+performance. Future profile changes require new versioned identities.
+
 ## Stage boundaries
 
-Current authorization covers only the Stage4A.3b.2a read-only audit and written
-proposal, while preserving accepted evidence and any running
+Current authorization covers Stage4A.3b.2b compact output, compatible host
+analysis/management and bounded verification, while preserving accepted evidence and any running
 campaigns. The infrastructure reuse review and comparisons above are future
 proposals, not blanket permission for refactoring or optimization. Stage 3 benchmarking/optimization still requires
 explicit authorization. Stage 4A.3c scientific experiments, Stage 4B slip-springs,

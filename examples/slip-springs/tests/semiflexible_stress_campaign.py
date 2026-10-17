@@ -53,7 +53,7 @@ def lock(root,name='.execution.lock'):
 
 def version():
     return science.identity(dict(version=VERSION,numpy=np.__version__,files={str(p.relative_to(PROJECT)):science.digest(p) for p in
-        [Path(__file__),Path(science.__file__),PROJECT/'semiflexible_reference.py',PROJECT/'semiflexible_stress_reference.py',PROJECT/'stream_analysis.py',PROJECT/'tests/semiflexible_stress_host.py']}))
+        [Path(__file__),Path(science.__file__),PROJECT/'semiflexible_reference.py',PROJECT/'semiflexible_stress_reference.py',PROJECT/'stream_analysis.py',PROJECT/'tests/semiflexible_stress_host.py',PROJECT/'tests/semiflexible_scalar_schema.py',PROJECT/'tests/semiflexible_stress_profile.py',PROJECT/'STAGE4A3C_OUTPUT_SCHEMA_V1.md']}))
 
 
 def stat(path):
@@ -96,13 +96,25 @@ def command_output(argv):
         return dict(command=argv,unavailable=str(e))
 
 
+def profile_identity(manifest):
+    values={r.get('execution_profile','legacy-full') for r in manifest}
+    science.require(len(values)==1,'mixed execution profiles')
+    return values.pop()
+
+
+def run_profile(run):
+    from semiflexible_scalar_schema import SCHEMA_HASH
+    profile=science.options(run)['scalar-output']
+    return dict(execution_profile=run.get('execution_profile','legacy-full'),scalar_output=profile,scalar_schema_sha256=SCHEMA_HASH if profile=='compact' else None)
+
+
 def provenance(root,manifest,manifest_hash,build_log=None):
     path=root/'campaign-provenance.json'
     binaries={r['precision']:r['command'][0] for r in manifest}
     ids={key:dict(path=value,sha256=science.digest(value)) for key,value in binaries.items()}
     if path.exists():
         p=unenvelope(path)
-        science.require(p['manifest_hash']==manifest_hash and p['plan_hash']==science.PLAN_HASH and p['executables']==ids,'campaign executable identity or provenance changed; do not mix binaries')
+        science.require(p['manifest_hash']==manifest_hash and p['plan_hash']==science.PLAN_HASH and p['executables']==ids and p.get('execution_profile','legacy-full')==profile_identity(manifest),'campaign executable identity or provenance changed; do not mix binaries')
         if build_log:science.require(p.get('build_transcript',{}).get('sha256')==science.digest(build_log),'supply an original build transcript on the first provenance capture; existing ledger is immutable')
         git_now=command_output(['git','-C',str(PROJECT),'rev-parse','HEAD'])
         dirty_now=command_output(['git','-C',str(PROJECT),'status','--porcelain','--untracked-files=no'])
@@ -114,7 +126,7 @@ def provenance(root,manifest,manifest_hash,build_log=None):
     p=dict(manifest_hash=manifest_hash,plan_hash=science.PLAN_HASH,executables=ids,repository_sha=git['stdout'].strip(),
            timestamp_utc=utc(),platform=platform.platform(),python=sys.version,numpy=np.__version__,
            environment={k:os.environ.get(k) for k in ('CUDA_VISIBLE_DEVICES','PATH','LD_LIBRARY_PATH','OMP_NUM_THREADS')},
-           accepted_sources=science.ACCEPTED_SOURCE_HASHES,
+           accepted_sources=science.source_provenance(),execution_profile=profile_identity(manifest),
            gpu=command_output(['nvidia-smi']),system_nvcc=command_output(['nvcc','--version']),
            compiler_identity='unknown unless an archived build transcript establishes compilation; system nvcc is not compiler proof')
     if build_log:
@@ -135,8 +147,11 @@ def provenance_checks(root,run,rid,manifest_hash):
         return [dict(name='execution/executable provenance',status='missing_provenance',reason='original command exit record and executable ledger unavailable')]
     p=unenvelope(ledger);r=unenvelope(record)
     science.require(p['manifest_hash']==manifest_hash and p['plan_hash']==science.PLAN_HASH,'provenance campaign identity mismatch')
-    science.require(p.get('accepted_sources')==science.ACCEPTED_SOURCE_HASHES,'missing/inconsistent accepted simulator source identities')
+    science.require(science.approved_source_provenance(p.get('accepted_sources')),'missing/inconsistent accepted simulator source identities')
     science.require(r['manifest_hash']==manifest_hash and r['run_id']==rid and r['command']==run['command'],'execution command/run identity mismatch')
+    science.require(p.get('execution_profile','legacy-full')==run.get('execution_profile','legacy-full'),'provenance execution profile mismatch')
+    if run.get('execution_profile') or 'scalar_output' in r:
+        science.require(all(r.get(k)==v for k,v in run_profile(run).items()),'receipt scalar profile/schema mismatch')
     science.require(r['status']=='completed' and r['exit_code']==0,'execution failed or incomplete')
     for name,proof in r.get('completion_files',{}).items():
         target=Path(name)
@@ -190,6 +205,10 @@ def prerequisite_checks(root,manifest):
     if not path.exists():return [dict(name='bounded geometry/replay prerequisites',status='missing_provenance')]
     p=unenvelope(path)
     science.require(p['analysis_version']==version(),'bounded prerequisite version changed')
+    science.require(p.get('execution_profile','legacy-full')==profile_identity(manifest),'bounded prerequisite profile mismatch')
+    if profile_identity(manifest)!='legacy-full':
+        item=p.get('scalar_checks',{})
+        science.require(item.get('exit_code')==0 and science.digest(item['log'])==item['log_sha256'],'compact prerequisites absent/corrupt')
     for precision in ('single','double'):
         item=p['checks'][precision]
         science.require(item['exit_code']==0 and science.digest(item['log'])==item['log_sha256'],'bounded prerequisite failure or log corruption')
@@ -199,10 +218,11 @@ def prerequisite_checks(root,manifest):
 
 
 def analyze(root,manifest,ids,manifest_hash,verify=False,selected=None):
-    root=Path(root);cache=root/'analysis-checkpoint.json';stamp=version();previous={}
+    root=Path(root);cache=root/'analysis-checkpoint.json';stamp=version();previous={};profile=profile_identity(manifest)
     if cache.exists():
         p=unenvelope(cache)
         science.require(p['manifest_hash']==manifest_hash and p['plan_hash']==science.PLAN_HASH,'checkpoint manifest/plan mismatch')
+        science.require(p.get('execution_profile','legacy-full')==profile,'checkpoint execution profile mismatch')
         if p['analysis_version']==stamp:previous=p['runs']
     references=reference_catalog(root,manifest_hash);records={};results={};reused=0
     for run,rid in zip(manifest,ids):
@@ -213,7 +233,7 @@ def analyze(root,manifest,ids,manifest_hash,verify=False,selected=None):
         execution_state=unenvelope(receipt) if receipt.exists() else {}
         failures=list(Path(run['output']).glob('*failure*'))
         pending=execution_state.get('status')=='running' or not (Path(run['output'])/'metadata.json').exists()
-        if execution_state.get('status')=='failed' or failures:
+        if execution_state.get('status') in ('failed','interrupted') or failures:
             evidence=failures+([receipt] if receipt.exists() else [])
             result=dict(checks=[dict(name='execution/numerical failure',status='failed',reason='failure record present; this is not an unfinished successful run')],failure_evidence={str(p):science.digest(p) for p in evidence if p.is_file()})
             record=dict(files={},result=result)
@@ -242,7 +262,7 @@ def analyze(root,manifest,ids,manifest_hash,verify=False,selected=None):
             try:results[rid]['checks']+=provenance_checks(root,run,rid,manifest_hash)
             except (ValueError,KeyError,FileNotFoundError) as e:results[rid]['checks'].append(dict(name='execution provenance',status='failed',reason=str(e)))
         # Each completed run is durable before the next potentially expensive read.
-        envelope(cache,dict(manifest_hash=manifest_hash,plan_hash=science.PLAN_HASH,analysis_version=stamp,runs={**previous,**records}))
+        envelope(cache,dict(manifest_hash=manifest_hash,plan_hash=science.PLAN_HASH,analysis_version=stamp,execution_profile=profile,runs={**previous,**records}))
     extra=[]
     try:
         extra+=science.campaign_comparisons(manifest,ids,results,references)
@@ -250,7 +270,7 @@ def analyze(root,manifest,ids,manifest_hash,verify=False,selected=None):
     except (ValueError,KeyError,FileNotFoundError) as e:
         extra.append(dict(name='campaign evidence consistency',status='failed',reason=str(e)))
     report=dict(manifest_hash=manifest_hash,plan_hash=science.PLAN_HASH,analysis_version=stamp,generated_utc=utc(),
-                expected_runs=282,analyzed_runs=len(records),reused_runs=reused,runs=results,campaign_checks=extra)
+                execution_profile=profile,expected_runs=282,analyzed_runs=len(records),reused_runs=reused,runs=results,campaign_checks=extra)
     checks=[g for r in results.values() for g in r['checks']]+extra
     statuses={s:sum(g['status']==s for g in checks) for s in sorted({g['status'] for g in checks})}
     if len(records)!=282:statuses['not_analyzed_runs']=282-len(records)
@@ -301,13 +321,14 @@ def execute_one(root,run,rid,manifest_hash,ledger,verify=False):
     if out.exists() or record_path.exists():
         science.require(out.exists() and record_path.exists(),'partial output exists; preserve it and investigate, never overwrite')
         record=unenvelope(record_path)
+        science.require(all(record.get(k,'legacy-full' if k=='execution_profile' else 'full' if k=='scalar_output' else None)==v for k,v in run_profile(run).items()),'completed receipt scalar profile mismatch')
         science.require(record['status']=='completed' and record['exit_code']==0 and record['command']==run['command'] and record['run_id']==rid and record['manifest_hash']==manifest_hash,'partial/failed execution record; no automatic overwrite')
         science.require(record['executable_sha256']==ledger['executables'][run['precision']]['sha256'],'completed run binary identity mismatch')
         science.require(unchanged(run,record['completion_files'],verify=verify,skip_receipt=True),'completed run output identities changed')
         print('verified completed; skip',rid[:12],out.name);return
     science.require(not run_files(run),'orphan execution/monitor evidence exists; preserve it, never overwrite')
     science.require(science.digest(run['command'][0])==ledger['executables'][run['precision']]['sha256'],'executable changed before launch')
-    start=time.monotonic();record=dict(run_id=rid,manifest_hash=manifest_hash,command=run['command'],started_utc=utc(),status='running',
+    start=time.monotonic();record=dict(**run_profile(run),stage='child_execution',run_id=rid,manifest_hash=manifest_hash,command=run['command'],started_utc=utc(),status='running',
                                      executable_sha256=ledger['executables'][run['precision']]['sha256'])
     envelope(record_path,record)
     try:
@@ -318,9 +339,10 @@ def execute_one(root,run,rid,manifest_hash,ledger,verify=False):
             child=subprocess.Popen(['/usr/bin/time','-v','-o',str(out)+'.time']+run['command'],stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
             try:
                 while child.poll() is None:
-                    active=int((out/'samples.csv').exists() and (out/'samples.csv').stat().st_size>0)
+                    marker=out/'initial_bonds.csv'
+                    active=int(marker.exists() and marker.stat().st_size>len('chain,bond,length\n'))
                     monitor.write(f'{time.monotonic()-start:.9f},{proc_rss(child.pid)},{active}\n');monitor.flush()
-                    scalar=out/'samples.csv';total=sum(p.stat().st_size for p in out.iterdir() if p.is_file()) if out.exists() else 0
+                    scalar=out/('scalar_selected.csv' if science.options(run)['scalar-output']=='compact' else 'samples.csv');total=sum(p.stat().st_size for p in out.iterdir() if p.is_file()) if out.exists() else 0
                     disk.write(f'{time.monotonic()-start:.9f},{scalar.stat().st_size if scalar.exists() else 0},{total}\n');disk.flush()
                     query=command_output(['nvidia-smi','--query-gpu=timestamp,memory.used','--format=csv,noheader','--id='+os.environ.get('CUDA_VISIBLE_DEVICES','0').split(',')[0]])
                     if query.get('exit_code')==0:
@@ -332,15 +354,19 @@ def execute_one(root,run,rid,manifest_hash,ledger,verify=False):
                 except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL);child.wait()
                 raise
             code=child.returncode
-        record.update(exit_code=code,wall_seconds=time.monotonic()-start,finished_utc=utc(),status='failed')
+        record.update(exit_code=code,child_exit_code=code,child_finished_utc=utc(),child_execution_seconds=time.monotonic()-start,stage='postprocessing' if code==0 else 'child_execution')
+        envelope(record_path,record)
         science.require(code==0,'execution failed, see '+str(out)+'.log')
-        science.validate_run(run)  # completeness, not scientific acceptance
-        record['status']='completed'
-        # Exclude the self-referential execution receipt from its own fingerprint.
-        files=fingerprints(run);files.pop(str(record_path),None);record['completion_files']=files
+        post_start=time.monotonic();record['stage']='file_validation';envelope(record_path,record)
+        validation_start=time.monotonic();science.validate_run(run)
+        record['file_validation_seconds']=time.monotonic()-validation_start
+        record['stage']='hashing';envelope(record_path,record)
+        hash_start=time.monotonic();files=fingerprints(run);files.pop(str(record_path),None)
+        record.update(hashing_seconds=time.monotonic()-hash_start,postprocessing_seconds=time.monotonic()-post_start,
+                      completion_files=files,status='completed',stage='completed',finished_utc=utc(),wall_seconds=time.monotonic()-start)
         envelope(record_path,record)
     except BaseException as e:
-        record.update(status='failed',finished_utc=utc(),wall_seconds=time.monotonic()-start,error=str(e))
+        record.update(status='interrupted' if isinstance(e,KeyboardInterrupt) else 'failed',finished_utc=utc(),wall_seconds=time.monotonic()-start,error=str(e),error_type=type(e).__name__)
         envelope(record_path,record);raise
     print('completed',out.name,'wall_seconds',record['wall_seconds'])
 
@@ -372,17 +398,24 @@ def pilot_report(root,manifest,ids):
     seconds_per_step=result['metadata']['integration_seconds']/int(opts['steps'])
     overhead_per_frame=max(0,result['metadata']['production_wall_seconds']-result['metadata']['integration_seconds'])/result['stress_metadata']['frames']
     same_system=[];disk_projection=[]
-    row_bytes=(out/'samples.csv').stat().st_size/rows
+    compact=opts['scalar-output']=='compact'
+    scalar_meta=science.load(out/'scalar_metadata.json') if compact else {}
+    serialized=scalar_meta.get('serialized_rows',rows)
+    scalar_file=out/('scalar_selected.csv' if compact else 'samples.csv')
+    row_bytes=scalar_file.stat().st_size/serialized
     for item in manifest:
-        o=science.options(item);steps=int(o['steps']);frames=steps//int(o['sample'])+1
-        disk_projection.append(dict(output=item['output'],estimated_scalar_csv_bytes=row_bytes*frames*int(o['chains'])))
+        o=science.options(item);steps=int(o['steps']);frames=steps//int(o['sample'])+1;scalar_frames=frames
+        if o['scalar-output']=='compact':
+            from semiflexible_scalar_schema import selected_steps
+            scalar_frames=len(selected_steps(steps,int(o['sample'])))
+        disk_projection.append(dict(output=item['output'],estimated_scalar_csv_bytes=row_bytes*scalar_frames*int(o['chains'])))
         if item['phase']=='stream' and item['label']==run['label'] and item['precision']==run['precision']:
             same_system.append(dict(output=item['output'],estimated_production_seconds=seconds_per_step*steps+overhead_per_frame*frames))
     report=dict(run_id=rid,exact_command=run['command'],measured_wall_seconds=wall,measured_output_bytes=disk,observed_disk_growth_endpoints=growth,
-                scalar_observation_rows=rows,bytes_per_scalar_row=row_bytes,estimated_same_system_production=same_system,
-                estimated_campaign_scalar_bytes=sum(x['estimated_scalar_csv_bytes'] for x in disk_projection),disk_estimate_assumption='Pilot scalar CSV bytes/row applied to manifest row counts; other models can differ; reserve at least twice this rough projection plus logs and other outputs',
+                scalar_profile=opts['scalar-output'],serialized_scalar_rows=serialized,scalar_observation_rows=rows,bytes_per_scalar_row=row_bytes,estimated_same_system_production=same_system,
+                estimated_campaign_scalar_bytes=sum(x['estimated_scalar_csv_bytes'] for x in disk_projection),disk_estimate_assumption='Selected/full scalar CSV bytes/row applied to the matching profile frame counts (excludes compact summaries); applied to manifest row counts; other models can differ; reserve at least twice this rough projection plus logs and other outputs',
                 estimated_same_configuration_seconds_per_million_steps=wall/int(opts['steps'])*1e6,
-                timing=result['performance'],provenance=pilot_provenance,independent_diagnostic=dict(run_id=diagnostic_id,checks=diagnostic_result['checks'],virials=diagnostic_result['virial_statistics']),limitations='Measured full frozen pilot only. Extrapolations apply approximately to identical N/precision/cadence; not a nonlinear terminal claim or other-model benchmark.')
+                timing=result['performance'],provenance=pilot_provenance,independent_diagnostic=dict(run_id=diagnostic_id,checks=diagnostic_result['checks'],virials=diagnostic_result['virial_statistics']),limitations='Measured frozen pilot in the recorded output profile only. Extrapolations apply approximately to identical N/precision/cadence; not a nonlinear terminal claim or other-model benchmark.')
     atomic(root/'pilot-readiness.json',report);print(science.encoded(report).decode())
 
 
@@ -429,7 +462,14 @@ def main():
                             with open(log,'x') as f:cp=subprocess.run(argv,stdout=f,stderr=subprocess.STDOUT,timeout=180)
                             science.require(cp.returncode==0,'bounded prerequisites failed')
                             checks[precision]=dict(exit_code=cp.returncode,command=argv,log=str(log),log_sha256=science.digest(log),binary_sha256=science.digest(binary))
-                        envelope(root/'bounded-prerequisites.json',dict(analysis_version=version(),checks=checks))
+                        proof=dict(analysis_version=version(),execution_profile=profile_identity(manifest),checks=checks)
+                        if profile_identity(manifest)!='legacy-full':
+                            log=root/'bounded-scalar-v1.log';science.require(not log.exists(),'bounded compact evidence already exists')
+                            argv=[sys.executable,str(PROJECT/'tests/test_semiflexible_scalar_output.py')]+[ledger['executables'][precision]['path'] for precision in ('single','double')]
+                            with open(log,'x') as f:cp=subprocess.run(argv,stdout=f,stderr=subprocess.STDOUT,timeout=240)
+                            science.require(cp.returncode==0,'compact prerequisites failed')
+                            proof['scalar_checks']=dict(exit_code=cp.returncode,command=argv,log=str(log),log_sha256=science.digest(log))
+                        envelope(root/'bounded-prerequisites.json',proof)
         return 0
     except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError) as e:
         if safe_root and root.is_dir():

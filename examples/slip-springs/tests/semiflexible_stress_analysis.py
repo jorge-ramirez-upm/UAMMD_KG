@@ -94,7 +94,7 @@ def options(run):
     require(len(d)*2+1 == len(cmd), 'duplicate command option')
     defaults = dict(springs='8', chains='64', steps='1000', sample='100', seed='42001', dt='.0001',
                     kbt='1', zeta='1', **{'stress-mode':'off', 'stress-batch':'32', 'cpu-workers':'1',
-                    'corr-levels':'16', 'corr-slots':'16', 'corr-m':'2'})
+                    'corr-levels':'16', 'corr-slots':'16', 'corr-m':'2', 'scalar-output':'full'})
     defaults.update({k[2:]: v for k, v in d.items()})
     return defaults
 
@@ -119,8 +119,15 @@ def authenticate(root):
     import io
     from semiflexible_stress_host import generate
     root = Path(root).resolve()
-    for name,expected_hash in ACCEPTED_SOURCE_HASHES.items():
-        require(digest(PROJECT/name)==expected_hash,'accepted source identity changed: '+name)
+    from semiflexible_scalar_schema import current_sources
+    approved=current_sources(ACCEPTED_SOURCE_HASHES)
+    for name,expected_hash in approved.items():
+        allowed={expected_hash}
+        if name=='semiflexible.cu':allowed.add(ACCEPTED_SOURCE_HASHES[name])
+        require(digest(PROJECT/name) in allowed,'accepted source identity changed: '+name)
+    if (root/'execution-profile.json').exists():
+        from semiflexible_stress_profile import authenticate_profile
+        return authenticate_profile(root)
     require(digest(PROJECT/'STAGE4A3C_VALIDATION_PLAN.md') == PLAN_HASH, 'local frozen plan hash changed')
     require(digest(root/'validation-plan.md') == PLAN_HASH, 'campaign frozen plan hash mismatch')
     require((root/'PLAN_SHA256').read_text() == PLAN_HASH+'  validation-plan.md\n', 'corrupted PLAN_SHA256')
@@ -141,6 +148,17 @@ def authenticate(root):
                          command=[x.replace(str(root), '$CAMPAIGN').replace(str(build), '$BUILD') for x in r['command']])) for r in manifest]
     require(len(set(ids)) == 282, 'duplicate run identities')
     return manifest, ids, identity(manifest)
+
+
+def source_provenance():
+    from semiflexible_scalar_schema import current_sources
+    if digest(PROJECT/'semiflexible.cu')==ACCEPTED_SOURCE_HASHES['semiflexible.cu']:return ACCEPTED_SOURCE_HASHES
+    return current_sources(ACCEPTED_SOURCE_HASHES)
+
+
+def approved_source_provenance(proof):
+    from semiflexible_scalar_schema import current_sources
+    return proof in (ACCEPTED_SOURCE_HASHES,current_sources(ACCEPTED_SOURCE_HASHES))
 
 
 def summary(x):
@@ -373,18 +391,26 @@ def validate_run(run):
     initial = positions(out/'initial.csv',c,n); final = positions(out/'final.csv',c,n)
     if steps == 0:
         close(final,initial,why='zero-step positions changed')
-    # Validate large conformation CSV with constant memory and exact frame/chain order.
-    count = 0;minimum_sampled=float('inf')
-    for count, row in enumerate(rows(out/'samples.csv',('step','time','chain','mean_r','mean_r2','re2','rg2','cm_msd','monomer_msd','min_length')+tuple('tangent'+str(s) for s in range(1,min(4,n-1)+1))),1):
-        frame, chain = divmod(count-1,c)
-        require(frame < frames and number(row,'step',True)==frame*stride and number(row,'chain',True)==chain, 'missing frame or incorrect scalar chain ID')
-        close(number(row,'time'),frame*stride*m['dt'],rtol=1e-14,why='incorrect sample time')
-        for key in row:
-            number(row,key)
-        minimum_sampled=min(minimum_sampled,number(row,'min_length'))
-        require(number(row,'min_length')>0,'collapsed observed bond in frozen campaign')
-    close(m['minimum_sampled_bond'],minimum_sampled,rtol=1e-14,why='minimum observed bond metadata inconsistent')
-    require(count == frames*c,'incomplete scalar observation frames')
+    require(opts['scalar-output'] in ('full','compact'),'unknown scalar profile')
+    require(run.get('scalar_profile',opts['scalar-output'])==opts['scalar-output'],'run scalar profile mismatch')
+    scalar_result=None
+    if opts['scalar-output']=='compact':
+        from semiflexible_scalar_schema import validate as validate_scalar
+        scalar_result=validate_scalar(out,opts,m)
+    else:
+        require(not any(out.glob('scalar_*.json')) and not any(out.glob('scalar_*.csv')),'full profile contains compact scalar files')
+        # Validate large conformation CSV with constant memory and exact frame/chain order.
+        count = 0;minimum_sampled=float('inf')
+        for count, row in enumerate(rows(out/'samples.csv',('step','time','chain','mean_r','mean_r2','re2','rg2','cm_msd','monomer_msd','min_length')+tuple('tangent'+str(s) for s in range(1,min(4,n-1)+1))),1):
+            frame, chain = divmod(count-1,c)
+            require(frame < frames and number(row,'step',True)==frame*stride and number(row,'chain',True)==chain, 'missing frame or incorrect scalar chain ID')
+            close(number(row,'time'),frame*stride*m['dt'],rtol=1e-14,why='incorrect sample time')
+            for key in row:
+                number(row,key)
+            minimum_sampled=min(minimum_sampled,number(row,'min_length'))
+            require(number(row,'min_length')>0,'collapsed observed bond in frozen campaign')
+        close(m['minimum_sampled_bond'],minimum_sampled,rtol=1e-14,why='minimum observed bond metadata inconsistent')
+        require(count == frames*c,'incomplete scalar observation frames')
     count = 0
     for count,row in enumerate(rows(out/'initial_bonds.csv',('chain','bond','length')),1):
         index=count-1
@@ -402,6 +428,7 @@ def validate_run(run):
             number(row,key)
     require(count==c*n,'incomplete bond statistics')
     result=dict(metadata=m,stress_metadata=sm,performance=performance(m,sm,opts),checks=[])
+    if scalar_result is not None:result['scalar_statistics']=scalar_result
     if diagnostic:
         result.update(validate_tensors(out,model,initial,run['precision'],m['kbt']))
     else:

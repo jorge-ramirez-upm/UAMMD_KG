@@ -1,5 +1,6 @@
 #include "semiflexible.cuh"
 #include "semiflexible_stress.cuh"
+#include "semiflexible_scalar_output.h"
 #include <thrust/device_vector.h>
 #include <array>
 #include <chrono>
@@ -25,6 +26,7 @@ struct Options {
   double dt=0.0001,b0=1,kb=30,kappa=2,kbt=1,zeta=1;
   fs::path output,parameters,initial; bool forceOnly=false;
   stress3b::Settings stress;
+  std::string scalarOutput="full";
 };
 Counter integer(std::string s) {
   if(s.empty()||s.find_first_not_of("0123456789")!=std::string::npos) throw std::runtime_error("expected unsigned integer");
@@ -42,7 +44,7 @@ Options parse(int argc,char** argv) {
     if(key=="--help") {
       std::cout<<"semiflexible --output NEW_DIR [--springs N --chains C --dt H --steps S --sample STRIDE --seed K]\n"
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
-        "[--stress-mode off|diagnostic|stream --stress-input FILE --stress-dump 0|1]\n"
+        "[--stress-mode off|diagnostic|stream --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
         "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
         "parameters: N, then N (b0 kb) pairs, then N+1 bead-indexed kappa values; --springs must match.\n"
         "initial/force-input: chains*(N+1) Cartesian triples; force-input disables integration.\n";
@@ -55,6 +57,7 @@ Options parse(int argc,char** argv) {
     else if(key=="--initial"||key=="--force-input") { o.initial=v;o.forceOnly=key=="--force-input"; }
     else if(key=="--stress-input") {o.initial=v;o.forceOnly=true;o.stress.mode="diagnostic";}
     else if(key=="--stress-mode")o.stress.mode=v;
+    else if(key=="--scalar-output")o.scalarOutput=v;
     else if(key=="--chain-density")o.stress.density=number(v);
     else if(key=="--stress-batch"||key=="--cpu-workers"||key=="--corr-levels"||key=="--corr-slots"||key=="--corr-m"||key=="--correlator-mib"||key=="--stress-dump") {
       auto value=integer(v);if(value>65536)throw std::runtime_error("stress option out of range");
@@ -88,6 +91,8 @@ Options parse(int argc,char** argv) {
     throw std::runtime_error("update scales not representable");
   if(!std::isfinite(double(o.steps)*o.dt)) throw std::runtime_error("time overflow");
   o.stress.validate(o.chains);
+  if(o.scalarOutput!="full"&&o.scalarOutput!="compact")throw std::runtime_error("scalar-output must be full or compact");
+  if(o.scalarOutput=="compact"&&(!o.stress.streaming()||o.forceOnly))throw std::runtime_error("compact scalars require stress streaming");
   if(o.stress.enabled()&&!(std::isfinite(double(o.sample)*o.dt)&&double(o.sample)*o.dt>0))throw std::runtime_error("stress sample spacing outside double range");
   if(o.stress.streaming()&&!(std::isfinite(o.kbt*o.kbt)&&o.kbt*o.kbt>0))throw std::runtime_error("stress thermal normalization outside double range");
   if(o.stress.streaming()&&o.forceOnly)throw std::runtime_error("stream mode requires dynamics (zero steps allowed)");
@@ -208,7 +213,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   int m=o.n+1,count=m*o.chains; size_t bytes=count*sizeof(real4);
   // Explicit bounded allocations, independent of number of steps/frames.
   size_t estimate=bytes*8+size_t(count)*1024;
-  if(estimate+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
+  if(estimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
   thrust::device_vector<real4> r(host),next(count),forces(count);
   thrust::device_vector<real2> bonds(p.bonds);
@@ -258,7 +263,9 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
     check(cudaMemcpy(afterPosition.data(),current,bytes,cudaMemcpyDeviceToHost),"stress immutable positions");
     if(std::memcmp(afterForce.data(),hf.data(),bytes)||std::memcmp(afterPosition.data(),host.data(),bytes))throw std::runtime_error("stress modified positions or forces");
   }
-  auto samples=outputFile(out/"samples.csv");
+  std::unique_ptr<scalar_output::Compact> compactScalar;
+  if(o.scalarOutput=="compact")compactScalar=std::make_unique<scalar_output::Compact>(o.chains,o.n,o.steps,o.sample,o.dt,out);
+  auto samples=outputFile(out/(compactScalar?"scalar_selected.csv":"samples.csv"));
   samples<<"step,time,chain,mean_r,mean_r2,re2,rg2,cm_msd,monomer_msd,min_length";
   int sep=std::min(4,o.n-1);for(int s=1;s<=sep;++s)samples<<",tangent"<<s;samples<<'\n';
   auto ib=outputFile(out/"initial_bonds.csv");ib<<"chain,bond,length\n";
@@ -276,6 +283,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
     auto t=Clock::now();check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"observation readback");
     // CPU observation reductions use double, from the stored precision.
     std::ostringstream rows,initialRows;rows<<std::setprecision(17);initialRows<<std::setprecision(17);
+    bool serialize=!compactScalar||compactScalar->selectedStep(step);
     bool accumulate=step>=o.steps/2; if(accumulate)++observations;
     for(int c=0;c<o.chains;++c) {
       Vec cm{},ee{};double mono=0,re2=0,rg2=0,cmmsd=0,mean=0,second=0,lmin=std::numeric_limits<double>::infinity();
@@ -299,9 +307,11 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       auto end=host[c*m+o.n];ee={double(end.x)-origin.x,double(end.y)-origin.y,double(end.z)-origin.z};
       for(int d=0;d<3;++d){re2+=ee[d]*ee[d];double anchor=d==0?origin.x:(d==1?origin.y:origin.z);double delta=anchor+cm[d]-initialCm[c][d];cmmsd+=delta*delta;}
       for(int j=0;j<m;++j){auto v=host[c*m+j];double x[3]={double(v.x)-origin.x,double(v.y)-origin.y,double(v.z)-origin.z};for(int d=0;d<3;++d)rg2+=(x[d]-cm[d])*(x[d]-cm[d])/m;}
-      rows<<step<<','<<step*o.dt<<','<<c<<','<<mean<<','<<second<<','<<re2<<','<<rg2<<','<<cmmsd<<','<<mono<<','<<lmin;
-      for(int s=1;s<=sep;++s){double corr=0;for(int b=0;b<o.n-s;++b){if(length[b]==0||length[b+s]==0){corr=std::numeric_limits<double>::quiet_NaN();break;}for(int d=0;d<3;++d)corr+=q[b][d]*q[b+s][d]/(length[b]*length[b+s])/(o.n-s);}rows<<','<<corr;}
-      rows<<'\n';
+      std::array<double,11> scalarValues{mean,second,re2,rg2,cmmsd,mono,lmin};
+      if(serialize)rows<<step<<','<<step*o.dt<<','<<c<<','<<mean<<','<<second<<','<<re2<<','<<rg2<<','<<cmmsd<<','<<mono<<','<<lmin;
+      for(int s=1;s<=sep;++s){double corr=0;for(int b=0;b<o.n-s;++b){if(length[b]==0||length[b+s]==0){corr=std::numeric_limits<double>::quiet_NaN();break;}for(int d=0;d<3;++d)corr+=q[b][d]*q[b+s][d]/(length[b]*length[b+s])/(o.n-s);}scalarValues[s+6]=corr;if(serialize)rows<<','<<corr;}
+      if(serialize)rows<<'\n';
+      if(compactScalar&&compactScalar->record(step,c,scalarValues))positionsFile(out/"scalar_failure_positions.csv",host,m);
     }
     observationTime+=seconds(t);t=Clock::now();samples<<rows.str();if(step==0)ib<<initialRows.str();samples.flush();ib.flush();outputTime+=seconds(t);
   };
@@ -326,7 +336,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"final positions");positionsFile(out/"final.csv",host,m);
   auto stats=outputFile(out/"bond_statistics.csv");stats<<"chain,bond,frames,mean_r,mean_r2";for(int b=0;b<33;++b)stats<<",bin"<<b;stats<<'\n';
   if(observations)for(size_t i=0;i<bn;++i){stats<<i/o.n<<','<<i%o.n<<','<<observations<<','<<sums[i]/observations<<','<<squares[i]/observations;for(int b=0;b<33;++b)stats<<','<<hist[i*33+b];stats<<'\n';}
-  stats.close();samples.close();ib.close();double finalTime=seconds(finalStart);
+  stats.close();samples.close();ib.close();if(compactScalar)compactScalar->write(o.n);double finalTime=seconds(finalStart);
   int device;cudaDeviceProp prop{};check(cudaGetDevice(&device),"device");check(cudaGetDeviceProperties(&prop,device),"properties");
   size_t deviceBytes=3*bytes+p.bonds.size()*sizeof(real2)+(angles.capacity()*sizeof(real))+sizeof(int);
   double denominator=double(count)*(o.forceOnly?0:o.steps);auto rate=[&](double x){if(denominator>0)return std::to_string(x/denominator*1e9);return std::string("null");};
