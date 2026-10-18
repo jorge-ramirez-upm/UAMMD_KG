@@ -1,0 +1,48 @@
+"""Read-only checks of the thirteenth formal record; no GPU or registry actions."""
+import copy,csv,json,sys,unittest
+from pathlib import Path
+c=Path('examples/KG_Assoc').resolve();d=Path(__file__).resolve().parent
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_registry as registry
+class RegistrationTests(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):
+  cls.registration=e2.campaign.load_json(d/'REGISTRATION.log')
+  cls.path=Path(cls.registration['acceptance']);cls.record=e2.campaign.load_json(cls.path)
+ def test_exact_record_and_committed_copy(self):
+  self.assertEqual(e2.campaign.sha256(self.path),self.registration['sha256'])
+  self.assertEqual(self.path.read_bytes(),(d/'ACCEPTANCE_RECORD.log').read_bytes())
+  registry.exclusive_validate(self.record,[e2.system_by_id('F04_N010_RP080_EE08_EA06')])
+ def test_prior_twelve_and_current_count(self):
+  prior=e2.campaign.load_json(c/'reviews/e2_ea8_ea10_extension_handoff_20261018/PRIOR_ACCEPTANCES.log')
+  self.assertEqual(len(prior),12)
+  for row in prior:
+   path=Path(row['path']);self.assertEqual(e2.campaign.sha256(path),row['sha256'])
+   record=e2.campaign.load_json(path)
+   e2.check_hashes({record['evidence']:record['evidence_sha256'],record['source_plan']:record['source_plan_sha256']})
+   for h in record['histories']:e2.check_hashes(h['sha256'])
+  self.assertEqual(len(list(self.path.parent.glob('*.json'))),13)
+ def test_exact_qualified_scope_and_retained_qualifications(self):
+  self.assertEqual(self.record['permitted_systems'],['F04_N010_RP080_EE08_EA06'])
+  self.assertEqual(self.record['permitted_use'],'production_initial_state')
+  self.assertEqual(self.record['status'],'accepted_with_qualification')
+  for text in ['historical','finite-step','effective samples','r002','decorrelation','initialization-bias','Ea8','Ea10']:
+   self.assertIn(text,self.record['qualification'])
+ def test_exact_endpoints_and_original_families(self):
+  for row,h in zip(self.registration['exact_endpoints'],self.record['histories']):
+   self.assertEqual(h['end_step'],24000000)
+   self.assertEqual(h['prefix']+'.restart.lammpsdat',row['restart'])
+   e2.check_hashes({row['restart']:row['restart_sha256'],row['sidecar']:row['sidecar_sha256']})
+   self.assertEqual(h['lineage']['independent_parent_replica'],h['replica'])
+   self.assertEqual(h['lineage']['branch_origin_step'],8000000)
+ def test_wrong_system_and_unqualified_use_rejected(self):
+  bad=copy.deepcopy(self.record);bad['permitted_systems']=['F04_N010_RP080_EE08_EA08']
+  with self.assertRaises(ValueError):registry.exclusive_validate(bad,[e2.system_by_id(bad['permitted_systems'][0])])
+  bad=copy.deepcopy(self.record);bad['qualification']=''
+  with self.assertRaises(ValueError):registry.exclusive_validate(bad,[e2.system_by_id('F04_N010_RP080_EE08_EA06')])
+ def test_existing_record_cannot_be_replaced(self):
+  with self.assertRaisesRegex(ValueError,'new acceptance filename'):
+   registry.accept(c/'kg_assoc_100m',self.path,None,'reviewer',d/'ACCEPTANCE_RECORD.log',
+    ['F04_N010_RP080_EE08_EA06'],'qualified')
+if __name__=='__main__':unittest.main(verbosity=2)

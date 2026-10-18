@@ -62,6 +62,7 @@ struct Parameters {
   bool eeExplicit = false;
   std::string derivedBranchId;
   bool reseedChemistry = false;
+  bool e2Extension = false;
   bool referenceControl = false;
   bool validateInitialState = false;
   unsigned long long parentChemicalSeed = 0;
@@ -103,6 +104,7 @@ void printHelp() {
             << "  --switch-ea-from E --Ea E (explicit restart kinetics switch)\n"
             << "  --reseed-chemistry-from OLD --seed NEW (guarded Ea transfer)\n"
             << "  --reference-control (explicit Ea4 reseeded validation control)\n"
+            << "  --e2-extension (guarded Ea8/Ea10 24M-parent diagnostic continuation)\n"
             << "  --validate-initial-state (host-only; creates no outputs)\n"
             << "  --md-seed-info S (host-only effective kernel seed)\n"
             << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
@@ -115,6 +117,8 @@ Parameters parseArguments(int argc, char** argv) {
     parameters.explicitPhysics.insert(option);
     if (option == "--derived-branch-id") {
       parameters.derivedBranchId = nextArgument(index, argc, argv);
+    } else if (option == "--e2-extension") {
+      parameters.e2Extension = true;
     } else if (option == "--reseed-chemistry-from") {
       parameters.parentChemicalSeed = parseSeed(nextArgument(index, argc, argv));
       parameters.reseedChemistry = true;
@@ -188,9 +192,19 @@ Parameters parseArguments(int argc, char** argv) {
       (parameters.restartPrefix.empty() || !parameters.eaExplicit || parameters.force)) {
     throw std::runtime_error("derived reseeding requires restart, explicit Ea and no --force");
   }
-  if ((!parameters.derivedBranchId.empty() && !parameters.reseedChemistry) ||
-      (parameters.reseedChemistry && parameters.derivedBranchId.empty())) {
-    throw std::runtime_error("derived branch identity requires explicit chemical reseeding");
+  if (parameters.e2Extension &&
+      (parameters.restartPrefix.empty() || !parameters.eaExplicit || !parameters.seedExplicit ||
+       parameters.mdSeed == 0 || parameters.force || parameters.reseedChemistry ||
+       parameters.referenceControl || parameters.switchEa ||
+       !((parameters.ea == 8.0 && parameters.steps == 16000000) ||
+         (parameters.ea == 10.0 && parameters.steps == 32000000)))) {
+    throw std::runtime_error("extension requires the exact same-Ea 24M continuation scope");
+  }
+  if ((!parameters.derivedBranchId.empty() && !parameters.reseedChemistry &&
+       !parameters.e2Extension) ||
+      ((parameters.reseedChemistry || parameters.e2Extension) &&
+       parameters.derivedBranchId.empty())) {
+    throw std::runtime_error("derived branch identity requires a transfer or extension scope");
   }
   if (parameters.validateInitialState && parameters.restartPrefix.empty()) {
     throw std::runtime_error("initial-state inspection requires a restart");
@@ -588,9 +602,10 @@ void writeProvenance(std::ofstream& stateFile,
             << " total_requested_steps=" << startStep + parameters.steps
             << " original_lammps_atom_ids=1_based\n";
   eventFile.precision(previousPrecision);
-  if (parameters.reseedChemistry) {
+  if (parameters.reseedChemistry || parameters.e2Extension) {
     for (std::ofstream* output : {&stateFile, &eventFile}) {
-      *output << "# lineage_mode=Ea_reference_transfer_v1"
+      *output << "# lineage_mode="
+              << (parameters.e2Extension ? "Ea_24M_extension_v1" : "Ea_reference_transfer_v1")
               << " branch_id=" << parameters.derivedBranchId
               << " parent_chemistry_seed=" << parameters.parentChemicalSeed
               << " reference_control=" << parameters.referenceControl
@@ -676,7 +691,7 @@ kg_assoc_test::DiagnosticContext validationContext(const Parameters& parameters,
   if (manifest) {
     context.buildJson = std::string(std::istreambuf_iterator<char>(manifest),
                                     std::istreambuf_iterator<char>());
-  } else if (parameters.reseedChemistry) {
+  } else if (parameters.reseedChemistry || parameters.e2Extension) {
     throw std::runtime_error("derived device validation requires sibling build manifest");
   }
   return context;
@@ -777,8 +792,14 @@ int main(int argc, char** argv) {
         !parameters.referenceControl && parameters.switchEa && parameters.switchEaFrom == 4.0 &&
         (parameters.ea == 6.0 || parameters.ea == 8.0 || parameters.ea == 10.0) &&
         !parameters.restartPrefix.empty() && !parameters.derivedBranchId.empty();
-    if (parameters.steps > 10000 && !derivedPreparation) {
+    if (parameters.steps > 10000 && !derivedPreparation && !parameters.e2Extension) {
       throw std::runtime_error("candidate-oracle smoke executable is limited to 10000 MD steps");
+    }
+#endif
+
+#ifndef KG_ASSOC_VALIDATE_CANDIDATES
+    if (parameters.e2Extension) {
+      throw std::runtime_error("E2 extension requires the diagnostic executable");
     }
 #endif
 
@@ -793,6 +814,43 @@ int main(int argc, char** argv) {
 #endif
       if (parameters.rAssocExplicit && !near(parameters.rAssoc, restart.parameters.rAssoc)) {
         throw std::runtime_error("--r-assoc does not match restart metadata");
+      }
+      if (parameters.e2Extension) {
+        const auto& parent = restart.parameters;
+        for (const char* option : {"--arms", "--narm", "--dt", "--temperature", "--Ee",
+                                   "--nu0", "--Nevery", "--r-assoc", "--damp", "--K", "--R0"}) {
+          if (parameters.explicitPhysics.count(option)) {
+            throw std::runtime_error("extension forbids physical parameter overrides");
+          }
+        }
+        if (restart.completedSteps != 24000000 || parent.ea != parameters.ea ||
+            parent.arms != 4 || parent.beadsPerArm != 10 || parent.ee != 8.0 ||
+            parent.dt != .01 || parent.temperature != 1.0 || parent.nu0 != 20.0 ||
+            parent.every != 100 || parent.rAssoc != 1.25 || parent.damping != 2.0 ||
+            parent.feneK != 30.0 || parent.feneR0 != 1.5 ||
+            parameters.seed != parent.seed || parameters.mdSeed == parent.seed) {
+          throw std::runtime_error("extension parent physics, step or chemistry seed differs");
+        }
+        const unsigned long long base = parent.ea == 8.0 ? 1220800 : 1321000;
+        if (parent.seed <= base || parent.seed > base + 3) {
+          throw std::runtime_error("extension requires an authenticated manual parent family");
+        }
+        const std::string systemId = "F04_N010_RP080_EE08_EA" +
+            std::string(parent.ea < 10 ? "0" : "") + std::to_string(int(parent.ea));
+        const std::string suffix = ":r00" + std::to_string(parent.seed - base);
+        if (parameters.derivedBranchId.find(systemId + ":extension_" + systemId + "_") != 0 ||
+            parameters.derivedBranchId.size() < suffix.size() ||
+            parameters.derivedBranchId.compare(parameters.derivedBranchId.size() - suffix.size(),
+                                               suffix.size(), suffix) != 0 ||
+            parameters.derivedBranchId.find_first_not_of(
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_:") != std::string::npos) {
+          throw std::runtime_error("extension branch identity differs");
+        }
+        // Validation provenance only; the existing physical restart path remains below.
+        parameters.parentChemicalSeed = parent.seed;
+        parameters.branchOriginStep = restart.completedSteps;
+        parameters.parentCreations = restart.creations;
+        parameters.parentBreaks = restart.breaks;
       }
       const double targetEa = parameters.referenceControl ? parameters.ea :
           kg_assoc::restartEa(restart.parameters.ea, parameters.ea,

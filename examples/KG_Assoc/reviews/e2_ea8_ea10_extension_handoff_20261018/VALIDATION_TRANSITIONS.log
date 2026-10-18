@@ -1,0 +1,110 @@
+{
+  "campaign/kg_assoc_e2_transfer.py": {
+    "after_sha256": "243a5fd0ba6bba94185e3b0e7ed6561f3d81cee07458065fd6ddcabeccb786f7",
+    "before_sha256": "0cd575dcacd4da05352c12681a8d426271b2682498804ad751a392f95d1b34ed",
+    "changes": [
+      {
+        "after": "def streams_in_use(root, ignore_attempt=None, ignore_md_reservation=None):\n",
+        "after_end": 46,
+        "after_start": 45,
+        "before": "def streams_in_use(root, ignore_attempt=None):\n"
+      },
+      {
+        "after": "    for path in (root / 'banks/e2_md_reservations').glob('*.json'):\n        if ignore_md_reservation and path.resolve() == Path(ignore_md_reservation).resolve():\n            continue\n        for row in e2.campaign.load_json(path)['streams']:\n            requested.add(row['md_seed'])\n            md.add(row['effective_md_seed'])\n",
+        "after_end": 59,
+        "after_start": 53,
+        "before": ""
+      },
+      {
+        "after": "                if (plan.get('lineage_mode') not in (None, 'Ea_24M_extension_v1') or\n                        plan.get('system', {}).get('system_id') != row['system_id']):\n",
+        "after_end": 211,
+        "after_start": 209,
+        "before": "                if plan.get('lineage_mode') or plan.get('system', {}).get('system_id') != row['system_id']:\n"
+      }
+    ]
+  },
+  "campaign/kg_assoc_e2_validate.py": {
+    "after_sha256": "aaa53f876bfafae8e1da576cd7128ce39d1f17a900434f39f782c534698c0903",
+    "before_sha256": "a4eaf62e336cce516ab8e475b284e5345f0dbb65551a93304bd4d401d13d493a",
+    "changes": [
+      {
+        "after": "        if entry['lineage']['mode'] == 'Ea_24M_extension_v1':\n            import kg_assoc_e2_extension as extension\n            extension.validate_lineage(entry, metadata, pairs)\n        else:\n            transfer.validate_lineage(entry, metadata, pairs)\n",
+        "after_end": 67,
+        "after_start": 62,
+        "before": "        transfer.validate_lineage(entry, metadata, pairs)\n"
+      },
+      {
+        "after": "    if entry.get('lineage', {}).get('mode') == 'Ea_24M_extension_v1':\n        # A caller cannot disable either readback or the oracle for an extension.\n        oracle = True\n",
+        "after_end": 130,
+        "after_start": 127,
+        "before": ""
+      }
+    ]
+  },
+  "kg_assoc_stars.cu": {
+    "after_sha256": "07b6eb5f725f46c1f5b04ef45123fd8915a562c62cee916e2eb0b18eda581ae7",
+    "before_sha256": "c4f918e1cb4f489fbb818ac8a90976da5bbbdf5c404887185036dc3dbe5b6f86",
+    "changes": [
+      {
+        "after": "  bool e2Extension = false;\n",
+        "after_end": 65,
+        "after_start": 64,
+        "before": ""
+      },
+      {
+        "after": "            << \"  --e2-extension (guarded Ea8/Ea10 24M-parent diagnostic continuation)\\n\"\n",
+        "after_end": 107,
+        "after_start": 106,
+        "before": ""
+      },
+      {
+        "after": "    } else if (option == \"--e2-extension\") {\n      parameters.e2Extension = true;\n",
+        "after_end": 121,
+        "after_start": 119,
+        "before": ""
+      },
+      {
+        "after": "  if (parameters.e2Extension &&\n      (parameters.restartPrefix.empty() || !parameters.eaExplicit || !parameters.seedExplicit ||\n       parameters.mdSeed == 0 || parameters.force || parameters.reseedChemistry ||\n       parameters.referenceControl || parameters.switchEa ||\n       !((parameters.ea == 8.0 && parameters.steps == 16000000) ||\n         (parameters.ea == 10.0 && parameters.steps == 32000000)))) {\n    throw std::runtime_error(\"extension requires the exact same-Ea 24M continuation scope\");\n  }\n  if ((!parameters.derivedBranchId.empty() && !parameters.reseedChemistry &&\n       !parameters.e2Extension) ||\n      ((parameters.reseedChemistry || parameters.e2Extension) &&\n       parameters.derivedBranchId.empty())) {\n    throw std::runtime_error(\"derived branch identity requires a transfer or extension scope\");\n",
+        "after_end": 207,
+        "after_start": 194,
+        "before": "  if ((!parameters.derivedBranchId.empty() && !parameters.reseedChemistry) ||\n      (parameters.reseedChemistry && parameters.derivedBranchId.empty())) {\n    throw std::runtime_error(\"derived branch identity requires explicit chemical reseeding\");\n"
+      },
+      {
+        "after": "  if (parameters.reseedChemistry || parameters.e2Extension) {\n",
+        "after_end": 605,
+        "after_start": 604,
+        "before": "  if (parameters.reseedChemistry) {\n"
+      },
+      {
+        "after": "      *output << \"# lineage_mode=\"\n              << (parameters.e2Extension ? \"Ea_24M_extension_v1\" : \"Ea_reference_transfer_v1\")\n",
+        "after_end": 608,
+        "after_start": 606,
+        "before": "      *output << \"# lineage_mode=Ea_reference_transfer_v1\"\n"
+      },
+      {
+        "after": "  } else if (parameters.reseedChemistry || parameters.e2Extension) {\n",
+        "after_end": 694,
+        "after_start": 693,
+        "before": "  } else if (parameters.reseedChemistry) {\n"
+      },
+      {
+        "after": "    if (parameters.steps > 10000 && !derivedPreparation && !parameters.e2Extension) {\n",
+        "after_end": 795,
+        "after_start": 794,
+        "before": "    if (parameters.steps > 10000 && !derivedPreparation) {\n"
+      },
+      {
+        "after": "    }\n#endif\n\n#ifndef KG_ASSOC_VALIDATE_CANDIDATES\n    if (parameters.e2Extension) {\n      throw std::runtime_error(\"E2 extension requires the diagnostic executable\");\n",
+        "after_end": 802,
+        "after_start": 796,
+        "before": ""
+      },
+      {
+        "after": "      }\n      if (parameters.e2Extension) {\n        const auto& parent = restart.parameters;\n        for (const char* option : {\"--arms\", \"--narm\", \"--dt\", \"--temperature\", \"--Ee\",\n                                   \"--nu0\", \"--Nevery\", \"--r-assoc\", \"--damp\", \"--K\", \"--R0\"}) {\n          if (parameters.explicitPhysics.count(option)) {\n            throw std::runtime_error(\"extension forbids physical parameter overrides\");\n          }\n        }\n        if (restart.completedSteps != 24000000 || parent.ea != parameters.ea ||\n            parent.arms != 4 || parent.beadsPerArm != 10 || parent.ee != 8.0 ||\n            parent.dt != .01 || parent.temperature != 1.0 || parent.nu0 != 20.0 ||\n            parent.every != 100 || parent.rAssoc != 1.25 || parent.damping != 2.0 ||\n            parent.feneK != 30.0 || parent.feneR0 != 1.5 ||\n            parameters.seed != parent.seed || parameters.mdSeed == parent.seed) {\n          throw std::runtime_error(\"extension parent physics, step or chemistry seed differs\");\n        }\n        const unsigned long long base = parent.ea == 8.0 ? 1220800 : 1321000;\n        if (parent.seed <= base || parent.seed > base + 3) {\n          throw std::runtime_error(\"extension requires an authenticated manual parent family\");\n        }\n        const std::string systemId = \"F04_N010_RP080_EE08_EA\" +\n            std::string(parent.ea < 10 ? \"0\" : \"\") + std::to_string(int(parent.ea));\n        const std::string suffix = \":r00\" + std::to_string(parent.seed - base);\n        if (parameters.derivedBranchId.find(systemId + \":extension_\" + systemId + \"_\") != 0 ||\n            parameters.derivedBranchId.size() < suffix.size() ||\n            parameters.derivedBranchId.compare(parameters.derivedBranchId.size() - suffix.size(),\n                                               suffix.size(), suffix) != 0 ||\n            parameters.derivedBranchId.find_first_not_of(\n                \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_:\") != std::string::npos) {\n          throw std::runtime_error(\"extension branch identity differs\");\n        }\n        // Validation provenance only; the existing physical restart path remains below.\n        parameters.parentChemicalSeed = parent.seed;\n        parameters.branchOriginStep = restart.completedSteps;\n        parameters.parentCreations = restart.creations;\n        parameters.parentBreaks = restart.breaks;\n",
+        "after_end": 853,
+        "after_start": 816,
+        "before": ""
+      }
+    ]
+  }
+}

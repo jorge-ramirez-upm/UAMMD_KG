@@ -60,7 +60,11 @@ def read_parent(entry):
     parent_seed = entry['chemistry_seed']
     if 'lineage' in entry:
         import kg_assoc_e2_transfer as transfer
-        transfer.validate_lineage(entry, metadata, pairs)
+        if entry['lineage']['mode'] == 'Ea_24M_extension_v1':
+            import kg_assoc_e2_extension as extension
+            extension.validate_lineage(entry, metadata, pairs)
+        else:
+            transfer.validate_lineage(entry, metadata, pairs)
         parent_seed = entry['lineage']['parent_chemistry_seed']
     require(int(metadata['completed_steps']) == entry['start_step'] and
             int(metadata['seed']) == parent_seed, 'parent step/chemistry seed mismatch')
@@ -121,6 +125,9 @@ def validate(entry, oracle=False):
     # Ordinary 16M Ea transfers retain every smoke diagnostic; callers cannot disable them.
     oracle = oracle or (bool(entry.get('lineage')) and
                         entry['end_step'] - entry['start_step'] == 16000000)
+    if entry.get('lineage', {}).get('mode') == 'Ea_24M_extension_v1':
+        # A caller cannot disable either readback or the oracle for an extension.
+        oracle = True
     prefix = Path(entry['output_prefix'])
     for suffix in OUTPUTS:
         require(Path(str(prefix) + suffix).is_file(), 'missing E2 output: ' + suffix)

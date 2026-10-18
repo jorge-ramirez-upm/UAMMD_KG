@@ -80,13 +80,18 @@ def clean_tree():
 def live_code(plan=None):
     clean_tree()
     if plan is not None:
-        require(campaign.git_sha() == plan['git_sha'], 'prepared code SHA changed')
+        if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
+            require(subprocess.run(['git', 'merge-base', '--is-ancestor', plan['git_sha'],
+                    campaign.git_sha()], cwd=campaign.REPOSITORY_ROOT).returncode == 0 and
+                    plan['source_sha256'] == sources(), 'prepared extension sources/history changed')
+        else:
+            require(campaign.git_sha() == plan['git_sha'], 'prepared code SHA changed')
         check_hashes(plan['source_sha256'])
         check_hashes(plan['executable_sha256'])
         if plan.get('build'):
             check_hashes(plan['build']['build_log_sha256'])
             check_hashes(plan['build']['executable_sha256'])
-    if not (plan and plan.get('lineage_mode') == 'Ea_reference_transfer_v1' and
+    if not (plan and plan.get('lineage_mode') in ('Ea_reference_transfer_v1', 'Ea_24M_extension_v1') and
             plan.get('build', {}).get('out_of_tree')):
         subprocess.run(['make', '-q', *EXECUTABLES], cwd=HERE.parent, check=True)
 
@@ -206,7 +211,9 @@ def corrected_c1(root, replica, replay=True):
 
 
 def command(entry, smoke):
-    preparation = bool(entry.get('lineage')) and entry['end_step'] - entry['start_step'] == 16000000
+    extension = entry.get('lineage', {}).get('mode') == 'Ea_24M_extension_v1'
+    preparation = extension or (bool(entry.get('lineage')) and
+        entry['end_step'] - entry['start_step'] == 16000000)
     executable = Path(entry.get('executable_directory', HERE.parent)) / (
         'kg_assoc_stars_candidate_smoke' if smoke or preparation else 'kg_assoc_stars')
     parent = entry['parent']
@@ -221,7 +228,10 @@ def command(entry, smoke):
             result += [option, str(p[key])]
     elif entry['parent_Ea'] != entry['physics']['Ea']:
         result += ['--switch-ea-from', str(entry['parent_Ea']), '--Ea', str(entry['physics']['Ea'])]
-    if entry.get('lineage'):
+    if extension:
+        result += ['--e2-extension', '--Ea', str(entry['physics']['Ea']),
+                   '--derived-branch-id', entry['lineage']['branch_id']]
+    elif entry.get('lineage'):
         result += ['--reseed-chemistry-from', str(entry['lineage']['parent_chemistry_seed']),
                    '--derived-branch-id', entry['lineage']['branch_id']]
         if entry['lineage']['reference_control']:
@@ -238,6 +248,9 @@ def check_plan(root, attempt, live=False):
     require(plan['schema_version'] == 1 and plan['stage'] == 'E2-G1' and
             plan['dataset_root'] == str(root) and plan['attempt'] == str(attempt), 'wrong E2 plan')
     if plan.get('lineage_mode'):
+        if plan['lineage_mode'] == 'Ea_24M_extension_v1':
+            import kg_assoc_e2_extension as extension
+            return extension.check_plan(root, attempt, plan, live)
         import kg_assoc_e2_transfer as transfer
         require(plan['lineage_mode'] == transfer.MODE, 'unknown derived lineage mode')
         return transfer.check_plan(root, attempt, plan, live)
@@ -307,6 +320,10 @@ def allocate_md_seeds(root):
         reserved.update(validation.effective_md_seed(row['md_seed'])
                         for row in transfer_policy['streams'])
     used = set()
+    for path in (root / 'banks/e2_md_reservations').glob('*.json'):
+        for row in campaign.load_json(path)['streams']:
+            used.add(row['md_seed'])
+            reserved.add(row['effective_md_seed'])
     for path in (root / 'banks/e2_attempts').glob('*/*/plan.json'):
         plan = campaign.load_json(path)
         for entry in plan['histories']:
@@ -462,7 +479,7 @@ VALIDATION_TRANSITIONS = {
         !parameters.referenceControl && parameters.switchEa && parameters.switchEaFrom == 4.0 &&
         (parameters.ea == 6.0 || parameters.ea == 8.0 || parameters.ea == 10.0) &&
         !parameters.restartPrefix.empty() && !parameters.derivedBranchId.empty();
-    if (parameters.steps > 10000 && !derivedPreparation) {
+    if (parameters.steps > 10000 && !derivedPreparation && !parameters.e2Extension) {
       throw std::runtime_error("candidate-oracle smoke executable is limited to 10000 MD steps");
     }
 """, """    if (parameters.steps > 10000) {
@@ -513,6 +530,10 @@ def smoke_code_compatible(smoke, plan):
 
 
 def matching_smoke(root, attempt, plan):
+    if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
+        import kg_assoc_e2_extension as extension
+        require(attempt is None, 'extension evidence is its exact validated 24M predecessor')
+        return extension.inherited_gpu_evidence(root, plan)
     require(attempt is not None, 'ordinary E2 requires matching capped GPU smoke evidence')
     smoke = verify(root, inside(root, attempt))
     require(smoke['smoke'] and smoke['steps'] <= 10000 and
@@ -531,6 +552,9 @@ def matching_smoke(root, attempt, plan):
 
 def launch_scope(plan, replica, replicas=None):
     require(replica is None or replicas is None, 'choose one explicit selector')
+    if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
+        import kg_assoc_e2_extension as extension
+        return extension.launch_scope(plan, replica, replicas)
     if derived_preparation(plan):
         require(replica is None, 'use an explicitly approved replica list for 16M preparation')
         selected = [1, 2, 3] if replicas is None else replicas
@@ -570,7 +594,10 @@ def launch_scope(plan, replica, replicas=None):
 
 def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None):
     record = approval_record(path, attempt / 'plan.json', purpose)
-    if derived_preparation(plan):
+    if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
+        import kg_assoc_e2_extension as extension
+        extension.check_approval(record, plan, replica, replicas)
+    elif derived_preparation(plan):
         selected = launch_scope(plan, replica, replicas)
         require(record.get('selector_scope') == 'Ea_transfer_16M_preparation_v1' and
                 record.get('authorized_system') == plan['system']['system_id'] and
@@ -609,7 +636,8 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
            replica=None, replicas=None):
     plan = check_plan(root, attempt, live=execute)
     histories = launch_scope(plan, replica, replicas)
-    checked_histories = histories if derived_preparation(plan) else plan['histories']
+    is_extension = plan.get('lineage_mode') == 'Ea_24M_extension_v1'
+    checked_histories = histories if derived_preparation(plan) or is_extension else plan['histories']
     for entry in checked_histories:
         require(not any(Path(entry['output_prefix']).parent.iterdir()), 'attempt already used; preserve it')
     if not execute:
@@ -617,10 +645,16 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
         return
     purpose = ('e2_derived_smoke' if plan['smoke'] else 'e2_derived_segment') if plan.get(
         'lineage_mode') else ('e2_smoke' if plan['smoke'] else 'e2_segment')
+    if is_extension:
+        purpose = 'e2_derived_extension'
     scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
-    if derived_preparation(plan):
+    if derived_preparation(plan) or is_extension:
         require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
+    writer = exclusive_json
+    if is_extension:
+        import kg_assoc_e2_extension as extension
+        writer = extension.atomic_receipt
     lock = attempt / '.launch.lock'
     with lock.open('x') as stream:
         json.dump(dict(pid=os.getpid(), host=socket.gethostname()), stream)
@@ -631,17 +665,25 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
             scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
             directory = Path(entry['output_prefix']).parent
             require(not any(directory.iterdir()), 'replica outputs appeared during preflight')
-            exclusive_json(directory / 'started.json', dict(plan_sha256=campaign.sha256(attempt / 'plan.json'),
+            if is_extension:
+                extension.revalidate_parent(entry)
+            writer(directory / 'started.json', dict(plan_sha256=campaign.sha256(attempt / 'plan.json'),
                            command=entry['command'], approval_sha256=campaign.sha256(approval),
                            smoke_sha256=smoke_hashes, host=socket.gethostname(), started_at=timestamp()))
             start = time.monotonic()
             try:
                 environment = subprocess.check_output(['nvidia-smi', '--query-gpu=name,uuid,driver_version',
                                                        '--format=csv,noheader'], text=True)
-                exclusive_json(directory / 'environment.json', dict(gpu=environment, host=socket.gethostname()))
+                writer(directory / 'environment.json', dict(gpu=environment, host=socket.gethostname()))
                 with (directory / 'stdout.log').open('x') as stdout, (directory / 'stderr.log').open('x') as stderr:
-                    process = subprocess.Popen(entry['command'], stdout=stdout, stderr=stderr)
+                    options = ({'preexec_fn': extension.parent_death_guard(os.getpid())}
+                               if is_extension else {})
+                    process = subprocess.Popen(entry['command'], stdout=stdout, stderr=stderr, **options)
                     try:
+                        if is_extension:
+                            writer(directory / 'process.json', dict(
+                                **extension.process_identity(process.pid), command=entry['command'],
+                                plan_sha256=campaign.sha256(attempt / 'plan.json')))
                         require(process.wait() == 0, 'MD executable failed')
                     except BaseException:
                         process.terminate()
@@ -651,13 +693,20 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
                         'missing executable completion marker')
                 check_hashes(entry['parent']['sha256'])
                 live_code(plan)
+                if is_extension:
+                    check_plan(root, attempt, live=True)
+                    scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
+                    started_record = campaign.load_json(directory / 'started.json')
+                    require(started_record['plan_sha256'] == campaign.sha256(attempt / 'plan.json') and
+                            started_record['approval_sha256'] == campaign.sha256(approval),
+                            'extension plan/approval changed during execution')
                 _, _, result = validation.validate(entry, oracle=plan['smoke'])
-                exclusive_json(directory / 'complete.json', dict(
+                writer(directory / 'complete.json', dict(
                     status='validated', plan_sha256=campaign.sha256(attempt / 'plan.json'),
                     validation=result, end_step=entry['end_step'], wall_seconds=time.monotonic() - start,
                     finished_at=timestamp(), output_sha256=hash_files(directory.iterdir())))
             except BaseException as error:
-                exclusive_json(directory / 'incomplete.json', dict(error=str(error), finished_at=timestamp()))
+                writer(directory / 'incomplete.json', dict(error=str(error), finished_at=timestamp()))
                 raise
     finally:
         lock.unlink()

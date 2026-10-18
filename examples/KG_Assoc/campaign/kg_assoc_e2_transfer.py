@@ -43,7 +43,7 @@ def reference(root):
     return record, parents
 
 
-def streams_in_use(root, ignore_attempt=None):
+def streams_in_use(root, ignore_attempt=None, ignore_md_reservation=None):
     """Inspect recorded streams without invoking executables or changing reservations."""
     policy = e2.campaign.load_json(e2.HERE / 'e2_seed_map.json')
     requested = set(policy['reserved_md_system_seeds'])
@@ -51,6 +51,12 @@ def streams_in_use(root, ignore_attempt=None):
     md = {e2.validation.effective_md_seed(s) for s in requested}
     uses = [(s, None, '<policy>') for s in chemical | requested]
     uses += [(None, s, '<policy>') for s in md]
+    for path in (root / 'banks/e2_md_reservations').glob('*.json'):
+        if ignore_md_reservation and path.resolve() == Path(ignore_md_reservation).resolve():
+            continue
+        for row in e2.campaign.load_json(path)['streams']:
+            requested.add(row['md_seed'])
+            md.add(row['effective_md_seed'])
     for path in (root / 'banks').rglob('*.json'):
         if ignore_attempt and Path(ignore_attempt) in path.parents:
             continue
@@ -201,7 +207,8 @@ def reserved_streams(root, ignore_attempt=None, seed_reservations=None):
         while changed:
             changed = False
             for plan in pending:
-                if plan.get('lineage_mode') or plan.get('system', {}).get('system_id') != row['system_id']:
+                if (plan.get('lineage_mode') not in (None, 'Ea_24M_extension_v1') or
+                        plan.get('system', {}).get('system_id') != row['system_id']):
                     continue
                 for history in plan.get('histories', []):
                     if (history.get('replica') == row['replica'] and

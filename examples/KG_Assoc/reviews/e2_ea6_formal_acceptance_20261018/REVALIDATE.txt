@@ -1,0 +1,33 @@
+"""One bounded, read-only CPU replay of an exact Ea6 accepted candidate; no GPU."""
+import argparse,csv,json,sys
+from pathlib import Path
+c=Path('examples/KG_Assoc').resolve();d=Path(__file__).resolve().parent
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import run_ea_preparation as manual
+p=argparse.ArgumentParser();p.add_argument('--replica',type=int,choices=(1,2,3),required=True);p.add_argument('--output',type=Path,default=d);a=p.parse_args()
+review=c/'reviews/e2_ea_transfer_24m_joint_20261018'
+e2.check_hashes(e2.campaign.load_json(review/'INTEGRITY.sha256'))
+row=next(r for r in csv.DictReader((review/'ENDPOINTS.csv').open()) if r['Ea']=='6' and int(r['replica'])==a.replica)
+state=e2.campaign.load_json(c/'kg_assoc_100m/aggregate/e2/manual_ea16m_v1/state.json')
+job=next(j for j in state['jobs'] if j['system'].endswith('EA06') and j['replica']==a.replica)
+attempt=Path(job['attempt'])
+e2.check_hashes({str(attempt/'plan.json'):job['plan_sha256'],job['approval']:job['approval_sha256']})
+plan=e2.check_plan(c/'kg_assoc_100m',attempt);entry=plan['histories'][a.replica-1]
+e2.scoped_launch_approval(Path(job['approval']),attempt,'e2_derived_segment',plan,None,[a.replica])
+e2.check_hashes(plan['executable_sha256'])
+if e2.scientific_source_hashes(plan['source_sha256'])!=e2.scientific_source_hashes(e2.sources()):
+ import kg_assoc_e2_extension as extension
+ assert extension.code_compatible(plan,dict(source_sha256=e2.sources(),executable_sha256=plan['executable_sha256'])), 'unreviewed validator source transition'
+assert entry['start_step']==8000000 and entry['end_step']==24000000 and plan['steps']==16000000
+for name,key in [('restart','restart_sha256'),('sidecar','sidecar_sha256')]:
+ assert e2.campaign.sha256(Path(row[name]))==row[key]
+assert job['plan_sha256']==row['plan_sha256']
+_,_,result=e2.validation.validate(entry,oracle=True)
+complete=e2.campaign.load_json(Path(entry['output_prefix']).parent/'complete.json')
+assert result==complete['validation'] and result['oracle_sweeps']==160000
+assert e2.campaign.sha256(Path(entry['output_prefix']).parent/'complete.json')==row['complete_sha256']
+e2.exclusive_json(a.output/f'REVALIDATED_r{a.replica:03d}.log',dict(system=job['system'],replica=a.replica,
+ entry=entry,plan_sha256=job['plan_sha256'],approval_sha256=job['approval_sha256'],validation=result,
+ exact_endpoint=row,MD_steps_executed_by_this_check=0))
+print('PASS Ea6',a.replica,'exact 24M pair, lineage, seeds, full numerical/event/oracle replay')
