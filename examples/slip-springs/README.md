@@ -75,6 +75,30 @@ precision behavior. Clean and rebuild after changing compiler/flags/header root.
 `make clean` removes only named executables/dependency files, preserving run data.
 The previous Stage 0 smoke and correlator sources remain available unchanged.
 
+## CPU end-to-end orientation adapter
+
+`orientation_correlator.h` provides a separate CPU-only multi-tau C1/C2 adapter
+using the unchanged KG Vector correlator. It normalizes every finite nonzero
+end-to-end vector, forms rank-two tensor features before coarsening, and reports
+chain-cluster uncertainties and an explicit integer acquisition clock. It is
+not connected to either simulator or to the frozen campaign. See
+[STAGE4A3C_ORIENTATION_CORRELATOR_REPORT.md](STAGE4A3C_ORIENTATION_CORRELATOR_REPORT.md)
+for the API, measured memory/throughput and remaining GPU-acquisition work.
+
+From the development worktree root (Linux,a C++17 g++ compiler,Python3+NumPy;
+no CUDA):
+
+```sh
+timeout 480s python3 -B examples/slip-springs/tests/run_orientation_cpu.py --benchmarks
+```
+
+This compiles only private CPU binaries under `build/orientation-cpu`, runs direct
+and sanitizer tests plus unchanged CPU stress regressions, and writes
+`build/orientation-cpu/results.json` and logs. Omit `--benchmarks` for checks
+alone. LeakSanitizer needs an environment permitting thread inspection; do not
+disable leak detection to hide tracing/sandbox restrictions. Benchmarks use
+prescribed vectors, with no scientific trajectories or GPU execution.
+
 ## CPU stress theory and reference (Stage 4A.3a)
 
 Stage 4A.3a adds a separate float64 CPU reference and bounded independent tests;

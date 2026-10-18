@@ -393,3 +393,24 @@ host-analysis regressions and required sanitizers with bounded timeouts. No
 Stage4A.3c production run or old interrupted-pilot restart is authorized. Do not
 touch the interrupted /tmp/semiflexible-readiness.oH8Vnc pilot. The ten-minute
 Codex limit remains; provide host preparation commands without running them.
+
+## CPU orientation correlator milestone
+
+The explicit current user task authorizes only the isolated CPU orientation
+adapter, deterministic tests, sanitizers and bounded CPU benchmarks. See
+orientation_correlator.h and STAGE4A3C_ORIENTATION_CORRELATOR_REPORT.md. Reuse
+KG Vector add/evaluate unchanged; protect local ownership and partial allocation
+cleanup. Form rank-two features before multi-tau block averaging and combine
+their banks per chain before estimating SE. Preserve integer observation steps,
+frame atomicity, optional one-chain SE and explicit rejection of undefined
+orientation. Never square averaged C1 or renormalize coarse features.
+
+Use the development worktree /tmp/UAMMD_KG-slip-springs-dev. Both original
+execution paths/checkouts, their scientific binaries and the authenticated
+campaign stay pinned to 4e46d6014aa812b1fc687335654c4b1f681ddd22 and unchanged.
+Do not integrate the adapter into CUDA, create a new acquisition clock in the
+simulator, refactor existing workers/correlators or execute scientific trajectories
+without separate authorization. CPU artifacts stay under build/orientation-cpu.
+Keep the3e-11 absolute/relative direct tolerance and ASan/UBSan/leak checks;
+run in an environment allowing LSan thread inspection. No sanitizer suppression
+or threshold relaxation is authorized. Preserve all old tests/frozen artifacts.
