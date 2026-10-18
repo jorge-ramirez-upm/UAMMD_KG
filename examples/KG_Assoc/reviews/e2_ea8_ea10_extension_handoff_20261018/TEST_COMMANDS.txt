@@ -1,0 +1,22 @@
+# From /home/jramirez/UAMMD_KG. Every command below is CPU/host-only.
+# Each complete command is bounded at 600 seconds; no --execute appears here.
+export PYTHONPATH="$PWD/examples/KG_Assoc/campaign:$PWD/examples/KG_Assoc/analysis:$PWD/examples/KG_Assoc/reviews/e2_rp040_ee8_6m_20261014:$PWD/examples/KG_Assoc/reviews/e2_rp040_ee8_8m_20261014"
+export KG_ASSOC_TRANSFER_HOST_EXE="$PWD/examples/KG_Assoc/kg_assoc_100m/builds/ea_24m_extensions_20261018_v1/kg_assoc_stars"
+export PYTHONWARNINGS=ignore::ResourceWarning
+
+timeout 600 python3 -m unittest -v test_catalog test_e2_acceptance test_e2_continuous4m_review test_e2_continuous8m_review test_e2_continuous_review test_e2_derived_preparation test_e2_g1 test_e2_peripheral_network test_e2_readback test_e2_recover test_e2_remaining_smoke test_e2_satellite_continuation test_e2_single_history test_e2_window_sensitivity test_joint_e2 test_joint_rp040_8m test_reproduce test_run_e2 test_run_ea_preparation
+
+timeout 600 python3 -m unittest -v test_e2_transfer
+timeout 600 python3 -m unittest -v test_e2_extensions
+timeout 600 python3 examples/KG_Assoc/reviews/e2_ea6_formal_acceptance_20261018/TEST_REGISTRATION.txt
+
+timeout 600 examples/KG_Assoc/kg_assoc_100m/builds/ea_24m_extensions_20261018_v1/kg_assoc_stars --self-test
+timeout 600 examples/KG_Assoc/kg_assoc_100m/builds/ea_24m_extensions_20261018_v1/kg_assoc_stars_candidate_smoke --self-test
+timeout 600 examples/KG_Assoc/kg_assoc_100m/builds/ea_24m_extensions_20261018_v1/kg_assoc_candidates_test
+
+timeout 600 python3 examples/KG_Assoc/reviews/e2_ea8_ea10_extension_handoff_20261018/VERIFY.txt
+# The following read-only parent replay writes NEW review receipts only.
+# Choose a fresh directory, never overwrite the archived original receipts:
+# EA_REPLAY_DIR=$(mktemp -d /tmp/ea6-readonly-replay.XXXXXXXX)
+# timeout 600 python3 examples/KG_Assoc/reviews/e2_ea6_formal_acceptance_20261018/REVALIDATE.txt --replica 1 --output "$EA_REPLAY_DIR"
+# Repeat separately for --replica 2 and --replica 3 with the same fresh directory.

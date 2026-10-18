@@ -22,11 +22,11 @@ interrupted, `--execute` finishes the CPU preparation first. The separate
 `--prepare` command creates/authenticates preparations without running MD.
 `--check` and `--status` are read-only and allocate no streams.
 
-The runner selects exactly Ea8 r001–r003, +16M each from 24M to40M, and Ea10
-r001–r003, +32M each from24M to56M. It never returns to an 8M parent, uses a smoke
+The runner selects exactly Ea8 r001–r003, +16M each from 24M to 40M, and Ea10
+r001–r003, +32M each from 24M to 56M. It never returns to an 8M parent, uses a smoke
 as a parent, launches Ea6, or creates another cohort after all six completions.
 Completed histories are independently replayed and skipped on repeated execution.
-The completion budget is144M steps. You authorized separately recorded restart
+The completion budget is 144M steps. You authorized separately recorded restart
 overhead; interrupted attempts are not merged into completed trajectories.
 
 ## Interrupt and restart safely
@@ -35,7 +35,7 @@ For foreground execution, press **Ctrl+C once** and allow the runner to stop its
 native child and save status. Then rerun the **same `--execute` command**.
 Finished validated histories are skipped. A trajectory whose MD finished but
 whose receipt was interrupted is validated and its receipt recovered without
-repeating MD. A genuine partial restarts from its exact authenticated24M parent
+repeating MD. A genuine partial restarts from its exact authenticated 24M parent
 with fresh requested/effective MD streams in a new immutable attempt. The old
 attempt and all reservations stay untouched. Do not delete or rename directories.
 
@@ -74,7 +74,7 @@ kill -TERM "$EA_EXTENSION_PID"
 wait "$EA_EXTENSION_PID"
 ```
 
-Exit status130 indicates the requested interruption; it does not erase any output.
+Exit status 130 indicates the requested interruption; it does not erase any output.
 To restart, repeat the nohup block or use the foreground command, after the old
 runner/child has exited. Use the same workflow state; never create a second cohort.
 
@@ -97,9 +97,9 @@ partial-work bounds separately and never asserts an exact lost-buffer step count
 No package installation is needed. Read-only status reports authenticated plan/
 approval metadata and live process identity; `--execute` performs independent full
 numerical replay before skipping a completion. It also replays the corresponding
-24M parent's full16M segment before each new GPU start. No tolerance or oracle
+24M parent's full 16M segment before each new GPU start. No tolerance or oracle
 comparison is weakened. The initial device check runs before any MD integration.
 
 All six final endpoints remain on scientific hold pending the separate review
 described in IMPLEMENTATION.md. Numerical completion is not formal acceptance.
-No further extension, registry activation or100M production is part of this runner.
+No further extension, registry activation or 100M production is part of this runner.

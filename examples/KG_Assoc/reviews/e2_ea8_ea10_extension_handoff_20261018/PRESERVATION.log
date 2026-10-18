@@ -1,0 +1,5 @@
+PASS baseline: 3018 unchanged protected bindings; four exact scoped source transitions
+PASS all twelve historical acceptances and payload bindings; only Ea6 added; no registry changes
+PASS exact six 24M parents, host initialization, plans, approvals, fresh MD streams and empty outputs
+PASS chemistry seeds/counters preserved; no MD/GPU execution; prospective successful steps 144000000
+PASS restart overhead explicitly authorized and separately bounded; Ea8/Ea10 scientific holds retained

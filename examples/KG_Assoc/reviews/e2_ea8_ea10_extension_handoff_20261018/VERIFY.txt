@@ -1,0 +1,116 @@
+"""Read-only milestone audit. Run from repository root under timeout 600."""
+import csv
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+base = Path('examples/KG_Assoc').resolve()
+sys.path.insert(0, str(base / 'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_extension as extension
+import kg_assoc_e2_registry as registry
+import run_ea_extensions as runner
+
+root = base / 'kg_assoc_100m'
+dossier = base / 'reviews/e2_ea8_ea10_extension_handoff_20261018'
+registration = base / 'reviews/e2_ea6_formal_acceptance_20261018'
+starting_sha = 'ceb4048a00897b8c335d718d885f9e14ac2c37e7'
+source_commit = '79fbba03348b575faa2da988f9eaedf51772579c'
+baseline = e2.campaign.load_json(dossier / 'BASELINE.sha256')
+changed = {str(base / p) for p in ('campaign/kg_assoc_e2.py', 'campaign/kg_assoc_e2_transfer.py',
+    'campaign/kg_assoc_e2_validate.py', 'kg_assoc_stars.cu')}
+assert len(baseline) == 3022
+for name, expected in baseline.items():
+    path = Path(name)
+    if name in changed:
+        relative = str(path.relative_to(base.parents[1]))
+        old = subprocess.check_output(['git', 'show', starting_sha + ':' + relative])
+        assert hashlib.sha256(old).hexdigest() == expected, name
+        committed = subprocess.check_output(['git', 'show', source_commit + ':' + relative])
+        assert path.read_bytes() == committed, name
+    else:
+        assert e2.campaign.sha256(path) == expected, name
+print('PASS baseline: 3018 unchanged protected bindings; four exact scoped source transitions')
+
+prior = e2.campaign.load_json(dossier / 'PRIOR_ACCEPTANCES.log')
+assert len(prior) == 12
+for row in prior:
+    path = Path(row['path'])
+    assert e2.campaign.sha256(path) == row['sha256']
+    record = e2.campaign.load_json(path)
+    e2.check_hashes({record['evidence']: record['evidence_sha256'],
+                     record['source_plan']: record['source_plan_sha256']})
+    for history in record['histories']:
+        e2.check_hashes(history['sha256'])
+acceptances = list((root / 'banks/e2_acceptance').glob('*.json'))
+assert len(acceptances) == 13
+registration_info = e2.campaign.load_json(registration / 'REGISTRATION.log')
+accepted_path = Path(registration_info['acceptance'])
+assert e2.campaign.sha256(accepted_path) == registration_info['sha256'] == \
+    '042b8a8dffa15ceba46cd4989bae4fb91cf9331dffeedf67d04c675adbe7ebd6'
+assert accepted_path.read_bytes() == (registration / 'ACCEPTANCE_RECORD.log').read_bytes()
+assert {str(p) for p in acceptances} == {r['path'] for r in prior} | {str(accepted_path)}
+record = e2.campaign.load_json(accepted_path)
+registry.exclusive_validate(record, [e2.system_by_id('F04_N010_RP080_EE08_EA06')])
+for row in registration_info['exact_endpoints']:
+    e2.check_hashes({row['restart']:row['restart_sha256'], row['sidecar']:row['sidecar_sha256']})
+print('PASS all twelve historical acceptances and payload bindings; only Ea6 added; no registry changes')
+
+build_dir = root / 'builds' / extension.BUILD
+manifest, _ = e2.check_build(build_dir)
+assert manifest['git_sha'] == source_commit and manifest['out_of_tree'] is True
+assert manifest['source_sha256'] == e2.sources()
+state_path = root / 'aggregate/e2/manual_ea_extensions_v1/state.json'
+state = e2.campaign.load_json(state_path)
+runner.validate_state(state)
+assert all(j['status'] == 'prepared' and j['retired_attempts'] == [] for j in state['jobs'])
+assert len(state['plans']) == 2 and len(state['jobs']) == 6
+plans = {}
+metadata = {str(state_path): e2.campaign.sha256(state_path),
+            str(build_dir / 'manifest.json'):e2.campaign.sha256(build_dir / 'manifest.json')}
+prepared = []
+for job in state['jobs']:
+    attempt = Path(job['attempt'])
+    if str(attempt) not in plans:
+        plans[str(attempt)] = e2.check_plan(root, attempt, live=True)
+    plan = plans[str(attempt)]
+    approval = Path(job['approval'])
+    e2.check_hashes({str(attempt/'plan.json'):job['plan_sha256'],str(approval):job['approval_sha256']})
+    e2.scoped_launch_approval(approval, attempt, 'e2_derived_extension', plan, None, [job['replica']])
+    history = plan['histories'][job['replica'] - 1]
+    assert list(Path(history['output_prefix']).parent.iterdir()) == []
+    assert history['start_step'] == 24000000
+    assert history['end_step'] == job['end_step'] == 24000000 + job['steps']
+    assert history['lineage']['chemistry_continuation'] == 'same_seed_absolute_step_keys'
+    assert history['lineage']['bitwise_md_continuation'] is False
+    metadata.update({str(attempt/'plan.json'):job['plan_sha256'],str(approval):job['approval_sha256']})
+    metadata.update(plan['reservation_sha256'])
+    prepared.append(dict(system=job['system'], replica=job['replica'],
+        start_step=history['start_step'], end_step=history['end_step'], steps=job['steps'],
+        chemistry_seed=history['chemistry_seed'],md_seed=history['md_seed'],
+        effective_md_seed=history['effective_md_seed'],parent=history['parent'],
+        plan=str(attempt/'plan.json'),plan_sha256=job['plan_sha256'],
+        approval=str(approval),approval_sha256=job['approval_sha256'],
+        reservation=plan['reservation_sha256'],output_prefix=history['output_prefix']))
+assert sum(j['steps'] for j in state['jobs']) == 144000000
+assert len({r['md_seed'] for r in prepared}) == len({r['effective_md_seed'] for r in prepared}) == 6
+for sid, plan in [(p['system']['system_id'],p) for p in plans.values()]:
+    assert extension.code_compatible(e2.campaign.load_json(Path(plan['parent_attempt'])/'plan.json'),plan)
+    assert len(plan['initial_state_checks']) == 3
+    assert all('INITIAL_STATE_VALIDATED' in c for c in plan['initial_state_checks'])
+print('PASS exact six 24M parents, host initialization, plans, approvals, fresh MD streams and empty outputs')
+print('PASS chemistry seeds/counters preserved; no MD/GPU execution; prospective successful steps 144000000')
+print('PASS restart overhead explicitly authorized and separately bounded; Ea8/Ea10 scientific holds retained')
+if '--export' in sys.argv:
+    # Explicit review export only. Verification without this option is read-only.
+    e2.exclusive_json(dossier/'PREPARED.log',dict(source_commit=source_commit,build=manifest,
+        metadata_sha256=metadata,histories=prepared,assistant_GPU_steps=0))
+    e2.exclusive_json(dossier/'PREPARED_METADATA.sha256',metadata)
+
+for review in (registration, dossier):
+    seal = review / 'INTEGRITY.sha256'
+    if seal.exists():
+        e2.check_hashes(e2.campaign.load_json(seal))
+print('PASS published review seals when present')
