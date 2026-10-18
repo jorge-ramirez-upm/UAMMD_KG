@@ -1,0 +1,97 @@
+"""Replica diagnostics and paired contrasts from authenticated cached replay; no MD."""
+import argparse
+import csv
+import json
+import math
+from pathlib import Path
+import statistics
+import sys
+import numpy as np
+sys.path.insert(0,'examples/KG_Assoc/analysis')
+import analyze_e2_segment as segment
+p=argparse.ArgumentParser();p.add_argument('--analysis',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+r=json.loads((a.analysis/'RESULTS.log').read_text());histories=r['histories']
+
+def dump(name,rows):
+    with (a.output/name).open('x',newline='') as f:
+        writer=csv.DictWriter(f,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+
+def mean(window,key):
+    if key=='bonds':return 2000*window['metrics']['bound_fraction']['mean']
+    if key=='free':return 4000-4000*window['metrics']['bound_fraction']['mean']
+    return window['metrics'][key]['mean']
+
+core=['bonds','intra','inter','L1','L2','mean_degree','largest_cluster_fraction','isolated_stars','mean_rg2','mean_center_terminal_r2']
+phase_table=[];correlations=[];endpoints=[];kinetics=[];renewals=[];text=[];rows_by_key={}
+for h in histories:
+    label=f"EA{int(h['Ea']):02d}_R{h['replica']:03d}"
+    windows=json.loads((a.analysis/(label+'_WINDOWS.log')).read_text())
+    renewal=json.loads((a.analysis/(label+'_RENEWAL.log')).read_text())
+    rows=json.loads((a.analysis/(label+'_TIMESERIES.log')).read_text());rows_by_key[(h['Ea'],h['replica'])]=rows
+    prefix=Path(h['attempt'])/f"r{h['replica']:03d}/state"
+    endpoints.append(dict(Ea=h['Ea'],replica=h['replica'],absolute_step=24000000,
+        restart=str(prefix)+'.restart.lammpsdat',restart_sha256=h['output_sha256'][str(prefix)+'.restart.lammpsdat'],
+        sidecar=str(prefix)+'.assoc_restart',sidecar_sha256=h['output_sha256'][str(prefix)+'.assoc_restart'],
+        plan_sha256=h['plan_sha256'],complete_sha256=h['complete_sha256'],chemistry_seed=h['chemistry_seed'],requested_MD_seed=h['requested_MD_seed'],effective_MD_seed=h['effective_MD_seed']))
+    for name,window in list(h['phases'].items())+[(f'quarter_{i+1}',w) for i,w in enumerate(windows['sensitivity']['4000000'])]:
+        for key in core+['bound_fraction','free']:
+            phase_table.append(dict(Ea=h['Ea'],replica=h['replica'],phase=name,observable=key,mean=mean(window,key)))
+    for width,items in [('500000',windows['windows']),*windows['sensitivity'].items()]:
+        for index,window in enumerate(items,1):
+            for key,x in window['metrics'].items():
+                correlations.append(dict(Ea=h['Ea'],replica=h['replica'],window_steps=width,index=index,observable=key,
+                    mean=x['mean'],tau_steps=None if x['tau_time'] is None else 100*x['tau_time'],ESS=x['effective_samples_estimate'],
+                    SEM=x['sem_estimate'],block5_SEM=x['blocking_sem_sensitivity']['5'],block10_SEM=x['blocking_sem_sensitivity']['10'],block20_SEM=x['blocking_sem_sensitivity']['20'],
+                    constant=x['constant_not_mixing_evidence'],unresolved=x['resolution_warning']))
+    c=h['counts'];n=h['network_exposure'];last=renewal['sampled'][-1]
+    kinetics.append(dict(Ea=h['Ea'],replica=h['replica'],q=h['q'],**h['exact_integer_step_exposure'],
+        creation_per_free_sticker_time=c['creations']/h['free_sticker_time'],break_per_bond_time=c['breaks']/h['bond_time'],
+        neighbor_loss_per_edge_time=c['neighbor_losses']/(n['distinct_neighbor_edge_steps']*.01),**(c|n)))
+    renewals.append(dict(Ea=h['Ea'],replica=h['replica'],**h['renewal_summary'],
+        reacted_stars=last['reacted_stars'],neighbor_gain_stars=last['neighbor_gain_stars'],neighbor_loss_stars=last['neighbor_loss_stars'],
+        final_original_bond_overlap=last['current_initial_bond_overlap'],final_original_neighbor_overlap=last['current_initial_neighbor_overlap'],
+        initial_isolated=json.dumps(h['initial_graph']['isolated_stars']),final_isolated=json.dumps(h['final_graph']['isolated_stars']),
+        isolation_visited=h['residence_summary']['isolated']['visited_stars'],isolation_returns=h['residence_summary']['isolated']['nonzero_gap_returned_stars']))
+    text += [f"## Ea{h['Ea']} r{h['replica']:03d}",'',f"Parent family r{h['replica']:03d}; 8M → 24M; 32 validated 500k windows.",
+        f"Accepted creations/breaks {c['creations']}/{c['breaks']}; neighbor gains/losses {c['neighbor_gains']}/{c['neighbor_losses']}.",
+        f"Initial → final bonds {h['initial']['bonds']:.0f} → {h['final']['bonds']:.0f}; intra {h['initial']['intra']:.0f} → {h['final']['intra']:.0f}; inter {h['initial']['inter']:.0f} → {h['final']['inter']:.0f}.",
+        f"Never-broken original bonds {h['renewal_summary']['surviving_initial_bonds']}/{h['renewal_summary']['initial_bonds']}; never-lost original neighbor edges {h['renewal_summary']['surviving_initial_edges']}/{h['renewal_summary']['initial_edges']}.",
+        f"Stars with a reaction/gained neighbor/lost neighbor: {last['reacted_stars']}/{last['neighbor_gain_stars']}/{last['neighbor_loss_stars']} of 1000.",
+        f"Initial isolated IDs {h['initial_graph']['isolated_stars']}; final isolated IDs {h['final_graph']['isolated_stars']}.",
+        f"Isolation visits (including zero-duration episodes) by {h['residence_summary']['isolated']['visited_stars']} stars (zero-duration visits remain separately archived); {h['residence_summary']['isolated']['nonzero_gap_returned_stars']} stars return after a nonzero gap.",
+        '', '| Observable | 8–12M | 12–16M | 16–20M | 20–24M |', '|---|---:|---:|---:|---:|']
+    for key in core:
+        text.append('| '+key+' | '+' | '.join(f'{mean(w,key):.5g}' for w in windows['sensitivity']['4000000'])+' |')
+    text+=['','| Last-quarter observable | Mean | IAT steps | ESS | SEM | 5/10/20-block SEM | Unresolved |','|---|---:|---:|---:|---:|---|---|']
+    for key in ['bound_fraction','intra','L1','L2','mean_degree','largest_cluster_fraction','mean_rg2','mean_center_terminal_r2']:
+        x=h['phases']['last_quarter']['metrics'][key]
+        text.append(f"| {key} | {x['mean']:.6g} | {None if x['tau_time'] is None else round(100*x['tau_time'])} | {None if x['effective_samples_estimate'] is None else round(x['effective_samples_estimate'],2)} | {x['sem_estimate']:.4g} | "+'/'.join(f"{x['blocking_sem_sensitivity'][str(k)]:.4g}" for k in (5,10,20))+f" | {x['resolution_warning']} |")
+    text+=['','Initial/final full graph distributions (degree counts, intra-loop counts, inter-edge multiplicities and component sizes):','', '```json',json.dumps(dict(initial=h['initial_graph'],final=h['final_graph']),indent=2),'```','',
+        'All identity-specific residence episodes, including left/right censoring and zero-duration same-sweep excursions, are in the replay archive. Largest component is a graph quantity, not a periodic-wrapping test.','']
+dump('ENDPOINTS.csv',endpoints);dump('PHASES.csv',phase_table);dump('CORRELATIONS.csv',correlations);dump('KINETICS.csv',kinetics);dump('RENEWAL.csv',renewals)
+(a.output/'REPLICA_DIAGNOSTICS.md').write_text('# Nine-replica diagnostics\n\nIAT estimates are descriptive under local stationarity; unresolved flags are not an automatic acceptance threshold. Bond count = 2000 × bound fraction; free stickers = 4000 × (1 − bound fraction), including exact affine transformations of their statistics.\n\n'+'\n'.join(text))
+contrasts=[];distances=[];drifts=[]
+for low,high in ((6,8),(6,10),(8,10)):
+    for key in core:
+        diffs=[]
+        for replica in (1,2,3):
+            hlow=next(h for h in histories if h['Ea']==low and h['replica']==replica)
+            hhigh=next(h for h in histories if h['Ea']==high and h['replica']==replica)
+            diffs.append(mean(hhigh['phases']['last_quarter'],key)-mean(hlow['phases']['last_quarter'],key))
+            left=np.sort([row[key] for row in rows_by_key[(low,replica)] if row['step']>20000000])
+            right=np.sort([row[key] for row in rows_by_key[(high,replica)] if row['step']>20000000])
+            support=np.union1d(left,right)
+            ks=float(max(abs(np.searchsorted(left,support,side='right')/len(left)-np.searchsorted(right,support,side='right')/len(right))))
+            distances.append(dict(low_Ea=low,high_Ea=high,parent_family=replica,observable=key,empirical_CDF_max_distance=ks,
+                mean_difference=float(np.mean(right)-np.mean(left)),qualification='Descriptive correlated sample CDF distance; no IID p-value or equivalence claim'))
+        contrasts.append(dict(low_Ea=low,high_Ea=high,observable=key,paired_differences=json.dumps(diffs),**segment.review.analysis.dynamics.replica_statistics(diffs)))
+for ea in (6,8,10):
+    for key in core:
+        diffs=[]
+        for replica in (1,2,3):
+            h=next(h for h in histories if h['Ea']==ea and h['replica']==replica)
+            w=json.loads((a.analysis/f"EA{ea:02d}_R{replica:03d}_WINDOWS.log").read_text())['sensitivity']['4000000']
+            diffs.append(mean(w[-1],key)-mean(w[-2],key))
+        drifts.append(dict(Ea=ea,observable=key,last_minus_previous_4M=json.dumps(diffs),**segment.review.analysis.dynamics.replica_statistics(diffs)))
+dump('PAIRED_CONTRASTS.csv',contrasts);dump('DISTRIBUTION_CONTRASTS.csv',distances);dump('LATE_CHANGES.csv',drifts)
+print('PASS endpoint, replica, residence, exposure, IAT/block and paired distribution tables')

@@ -1,0 +1,19 @@
+"""Test committed replay archive inspection without opening simulation outputs."""
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tarfile
+import tempfile
+d=Path(__file__).resolve().parent
+with tempfile.TemporaryDirectory(prefix='ea24m-archive-') as temp:
+    destination=Path(temp)
+    for path in sorted((d/'replay').glob('*.tar.gz')):
+        with tarfile.open(path,'r:gz') as archive:
+            for member in archive:
+                assert member.isfile() and member.name==Path(member.name).name
+                with archive.extractfile(member) as source, (destination/member.name).open('xb') as output:
+                    while block:=source.read(1048576):output.write(block)
+    env=dict(os.environ,EA24M_ANALYSIS=str(destination))
+    subprocess.run([sys.executable,str(d/'ANALYSIS_TESTS.txt')],check=True,timeout=580,env=env)
+print('PASS all nine compressed replay archives independently readable; path override works; no GPU calls')

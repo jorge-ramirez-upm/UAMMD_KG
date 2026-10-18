@@ -1,0 +1,427 @@
+"""Read-only nine-history replay; writes exclusively to a fresh analysis directory."""
+import argparse
+from collections import Counter, defaultdict
+import csv
+import hashlib
+import json
+import math
+from pathlib import Path
+import runpy
+import statistics
+import sys
+
+REPO = Path.cwd()
+ASSOC = REPO / 'examples/KG_Assoc'
+ROOT = ASSOC / 'kg_assoc_100m'
+WORK = ROOT / 'aggregate/e2/manual_ea16m_v1'
+sys.path.insert(0, str(ASSOC / 'campaign'))
+sys.path.insert(0, str(ASSOC / 'analysis'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_transfer as transfer
+import kg_assoc_e2_readback as readback
+import analyze_e2_segment as segment
+import run_ea_preparation as manual
+import numpy as np
+
+helpers = runpy.run_path(str(ASSOC / 'reviews/e2_ea_transfer_smoke_complete_20261017/ANALYSIS_DRIVER.txt'))
+integer_exposure = helpers['integer_exposure']
+graph_summary = helpers['graph_summary']
+device_payload = helpers['device_payload']
+
+
+def partition(neighbors):
+    unseen = set(neighbors)
+    components = []
+    while unseen:
+        first = min(unseen)
+        unseen.remove(first)
+        frontier = [first]
+        component = [first]
+        while frontier:
+            star = frontier.pop()
+            for neighbor in neighbors[star]:
+                if neighbor in unseen:
+                    unseen.remove(neighbor)
+                    frontier.append(neighbor)
+                    component.append(neighbor)
+        components.append(sorted(component))
+    components.sort(key=lambda members: (-len(members), members[0]))
+    categories = {star: 'giant' for star in components[0]}
+    for members in components[1:]:
+        categories.update({star: 'isolated' if len(members) == 1 else 'satellite' for star in members})
+    # Isolation remains degree zero even if a singleton wins the largest-component tie.
+    categories.update({star: 'isolated' for star in neighbors if not neighbors[star]})
+    return components, categories
+
+
+def network_renewal(initial_pairs, raw, system, start, end, sample_steps):
+    stars = sorted(system['stars'])
+    mapping = system['atom_to_star']
+    def edge(pair):
+        return tuple(sorted(mapping[atom] for atom in pair))
+    original_pairs = set(initial_pairs)
+    active = set(initial_pairs)
+    surviving_pairs = set(initial_pairs)
+    multiplicity = Counter(edge(pair) for pair in active if mapping[pair[0]] != mapping[pair[1]])
+    original_edges = set(multiplicity)
+    surviving_edges = set(multiplicity)
+    neighbors = {star: set() for star in stars}
+    for a, b in multiplicity:
+        neighbors[a].add(b)
+        neighbors[b].add(a)
+    _, categories = partition(neighbors)
+    starts = {star: start for star in stars}
+    initial_categories = categories.copy()
+    episodes = []
+    gains = Counter()
+    losses = Counter()
+    gain_sets = defaultdict(set)
+    loss_sets = defaultdict(set)
+    reactions = Counter()
+    sampled = []
+    index = 0
+    def close(star, at, right=False):
+        episodes.append(dict(star=star, category=categories[star], start_step=starts[star],
+            end_step=at, duration_steps=at-starts[star],
+            left_censored=starts[star] == start, right_censored=right))
+    for boundary in sample_steps:
+        assert start <= boundary <= end
+        while index < len(raw) and raw[index][0] <= boundary:
+            step, kind, pair = raw[index]
+            assert start < step <= end and kind in ('C', 'B')
+            a, b = edge(pair)
+            for star in set((a, b)):
+                reactions[star] += 1
+            if kind == 'C':
+                assert pair not in active
+                active.add(pair)
+            else:
+                assert pair in active
+                active.remove(pair)
+                surviving_pairs.discard(pair)
+            topology_changed = False
+            if a != b:
+                if kind == 'C':
+                    if multiplicity[(a,b)] == 0:
+                        gains[(a,b)] += 1
+                        gain_sets[a].add(b)
+                        gain_sets[b].add(a)
+                        neighbors[a].add(b)
+                        neighbors[b].add(a)
+                        topology_changed = True
+                    multiplicity[(a,b)] += 1
+                else:
+                    multiplicity[(a,b)] -= 1
+                    assert multiplicity[(a,b)] >= 0
+                    if multiplicity[(a,b)] == 0:
+                        del multiplicity[(a,b)]
+                        losses[(a,b)] += 1
+                        loss_sets[a].add(b)
+                        loss_sets[b].add(a)
+                        surviving_edges.discard((a,b))
+                        neighbors[a].remove(b)
+                        neighbors[b].remove(a)
+                        topology_changed = True
+                if topology_changed:
+                    _, updated = partition(neighbors)
+                    for star in stars:
+                        if updated[star] != categories[star]:
+                            close(star, step)
+                            starts[star] = step
+                    categories = updated
+            index += 1
+        components, _ = partition(neighbors)
+        sampled.append(dict(step=boundary, surviving_initial_bonds=len(surviving_pairs),
+            surviving_initial_neighbor_edges=len(surviving_edges),
+            current_initial_bond_overlap=len(original_pairs & active),
+            current_initial_neighbor_overlap=len(original_edges & set(multiplicity)),
+            reacted_stars=len(reactions), neighbor_gain_stars=len(gain_sets),
+            neighbor_loss_stars=len(loss_sets),
+            isolated_ids=sorted(star for star in stars if not neighbors[star]),
+            satellite_components=[members for members in components[1:] if len(members)>1]))
+    assert index == len(raw)
+    for star in stars:
+        close(star, end, right=True)
+    per_star = []
+    grouped = defaultdict(list)
+    for episode in episodes:
+        grouped[episode['star']].append(episode)
+    for star in stars:
+        values = grouped[star]
+        assert sum(item['duration_steps'] for item in values) == end-start
+        residence = {category: sum(item['duration_steps'] for item in values if item['category']==category)
+                     for category in ('giant','satellite','isolated')}
+        visits = {category: sum(item['category']==category for item in values)
+                  for category in residence}
+        nonzero_gap_returns = {}
+        for category in residence:
+            visits_of_category = [item for item in values if item['category'] == category]
+            nonzero_gap_returns[category] = sum(current['start_step'] > previous['end_step']
+                for previous, current in zip(visits_of_category, visits_of_category[1:]))
+        per_star.append(dict(star=star, initial_category=initial_categories[star],
+            final_category=categories[star], accepted_reactions=reactions[star],
+            gained_neighbor_ids=sorted(gain_sets.get(star, set())),
+            lost_neighbor_ids=sorted(loss_sets.get(star, set())), residence_steps=residence,
+            visits=visits, returns={key:max(0,value-1) for key,value in visits.items()},
+            nonzero_gap_returns=nonzero_gap_returns,
+            positive_duration_visits={key:sum(item['category']==key and item['duration_steps']>0
+                                            for item in values) for key in residence}))
+    return dict(sampled=sampled, episodes=episodes, stars=per_star,
+        distinct_edge_gains=sum(gains.values()), distinct_edge_losses=sum(losses.values()),
+        unique_gained_edges=len(gains), unique_lost_edges=len(losses),
+        initial_edges=len(original_edges), initial_bonds=len(original_pairs),
+        surviving_initial_bonds=len(surviving_pairs), surviving_initial_edges=len(surviving_edges),
+        boundary_policy='Initial episodes and bonds left-censored; endpoint episodes right-censored; same-step accepted-event order retained with zero duration.',
+        giant_tie_policy='Largest component, then smallest member ID; isolated always means degree zero.')
+
+
+def self_test():
+    system=dict(stars=[1,2,3,4],atom_to_star={i:(i-1)//2+1 for i in range(1,9)})
+    raw=[(100,'C',(4,5)),(200,'B',(1,3)),(300,'C',(1,7)),(400,'B',(4,5))]
+    result=network_renewal([(1,3)],raw,system,0,500,[0,100,200,300,400,500])
+    assert (result['distinct_edge_gains'],result['distinct_edge_losses'])==(2,2)
+    assert result['surviving_initial_bonds']==result['surviving_initial_edges']==0
+    assert [row['residence_steps']['isolated'] for row in result['stars']]==[100,100,200,300]
+    assert result['stars'][2]['returns']['isolated']==1
+    assert result['stars'][1]['residence_steps']['satellite']==100
+    assert integer_exposure(raw,1,0,500,8)==dict(bond_steps=700,free_sticker_steps=2600,final_bonds=1)
+    # A same-step excursion contributes zero residence but remains an ordered event.
+    zero=network_renewal([],[(100,'C',(1,3)),(100,'B',(1,3))],system,0,200,[0,100,200])
+    assert all(star['residence_steps']['isolated']==200 for star in zero['stars'])
+    assert zero['distinct_edge_gains']==zero['distinct_edge_losses']==1
+    assert all(star['nonzero_gap_returns']['isolated']==0 for star in zero['stars'])
+
+
+def statistics_window(rows, events, start, end, metrics):
+    result=segment.review.window(rows,events,start,end,metrics=metrics)
+    for category in ('metrics','activity'):
+        for item in result[category].values():
+            constant=len(set(item['blocks']))==1 and item['sem_estimate']==0
+            item['constant_not_mixing_evidence']=constant
+            if constant:
+                item['effective_samples_estimate']=None
+                item['tau_time']=None
+            item['resolution_warning'] |= constant or (item['effective_samples_estimate'] or 0)<10
+    return result
+
+
+def analyze_history(entry, plan, item, output):
+    directory=Path(entry['output_prefix']).parent
+    prefix=entry['output_prefix']
+    complete=e2.campaign.load_json(directory/'complete.json')
+    assert complete['status']=='validated' and complete['end_step']==24000000
+    assert complete['plan_sha256']==item['plan_sha256']
+    assert not (directory/'incomplete.json').exists()
+    assert not Path(prefix+'.candidate_mismatch.tsv').exists()
+    e2.check_hashes(complete['output_sha256'])
+    captures=[]
+    original=e2.validation.analysis.topology.frame_observables
+    def capture(*args,**kwargs):
+        graph=original(*args,**kwargs)
+        degrees=Counter(graph['neighbor_degree'].values())
+        loops=Counter(graph['intra_degree'][star] for star in args[4]['stars'])
+        multiples=Counter(graph['edge_multiplicity'].values())
+        components,_=partition(graph['neighbors'])
+        compact=dict(step=int(args[1]), isolated_stars=degrees[0],
+            satellite_components=sum(len(members)>1 for members in components[1:]),
+            satellite_stars=sum(len(members) for members in components[1:] if len(members)>1))
+        compact.update({f'degree_{i}_fraction':degrees[i]/1000 for i in range(5)})
+        compact.update({f'intra_loop_{i}_stars':loops[i] for i in range(3)})
+        compact.update({f'multiplicity_{i}_edges':multiples[i] for i in range(1,5)})
+        compact['multiplicity_0_edges']=499500-sum(multiples.values())
+        captures.append(compact)
+        return graph
+    e2.validation.analysis.topology.frame_observables=capture
+    try:
+        rows,events,validation=e2.validation.validate(entry,oracle=False)
+    finally:
+        e2.validation.analysis.topology.frame_observables=original
+    assert validation==complete['validation'] and validation['oracle_sweeps']==160000
+    assert [row['step'] for row in rows]==[row['step'] for row in captures]
+    for row,compact in zip(rows,captures):row.update(compact)
+    system,initial=e2.validation.read_parent(entry)
+    parent=e2.campaign.parse_lammps_data(entry['parent']['snapshot'])
+    device=readback.check(prefix+'.initial_device_validation.tsv',entry,parent,initial['pairs'])
+    _,raw=e2.validation.analysis.dynamics.read_events(prefix+'.events',system)
+    _,final_pairs=e2.validation.analysis.restart.read_metadata(prefix+'.assoc_restart')
+    exposure=integer_exposure(raw,len(initial['pairs']),8000000,24000000,4000)
+    counts=dict(creations=sum(event['type']=='C' for event in events),
+        breaks=sum(event['type']=='B' for event in events),
+        neighbor_gains=sum(event['neighbor_gain'] for event in events),
+        neighbor_losses=sum(event['neighbor_loss'] for event in events))
+    renewal=network_renewal(initial['pairs'],raw,system,8000000,24000000,[row['step'] for row in rows])
+    assert renewal['distinct_edge_gains']==counts['neighbor_gains']
+    assert renewal['distinct_edge_losses']==counts['neighbor_losses']
+    numeric=e2.validation.analysis.numerics(Path(prefix+'.numerics.tsv'),rows,43563)
+    for row,values in zip(rows,numeric):
+        row.update(temperature=values[3],min_permanent_bond=values[4],max_permanent_bond=values[5])
+    metrics=segment.METRICS+tuple(key for key in captures[0] if key!='step')
+    windows=[statistics_window(rows,events,start,start+500000,metrics)
+             for start in range(8000000,24000000,500000)]
+    sensitivity={str(width):[statistics_window(rows,events,start,start+width,metrics)
+                            for start in range(8000000,24000000,width)]
+                 for width in (1000000,2000000,4000000)}
+    phases={name:statistics_window(rows,events,start,end,metrics) for name,start,end in
+            [('early',8000000,13333000),('middle',13333000,18666000),('late',18666000,24000000),
+             ('last_quarter',20000000,24000000),('full',8000000,24000000)]}
+    physics=entry['physics'];q=-math.expm1(-physics['nu0']*math.exp(-physics['Ea']/physics['temperature'])*physics['Nevery']*physics['dt'])
+    result=dict(system=entry['system']['system_id'],Ea=physics['Ea'],replica=entry['replica'],
+        parent_family=entry['replica'],start_step=8000000,end_step=24000000,additional_MD_steps=16000000,
+        plan_sha256=item['plan_sha256'],approval_sha256=item['approval_sha256'],
+        source_git_sha=plan['git_sha'],parent=entry['parent'],lineage=entry['lineage'],
+        chemistry_seed=entry['chemistry_seed'],requested_MD_seed=entry['md_seed'],effective_MD_seed=entry['effective_md_seed'],
+        build_manifest_sha256=e2.campaign.sha256(Path(entry['command'][0]).parent/'manifest.json'),
+        executable_sha256=plan['executable_sha256'],initial_device_readback=device,
+        initial_device_payload_sha256=device_payload(prefix+'.initial_device_validation.tsv'),
+        candidate_comparisons=160000,counts=counts,exact_integer_step_exposure=exposure,
+        bond_time=exposure['bond_steps']*.01,free_sticker_time=exposure['free_sticker_steps']*.01,q=q,
+        initial=rows[0],final=rows[-1],initial_graph=graph_summary(initial['pairs'],system),
+        final_graph=graph_summary(final_pairs,system),validation=validation,
+        numeric_extrema=dict(temperature=[min(row[3] for row in numeric),max(row[3] for row in numeric)],
+            permanent_bonds=[min(row[4] for row in numeric),max(row[5] for row in numeric)]),
+        complete_sha256=e2.campaign.sha256(directory/'complete.json'),output_sha256=complete['output_sha256'])
+    label=f"EA{int(physics['Ea']):02d}_R{entry['replica']:03d}"
+    e2.exclusive_json(output/(label+'_SUMMARY.log'),result)
+    e2.exclusive_json(output/(label+'_WINDOWS.log'),dict(windows=windows,sensitivity=sensitivity,phases=phases))
+    e2.exclusive_json(output/(label+'_RENEWAL.log'),renewal)
+    e2.exclusive_json(output/(label+'_TIMESERIES.log'),rows)
+    result['attempt']=str(directory.parent)
+    result['phases']=phases
+    result['renewal_summary']={key:value for key,value in renewal.items() if key not in ('sampled','episodes','stars')}
+    result['residence_summary']={category:dict(
+        visited_stars=sum(star['visits'][category]>0 for star in renewal['stars']),
+        returned_stars=sum(star['returns'][category]>0 for star in renewal['stars']),
+        positive_duration_returned_stars=sum(star['positive_duration_visits'][category]>1 for star in renewal['stars']),
+        nonzero_gap_returned_stars=sum(star['nonzero_gap_returns'][category]>0 for star in renewal['stars']),
+        star_time=sum(star['residence_steps'][category] for star in renewal['stars'])*.01)
+        for category in ('giant','satellite','isolated')}
+    flat=[]
+    for index,window in enumerate(windows,1):
+        for category in ('metrics','activity'):
+            for name,value in window[category].items():
+                flat.append(dict(Ea=physics['Ea'],replica=entry['replica'],window=index,category=category,
+                    observable=name,mean=value['mean'],sem=value['sem_estimate'],tau_time=value['tau_time'],
+                    effective_samples=value['effective_samples_estimate'],slope=value['slope'],
+                    constant=value['constant_not_mixing_evidence'],resolution_warning=value['resolution_warning']))
+    return result,flat
+
+
+def merge(output):
+    histories=[];table=[]
+    state=e2.campaign.load_json(WORK/'state.json')
+    for job in state['jobs']:
+        label=f"EA{int(job['system'][-2:]):02d}_R{job['replica']:03d}"
+        record=e2.campaign.load_json(output/(label+'_RECORD.log'))
+        histories.append(record['history']);table.extend(record['table'])
+    assert len(histories)==9 and sum(h['additional_MD_steps'] for h in histories)==144000000
+    old=e2.campaign.load_json(ASSOC/'reviews/e2_ea_transfer_smoke_complete_20261017/RESULTS.log')['histories']
+    pairings=[];contrasts=[]
+    for replica in (1,2,3):
+        family=[h for h in histories if h['replica']==replica]
+        previous=[h for h in old if h['replica']==replica]
+        assert len({h['initial_device_payload_sha256'] for h in family+previous})==1
+        assert len({h['parent']['sha256'][h['parent']['snapshot']] for h in family})==1
+        pairings.append(dict(parent_family=replica,barriers=[6,8,10],initial_device_payload_sha256=family[0]['initial_device_payload_sha256'],identical_to_all_smoke_barriers=True))
+        control=next(h for h in previous if h['Ea']==4)
+        for h in family:
+            h['conditional_reference_prediction']=dict(q_ratio=h['q']/control['q'],
+                expected_creations=control['counts']['creations']/control['free_sticker_time']*h['free_sticker_time']*h['q']/control['q'],
+                expected_breaks=control['counts']['breaks']/control['active_bond_time']*h['bond_time']*h['q']/control['q'],
+                control_attempt=control['attempt'],limit='Descriptive short-control conditional rate extrapolation; changing eligibility and network geometry are not normalized away.')
+    kinetic_pairings = []
+    for replica in (1,2,3):
+        low = next(h for h in histories if h['Ea']==6 and h['replica']==replica)
+        for ea in (8,10):
+            high = next(h for h in histories if h['Ea']==ea and h['replica']==replica)
+            ratio = high['q']/low['q']
+            kinetic_pairings.append(dict(parent_family=replica,Ea=ea,reference_Ea=6,q_ratio=ratio,
+                creation_rate_ratio=(high['counts']['creations']/high['free_sticker_time']) /
+                                    (low['counts']['creations']/low['free_sticker_time']),
+                rupture_rate_ratio=(high['counts']['breaks']/high['bond_time']) /
+                                   (low['counts']['breaks']/low['bond_time']),
+                predicted_creations=low['counts']['creations']/low['free_sticker_time']*
+                                    high['free_sticker_time']*ratio,
+                predicted_breaks=low['counts']['breaks']/low['bond_time']*high['bond_time']*ratio,
+                observed_creations=high['counts']['creations'],observed_breaks=high['counts']['breaks'],
+                qualification='Exposure normalization omits geometric eligibility and competing acceptance.'))
+    for ea in (8,10):
+        for name in histories[0]['phases']['last_quarter']['metrics']:
+            differences=[]
+            for replica in (1,2,3):
+                high=next(h for h in histories if h['Ea']==ea and h['replica']==replica)
+                low=next(h for h in histories if h['Ea']==6 and h['replica']==replica)
+                differences.append(high['phases']['last_quarter']['metrics'][name]['mean']-low['phases']['last_quarter']['metrics'][name]['mean'])
+            contrasts.append(dict(Ea_minus_Ea6=ea,observable=name,paired_differences=differences,
+                **segment.review.analysis.dynamics.replica_statistics(differences)))
+    with (output/'WINDOWS.csv').open('x',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=list(table[0]));writer.writeheader();writer.writerows(table)
+    e2.exclusive_json(output/'RESULTS.log',dict(starting_sha='deb0ef3797917ee1cd890d19765ec654ecc3efce',launch_source_sha=histories[0]['source_git_sha'],
+        manually_completed_GPU_histories=9,manually_completed_MD_steps=144000000,assessment_GPU_steps=0,device_readbacks=9,candidate_comparisons=1440000,
+        statistical_preparation_units=3,pairings=pairings,histories=histories,paired_kinetic_comparisons=kinetic_pairings,paired_last_quarter_contrasts=contrasts,
+        scientific_status='review_required_no_automatic_acceptance',formal_acceptance_registered=False))
+    print('ALL_NINE_REPLAYED',flush=True)
+
+
+
+def fast_iat(values, times):
+    """Same biased ACF and first-nonpositive truncation; FFT reduces CPU work only."""
+    intervals = np.diff(times)
+    if not len(intervals) or max(intervals)-min(intervals)>1e-10*max(intervals):
+        return float('nan'), float('nan')
+    centered = np.asarray(values, dtype=float)-statistics.mean(values)
+    variance = float(np.dot(centered, centered))
+    if variance == 0:
+        return .5, len(values)
+    size = 1 << (2*len(values)-1).bit_length()
+    spectrum = np.fft.rfft(centered, n=size)
+    correlations = np.fft.irfft(spectrum*spectrum.conjugate(), n=size)[:len(values)]/variance
+    nonpositive = np.flatnonzero(correlations[1:] <= 0)
+    stop = int(nonpositive[0])+1 if len(nonpositive) else len(values)
+    tau = .5+float(sum(correlations[1:stop]))
+    return tau, len(values)/(2*tau)
+
+
+def compiler_free_tests():
+    self_test()
+    original=segment.review.analysis.stationarity.iat
+    rng=np.random.default_rng(20261018)
+    fixtures=[np.zeros(80), np.arange(120), np.tile([-1.,1.],60),
+              rng.normal(size=150), np.cumsum(rng.normal(size=180))]
+    for values in fixtures:
+        times=list(np.arange(len(values))*10.)
+        expected=original(list(values),times)
+        observed=fast_iat(list(values),times)
+        assert np.allclose(expected,observed,rtol=1e-12,atol=1e-12),(expected,observed)
+    exposure_helpers['self_test']()
+    print('PASS 5 FFT/direct IAT fixtures; exact event residence/returns; distinct-edge exposure')
+
+
+exposure_helpers=runpy.run_path(str(Path(__file__).with_name('NETWORK_EXPOSURE_DRIVER.txt')))
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output',type=Path)
+    parser.add_argument('--history',type=int,choices=range(9))
+    parser.add_argument('--merge',action='store_true')
+    parser.add_argument('--self-test',action='store_true')
+    args=parser.parse_args()
+    if args.self_test:
+        compiler_free_tests()
+    elif args.merge:
+        merge(args.output)
+    else:
+        assert args.output is not None and args.history is not None
+        args.output.mkdir(parents=True,exist_ok=True)
+        state=e2.campaign.load_json(WORK/'state.json');job=state['jobs'][args.history]
+        assert job['status']=='complete' and not job['retired_attempts']
+        plan,entry=manual.authenticate(job)
+        assert plan['steps']==16000000 and (entry['start_step'],entry['end_step'])==(8000000,24000000)
+        segment.review.analysis.stationarity.iat=fast_iat
+        history,table=analyze_history(entry,plan,job,args.output)
+        system,initial=e2.validation.read_parent(entry)
+        _,raw=e2.validation.analysis.dynamics.read_events(entry['output_prefix']+'.events',system)
+        history['network_exposure']=exposure_helpers['exposure'](initial['pairs'],raw,system['atom_to_star'],1000,8000000,24000000)
+        assert history['network_exposure']['neighbor_losses']==history['counts']['neighbor_losses']
+        label=f"EA{int(history['Ea']):02d}_R{history['replica']:03d}"
+        e2.exclusive_json(args.output/(label+'_RECORD.log'),dict(history=history,table=table))
+        print('PASS',label,history['counts'],flush=True)

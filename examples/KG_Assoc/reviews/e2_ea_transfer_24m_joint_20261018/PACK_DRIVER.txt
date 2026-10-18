@@ -1,0 +1,21 @@
+"""Canonical compressed analysis records; no physical simulation or raw output edits."""
+import argparse
+import gzip
+import json
+from pathlib import Path
+import tarfile
+p=argparse.ArgumentParser();p.add_argument('--analysis',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+a.output.mkdir(exist_ok=False)
+for ea in (6,8,10):
+    for replica in (1,2,3):
+        label=f'EA{ea:02d}_R{replica:03d}'
+        files=sorted(a.analysis.glob(label+'_*'))
+        assert len(files)==6
+        with (a.output/(label+'.tar.gz')).open('xb') as out:
+            with gzip.GzipFile(fileobj=out,mode='wb',filename='',mtime=0,compresslevel=6) as compressed:
+                with tarfile.open(fileobj=compressed,mode='w|') as archive:
+                    for path in files:
+                        info=archive.gettarinfo(str(path),arcname=path.name)
+                        info.mtime=0;info.uid=info.gid=0;info.uname=info.gname='';info.mode=0o644
+                        with path.open('rb') as source:archive.addfile(info,source)
+        print('PACKED',label,flush=True)

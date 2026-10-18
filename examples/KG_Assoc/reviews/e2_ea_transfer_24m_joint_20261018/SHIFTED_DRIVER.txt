@@ -1,0 +1,27 @@
+"""Shifted four-million-step sensitivity, using cached replay only; no MD."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+p=argparse.ArgumentParser();p.add_argument('--analysis',type=Path,required=True);p.add_argument('--history',type=int,choices=range(9),required=True);a=p.parse_args()
+f=runpy.run_path(str(Path(__file__).with_name('ANALYSIS_DRIVER.txt')))
+f['segment'].review.analysis.stationarity.iat=f['fast_iat']
+job=f['e2'].campaign.load_json(f['WORK']/'state.json')['jobs'][a.history]
+plan=f['e2'].campaign.load_json(Path(job['attempt'])/'plan.json');entry=plan['histories'][job['replica']-1]
+label=f"EA{entry['physics']['Ea']:02d}_R{entry['replica']:03d}"
+rows=json.loads((a.analysis/(label+'_TIMESERIES.log')).read_text())
+_,raw=f['e2'].validation.analysis.dynamics.read_events(entry['output_prefix']+'.events',f['e2'].validation.read_parent(entry)[0])
+# Reconstruct validated event increments rather than infer activity from diagnostic bins.
+system,initial=f['e2'].validation.read_parent(entry)
+active=set(initial['pairs']);from collections import Counter
+mapping=system['atom_to_star'];edges=Counter(tuple(sorted(mapping[x] for x in pair)) for pair in active if mapping[pair[0]]!=mapping[pair[1]])
+events=[]
+for step,kind,pair in raw:
+ edge=tuple(sorted(mapping[x] for x in pair));inter=edge[0]!=edge[1]
+ gain=int(inter and kind=='C' and edges[edge]==0);loss=int(inter and kind=='B' and edges[edge]==1)
+ if inter:edges[edge]+=1 if kind=='C' else -1
+ events.append(dict(step=step,type=kind,neighbor_gain=gain,neighbor_loss=loss))
+metrics=f['segment'].METRICS+('isolated_stars',)
+windows=[f['statistics_window'](rows,events,start,start+4000000,metrics) for start in (10000000,14000000,18000000)]
+f['e2'].exclusive_json(a.analysis/(label+'_SHIFTED.log'),dict(shifted_4M_windows=windows))
+print('PASS shifted 4M sensitivity',label)

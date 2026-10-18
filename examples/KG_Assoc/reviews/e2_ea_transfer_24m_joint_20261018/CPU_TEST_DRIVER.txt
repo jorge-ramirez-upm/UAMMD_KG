@@ -1,0 +1,16 @@
+"""Established E2 CPU suite, excluding unrelated historical discovery tests."""
+import argparse
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+c=Path('examples/KG_Assoc').resolve();d=Path(__file__).resolve().parent
+p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(exist_ok=False)
+previous=(c/'reviews/e2_ea_transfer_16m_20261017/REGRESSION_TESTS.log').read_text()
+modules=sorted(set(re.findall(r'\((test_\w+)\.',previous)))
+env=dict(os.environ,PYTHONPATH=':'.join(str(c/p) for p in ['campaign','analysis','reviews/e2_rp040_ee8_6m_20261014','reviews/e2_rp040_ee8_8m_20261014']),PYTHONWARNINGS='ignore::ResourceWarning',KG_ASSOC_TRANSFER_HOST_EXE=str(c/'kg_assoc_100m/builds/ea_transfer_16m_20261017_v1/kg_assoc_stars'))
+with (a.output/'E2_REGRESSION.log').open('x') as f:
+    result=subprocess.run([sys.executable,'-m','unittest','-v',*modules],env=env,stdout=f,stderr=subprocess.STDOUT,timeout=580)
+print('Established E2 modules',modules,'returncode',result.returncode)
+assert result.returncode==0

@@ -1,0 +1,164 @@
+{
+  "kind": "scientific_recommendation_only",
+  "systems": [
+    {
+      "system": "F04_N010_RP080_EE08_EA06",
+      "outcome": "A",
+      "exact_24M_endpoints": [
+        {
+          "Ea": "6",
+          "replica": "1",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r001/state.restart.lammpsdat",
+          "restart_sha256": "4ea794bfc1b8cc51b21aa1a64ad3bdf46b31cdc44dc0870f9dc560c023e723e5",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r001/state.assoc_restart",
+          "sidecar_sha256": "b8b4d30da8d28570f64ffaf96709da85a82ae37cb181d41b6b607a63cd722abc",
+          "plan_sha256": "6a56543e18abdca47f9828d31d3f8ba4a957a4c99c5dac93bfc5db875638f90b",
+          "complete_sha256": "0aa18ddb780385145ce7c3f501f851ce41000f551aa10d31670e7bfdd0bd2a90",
+          "chemistry_seed": "1120601",
+          "requested_MD_seed": "1130601",
+          "effective_MD_seed": "3969642444"
+        },
+        {
+          "Ea": "6",
+          "replica": "2",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r002/state.restart.lammpsdat",
+          "restart_sha256": "70dcef6df15bc907848e7500ff9cfb3c0e59f37fa87e9133d8d321632770b574",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r002/state.assoc_restart",
+          "sidecar_sha256": "212ccd51c184f91158cbd82e7ef6d114fbec04d4d609335b101ae03035196ea5",
+          "plan_sha256": "6a56543e18abdca47f9828d31d3f8ba4a957a4c99c5dac93bfc5db875638f90b",
+          "complete_sha256": "5c298e2964a69154bb7147b3c06814db55d5746803e4b792f34d8493f3e706e7",
+          "chemistry_seed": "1120602",
+          "requested_MD_seed": "1130602",
+          "effective_MD_seed": "3961257934"
+        },
+        {
+          "Ea": "6",
+          "replica": "3",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r003/state.restart.lammpsdat",
+          "restart_sha256": "82d79297d2b6c3fd9646004265d99d6c68714eed00f7996f6b1bc25e33e33bf7",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r003/state.assoc_restart",
+          "sidecar_sha256": "2ff8b2994b43d10c113c5449a196fdad9de4ec2707808f27d405efc2a5ea0140",
+          "plan_sha256": "6a56543e18abdca47f9828d31d3f8ba4a957a4c99c5dac93bfc5db875638f90b",
+          "complete_sha256": "9739d35adf88c6bd77da1bfe51abd87e7980f7e5705f721e74284c30e21a9cc3",
+          "chemistry_seed": "1120603",
+          "requested_MD_seed": "1130603",
+          "effective_MD_seed": "3952889804"
+        }
+      ],
+      "reason": "Qualified initialization; broad renewal and repeated structural returns; incomplete slow decorrelation and inherited bias remain.",
+      "proposed_additional_steps_per_existing_history": 0,
+      "proposed_end_step": 24000000,
+      "extension_authorized": false,
+      "formal_acceptance_registered": false
+    },
+    {
+      "system": "F04_N010_RP080_EE08_EA08",
+      "outcome": "B",
+      "exact_24M_endpoints": [
+        {
+          "Ea": "8",
+          "replica": "1",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r001/state.restart.lammpsdat",
+          "restart_sha256": "2b923012d8423243c12ca6df0fe12c02c9bdaf6f24d9b0503e2f1619042466fd",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r001/state.assoc_restart",
+          "sidecar_sha256": "1530ba87416a69e3d10090a7bb1c39167646e8e990ccdd87695261eb075051f7",
+          "plan_sha256": "2ba77a33f5b4d0886be68eb47e84ceb14c9783ad25d8d5e0385d2f8649fa7139",
+          "complete_sha256": "20594dda2c396c80f43825208452fe78fa3b6f4a445cdf07435c43403c563064",
+          "chemistry_seed": "1220801",
+          "requested_MD_seed": "1230801",
+          "effective_MD_seed": "1536498398"
+        },
+        {
+          "Ea": "8",
+          "replica": "2",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r002/state.restart.lammpsdat",
+          "restart_sha256": "51a6fcbae964c1011753c951cbe1c8383dd12c0f80f2c1f07e9e23768360280d",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r002/state.assoc_restart",
+          "sidecar_sha256": "628c5f1b67d18ebbe308e24d7a1a782d4cf30af2a25310ce8a260a0d58497c53",
+          "plan_sha256": "2ba77a33f5b4d0886be68eb47e84ceb14c9783ad25d8d5e0385d2f8649fa7139",
+          "complete_sha256": "fc62ae7bd59a215ee5034ae1cc7e448712d3b49a7af953171635fd2c64be7560",
+          "chemistry_seed": "1220802",
+          "requested_MD_seed": "1230802",
+          "effective_MD_seed": "1511344866"
+        },
+        {
+          "Ea": "8",
+          "replica": "3",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r003/state.restart.lammpsdat",
+          "restart_sha256": "25c4384a2001bddc6bb5171c87fdd61064fb92c7888d86b2f0786ffbf16da67b",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r003/state.assoc_restart",
+          "sidecar_sha256": "c40fc9e55762016788d2f48c2f5e330687601420bd5a7befb2ce3eadf2c9f163",
+          "plan_sha256": "2ba77a33f5b4d0886be68eb47e84ceb14c9783ad25d8d5e0385d2f8649fa7139",
+          "complete_sha256": "bf044e75bc12b4f551547d7c28b18100c6cf43cf090cc84bf11d9e1be30b5a50",
+          "chemistry_seed": "1220803",
+          "requested_MD_seed": "1230803",
+          "effective_MD_seed": "1519745762"
+        }
+      ],
+      "reason": "Opposing sustained intra redistribution and unresolved peripheral/triangle regimes.",
+      "proposed_additional_steps_per_existing_history": 16000000,
+      "proposed_end_step": 40000000,
+      "extension_authorized": false,
+      "formal_acceptance_registered": false
+    },
+    {
+      "system": "F04_N010_RP080_EE08_EA10",
+      "outcome": "B",
+      "exact_24M_endpoints": [
+        {
+          "Ea": "10",
+          "replica": "1",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r001/state.restart.lammpsdat",
+          "restart_sha256": "9a82414fbf38399ff813acecdf3fed102da58fc2cdd46240f9ee25b472c21f34",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r001/state.assoc_restart",
+          "sidecar_sha256": "be999fbb5eefb0ac9d8bb3284b07c139137a84a492267d35716c7e15f21a9d94",
+          "plan_sha256": "f7653122f762a46583f111c769fa523a16ead273308d6506294db3e05af94e9f",
+          "complete_sha256": "4ce6ff59c711bd6d114533825ab317ab51bcff4ac81128b3e53594f42d2499b9",
+          "chemistry_seed": "1321001",
+          "requested_MD_seed": "1331001",
+          "effective_MD_seed": "127752753"
+        },
+        {
+          "Ea": "10",
+          "replica": "2",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r002/state.restart.lammpsdat",
+          "restart_sha256": "a01b8e61283e872fc00dd354beb31f5d83412f41a2bf6222efbf1ab238d5ca9e",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r002/state.assoc_restart",
+          "sidecar_sha256": "d7f488472a3ffb99383eda789352cc07ce6e27c16376144969e067a10d3bc024",
+          "plan_sha256": "f7653122f762a46583f111c769fa523a16ead273308d6506294db3e05af94e9f",
+          "complete_sha256": "c4ddef30bacd34dc38b8ff99b3ce1588365b28b3b753b8b3d1039ddead5ce531",
+          "chemistry_seed": "1321002",
+          "requested_MD_seed": "1331002",
+          "effective_MD_seed": "136088107"
+        },
+        {
+          "Ea": "10",
+          "replica": "3",
+          "absolute_step": "24000000",
+          "restart": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r003/state.restart.lammpsdat",
+          "restart_sha256": "e7bb93fc71f1d544278d985fe2c6630fe1294706f1a257c5da977145a5b2f719",
+          "sidecar": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r003/state.assoc_restart",
+          "sidecar_sha256": "5db4bb966460ec1f876535f893bc8c9e99e01b196d6c35089c8de06631d91ff6",
+          "plan_sha256": "f7653122f762a46583f111c769fa523a16ead273308d6506294db3e05af94e9f",
+          "complete_sha256": "379a4355460dfcdc88656bed60a54bd125478304a94be0e628ebda9e8396b9ca",
+          "chemistry_seed": "1321003",
+          "requested_MD_seed": "1331003",
+          "effective_MD_seed": "144489005"
+        }
+      ],
+      "reason": "Persistent original topology, censored isolation and late structural changes.",
+      "proposed_additional_steps_per_existing_history": 32000000,
+      "proposed_end_step": 56000000,
+      "extension_authorized": false,
+      "formal_acceptance_registered": false
+    }
+  ]
+}

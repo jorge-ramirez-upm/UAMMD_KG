@@ -1,0 +1,20 @@
+test_all_exact_exposures_conserve_stickers (__main__.AnalysisTests) ... ok
+test_direct_and_fft_synthetic (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea10_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea10_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea10_r3 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea6_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea6_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea6_r3 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea8_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea8_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_real_Ea8_r3 (__main__.AnalysisTests) ... ok
+test_iat_shift_and_scale (__main__.AnalysisTests) ... ok
+test_long_trend_does_not_report_independent_samples (__main__.AnalysisTests) ... ok
+test_nonuniform_cadence_is_unresolved (__main__.AnalysisTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.803s
+
+OK
+PASS 5 FFT/direct IAT fixtures; exact event residence/returns; distinct-edge exposure

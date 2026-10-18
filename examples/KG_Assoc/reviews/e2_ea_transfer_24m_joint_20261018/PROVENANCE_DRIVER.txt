@@ -1,0 +1,43 @@
+"""Authenticate manual receipts, seeds and exact endpoints without launching MD."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+c=Path('examples/KG_Assoc').resolve();root=c/'kg_assoc_100m';d=Path(__file__).resolve().parent
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import run_ea_preparation as manual
+state_path=root/'aggregate/e2/manual_ea16m_v1/state.json';state=e2.campaign.load_json(state_path)
+records=[];chemical=set();md=set();effective=set()
+for job in state['jobs']:
+    assert job['status']=='complete' and not job['retired_attempts']
+    plan,entry=manual.authenticate(job)
+    directory=Path(entry['output_prefix']).parent
+    started=e2.campaign.load_json(directory/'started.json');complete=e2.campaign.load_json(directory/'complete.json')
+    assert started['command']==entry['command'] and started['host']=='titan'
+    assert started['plan_sha256']==complete['plan_sha256']==job['plan_sha256']
+    assert started['approval_sha256']==job['approval_sha256']
+    e2.check_hashes(started['smoke_sha256']);e2.check_hashes(complete['output_sha256'])
+    assert plan['steps']==16000000 and entry['start_step']==8000000 and entry['end_step']==complete['end_step']==24000000
+    assert complete['status']=='validated' and complete['validation']['samples']==16001
+    assert not (directory/'incomplete.json').exists()
+    assert 'STAR_ASSOCIATION_SMOKE PASS' in (directory/'stdout.log').read_text()
+    assert not Path(entry['output_prefix']+'.candidate_mismatch.tsv').exists()
+    for value,seen in [(entry['chemistry_seed'],chemical),(entry['md_seed'],md),(entry['effective_md_seed'],effective)]:
+        assert value not in seen;seen.add(value)
+    records.append(dict(system=job['system'],replica=job['replica'],attempt=job['attempt'],
+        plan_sha256=job['plan_sha256'],approval=job['approval'],approval_sha256=job['approval_sha256'],
+        source_git_sha=plan['git_sha'],source_sha256=plan['source_sha256'],build=plan['build'],
+        executable_sha256=plan['executable_sha256'],reservation_id=plan['reservation_id'],
+        reservation_sha256=plan['reservation_sha256'],parent=entry['parent'],lineage=entry['lineage'],
+        chemistry_seed=entry['chemistry_seed'],md_seed=entry['md_seed'],effective_md_seed=entry['effective_md_seed'],
+        start_step=entry['start_step'],end_step=entry['end_step'],additional_steps=plan['steps'],
+        receipts_sha256=e2.hash_files([directory/'started.json',directory/'complete.json',directory/'stdout.log',directory/'stderr.log']),
+        output_sha256=complete['output_sha256']))
+assert len(records)==9 and len(chemical|md)==18 and len(effective)==9
+assert {(r['system'][-4:],r['replica']) for r in records}=={(ea,r) for ea in ('EA06','EA08','EA10') for r in (1,2,3)}
+result=dict(starting_git_sha='deb0ef3797917ee1cd890d19765ec654ecc3efce',manual_state=str(state_path),
+    manual_state_sha256=e2.campaign.sha256(state_path),histories=records,additional_steps=144000000,
+    CPU_authentication_only=True,GPU_calculations_launched=0,formal_acceptances_created=0)
+e2.exclusive_json(d/'PROVENANCE.log',result)
+print('PASS nine authenticated manual histories; 144000000 completed MD steps; no GPU launched')

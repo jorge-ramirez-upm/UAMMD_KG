@@ -1,0 +1,51 @@
+"""Independent integer event-integrated distinct-neighbor exposure; no MD execution."""
+import argparse
+from collections import Counter
+import json
+from pathlib import Path
+import sys
+c=Path('examples/KG_Assoc').resolve();sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+
+
+def exposure(pairs, events, mapping, stars, start, end):
+    def edge(pair):return tuple(sorted(mapping[atom] for atom in pair))
+    multiplicity=Counter(edge(pair) for pair in pairs if mapping[pair[0]]!=mapping[pair[1]])
+    initial=set(multiplicity);surviving=set(multiplicity)
+    previous=start;edge_steps=survival_steps=gains=losses=0
+    for step,kind,pair in events:
+        assert previous<=step<=end and step>start and kind in ('C','B')
+        interval=step-previous
+        edge_steps+=len(multiplicity)*interval
+        survival_steps+=len(surviving)*interval
+        a,b=edge(pair)
+        if a!=b:
+            if kind=='C':
+                gains+=multiplicity[(a,b)]==0;multiplicity[(a,b)]+=1
+            else:
+                assert multiplicity[(a,b)]>0
+                multiplicity[(a,b)]-=1
+                if multiplicity[(a,b)]==0:
+                    del multiplicity[(a,b)];losses+=1;surviving.discard((a,b))
+        previous=step
+    edge_steps+=len(multiplicity)*(end-previous)
+    survival_steps+=len(surviving)*(end-previous)
+    return dict(distinct_neighbor_edge_steps=edge_steps,
+        distinct_neighbor_incidence_steps=2*edge_steps,
+        absent_interstar_pair_steps=stars*(stars-1)//2*(end-start)-edge_steps,
+        original_neighbor_first_loss_survival_steps=survival_steps,
+        star_steps=stars*(end-start),initial_edges=len(initial),final_edges=len(multiplicity),
+        original_edges_never_lost=len(surviving),neighbor_gains=gains,neighbor_losses=losses)
+
+
+def self_test():
+    mapping={1:1,2:1,3:2,4:2,5:3,6:3}
+    # Breaking one of two parallel physical bonds preserves the distinct edge.
+    result=exposure([(1,3),(2,4)],[(100,'B',(1,3)),(200,'B',(2,4))],mapping,3,0,300)
+    assert result['distinct_neighbor_edge_steps']==200
+    assert result['neighbor_losses']==1 and result['neighbor_gains']==0
+    assert result['original_neighbor_first_loss_survival_steps']==200
+    assert result['absent_interstar_pair_steps']==700
+    result=exposure([],[(100,'C',(1,3)),(100,'B',(1,3))],mapping,3,0,300)
+    assert result['distinct_neighbor_edge_steps']==0 and result['neighbor_gains']==result['neighbor_losses']==1
+    assert exposure([(1,3)],[],mapping,3,0,300)['distinct_neighbor_edge_steps']==300

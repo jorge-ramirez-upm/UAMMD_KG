@@ -1,0 +1,8 @@
+{
+  "preserved_bindings": 2895,
+  "formal_acceptances_and_payloads": 12,
+  "native_build_authenticated": true,
+  "GPU_jobs_launched": 0,
+  "protected_directories_unchanged": true
+}
+PASS dossier and archived replay hashes; nine receipt/plan/source/build identities; 12 acceptances; zero new GPU steps; no acceptance registration

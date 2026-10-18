@@ -1,0 +1,41 @@
+"""Read-only dossier/raw-state verification. Never launches native code or MD."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tarfile
+r=Path.cwd();c=r/'examples/KG_Assoc';d=Path(__file__).resolve().parent
+sys.path.insert(0,str(c/'campaign'))
+import kg_assoc_e2 as e2
+import run_ea_preparation as manual
+for name in ('INTEGRITY.sha256','INPUTS.sha256','ANALYSIS.sha256','PRESERVED.sha256'):
+    e2.check_hashes(e2.campaign.load_json(d/name))
+subprocess.run([sys.executable,str(d/'PRESERVATION_DRIVER.txt')],check=True,timeout=580)
+state=e2.campaign.load_json(c/'kg_assoc_100m/aggregate/e2/manual_ea16m_v1/state.json')
+result=e2.campaign.load_json(d/'RESULTS.log')
+assert len(state['jobs'])==len(result['histories'])==9
+assert result['assessment_GPU_steps']==0 and result['manually_completed_MD_steps']==144000000
+assert sum(h['candidate_comparisons'] for h in result['histories'])==1440000
+assert sum(h['counts']['creations']+h['counts']['breaks'] for h in result['histories'])==319041
+bindings=e2.campaign.load_json(d/'ANALYSIS.sha256')
+for job,h in zip(state['jobs'],result['histories']):
+    plan,entry=manual.authenticate(job)
+    assert h['system']==job['system'] and h['replica']==job['replica']
+    assert entry['start_step']==h['start_step']==8000000 and entry['end_step']==h['end_step']==24000000
+    complete=e2.campaign.load_json(Path(entry['output_prefix']).parent/'complete.json')
+    assert complete['validation']==h['validation']
+    assert h['initial_device_readback']['status']=='valid'
+    label=f"EA{h['Ea']:02d}_R{h['replica']:03d}"
+    with tarfile.open(d/'replay'/(label+'.tar.gz'),'r:gz') as archive:
+        members=archive.getmembers();assert len(members)==6
+        for member in members:
+            assert member.isfile() and Path(member.name).name==member.name
+            path=c/'kg_assoc_100m/aggregate/e2/ea_transfer_24m_joint_20261018_v1/analysis'/member.name
+            assert hashlib.sha256(archive.extractfile(member).read()).hexdigest()==bindings[str(path)]
+recommend=e2.campaign.load_json(d/'RECOMMENDATIONS.log')['systems']
+assert [s['outcome'] for s in recommend]==['A','B','B']
+assert all(not s['formal_acceptance_registered'] and not s['extension_authorized'] for s in recommend)
+assert [s['proposed_additional_steps_per_existing_history'] for s in recommend]==[0,16000000,32000000]
+assert len(e2.campaign.load_json(d/'PROVENANCE.log')['histories'])==9
+print('PASS dossier and archived replay hashes; nine receipt/plan/source/build identities; 12 acceptances; zero new GPU steps; no acceptance registration')

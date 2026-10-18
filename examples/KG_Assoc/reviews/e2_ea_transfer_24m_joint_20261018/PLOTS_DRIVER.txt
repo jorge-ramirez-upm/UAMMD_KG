@@ -1,0 +1,132 @@
+"""Standalone scientific figures from authenticated analysis; never executes MD."""
+import argparse,csv,json
+from pathlib import Path
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--analysis',type=Path,required=True)
+parser.add_argument('--output',type=Path,required=True)
+a=parser.parse_args();a.output.mkdir(exist_ok=False)
+result=json.loads((a.analysis/'RESULTS.log').read_text())
+assert result['manually_completed_MD_steps']==144000000 and len(result['histories'])==9
+colors=['#0072B2','#D55E00','#009E73'];eas=[6,8,10]
+records=[]
+for h in result['histories']:
+ label=f"EA{int(h['Ea']):02d}_R{h['replica']:03d}"
+ records.append(dict(history=h,rows=json.loads((a.analysis/(label+'_TIMESERIES.log')).read_text()),
+   windows=json.loads((a.analysis/(label+'_WINDOWS.log')).read_text())['windows'],
+   renewal=json.loads((a.analysis/(label+'_RENEWAL.log')).read_text())))
+
+def save(figure,name):
+ figure.tight_layout()
+ figure.savefig(a.output/(name+'.png'),dpi=150)
+ figure.savefig(a.output/(name+'.pdf'))
+ plt.close(figure)
+
+def grid_metrics(names,filename,windows=False):
+ figure,axes=plt.subplots(len(names),3,figsize=(15,2.5*len(names)),squeeze=False)
+ for column,ea in enumerate(eas):
+  for record in records:
+   h=record['history']
+   if h['Ea']!=ea:continue
+   for axis,name in zip(axes[:,column],names):
+    if windows:
+     samples=record['windows']
+     x=[(s['start_step_exclusive']+s['end_step_inclusive'])/2e6 for s in samples]
+     y=[s['metrics'][name]['mean'] for s in samples]
+     error=[s['metrics'][name]['sem_estimate'] for s in samples]
+     unresolved=[s['metrics'][name]['resolution_warning'] for s in samples]
+     axis.errorbar(x,y,yerr=error,color=colors[h['replica']-1],label=f"parent r{h['replica']:03d}",lw=.9,marker='.',ms=3)
+     axis.scatter([t for t,bad in zip(x,unresolved) if bad],[v for v,bad in zip(y,unresolved) if bad],marker='x',s=15,color=colors[h['replica']-1])
+    else:
+     rows=record['rows'];axis.plot([row['step']/1e6 for row in rows],[row[name] for row in rows],lw=.6,alpha=.8,color=colors[h['replica']-1],label=f"parent r{h['replica']:03d}")
+    axis.set_ylabel(name);axis.grid(alpha=.2)
+  axes[0,column].set_title(f'Ea={ea}; three paired original parent families')
+  axes[0,column].legend(fontsize=7)
+  axes[-1,column].set_xlabel('Absolute MD step / 1M; branch begins at 8M')
+ figure.suptitle('500k windows; IAT SEM; × = unresolved correlation/mixing' if windows else 'Complete derived segment; no correlations stitched across 8M',y=1.001)
+ save(figure,filename)
+
+structural=['bound_fraction','intra','L1','L2','mean_degree','largest_cluster_fraction','isolated_stars','satellite_stars']
+grid_metrics(structural,'structural_timeseries')
+grid_metrics(structural,'window_means',windows=True)
+grid_metrics(['mean_rg2','mean_center_terminal_r2','temperature','min_permanent_bond','max_permanent_bond'],'conformation_numerics')
+figure,axes=plt.subplots(3,3,figsize=(14,9))
+for column,ea in enumerate(eas):
+ for h in result['histories']:
+  if h['Ea']!=ea:continue
+  for row,(prefix,bins,scale) in enumerate([('degree_',range(5),1),('intra_loop_',range(3),.001),('multiplicity_',range(1,5),1)]):
+   suffix='_fraction' if row==0 else ('_stars' if row==1 else '_edges')
+   values=[h['phases']['last_quarter']['metrics'][prefix+str(i)+suffix]['mean']*scale for i in bins]
+   axes[row,column].bar(np.array(list(bins))+(h['replica']-2)*.23,values,width=.22,color=colors[h['replica']-1],label=f"r{h['replica']:03d}")
+   axes[row,column].set_xticks(list(bins));axes[row,column].grid(axis='y',alpha=.2)
+   axes[row,column].set_xlabel(['Distinct inter-star degree','Intra loops / star','Inter-edge bond multiplicity'][row])
+   axes[row,column].set_ylabel(['Fraction of stars','Fraction of stars','Number of distinct inter-star edges'][row])
+ axes[0,column].set_title(f'Ea={ea}; absolute 20M–24M');axes[0,column].legend(fontsize=7)
+save(figure,'late_structural_distributions')
+figure,axes=plt.subplots(6,3,figsize=(15,16))
+for column,ea in enumerate(eas):
+ for record in records:
+  h=record['history']
+  if h['Ea']!=ea:continue
+  renewal=record['renewal'];samples=renewal['sampled'];x=[s['step']/1e6 for s in samples]
+  specs=[('surviving_initial_bonds',renewal['initial_bonds']),('surviving_initial_neighbor_edges',renewal['initial_edges']),('reacted_stars',1000),('neighbor_loss_stars',1000)]
+  for row,(key,denominator) in enumerate(specs):
+   axes[row,column].plot(x,[s[key]/denominator for s in samples],color=colors[h['replica']-1],lw=.8,label=f"r{h['replica']:03d}")
+   axes[row,column].set_ylabel(key+' fraction');axes[row,column].grid(alpha=.2)
+  for row,category in ((4,'isolated'),(5,'satellite')):
+   values=sorted(star['residence_steps'][category]*.01 for star in renewal['stars'])
+   axes[row,column].step(values,np.arange(1,1001)/1000,where='post',color=colors[h['replica']-1],label=f"r{h['replica']:03d}")
+   axes[row,column].set_xlabel(category+' residence physical time (all 1000 stars)');axes[row,column].set_ylabel('Empirical CDF including zero mass');axes[row,column].grid(alpha=.2)
+ axes[0,column].set_title(f'Ea={ea}; survival is conditional at 8M');axes[0,column].legend(fontsize=7)
+ for row in range(4):axes[row,column].set_xlabel('Absolute MD step / 1M')
+save(figure,'renewal_residence')
+figure,axes=plt.subplots(3,3,figsize=(13,10))
+for axis,name in zip(axes.flat,['bound_fraction','intra','L1','L2','mean_degree','largest_cluster_fraction','isolated_stars','mean_rg2','mean_center_terminal_r2']):
+ for x,ea in enumerate((8,10)):
+  item=next(item for item in result['paired_last_quarter_contrasts'] if item['Ea_minus_Ea6']==ea and item['observable']==name)
+  axis.scatter([x-.1,x,x+.1],item['paired_differences'],c=colors,s=25)
+  axis.errorbar([x],[item['mean']],yerr=[item['ci95_half_width']],color='black',fmt='s',capsize=4,ms=4)
+ axis.axhline(0,color='gray',lw=.7);axis.set_xticks([0,1],['Ea8 − Ea6','Ea10 − Ea6']);axis.set_title(name);axis.grid(alpha=.2)
+figure.suptitle('Paired last-quarter contrasts: 3 parent families, df=2; zero is not an equivalence test',y=1.005)
+save(figure,'paired_late_contrasts')
+# Machine-readable identity residence records; exact episodes remain in the bound raw analysis.
+with (a.output/'STAR_RESIDENCE.csv').open('x',newline='') as stream:
+ fields=['Ea','replica','star','initial_category','final_category','accepted_reactions','gained_neighbor_ids','lost_neighbor_ids','isolated_steps','satellite_steps','giant_steps','isolation_returns','isolation_nonzero_gap_returns','satellite_returns']
+ writer=csv.DictWriter(stream,fieldnames=fields);writer.writeheader()
+ for record in records:
+  h=record['history']
+  for star in record['renewal']['stars']:
+   writer.writerow(dict(Ea=h['Ea'],replica=h['replica'],star=star['star'],initial_category=star['initial_category'],final_category=star['final_category'],accepted_reactions=star['accepted_reactions'],gained_neighbor_ids=json.dumps(star['gained_neighbor_ids']),lost_neighbor_ids=json.dumps(star['lost_neighbor_ids']),isolated_steps=star['residence_steps']['isolated'],satellite_steps=star['residence_steps']['satellite'],giant_steps=star['residence_steps']['giant'],isolation_returns=star['returns']['isolated'],isolation_nonzero_gap_returns=star['nonzero_gap_returns']['isolated'],satellite_returns=star['returns']['satellite']))
+print('FIGURES_AND_IDENTITY_RESIDENCE_TABLE_WRITTEN')
+# Correlations are descriptive within the final quarter, not proof of stationarity.
+figure,axes=plt.subplots(3,3,figsize=(14,10))
+for column,ea in enumerate(eas):
+ for record in records:
+  h=record['history']
+  if h['Ea']!=ea:continue
+  late=[row for row in record['rows'] if row['step']>20000000]
+  for axis,key in zip(axes[:,column],['intra','L1','mean_degree']):
+   values=np.array([row[key] for row in late]);values-=values.mean()
+   if not np.any(values):continue
+   n=1 << (2*len(values)-1).bit_length();f=np.fft.rfft(values,n=n)
+   acf=np.fft.irfft(f*f.conjugate(),n=n)[:1001]/np.dot(values,values)
+   axis.plot(np.arange(len(acf))*.001,acf,color=colors[h['replica']-1],lw=1,label=f"r{h['replica']:03d}")
+   axis.set_ylabel(key+' biased ACF');axis.set_xlabel('Lag / 1M MD steps');axis.axhline(0,color='gray',lw=.6);axis.grid(alpha=.2)
+ axes[0,column].set_title(f'Ea={ea}; 20M–24M only');axes[0,column].legend(fontsize=7)
+save(figure,'late_autocorrelations')
+figure,axes=plt.subplots(3,3,figsize=(15,12))
+for record in records:
+ h=record['history'];axis=axes[h['replica']-1,eas.index(h['Ea'])]
+ episodes=[item for item in record['renewal']['episodes'] if item['category']=='isolated' and item['duration_steps']>0]
+ identities=sorted({item['star'] for item in episodes});index={star:i for i,star in enumerate(identities)}
+ for item in episodes:
+  axis.plot([item['start_step']/1e6,item['end_step']/1e6],[index[item['star']]]*2,lw=1.5,color=colors[h['replica']-1])
+ axis.set_title(f"Ea={h['Ea']} r{h['replica']:03d}; {len(identities)} positive-duration IDs")
+ if len(identities)<=25:
+  axis.set_yticks(range(len(identities)),identities,fontsize=6)
+ axis.set_xlabel('Absolute step / 1M');axis.set_ylabel('Isolated star (sorted identity index if >25)');axis.set_xlim(8,24);axis.grid(axis='x',alpha=.2)
+save(figure,'isolated_identity_timelines')
