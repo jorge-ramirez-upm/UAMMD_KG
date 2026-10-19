@@ -471,7 +471,8 @@ def extension_source_authorization(path, plan, execution_approval):
     require(path is not None, 'extension execution requires immutable source authorization')
     record = campaign.load_json(path)
     require(record.get('schema_version') == 1 and record.get('approved') is True and
-            record.get('purpose') == 'e2_extension_source_authorization' and
+            record.get('purpose') in ('e2_extension_source_authorization',
+                                      'e2_extension_recovery_source_authorization') and
             record.get('plan_sha256') == campaign.sha256(Path(plan['attempt']) / 'plan.json') and
             record.get('execution_approval_sha256') == campaign.sha256(execution_approval) and
             isinstance(record.get('reviewer'), str) and record['reviewer'].strip() and

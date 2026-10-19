@@ -197,16 +197,35 @@ class LifecycleTests(unittest.TestCase):
             validate.assert_called_once_with(self.entry, oracle=True)
             launch.assert_not_called()
 
-    def test_finished_MD_receipt_recovery_is_explicit_and_atomic(self):
+    def test_finished_MD_receipt_cannot_be_promoted_by_generic_execution(self):
         self.started()
         (self.directory / 'stdout.log').write_text('STAR_ASSOCIATION_SMOKE PASS\n')
         before = set(self.directory.iterdir())
         self.assertEqual(runner.classify(self.job, recover=False), 'finished_pending_independent_validation')
         self.assertEqual(set(self.directory.iterdir()), before)
-        with mock.patch.object(e2.validation, 'validate', return_value=([], [], {})), mock.patch.object(e2, 'launch') as launch:
-            self.assertEqual(runner.classify(self.job, recover=True), 'complete')
-            launch.assert_not_called()
-        self.assertTrue(e2.campaign.load_json(self.directory / 'complete.json')['receipt_recovered_without_MD'])
+        with self.assertRaisesRegex(ValueError, 'explicit --recover-ea8-r001'):
+            runner.classify(self.job, recover=True)
+        self.assertFalse((self.directory / 'complete.json').exists())
+
+    def test_recovery_record_is_distinct_and_replayed(self):
+        failure = self.directory / 'incomplete.json'
+        e2.exclusive_json(failure, dict(error=runner.RECOVERY_FAILURE))
+        (self.directory / 'evidence').write_text('immutable')
+        output_hashes = e2.hash_files([self.directory / 'evidence'])
+        e2.exclusive_json(self.directory / runner.RECOVERY_RECORD, dict(
+            schema_version=1, status='independently_validated_recovery', plan_sha256='plan',
+            end_step=40000000, execution_approval_sha256='approval',
+            source_authorization_sha256='source',
+            original_incomplete_sha256=e2.campaign.sha256(failure),
+            original_failure=runner.RECOVERY_FAILURE, output_sha256=output_hashes,
+            validation={'checked': True}))
+        self.job['source_authorization_sha256'] = 'source'
+        with mock.patch.object(e2.validation, 'validate', return_value=([], [], {'checked': True})):
+            self.assertEqual(runner.classify(self.job), 'recovered_complete')
+        self.assertFalse((self.directory / 'complete.json').exists())
+        (self.directory / 'evidence').write_text('forged')
+        with self.assertRaisesRegex(ValueError, 'authenticated file changed'):
+            runner.classify(self.job)
 
     def test_numerical_failure_overrides_a_completion_receipt(self):
         e2.exclusive_json(self.directory / 'complete.json', dict(status='validated', end_step=40000000, plan_sha256='plan', output_sha256={}, validation={}))

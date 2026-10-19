@@ -16,6 +16,8 @@ from run_ea_preparation import save, request_stop
 RESTART_OVERHEAD_AUTHORIZED = True
 STATE_DIRECTORY = 'manual_ea_extensions_readback_v2'
 EXECUTION_APPROVAL_SUFFIX = '_execution.json'
+RECOVERY_FAILURE = 'prepared extension sources/history changed'
+RECOVERY_RECORD = 'validation_recovery.json'
 
 
 def jobs():
@@ -93,14 +95,88 @@ def execution_approval(job):
     e2.require(record.get('GPU_execution_authorized') is True and
                record.get('preparation_approval_sha256') == job['approval_sha256'],
                'execution approval does not bind the immutable preparation approval')
-    e2.require(isinstance(job.get('source_authorization'), str) and
-               isinstance(job.get('source_authorization_sha256'), str),
+    source_key = ('recovery_source_authorization'
+                  if 'recovery_source_authorization' in job else 'source_authorization')
+    source_hash_key = source_key + '_sha256'
+    e2.require(isinstance(job.get(source_key), str) and
+               isinstance(job.get(source_hash_key), str),
                'extension source authorization absent')
-    source_path = Path(job['source_authorization'])
-    e2.check_hashes({str(source_path): job['source_authorization_sha256']})
+    source_path = Path(job[source_key])
+    e2.check_hashes({str(source_path): job[source_hash_key]})
     source_record = e2.extension_source_authorization(source_path, plan, path)
+    if source_key == 'recovery_source_authorization':
+        e2.require(source_record.get('prior_source_authorization_sha256') ==
+                   job['source_authorization_sha256'],
+                   'recovery source authorization does not bind prior authorization')
     e2.live_code(plan, source_record['source_sha256_overrides'])
     return path, source_path, plan, entry
+
+
+def recovery_record(job, entry, failure_path):
+    """Authenticate the distinct receipt for an approved post-native recovery."""
+    directory = Path(entry['output_prefix']).parent
+    path = directory / RECOVERY_RECORD
+    e2.require(path.exists(), 'recovery record absent')
+    record = e2.campaign.load_json(path)
+    e2.require(record.get('schema_version') == 1 and
+               record.get('status') == 'independently_validated_recovery' and
+               record.get('plan_sha256') == job['plan_sha256'] and
+               record.get('end_step') == job['end_step'] and
+               record.get('original_incomplete_sha256') == e2.campaign.sha256(failure_path) and
+               record.get('original_failure') == RECOVERY_FAILURE and
+               record.get('execution_approval_sha256') == job['execution_approval_sha256'] and
+               record.get('source_authorization_sha256') == job['source_authorization_sha256'],
+               'invalid recovery record')
+    e2.check_hashes(record['output_sha256'])
+    return path, record
+
+
+def recover_completed_ea8_r001(root, state_path):
+    """CPU-only one-history recovery after the known post-native source-check defect."""
+    state = e2.campaign.load_json(state_path)
+    validate_state(state)
+    job = next((item for item in state['jobs']
+                if item['system'] == 'F04_N010_RP080_EE08_EA08' and item['replica'] == 1), None)
+    e2.require(job is not None and job.get('status') == 'failed' and
+               job.get('error') == RECOVERY_FAILURE, 'only the recorded Ea8 r001 failure is recoverable')
+    approval, source_authorization, plan, entry = execution_approval(job)
+    directory = Path(entry['output_prefix']).parent
+    failure = directory / 'incomplete.json'
+    e2.require(failure.is_file() and e2.campaign.load_json(failure).get('error') == RECOVERY_FAILURE,
+               'original administrative failure evidence differs')
+    e2.require(not (directory / 'complete.json').exists(), 'ordinary completion receipt already exists')
+    e2.require('STAR_ASSOCIATION_SMOKE PASS' in (directory / 'stdout.log').read_text(),
+               'native completion marker absent')
+    started = e2.campaign.load_json(directory / 'started.json')
+    e2.require(started.get('plan_sha256') == job['plan_sha256'] and
+               started.get('approval_sha256') == job['execution_approval_sha256'] and
+               started.get('command') == entry['command'], 'untrusted native start receipt')
+    e2.check_hashes(started['smoke_sha256'])
+    _, _, validation = e2.validation.validate(entry, oracle=True)
+    outputs = e2.hash_files(path for path in directory.iterdir()
+                            if path.is_file() and path.name != RECOVERY_RECORD)
+    record = dict(schema_version=1, status='independently_validated_recovery',
+                  recovery_kind='post_native_administrative_validation_recovery',
+                  plan_sha256=job['plan_sha256'], end_step=job['end_step'],
+                  execution_approval_sha256=job['execution_approval_sha256'],
+                  source_authorization_sha256=job['source_authorization_sha256'],
+                  original_incomplete_sha256=e2.campaign.sha256(failure),
+                  original_failure=RECOVERY_FAILURE,
+                  started_sha256=e2.campaign.sha256(directory / 'started.json'),
+                  validation=validation, output_sha256=outputs,
+                  recovered_at=e2.timestamp(), recovered_without_MD=True)
+    path = directory / RECOVERY_RECORD
+    if path.exists():
+        _, existing = recovery_record(job, entry, failure)
+        e2.require(existing == record, 'existing recovery record differs')
+    else:
+        extension.atomic_receipt(path, record)
+    job.update(status='recovered_complete', recovery_record=str(path),
+               recovery_record_sha256=e2.campaign.sha256(path),
+               recovered_from_status='failed', recovered_from_error=RECOVERY_FAILURE,
+               original_incomplete_sha256=e2.campaign.sha256(failure))
+    save(state_path, state)
+    return record
 
 
 def classify(job, recover=False, replay=True):
@@ -115,6 +191,14 @@ def classify(job, recover=False, replay=True):
                'STAR_ASSOCIATION_SMOKE FAIL:' not in stderr,
                'numerical/candidate failure preserved; no automatic retry')
     failure = directory / 'incomplete.json'
+    recovered = directory / RECOVERY_RECORD
+    if recovered.exists():
+        e2.require(failure.exists(), 'recovery lacks original failure evidence')
+        _, record = recovery_record(job, entry, failure)
+        if replay:
+            _, _, validation = e2.validation.validate(entry, oracle=True)
+            e2.require(validation == record['validation'], 'recovery replay differs')
+        return 'recovered_complete'
     if failure.exists():
         e2.require(not e2.campaign.load_json(failure)['error'],
                    'failed trajectory preserved; no automatic retry')
@@ -147,12 +231,7 @@ def classify(job, recover=False, replay=True):
         e2.check_hashes(started['smoke_sha256'])
         if not recover:
             return 'finished_pending_independent_validation'
-        _, _, validation = e2.validation.validate(entry, oracle=True)
-        extension.atomic_receipt(completion, dict(status='validated',
-            plan_sha256=job['plan_sha256'], end_step=job['end_step'], validation=validation,
-            finished_at=e2.timestamp(), wall_seconds=None, receipt_recovered_without_MD=True,
-            output_sha256=e2.hash_files(p for p in directory.iterdir() if p.is_file())))
-        return 'complete'
+        e2.require(False, 'post-native recovery requires explicit --recover-ea8-r001')
     return 'interrupted' if any(directory.iterdir()) else 'prepared'
 
 
@@ -194,8 +273,8 @@ def execute(root, build, state_path):
                 if status == 'running':
                     print('Prior native process is still stopping; preserve it and reissue --execute after it exits.', flush=True)
                     return 75
-                if status == 'complete':
-                    job['status'] = 'complete'
+                if status in ('complete', 'recovered_complete'):
+                    job['status'] = status
                     save(state_path, state)
                     print('SKIP independently validated', job['system'], job['replica'], flush=True)
                     continue
@@ -256,6 +335,11 @@ def status(job):
     directory = Path(entry['output_prefix']).parent
     if extension.native_running(directory / 'process.json', job['plan_sha256'], entry['command']):
         return 'running', extension.partial_step_bounds(Path(entry['output_prefix']), job['steps'])
+    recovered = directory / RECOVERY_RECORD
+    if recovered.exists():
+        failure = directory / 'incomplete.json'
+        _, record = recovery_record(job, entry, failure)
+        return 'recovered_completion_recorded; full replay on --execute', None
     complete = directory / 'complete.json'
     if complete.exists():
         receipt = e2.campaign.load_json(complete)
@@ -277,6 +361,8 @@ def main():
     group.add_argument('--status', action='store_true')
     group.add_argument('--prepare', action='store_true', help='CPU-only immutable plans/MD reservations')
     group.add_argument('--execute', action='store_true', help='user runs only the six authorized extensions')
+    group.add_argument('--recover-ea8-r001', action='store_true',
+                       help='CPU-only explicit recovery of the known completed Ea8 r001 attempt')
     args = parser.parse_args()
     root = run_e2.discover()
     state_path = root / 'aggregate/e2' / STATE_DIRECTORY / 'state.json'
@@ -308,6 +394,11 @@ def main():
         with run_e2.workflow_lock(root):
             state = prepare_state(root, build, state_path)
         print('PREPARED six exact 24M-parent extensions. No GPU execution.')
+        return 0
+    if args.recover_ea8_r001:
+        with run_e2.workflow_lock(root):
+            recover_completed_ea8_r001(root, state_path)
+        print('RECOVERY PASS: Ea8 r001 independently validated without MD.')
         return 0
     if not args.execute:
         if state_path.exists():
