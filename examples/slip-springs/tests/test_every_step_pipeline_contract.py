@@ -17,6 +17,9 @@ class EveryStepPipelineContract(unittest.TestCase):
         for token in ("chain_major::Bank", "chain_major::Workers", "cudaMemcpyAsync",
                       "cudaStreamWaitEvent", "Slot::free", "every-step stress frame accounting mismatch"):
             self.assertIn(token, adapter)
+        for token in ("producer_blocked_seconds", "transfer_completion_wait_seconds",
+                      "consumer_idle_seconds", "cudaEventElapsedTime"):
+            self.assertIn(token, adapter)
         self.assertIn("slots.push_back", adapter)
     def test_validated_chain_major_cpu_equivalence_suite(self):
         # Existing deterministic test covers chronological chains, worker ranges,
