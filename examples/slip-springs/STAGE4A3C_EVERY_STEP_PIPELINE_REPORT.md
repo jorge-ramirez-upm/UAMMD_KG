@@ -49,7 +49,10 @@ CUDA_HOME=/usr/local/cuda-13.0 CXX=g++ CUDA_ARCH=sm_86 \
 
 The GPU run builds both precisions and runs N8 κ=10 stress-off/on replay with
 batches1/7/256 (including many turnovers and a final partial batch), then N8
-κ=0 fast-path checks. It is bounded to120 seconds per build/test invocation.
+κ=0 fast-path checks. It also runs one bounded single-precision N8,C2048,
+κ=10,10,000-step simultaneous producer/consumer fixture (batch256, workers4,
+slots64,levels12) outside all campaigns and prints its `stress_metadata.json`
+path. It is bounded to120 seconds per build/test invocation.
 Run the Milestone-A oracle/evidence runner separately for tensor numerical
 validation, GPU identity and binary receipts. The N8 batch1/7 bounded replay is
 a simultaneous producer/consumer check; inspect its slot-capacity, in-flight and
