@@ -11,6 +11,7 @@ import stage4a4_equilibrium_reference as reference
 import stage4a4_timestep_analysis as analysis
 import stage4a4_static_drift_analysis as drift
 import stage4a4_dynamic_timestep_analysis as dynamics
+import stage4a4_intermediate_timestep_analysis as intermediate
 
 
 class Stage4A4ToolsTest(unittest.TestCase):
@@ -107,6 +108,27 @@ class Stage4A4ToolsTest(unittest.TestCase):
             self.assertEqual(result['lags'][0]['gate'], 'pass')
             self.assertIn('Cxy', result['h0']['channels'])
             self.assertIn(result['crossing']['gate'], ('pass', 'unresolved'))
+
+    def test_intermediate_runner_and_histogram_contract(self):
+        script = ROOT/'tests/run_stage4a4_intermediate_timestep.sh'
+        subprocess.run(['bash', '-n', str(script)], check=True)
+        source = script.read_text()
+        self.assertIn('steps=40000', source)
+        self.assertIn('limit_seconds=300', source)
+        self.assertIn('--execute-intermediate', source)
+        self.assertIn('--scalar-output full', source)
+        self.assertIn('run_case 0\nrun_case 10', source)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp); report = reference.reference(8, 0, 512, 4, chunk=64)
+            ref = root/'reference.json'; ref.write_text(json.dumps(report))
+            stats = root/'bond_statistics.csv'
+            with stats.open('w') as out:
+                out.write('chain,bond,frames,' + ','.join('bin'+str(i) for i in range(33))+'\n')
+                for chain in range(512):
+                    for bond in range(8): out.write(f'{chain},{bond},1,' + '1,' + '0,'*31 + '0\n')
+            result = intermediate.histogram(root, ref)
+            self.assertEqual(result['frames_per_bond'], 1)
+            self.assertAlmostEqual(sum(result['probability']), 1.)
 
 
 if __name__ == '__main__': unittest.main()
