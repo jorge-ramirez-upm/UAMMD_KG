@@ -59,6 +59,7 @@ class Observer {
   thrust::device_vector<Counter> key;
   streaming::Sample* batch=nullptr;
   std::unique_ptr<Correlations> correlations;
+  std::unique_ptr<EveryStepTransport> every;
   std::size_t fill=0;cudaEvent_t start=nullptr,stop=nullptr;
   std::ofstream diagnostics;
   double gpu_seconds=0,transfer_seconds=0,diagnostic_seconds=0,diagnostic_output_seconds=0,final_seconds=0;
@@ -75,12 +76,14 @@ class Observer {
     throw std::runtime_error("stress failure at step "+std::to_string(step)+", bead "+std::to_string(value/16)+", reason "+std::to_string(value%16));
   }
 public:
-  static std::size_t estimatedBytes(Settings s,std::size_t c,bool active){return s.hostBytes(c)+c*(sizeof(Tensor)+sizeof(streaming::Sample)+(active&&s.mode=="diagnostic"?sizeof(Tensor):0))+sizeof(Counter);}
+  static std::size_t estimatedBytes(Settings s,std::size_t c,bool active){return s.hostBytes(c)+c*(sizeof(Tensor)+sizeof(streaming::Sample)+(active&&s.mode=="diagnostic"?sizeof(Tensor):0)+(s.everyStep()?2*std::size_t(s.batch)*sizeof(streaming::Sample):0))+sizeof(Counter);}
   Observer(Settings s,int c,int beads,const real2* parameters,const real* kappa,bool active,double spacing,double kbt,Counter seed,Counter momentStart,const std::filesystem::path& out)
    :cfg(s),chains(c),m(beads),spacing(spacing),kbt(kbt),seed(seed),momentStart(momentStart),output(out),parameters(parameters),kappa(kappa),active(active),tensors(c),diagnosticBend(active&&s.mode=="diagnostic"?c:0),samples(c),key(1,~Counter(0)){
     if(cfg.streaming()){
       correlations=std::make_unique<Correlations>(cfg,c,out,momentStart);
       check(cudaMallocHost(&batch,std::size_t(cfg.batch)*c*sizeof(streaming::Sample)),"pinned stress batch");
+    }else if(cfg.everyStep()){
+      every=std::make_unique<EveryStepTransport>(c,cfg.batch,cfg.correlation,std::size_t(cfg.correlatorMiB)*1024*1024,cfg.workers,momentStart);
     }else{
       diagnostics=file(out/"stress_tensors.csv");diagnostics<<"step,chain,term";
       for(int a=0;a<3;++a)for(int b=0;b<3;++b)diagnostics<<",w"<<a<<b;diagnostics<<'\n';
@@ -99,7 +102,8 @@ public:
       transfer_seconds+=elapsed(transferStart);check(cudaEventRecord(start),"stress diagnostic restart");
     }
     if(active){bendTensor<<<(chains+127)/128,128>>>(positions,ptr(tensors),ptr(diagnosticBend),kappa,chains,m,ptr(key));++bend_launches;}
-    channels<<<(chains+127)/128,128>>>(ptr(tensors),ptr(samples),chains,m,ptr(key));
+    streaming::Sample* output=every?every->destination():ptr(samples);
+    channels<<<(chains+127)/128,128>>>(ptr(tensors),output,chains,m,ptr(key));
     check(cudaGetLastError(),"stress launch");stamp();
     auto t=std::chrono::steady_clock::now();failure(positions,step);diagnostic_seconds+=elapsed(t);
     t=std::chrono::steady_clock::now();
@@ -108,6 +112,8 @@ public:
       check(cudaMemcpy(destination,ptr(samples),chains*sizeof(streaming::Sample),cudaMemcpyDeviceToHost),"stress channel D2H");transfer_seconds+=elapsed(t);
       correlations->received(destination,step);++fill;
       if(fill==cfg.batch){correlations->consume(batch,fill);fill=0;}
+    }else if(every){
+      every->published();
     }else{
       std::vector<Tensor> total(chains),bend(chains);
       check(cudaMemcpy(total.data(),ptr(tensors),chains*sizeof(Tensor),cudaMemcpyDeviceToHost),"total diagnostic readback");
@@ -119,21 +125,25 @@ public:
     }
     ++frames;
   }
-  void finish(){if(correlations&&fill){correlations->consume(batch,fill);fill=0;}if(correlations&&correlations->frames!=frames)throw std::runtime_error("stress sample accounting mismatch");}
+  void finish(){if(correlations&&fill){correlations->consume(batch,fill);fill=0;}if(correlations&&correlations->frames!=frames)throw std::runtime_error("stress sample accounting mismatch");if(every)every->finish();}
   void write(){
     auto t=std::chrono::steady_clock::now();
-    if(correlations)correlations->write(output,spacing,kbt);if(diagnostics.is_open())diagnostics.close();final_seconds=elapsed(t);
+    if(correlations)correlations->write(output,spacing,kbt);
+    if(every){
+      every->write((output/"stress_correlations_raw.csv").string(),spacing);every->writeMoments(output/"stress_moments.csv");
+      std::ifstream input(output/"stress_correlations_raw.csv");if(!input)throw std::runtime_error("cannot read every-step raw correlations");std::string line;std::getline(input,line);auto normalized=file(output/"stress_correlations.csv");auto pos=line.find(",g,g_se,");if(pos==std::string::npos)throw std::runtime_error("unexpected every-step correlation header");line.replace(pos,8,",H,H_se,");normalized<<line<<",g,g_se";if(cfg.density>0)normalized<<",G,G_se";normalized<<'\n';while(std::getline(input,line)){std::vector<std::string> fields;std::istringstream row(line);std::string v;while(std::getline(row,v,','))fields.push_back(v);double h=std::stod(fields.at(3)),se=std::stod(fields.at(4));normalized<<line<<','<<h/(kbt*kbt)<<','<<se/(kbt*kbt);if(cfg.density>0)normalized<<','<<cfg.density*h/kbt<<','<<cfg.density*se/kbt;normalized<<'\n';}
+    }if(diagnostics.is_open())diagnostics.close();final_seconds=elapsed(t);
     auto f=file(output/"stress_metadata.json");
     f<<"{\"mode\":\""<<cfg.mode<<"\",\"frames\":"<<frames<<",\"spacing\":"<<spacing<<",\"kbt\":"<<kbt<<",\"chain_density\":";
     if(cfg.density>0)f<<cfg.density;else f<<"null";
-    f<<",\"moment_start_step\":"<<momentStart<<",\"moment_frames\":"<<(correlations?correlations->moment_frames:0)<<",\"raw_connected\":false,\"empirical_mean_subtraction\":false,\"batch\":"<<cfg.batch<<",\"cpu_workers\":"<<(correlations?correlations->workers().size():0)
+    f<<",\"moment_start_step\":"<<momentStart<<",\"moment_frames\":"<<(correlations?correlations->moment_frames:(every?every->momentFrames():0))<<",\"raw_connected\":false,\"empirical_mean_subtraction\":false,\"batch\":"<<cfg.batch<<",\"cpu_workers\":"<<(correlations?correlations->workers().size():(every?every->cpu().size():0))
      <<",\"levels\":"<<cfg.correlation.levels<<",\"slots\":"<<cfg.correlation.slots<<",\"coarsening\":"<<cfg.correlation.coarsening
      <<",\"active_bending\":"<<(active?"true":"false")<<",\"gpu_stress_bytes\":"<<(tensors.capacity()*sizeof(Tensor)+diagnosticBend.capacity()*sizeof(Tensor)+samples.capacity()*sizeof(streaming::Sample)+sizeof(Counter))<<",\"host_stress_batch_bytes\":"<<(cfg.streaming()?std::size_t(cfg.batch)*chains*sizeof(streaming::Sample):0)<<",\"bending_stress_device_bytes\":"<<diagnosticBend.capacity()*sizeof(Tensor)<<",\"bending_stress_launches\":"<<bend_launches<<",\"stretch_stress_launches\":"<<stretch_launches
      <<",\"gpu_stress_seconds\":"<<gpu_seconds<<",\"stress_transfer_seconds\":"<<transfer_seconds<<",\"stress_diagnostic_wait_seconds\":"<<diagnostic_seconds
-     <<",\"cpu_correlation_seconds\":"<<(correlations?correlations->workers().wall_seconds:0)<<",\"cpu_barrier_seconds\":"<<(correlations?correlations->workers().barrier_seconds:0)
-     <<",\"cpu_worker_execution_sum_seconds\":"<<(correlations?correlations->workers().aggregateSeconds():0)<<",\"stress_output_and_moments_seconds\":"<<(correlations?correlations->output_seconds:0)
-     <<",\"diagnostic_output_seconds\":"<<diagnostic_output_seconds<<",\"buffer_wait_seconds\":0,\"finalization_output_seconds\":"<<final_seconds<<",\"estimated_bytes\":"<<estimatedBytes(cfg,chains,active)
-     <<",\"estimator\":\"raw products of nonoverlapping block means; no empirical mean subtraction; terminal incomplete blocks not padded; deepest level not exported\",\"buffer_mode\":\"synchronous D2H and persistent CPU workers; no asynchronous buffer queue\"}\n";
+     <<",\"cpu_correlation_seconds\":"<<(correlations?correlations->workers().wall_seconds:(every?every->cpu().wall_seconds:0))<<",\"cpu_barrier_seconds\":"<<(correlations?correlations->workers().barrier_seconds:(every?every->cpu().barrier_seconds:0))
+     <<",\"cpu_worker_execution_sum_seconds\":"<<(correlations?correlations->workers().aggregateSeconds():(every?every->cpu().aggregateSeconds():0))<<",\"stress_output_and_moments_seconds\":"<<(correlations?correlations->output_seconds:0)
+     <<",\"diagnostic_output_seconds\":"<<diagnostic_output_seconds<<",\"buffer_wait_seconds\":"<<(every?every->buffer_wait_seconds:0)<<",\"queue_slot_capacity\":"<<(every?every->slotCapacity():0)<<",\"max_inflight_slots\":"<<(every?every->max_inflight_slots:0)<<",\"finalization_output_seconds\":"<<final_seconds<<",\"estimated_bytes\":"<<estimatedBytes(cfg,chains,active)
+     <<",\"estimator\":\"raw products of nonoverlapping block means; no empirical mean subtraction; terminal incomplete blocks not padded; deepest level not exported\",\"buffer_mode\":\""<<(every?"two-slot asynchronous D2H with chain-major CPU workers":"synchronous D2H and persistent CPU workers; no asynchronous buffer queue")<<"\"}\n";
     std::cout<<"stress frames="<<frames<<" gpu_s="<<gpu_seconds<<" D2H_s="<<transfer_seconds<<" cpu_s="<<(correlations?correlations->workers().wall_seconds:0)<<" final_s="<<final_seconds<<'\n';
   }
 };

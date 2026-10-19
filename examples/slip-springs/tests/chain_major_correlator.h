@@ -134,6 +134,7 @@ class Workers {
     }
     bank.frames += input_frames;
   }
+  unsigned size() const { return count; }
   double aggregateSeconds() const { double total = 0; for (double value : times) total += value; return total; }
 };
 

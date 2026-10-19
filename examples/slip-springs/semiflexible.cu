@@ -44,7 +44,7 @@ Options parse(int argc,char** argv) {
     if(key=="--help") {
       std::cout<<"semiflexible --output NEW_DIR [--springs N --chains C --dt H --steps S --sample STRIDE --seed K]\n"
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
-        "[--stress-mode off|diagnostic|stream --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
+        "[--stress-mode off|diagnostic|stream|every-step --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
         "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
         "parameters: N, then N (b0 kb) pairs, then N+1 bead-indexed kappa values; --springs must match.\n"
         "initial/force-input: chains*(N+1) Cartesian triples; force-input disables integration.\n";
@@ -90,13 +90,15 @@ Options parse(int argc,char** argv) {
   if(!(real(o.dt/o.zeta)>0&&std::isfinite(real(o.dt/o.zeta))&&real(std::sqrt(2*o.kbt*o.dt/o.zeta))>0&&std::isfinite(real(std::sqrt(2*o.kbt*o.dt/o.zeta)))))
     throw std::runtime_error("update scales not representable");
   if(!std::isfinite(double(o.steps)*o.dt)) throw std::runtime_error("time overflow");
+  if(o.stress.everyStep()&&o.stress.batch==32)o.stress.batch=256; // New mode default; legacy stream remains batch32.
+  if(o.stress.everyStep()&&o.stress.correlation.slots==16)o.stress.correlation.slots=64;
   o.stress.validate(o.chains);
   if(o.scalarOutput!="full"&&o.scalarOutput!="compact")throw std::runtime_error("scalar-output must be full or compact");
   if(o.scalarOutput=="compact"&&(!o.stress.streaming()||o.forceOnly))throw std::runtime_error("compact scalars require stress streaming");
   if(o.stress.enabled()&&!(std::isfinite(double(o.sample)*o.dt)&&double(o.sample)*o.dt>0))throw std::runtime_error("stress sample spacing outside double range");
   if(o.stress.streaming()&&!(std::isfinite(o.kbt*o.kbt)&&o.kbt*o.kbt>0))throw std::runtime_error("stress thermal normalization outside double range");
-  if(o.stress.streaming()&&o.forceOnly)throw std::runtime_error("stream mode requires dynamics (zero steps allowed)");
-  if(o.stress.streaming()&&o.steps/o.sample+1>std::numeric_limits<unsigned long>::max()/o.chains)throw std::runtime_error("correlation pair count overflow");
+  if(o.stress.correlating()&&o.forceOnly)throw std::runtime_error("correlating stress modes require dynamics (zero steps allowed)");
+  if(o.stress.correlating()&&((o.stress.everyStep()?o.steps+1:o.steps/o.sample+1)>std::numeric_limits<unsigned long>::max()/o.chains))throw std::runtime_error("correlation pair count overflow");
   if(o.stress.enabled()&&stress3b::Observer::estimatedBytes(o.stress,o.chains,true)>2ULL*1024*1024*1024)throw std::runtime_error("stress workspace exceeds budget");
   return o;
 }
@@ -255,7 +257,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
     for(int i=0;i<count;++i) f<<i/m<<','<<i%m<<','<<hf[i].x<<','<<hf[i].y<<','<<hf[i].z<<','<<hf[i].w<<'\n';
   }
   std::unique_ptr<stress3b::Observer> stressObserver;
-  if(o.stress.enabled())stressObserver=std::make_unique<stress3b::Observer>(o.stress,o.chains,m,ptr(bonds),ptr(angles),p.active,o.sample*o.dt,o.kbt,o.seed,o.forceOnly?0:o.steps/2,out);
+  if(o.stress.enabled())stressObserver=std::make_unique<stress3b::Observer>(o.stress,o.chains,m,ptr(bonds),ptr(angles),p.active,(o.stress.everyStep()?o.dt:o.sample*o.dt),o.kbt,o.seed,o.forceOnly?0:o.steps/2,out);
   if(o.forceOnly&&stressObserver){
     stressObserver->sample(current,0);
     std::vector<real4> afterForce(count),afterPosition(count);
@@ -279,7 +281,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   std::vector<Vec> initialCm(o.chains);
   for(int c=0;c<o.chains;++c)for(int j=0;j<m;++j){auto v=initial[c*m+j];initialCm[c][0]+=double(v.x)/m;initialCm[c][1]+=double(v.y)/m;initialCm[c][2]+=double(v.z)/m;}
   auto observe=[&](Counter step) {
-    if(stressObserver)stressObserver->sample(current,step);
+    if(stressObserver&&!o.stress.everyStep())stressObserver->sample(current,step);
     auto t=Clock::now();check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"observation readback");
     // CPU observation reductions use double, from the stored precision.
     std::ostringstream rows,initialRows;rows<<std::setprecision(17);initialRows<<std::setprecision(17);
@@ -318,6 +320,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   double initializationTime=seconds(initStart);
   Event event;auto productionStart=Clock::now();
   if(!o.forceOnly) {
+    if(stressObserver&&o.stress.everyStep())stressObserver->sample(current,0);
     observe(0);
     for(Counter step=0;step<o.steps;++step) {
       event.begin();auto d=Clock::now();
@@ -325,6 +328,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       update<<<(count+255)/256,256>>>(current,following,ptr(forces),count,real(o.dt/o.zeta),real(std::sqrt(2*o.kbt*o.dt/o.zeta)),o.seed,step,ptr(error));++updateLaunches;
       check(cudaGetLastError(),"update launch");d=Clock::now();diagnose(step,true);diagnosticTime+=seconds(d);
       std::swap(current,following);updateTime+=event.end();
+      if(stressObserver&&o.stress.everyStep())stressObserver->sample(current,step+1);
       if((step+1)%o.sample==0)observe(step+1);
     }
     // Validate final state even if it is not an observation frame.
