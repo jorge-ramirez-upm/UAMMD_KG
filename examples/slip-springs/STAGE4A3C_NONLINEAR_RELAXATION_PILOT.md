@@ -19,25 +19,29 @@ model. The prior N=32 rigid-rod estimate near 565 is a planning scale only,
 not a measured nonlinear relaxation time. The nonlinear N=8 κ=0, N=8 κ=10,
 N=32 κ=0, and N=32 κ=10 times remain unknown.
 
-## Pilot matrix
+## Staged pilot matrix
 
 The pilot uses the existing exact radial/conditional equilibrium initializer;
 there is no artificial burn-in. Each run retains step 0 and acquires all six
 stress channels at every integration step. Correlations use all stress frames;
 stationarity and scalar summaries use the existing final-half diagnostics.
 
-| phase | N | κ | precision | chains | replicas/seeds | duration | steps at dt=2.5e-5 | stress hierarchy |
+| stage | N | κ | precision | chains | replicas/seeds | duration | steps at dt=2.5e-5 | stress hierarchy |
 |---|---:|---:|---|---:|---|---:|---:|---|
-| screening/measurement | 8 | 0, 10 | double | 512 | 2: 433201, 433202 | 200 | 8,000,000 | 32×20, m=2 |
-| screening/measurement | 32 | 0, 10 | double | 512 | 2: 433201, 433202 | 4,000 | 160,000,000 | 32×24, m=2 |
-| precision confirmation | resolved cases only | same κ | single | 512 | seed 433201 | same | same | same |
+| A: throughput preflight | 32 | 10 | double | 512 | 433201 | 2.5 | 100,000 | 32×24, m=2 |
+| B: first replica | 8 | 0, 10 | double | 512 | 433201 | reviewed fraction of 200 | not fixed before A/B review | 32×20, m=2 |
+| B: first replica | 32 | 0, 10 | double | 512 | 433201 | reviewed fraction of 4,000 | not fixed before A/B review | 32×24, m=2 |
+| C: confirmation | cases with reviewed first replica | same κ | double, then single | 512 | 433202, then 433201 single | reviewed | reviewed | same |
 
-The first four double-precision runs are the minimum physical pilot. The
-single-precision confirmation is deliberately conditional: it is run only for
-cases whose double-precision result passes the relaxation gates, avoiding a
-full 16-run precision matrix before the unknown times are established. A
-failure of the precision comparison is itself a pilot outcome and blocks
-campaign design.
+Stage A is a performance/backpressure measurement only; its duration is not a
+polymer-relaxation observation. Stage B begins with one double-precision
+replica per model only after Stage A has been reviewed. The original durations
+200 and 4,000 are upper planning horizons, not automatic Stage-B expenditures:
+the review must select the initial duration from observed throughput and retain
+an explicit stopping rule. Stage C adds the independent seed only after the
+first-replica evidence is reviewed. Single precision remains conditional on a
+resolved double-precision case. No stage is a restart or extension of another
+trajectory.
 
 The N=32 32×24 hierarchy is the provisional engineering choice requested for
 the next phase. N=8 uses 32×20 because the shorter duration does not need the
@@ -103,9 +107,13 @@ chains, including overlapping GPU/CPU work. Linear scaling from that result is
 only a planning extrapolation: it suggests minutes for an 8-million-step N=8
 run and many hours for a 160-million-step N=32 run. N32 bead count, hierarchy,
 CPU backpressure, output, and host differences make the extrapolation
-uncertain. Set a hard per-run wall limit of 12 hours for N=32 and 30 minutes
-for N=8; stop, preserve the partial evidence, and review if a limit is reached.
-No larger buffer or duration is authorized to mask backpressure.
+uncertain. Stage A therefore uses exactly 100,000 steps (physical time 2.5),
+a five-minute wall timeout, and no scientific relaxation claim. It records
+total wall time, stress-frame and chain-observation rates, producer blocking,
+CPU correlation timing, queue occupancy, stress-buffer allocations, and peak
+host RSS. A later reviewed run may retain the prospective 30-minute N=8 and
+12-hour N=32 caps; it may not increase buffers or duration merely to hide
+backpressure.
 
 ## Evidence and provenance requirements
 
@@ -123,44 +131,44 @@ an output directory or overwrite a failed receipt.
 
 ## Exact user-host commands
 
-The following commands are preparation/execution commands for the user’s CUDA
-host only. They must not be run in either protected checkout. Review the
-preflight output before setting `RUN=1`.
+The isolated runner is
+`tests/run_stage4a3c_nonlinear_pilot.sh`. It only operates from
+`/tmp/UAMMD_KG-slip-springs-dev`, verifies both protected worktrees remain
+clean/pinned, records the current dynamic Git identity rather than a stale
+hard-coded SHA, and refuses a dirty worktree or pre-existing evidence root.
+
+Preflight-only mode is the default and does not launch the simulator:
 
 ```sh
-set -eu
-ROOT=/tmp/stage4a3c-nonlinear-pilot-$(date -u +%Y%m%dT%H%M%SZ)
-REPO=/tmp/UAMMD_KG-slip-springs-dev
-mkdir -p "$ROOT"
-cd "$REPO"
-test "$(git rev-parse HEAD)" = 8a2f40078f45206aa1b432a84ea38f4f9885a9b5
-git status --short
-nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader
-sha256sum build/double/semiflexible build/single/semiflexible
-build/double/semiflexible --help > "$ROOT/double.help.txt"
-build/single/semiflexible --help > "$ROOT/single.help.txt"
+cd /tmp/UAMMD_KG-slip-springs-dev
+bash examples/slip-springs/tests/run_stage4a3c_nonlinear_pilot.sh
 ```
 
-After independent review, the bounded double-precision pilot commands are:
+Only after the user explicitly authorizes the bounded Stage-A run:
 
 ```sh
-set -eu
-ROOT=/tmp/stage4a3c-nonlinear-pilot-REPLACE_TIMESTAMP
-REPO=/tmp/UAMMD_KG-slip-springs-dev
-for spec in '8 0 200 8000000 20' '8 10 200 8000000 20' '32 0 4000 160000000 24' '32 10 4000 160000000 24'; do
-  set -- $spec; N=$1; K=$2; T=$3; STEPS=$4; LEVELS=$5
-  for SEED in 433201 433202; do
-    OUT="$ROOT/double-N${N}-k${K}-seed${SEED}"
-    printf '%s\n' "$REPO/build/double/semiflexible --output $OUT --springs $N --chains 512 --b0 1 --kb 30 --kappa $K --dt .000025 --steps $STEPS --sample 400 --seed $SEED --stress-mode every-step --stress-batch 256 --cpu-workers 8 --corr-levels $LEVELS --corr-slots 32 --corr-m 2 --correlator-mib 512 --scalar-output compact" > "$ROOT/command-N${N}-k${K}-seed${SEED}.txt"
-    sha256sum "$REPO/build/double/semiflexible" > "$ROOT/executable-N${N}-k${K}-seed${SEED}.sha256"
-    (/usr/bin/time -v "$REPO/build/double/semiflexible" --output "$OUT" --springs "$N" --chains 512 --b0 1 --kb 30 --kappa "$K" --dt .000025 --steps "$STEPS" --sample 400 --seed "$SEED" --stress-mode every-step --stress-batch 256 --cpu-workers 8 --corr-levels "$LEVELS" --corr-slots 32 --corr-m 2 --correlator-mib 512 --scalar-output compact) > "$OUT/run.log" 2>&1
-  done
-done
+cd /tmp/UAMMD_KG-slip-springs-dev
+bash examples/slip-springs/tests/run_stage4a3c_nonlinear_pilot.sh --execute-stage-a
 ```
 
-The single-precision confirmation substitutes `build/single/semiflexible`,
-uses one seed (`433201`), and is run only for cases passing the double gates.
-The command text and output directory must be changed to a fresh root.
+The runner creates a fresh `/tmp/stage4a3c-nonlinear-pilot-preflight.*` root,
+then records `environment/`, `commands/`, `logs/`, and `receipts/`. Stage A
+uses `timeout --foreground --signal=TERM --kill-after=20s 300s`; its receipt
+classifies completed, timeout, interruption, and application failure. Logs,
+`/usr/bin/time -v` output, GPU before/after snapshots, and any simulator output
+survive a timeout. On successful completion, `stage-a-summary.json` includes
+the requested timing, throughput, queue, producer-blocking, device/host stress
+allocation, and peak-RSS fields.
+
+## Checkpoint/restart capability
+
+Exact restart is **not supported**. The CLI can accept initial coordinates but
+does not serialize or restore the integration step, correlator banks, pending
+GPU/CPU transport state, scalar state, or correlation history. The RNG is
+counter-based by `(seed, bead, step)`, so restarting at CLI step zero would also
+reuse the wrong stochastic timestep sequence. An interrupted run is preserved
+as evidence only and cannot be treated as the first segment of an extended
+trajectory.
 
 ## Decision gates and stopping rules
 
