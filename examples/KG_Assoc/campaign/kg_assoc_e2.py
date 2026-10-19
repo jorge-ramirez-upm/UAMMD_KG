@@ -77,16 +77,26 @@ def clean_tree():
             'commit source changes before preparing or launching MD')
 
 
-def live_code(plan=None):
+def live_code(plan=None, execution_source_overrides=None):
     clean_tree()
     if plan is not None:
         if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
+            current_sources = sources()
+            expected_sources = dict(plan['source_sha256'])
+            if execution_source_overrides is not None:
+                require(type(execution_source_overrides) is dict and
+                        all(type(path) is str and type(value) is str
+                            for path, value in execution_source_overrides.items()),
+                        'invalid execution-source authorization')
+                expected_sources.update(execution_source_overrides)
             require(subprocess.run(['git', 'merge-base', '--is-ancestor', plan['git_sha'],
                     campaign.git_sha()], cwd=campaign.REPOSITORY_ROOT).returncode == 0 and
-                    plan['source_sha256'] == sources(), 'prepared extension sources/history changed')
+                    expected_sources == current_sources,
+                    'prepared extension sources/history changed')
         else:
             require(campaign.git_sha() == plan['git_sha'], 'prepared code SHA changed')
-        check_hashes(plan['source_sha256'])
+        if plan.get('lineage_mode') != 'Ea_24M_extension_v1' or plan['source_sha256'] == sources():
+            check_hashes(plan['source_sha256'])
         check_hashes(plan['executable_sha256'])
         if plan.get('build'):
             check_hashes(plan['build']['build_log_sha256'])
@@ -139,7 +149,7 @@ def build(root, output, out_of_tree=False):
 
 def scientific_source_hashes(hashes):
     # Administrative entry points/tests do not change simulation or validation semantics.
-    ignored = {'run_e2.py', 'kg_assoc_e2.py', 'kg_assoc_e2_recover.py',
+    ignored = {'run_e2.py', 'kg_assoc_e2.py', 'kg_assoc_e2_recover.py', 'run_ea_extensions.py',
                'catalog.py', 'catalog_model.py', 'run_ea_preparation.py'}
     def administrative(name):
         path = Path(name)
@@ -652,7 +662,7 @@ def require_extension_readback_build(build):
 
 def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
            replica=None, replicas=None):
-    plan = check_plan(root, attempt, live=execute)
+    plan = check_plan(root, attempt, live=False)
     histories = launch_scope(plan, replica, replicas)
     is_extension = plan.get('lineage_mode') == 'Ea_24M_extension_v1'
     if is_extension:
@@ -671,6 +681,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
     if is_extension:
         require(launch_approval.get('GPU_execution_authorized') is True,
                 'GPU execution pending separate user approval; preparation only')
+        live_code(plan, launch_approval.get('execution_source_overrides'))
     if derived_preparation(plan) or is_extension:
         require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
@@ -683,7 +694,9 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
         json.dump(dict(pid=os.getpid(), host=socket.gethostname()), stream)
     try:
         for entry in histories:
-            check_plan(root, attempt, live=True)
+            check_plan(root, attempt, live=False)
+            if is_extension:
+                live_code(plan, launch_approval.get('execution_source_overrides'))
             check_hashes(smoke_hashes)
             scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
             directory = Path(entry['output_prefix']).parent
@@ -715,7 +728,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
                 require('STAR_ASSOCIATION_SMOKE PASS' in (directory / 'stdout.log').read_text(),
                         'missing executable completion marker')
                 check_hashes(entry['parent']['sha256'])
-                live_code(plan)
+                live_code(plan, launch_approval.get('execution_source_overrides') if is_extension else None)
                 if is_extension:
                     check_plan(root, attempt, live=True)
                     scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)

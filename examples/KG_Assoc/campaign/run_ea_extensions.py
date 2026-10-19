@@ -15,6 +15,7 @@ from run_ea_preparation import save, request_stop
 
 RESTART_OVERHEAD_AUTHORIZED = True
 STATE_DIRECTORY = 'manual_ea_extensions_readback_v2'
+EXECUTION_APPROVAL_SUFFIX = '_execution.json'
 
 
 def jobs():
@@ -71,17 +72,35 @@ def authenticate(job):
     raw = e2.campaign.load_json(attempt / 'plan.json')
     root = Path(raw['dataset_root'])
     plan = e2.check_plan(root, attempt)
-    e2.require(plan['source_sha256'] == e2.sources(), 'extension sources changed')
     e2.check_hashes(plan['executable_sha256'])
-    e2.scoped_launch_approval(Path(job['approval']), attempt, 'e2_derived_extension', plan,
-                             None, [job['replica']])
+    preparation = e2.scoped_launch_approval(
+        Path(job['approval']), attempt, 'e2_derived_extension', plan, None, [job['replica']])
+    e2.require(preparation.get('GPU_execution_authorized') is False,
+               'preparation approval must remain GPU-disabled')
     return plan, plan['histories'][job['replica'] - 1]
+
+
+def execution_approval(job):
+    """Return the separate immutable approval needed to start this exact attempt."""
+    plan, entry = authenticate(job)
+    e2.require(isinstance(job.get('execution_approval'), str) and
+               isinstance(job.get('execution_approval_sha256'), str),
+               'fresh replacement requires a new immutable execution approval')
+    path = Path(job['execution_approval'])
+    e2.check_hashes({str(path): job['execution_approval_sha256']})
+    record = e2.scoped_launch_approval(
+        path, Path(job['attempt']), 'e2_derived_extension', plan, None, [job['replica']])
+    e2.require(record.get('GPU_execution_authorized') is True and
+               record.get('preparation_approval_sha256') == job['approval_sha256'],
+               'execution approval does not bind the immutable preparation approval')
+    e2.live_code(plan, record.get('execution_source_overrides'))
+    return path, plan, entry
 
 
 def classify(job, recover=False, replay=True):
     if 'attempt' not in job:
         return 'pending'
-    plan, entry = authenticate(job)
+    approval, plan, entry = execution_approval(job)
     directory = Path(entry['output_prefix']).parent
     if extension.native_running(directory / 'process.json', job['plan_sha256'], entry['command']):
         return 'running'
@@ -107,7 +126,7 @@ def classify(job, recover=False, replay=True):
     if started_path.exists():
         started = e2.campaign.load_json(started_path)
         e2.require(started.get('plan_sha256') == job['plan_sha256'] and
-                   started.get('approval_sha256') == job['approval_sha256'] and
+                   started.get('approval_sha256') == job['execution_approval_sha256'] and
                    started.get('command') == entry['command'], 'untrusted partial attempt provenance')
         e2.check_hashes(started['smoke_sha256'])
     elif any(directory.iterdir()):
@@ -117,7 +136,7 @@ def classify(job, recover=False, replay=True):
     if 'STAR_ASSOCIATION_SMOKE PASS' in stdout:
         started = e2.campaign.load_json(directory / 'started.json')
         e2.require(started['plan_sha256'] == job['plan_sha256'] and
-                   started['approval_sha256'] == job['approval_sha256'] and
+                   started['approval_sha256'] == job['execution_approval_sha256'] and
                    started['command'] == entry['command'], 'untrusted interrupted receipt')
         e2.check_hashes(started['smoke_sha256'])
         if not recover:
@@ -183,8 +202,11 @@ def execute(root, build, state_path):
                     job['retired_attempts'].append(dict(
                         attempt=job['attempt'], plan_sha256=job['plan_sha256'],
                         approval=job['approval'], approval_sha256=job['approval_sha256'],
+                        execution_approval=job['execution_approval'],
+                        execution_approval_sha256=job['execution_approval_sha256'],
                         reason='interrupted; no bitwise integrator checkpoint', **bounds))
-                    for key in ('attempt', 'plan_sha256', 'approval', 'approval_sha256'):
+                    for key in ('attempt', 'plan_sha256', 'approval', 'approval_sha256',
+                                'execution_approval', 'execution_approval_sha256'):
                         job.pop(key)
                     state['plans'].pop(job['system'], None)
                     job['status'] = 'pending'
@@ -195,8 +217,9 @@ def execute(root, build, state_path):
                 save(state_path, state)
                 print('RUN', job['system'], f"r{job['replica']:03d}", '24M ->',
                       job['end_step'], 'logs:', Path(job['attempt']) / f"r{job['replica']:03d}", flush=True)
+                approval, _, _ = execution_approval(job)
                 e2.launch(root, Path(job['attempt']), execute=True,
-                          approval=Path(job['approval']), replicas=[job['replica']])
+                          approval=approval, replicas=[job['replica']])
                 e2.require(classify(job, replay=True) == 'complete', 'completed extension did not validate')
                 job['status'] = 'complete'
                 save(state_path, state)
@@ -221,10 +244,7 @@ def status(job):
     attempt = Path(job['attempt'])
     e2.check_hashes({str(attempt / 'plan.json'): job['plan_sha256'],
                      job['approval']: job['approval_sha256']})
-    plan = e2.campaign.load_json(attempt / 'plan.json')
-    e2.scoped_launch_approval(Path(job['approval']), attempt, 'e2_derived_extension',
-                             plan, None, [job['replica']])
-    entry = plan['histories'][job['replica'] - 1]
+    _, plan, entry = execution_approval(job)
     directory = Path(entry['output_prefix']).parent
     if extension.native_running(directory / 'process.json', job['plan_sha256'], entry['command']):
         return 'running', extension.partial_step_bounds(Path(entry['output_prefix']), job['steps'])
@@ -293,9 +313,7 @@ def main():
     state = e2.campaign.load_json(state_path)
     validate_state(state)
     for job in state['jobs']:
-        authenticate(job)
-        e2.require(e2.campaign.load_json(job['approval']).get('GPU_execution_authorized') is True,
-                   'GPU execution pending separate user approval; preparation only')
+        execution_approval(job)
     e2.require(e2.socket.gethostname() == 'titan', 'extension execution is configured only for titan')
     return execute(root, build, state_path)
 
