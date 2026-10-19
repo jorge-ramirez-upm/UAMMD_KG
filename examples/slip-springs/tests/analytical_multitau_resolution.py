@@ -62,15 +62,18 @@ def analyze(n, duration_multiple=10, dt=DT):
         rows = hierarchy(slots, levels, frames, dt)
         exported = []
         for row in rows:
+            complete_blocks = frames // row['block_samples']
             for j in range(row['bins']):
-                lag = (j if row['level'] == 0 else slots // 2 + j) * row['block_samples']
+                offset = j if row['level'] == 0 else slots // 2 + j
+                lag = offset * row['block_samples']
                 if lag * dt > duration_multiple * tau:
                     continue
                 inst = instantaneous(lam, a, v, lag)
                 block = block_average(lam, a, v, lag, row['block_samples'])
                 exported.append(dict(level=row['level'], lag=lag, lag_time=lag * dt,
                                      width=row['block_samples'], block_time=row['block_time'],
-                                     origins=row['supported_origins'], instantaneous=inst,
+                                     offset=offset, origins=complete_blocks - offset,
+                                     instantaneous=inst,
                                      block=block, abs_error=abs(block - inst),
                                      normalized_error=abs(block - inst) / max(inst, 1e-12),
                                      scale_error=abs(block - inst) / max(inst, instantaneous(lam, a, v, 0), 1e-12)))
@@ -80,8 +83,9 @@ def analyze(n, duration_multiple=10, dt=DT):
         lags4 = sorted(r['lag_time'] for r in support4)
         max_gap4 = max((b - a for a, b in zip(lags4, lags4[1:])), default=0.0)
         max_width = max(r['width'] for r in exported)
+        supported = [r for r in exported if r['origins'] >= 16]
         out.append(dict(slots=slots, levels=levels, frames=frames, nominal_lag=rows[-1]['nominal_lag_time'],
-                        supported_lag=max(r['lag_time'] for r in exported), bins=len(exported),
+                        supported_lag=max(r['lag_time'] for r in supported) if supported else None, bins=len(exported),
                         bins_4tau=len(support4), bins_10tau=len(support10),
                         max_width=max_width, max_width_over_tau=max_width * dt / tau,
                         max_width_4tau=max(r['width'] for r in support4),
@@ -92,7 +96,9 @@ def analyze(n, duration_multiple=10, dt=DT):
                         max_error_10tau=max(r['scale_error'] for r in support10),
                         tau_fit_instant=fit_tau(exported, values_i, tau),
                         tau_fit_block=fit_tau(exported, values_b, tau),
-                        terminal=exported[-1]))
+                        terminal=exported[-1],
+                        origin_counts=[dict(level=r['level'], offset=r['offset'], origins=r['origins'],
+                                            width=r['width']) for r in exported]))
     return dict(n=n, dt=dt, tau=tau, ten_tau=10 * tau, frames=frames, configurations=out)
 
 

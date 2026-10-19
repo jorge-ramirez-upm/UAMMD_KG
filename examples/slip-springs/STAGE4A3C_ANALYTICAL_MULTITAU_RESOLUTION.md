@@ -70,22 +70,26 @@ The lag grid follows the implementation exactly: level zero exports offsets
 0..P-1, coarser levels export P/2..P-1, and the deepest populated level is not
 exported. Incomplete blocks are not forwarded. “Supported” below means the
 existing conservative condition of at least 16 complete coarse-level origins;
-nominal reach without that condition is not treated as scientific support.
+nominal reach without that condition is not treated as scientific support. The
+origin count for a bin at offset `j` and width `B` is exactly
+`floor(frames/B)-j`; it is not the count of the level's terminal offset.
 
 ## N=8 results
 
 | hierarchy | exported bins to 10 tau | bins to 4 tau | max width / tau through 4 tau | max lag gap / tau through 4 tau | supported max lag |
 |---|---:|---:|---:|---:|---:|
-| 16×24 | 128 | 126 | 0.2964 | 0.2964 | 12.288 |
-| 32×23 | 256 | 235 | 0.1482 | 0.1482 | 12.6976 |
-| 64×22 | 480 | 438 | 0.0741 | 0.0741 | 13.1072 |
-| 16×40 | 128 | 126 | 0.2964 | 0.2964 | 12.288 |
+| 16×24 | 128 | 126 | 0.2964 | 0.2964 | 6.144 |
+| 32×23 | 242 | 235 | 0.1482 | 0.1482 | 6.9632 |
+| 64×22 | 468 | 438 | 0.0741 | 0.0741 | 10.4448 |
+| 16×40 | 128 | 126 | 0.2964 | 0.2964 | 6.144 |
 
 The maximum normalized systematic block error through 4 tau (normalized by
 `max(H(ell),H(0))`, avoiding unstable tail ratios) was 4.46e-4, 1.11e-4,
 and 2.78e-5 for P=16, 32, and 64. The corresponding values through 10 tau
 are reported by the reproducible JSON output and remain deterministic; no
-sampling uncertainty is present.
+sampling uncertainty is present. A relative error normalized by `H(ell)` is
+also computed per bin by the fixture, but is intentionally not used in the
+terminal tail summary because it diverges as H approaches zero.
 
 A log-linear terminal diagnostic fit over tau..4 tau gave relaxation times
 1.3668 (P=16), 1.3625 (P=32), and 1.3626 (P=64), versus the exact 1.3818.
@@ -98,17 +102,18 @@ lag density even though the block bias is already small through 4 tau.
 
 | hierarchy | exported bins to 10 tau | bins to 4 tau | max width / tau through 4 tau | max lag gap / tau through 4 tau | supported max lag |
 |---|---:|---:|---:|---:|---:|
-| 16×24 | 160 | 156 | 0.3561 | 0.3561 | 170.3936 |
-| 32×23 | 304 | 295 | 0.1781 | 0.1781 | 176.9472 |
-| 64×22 | 600 | 557 | 0.0890 | 0.0890 | 180.2240 |
-| 16×40 | 160 | 156 | 0.3561 | 0.3561 | 170.3936 |
+| 16×24 | 157 | 156 | 0.3561 | 0.3561 | 78.6432 |
+| 32×23 | 304 | 295 | 0.1781 | 0.1781 | 101.5808 |
+| 64×22 | 585 | 557 | 0.0890 | 0.0890 | 131.0720 |
+| 16×40 | 157 | 156 | 0.3561 | 0.3561 | 78.6432 |
 
 Maximum normalized block error through 4 tau was 4.37e-4, 1.09e-4, and
 2.73e-5 for P=16, 32, and 64. Terminal log-linear diagnostics gave 18.2705,
 18.1989, and 18.1756 versus the exact 18.4037. The P=16 horizon does not
 provide 16-origin support all the way to 10 tau: its supported lag ends at
-170.39, below 184.04. P=32 and P=64 extend farther, but the 10-tau endpoint
-still has fewer supported origins than a mathematically ideal infinite series.
+78.64, below 184.04. P=32 and P=64 extend farther, but their 16-origin
+supported limits are still 101.58 and 131.07; the nominal 10-tau endpoint has
+fewer supported origins.
 
 ## Interpretation
 
@@ -133,14 +138,16 @@ relaxation time. Those questions require separate physical-chain validation.
 
 ## Conclusion
 
-For Gaussian N=8, P=16 is analytically adequate for reaching 4 tau, but P=32
-is a more comfortable minimum for terminal fitting because it supplies roughly
-twice the lag density and halves the coarse-bin width. P=64 adds resolution but
-with diminishing deterministic benefit through 4 tau. For Gaussian N=32, P=16
-has adequate mathematical coverage to 4 tau but is not adequate for the full
-10-tau horizon under the 16-origin rule; P=32 is the minimum defensible choice
-among these candidates, with P=64 preferred only if its memory cost is
-explicitly justified by later physical uncertainty analysis.
+For Gaussian N=8, P=16 is analytically adequate for reaching 4 tau and has
+16-origin support slightly beyond that point, but P=32 is a more comfortable
+minimum for terminal fitting because it supplies roughly twice the lag density
+and halves the coarse-bin width. P=64 adds resolution but with diminishing
+deterministic benefit through 4 tau. For Gaussian N=32, P=16 has adequate
+mathematical coverage to 4 tau but only reaches 4.27 tau with 16 origins;
+P=32 reaches 5.52 tau and is the minimum defensible choice among these
+candidates for provisional engineering, with P=64 preferred only if its memory
+cost is explicitly justified by later physical uncertainty analysis. None of
+the tested finite horizons supports 10 tau under the 16-origin rule.
 
 These are analytical diagnostics, not a production hierarchy authorization.
 The frozen 16-origin criterion and all scientific thresholds remain unchanged.

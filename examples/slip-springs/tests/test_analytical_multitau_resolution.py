@@ -17,6 +17,19 @@ class AnalyticalMultiTauResolutionTest(unittest.TestCase):
         widths = {x['slots']: x['max_width'] for x in result['configurations'][:3]}
         self.assertEqual(widths, {16: 32768, 32: 16384, 64: 16384})
 
+    def test_per_bin_complete_pair_counts(self):
+        result = analyze(8, duration_multiple=4)
+        for cfg in result['configurations'][:3]:
+            terminal = cfg['terminal']
+            self.assertEqual(terminal['origins'], cfg['frames'] // terminal['width'] - terminal['offset'])
+            self.assertGreaterEqual(terminal['origins'], 1)
+            counts = {(r['level'], r['offset']): r['origins'] for r in cfg['origin_counts']}
+            self.assertEqual(counts[(0, 0)], cfg['frames'])
+            self.assertEqual(counts[(0, cfg['slots'] - 1)], cfg['frames'] - cfg['slots'] + 1)
+            coarse = next(r for r in cfg['origin_counts'] if r['level'] == 1)
+            self.assertEqual(coarse['origins'], cfg['frames'] // coarse['width'] - coarse['offset'])
+            self.assertNotEqual(cfg['frames'] % coarse['width'], 0)
+
 
 if __name__ == '__main__':
     unittest.main()
