@@ -75,7 +75,7 @@ out="$root/run-double-N32-k10-seed433201"
 argv=("$project/build/double/semiflexible" --output "$out" --springs 32 --chains 512
   --b0 1 --kb 30 --kappa 10 --dt .000025 --steps "$steps" --sample 400 --seed 433201
   --stress-mode every-step --stress-batch 256 --cpu-workers 8 --corr-levels 24 --corr-slots 32
-  --corr-m 2 --correlator-mib 512 --scalar-output compact)
+  --corr-m 2 --correlator-mib 512 --scalar-output full)
 printf '%q ' "${argv[@]}" > "$root/commands/stage-a.cmd"
 printf '\n' >> "$root/commands/stage-a.cmd"
 

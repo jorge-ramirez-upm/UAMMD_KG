@@ -49,12 +49,13 @@ additional redundant levels. Both settings retain the frozen deepest-level
 omission and the 16-origin reporting requirement.
 
 Scalar diagnostics use `--sample 400`, which is physical spacing 0.01 at this
-timestep and is independent of the every-step stress clock. Use
-`--scalar-output compact` to retain bounded per-chain equilibrium dimensions,
-end-to-end/tangent summaries, finite-row hashes, and stationarity statistics.
-Compact output does not contain the full center-of-mass time series; CM
-diffusion is therefore a secondary diagnostic only if a separately bounded
-full-scalar run is authorized. No dynamics change is proposed.
+timestep and is independent of the every-step stress clock. The current CLI
+accepts compact scalar output only with legacy `--stress-mode stream`; every-step
+acquisition must use `--scalar-output full`. Stage A therefore emits 251 scalar
+frames × 512 chains (128,512 rows), a bounded diagnostic output. Any longer
+Stage-B duration must explicitly budget the resulting full scalar output before
+authorization. Full output retains the available `re2`, `rg2`, `cm_msd`, and
+tangent diagnostics. No dynamics change is proposed.
 
 ## Observables and gates
 
@@ -99,8 +100,10 @@ The validated Linux64 correlator accounting gives, for 512 chains:
 | 32×24 | 71.02 MiB |
 
 Two 256-frame six-channel stress slabs add about 12 MiB in double precision
-(6 MiB single) for 512 chains; integration state and compact scalar storage are
-small by comparison. A 512 MiB correlator budget remains the declared cap.
+(6 MiB single) for 512 chains; integration state is small by comparison. A
+512 MiB correlator budget remains the declared cap. Stage-A full scalar output
+is bounded by its 251-frame schedule; it is not treated as a compact-output
+substitute for later long runs.
 
 The earlier measured N=8 κ=10 result was 2.381 s for 10,000 steps and 2,048
 chains, including overlapping GPU/CPU work. Linear scaling from that result is
@@ -128,6 +131,17 @@ directory per `(precision,N,kappa,seed)`. Before each run archive:
 After each run archive metadata, scalar/stress summaries, `/usr/bin/time -v`,
 GPU/pinned-buffer measurements, diagnostics, and SHA-256 manifests. Never reuse
 an output directory or overwrite a failed receipt.
+
+## Stage-A configuration correction
+
+The first user-host Stage-A invocation at commit
+`126d2b16d2fce1d5288fb0da5c5a4bd24b5f07ae` failed before integration with
+exit code 1 and `semiflexible: compact scalars require stress streaming`.
+This was a CLI configuration failure: `every-step` is not the legacy streaming
+mode accepted by compact scalars. It produced no valid GPU timing, throughput,
+backpressure, or relaxation measurement. The runner now uses
+`--scalar-output full`; the failed evidence root remains immutable and a fresh
+root is required for any later Stage-A attempt.
 
 ## Exact user-host commands
 
