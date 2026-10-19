@@ -76,6 +76,57 @@ terminal support solely from this audit.
 |64×22|513.47 MiB|3303.01|Mathematically longer, but bank alone exceeds the declared512 MiB cap.|
 |32×24|284.09 MiB|6501.17|Fits cap and can prospectively cover N32 duration4000; inspect level bin width and origins before use.|
 
+### Minimum levels by planning target
+
+Using the helper's exact hierarchy arithmetic (coarsening2, `dt=0.000025`),
+the first level count whose *supported* maximum reaches the planning target is:
+
+| Planning case | Target | P=16 | P=32 | P=64 |
+| --- | ---: | --- | --- | --- |
+| N=8 Gaussian control, 4×1.382 | 5.528 | L=15, 91.53 MiB, supported6.144,140 bins | L=14,165.97 MiB, supported6.3488,248 bins | L=13,303.66 MiB, supported6.4512,450 bins |
+| N=32 rod-scale planning bound, 4×565 | 2260 | **none within the 160,000,001-frame trajectory** (16 origins fail before target) | L=23,272.28 MiB, supported2306.8672,396 bins | L=22,513.47 MiB, supported3145.728,737 bins |
+
+The bin counts are exported lag bins through the target, not independent
+statistical samples. All overlapping time-origin products remain correlated;
+the effective independent cluster count is the number of chains (2048), not the
+pair count. At the N=8 target, the largest bin widths are0.2048 (P16),0.1024
+(P32) and0.0512 (P64), versus the Gaussian resolution criterion
+`tau/4=0.3455`; all three have several admissible fine/coarse levels. P16's
+coarsest0.4096 bin is1.19× that criterion, so its last one or two tail bins are
+too broad even though lower levels resolve the region.
+
+At the N=32 planning target, P16 cannot satisfy the 16-origin condition at the
+level needed to reach2260: its last usable supported lag is1572.864 even with
+16×40. P32×23 reaches2306.8672 with16 origins and a104.8576 bin (0.742×
+`tau/4=141.25`). P64×22 reaches3145.728 with16 origins and a52.4288 bin,
+but its bank alone exceeds512 MiB. P16×40 is a useful historical reference,
+not a solution: at C=2048 its bank is≈243.09 MiB, but its supported N32 lag is
+still1572.864 and its additional levels have zero/insufficient origins.
+
+The exact hierarchy also shows the scientific distinction between “more levels”
+and “more usable information”: levels beyond the observation window add no
+supported bins, and a nominal lag with fewer than16 origins cannot satisfy the
+frozen terminal gate. Multiple bins around a fitted regime must come from the
+lower-level rows; a single deepest bin is not a relaxation measurement.
+
+### Recommendation by chain length
+
+For N=8, P=16×15 is mathematically sufficient for the documented Gaussian
+4τ horizon and is the minimum-memory choice. P=32×14 is a meaningful scientific
+improvement because it supplies roughly twice as many lag bins and keeps every
+bin width through the target below τ/4, at only166 MiB. P=64×13 adds more bins
+but costs304 MiB; throughput alone does not justify it. For nonlinear finite-
+rest-length N=8, the relevant τ remains unresolved, so these are capacity
+recommendations, not terminal-support acceptance.
+
+For N=32, P=16—including historical16×40—is mathematically incapable of the
+16-origin 4×565 planning target in the frozen 4,000-time trajectory. P=32×23
+is the minimum cap-compatible hierarchy that reaches it and provides a usable
+104.8576-time-unit coarse bin. P=64×22 improves resolution and supported tail,
+but exceeds the512 MiB bank cap before integration/slab memory. Therefore P=32
+is the minimum prospective N=32 choice; adequacy still requires the frozen
+terminal checks after an actual nonlinear τ is established.
+
 For the N8 frozen duration200 (8,000,001 frames), 64×21 has nominal lag196.608
 and supported lag147.456, satisfying the Gaussian N8 four-time horizon but not
 establishing nonlinear terminal support. For N32 (160,000,001 frames),64×21
