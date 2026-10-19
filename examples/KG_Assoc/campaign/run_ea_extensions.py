@@ -95,7 +95,9 @@ def execution_approval(job):
     e2.require(record.get('GPU_execution_authorized') is True and
                record.get('preparation_approval_sha256') == job['approval_sha256'],
                'execution approval does not bind the immutable preparation approval')
-    source_key = ('recovery_source_authorization'
+    source_key = ('recovery_source_authorization_v2'
+                  if 'recovery_source_authorization_v2' in job else
+                  'recovery_source_authorization'
                   if 'recovery_source_authorization' in job else 'source_authorization')
     source_hash_key = source_key + '_sha256'
     e2.require(isinstance(job.get(source_key), str) and
@@ -108,6 +110,12 @@ def execution_approval(job):
         e2.require(source_record.get('prior_source_authorization_sha256') ==
                    job['source_authorization_sha256'],
                    'recovery source authorization does not bind prior authorization')
+    if source_key == 'recovery_source_authorization_v2':
+        e2.require(source_record.get('prior_source_authorization_sha256') ==
+                   job['source_authorization_sha256'] and
+                   source_record.get('prior_recovery_source_authorization_sha256') ==
+                   job['recovery_source_authorization_sha256'],
+                   'successor source authorization does not bind its history')
     e2.live_code(plan, source_record['source_sha256_overrides'])
     return path, source_path, plan, entry
 
@@ -137,11 +145,20 @@ def recover_completed_ea8_r001(root, state_path):
     validate_state(state)
     job = next((item for item in state['jobs']
                 if item['system'] == 'F04_N010_RP080_EE08_EA08' and item['replica'] == 1), None)
-    e2.require(job is not None and job.get('status') == 'failed' and
-               job.get('error') == RECOVERY_FAILURE, 'only the recorded Ea8 r001 failure is recoverable')
+    e2.require(job is not None, 'Ea8 r001 recovery job absent')
     approval, source_authorization, plan, entry = execution_approval(job)
     directory = Path(entry['output_prefix']).parent
     failure = directory / 'incomplete.json'
+    if job.get('status') == 'recovered_complete':
+        path, record = recovery_record(job, entry, failure)
+        e2.require(job.get('recovery_record') == str(path) and
+                   job.get('recovery_record_sha256') == e2.campaign.sha256(path),
+                   'recovered state binding differs')
+        _, _, validation = e2.validation.validate(entry, oracle=True)
+        e2.require(validation == record['validation'], 'recovery replay differs')
+        return record
+    e2.require(job.get('status') == 'failed' and job.get('error') == RECOVERY_FAILURE,
+               'only the recorded Ea8 r001 failure is recoverable')
     e2.require(failure.is_file() and e2.campaign.load_json(failure).get('error') == RECOVERY_FAILURE,
                'original administrative failure evidence differs')
     e2.require(not (directory / 'complete.json').exists(), 'ordinary completion receipt already exists')
