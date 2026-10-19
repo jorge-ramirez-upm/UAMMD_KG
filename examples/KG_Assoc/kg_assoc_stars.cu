@@ -10,6 +10,7 @@
 #include "kg_assoc_chemical_reseed.cuh"
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
 #include "kg_assoc_candidate_oracle.cuh"
+#include "kg_assoc_readback_dispatch.cuh"
 #endif
 
 #include <chrono>
@@ -777,6 +778,15 @@ int main(int argc, char** argv) {
       std::cout << rng.next32() << '\n';
       return 0;
     }
+    if (argc == 2 && std::string(argv[1]) == "--readback-call-path-info") {
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+      kg_assoc_test::probeInitialReadbackDispatch();
+      std::cout << "INITIAL_READBACK_CALL_PATH_V2 CPU_ONLY cases=4 fail_stop=3\n";
+      return 0;
+#else
+      throw std::runtime_error("readback call-path probe requires diagnostic build");
+#endif
+    }
     Parameters parameters = parseArguments(argc, argv);
     if (parameters.selfTest) {
       if (!parameters.rAssocExplicit &&
@@ -1125,10 +1135,11 @@ int main(int argc, char** argv) {
     integrator->addInteractor(associating);
 
 #ifdef KG_ASSOC_VALIDATE_CANDIDATES
-    if (parameters.reseedChemistry) {
-      initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,
-                            diagnosticContext);
-    }
+    kg_assoc_test::dispatchInitialReadback(
+        parameters.reseedChemistry, parameters.e2Extension, [&]() {
+          initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,
+                                diagnosticContext);
+        });
 #endif
 
     kg_assoc::Kinetics kinetics(

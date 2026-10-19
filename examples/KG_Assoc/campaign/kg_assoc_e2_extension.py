@@ -12,10 +12,10 @@ SCOPE = 'Ea_transfer_24M_extensions_v1'
 DURATIONS = {'F04_N010_RP080_EE08_EA08': 16000000,
              'F04_N010_RP080_EE08_EA10': 32000000}
 REVIEW = e2.HERE.parent / 'reviews/e2_ea_transfer_24m_joint_20261018'
-DOSSIER = e2.HERE.parent / 'reviews/e2_ea8_ea10_extension_handoff_20261018'
-BUILD = 'ea_24m_extensions_20261018_v1'
+DOSSIER = e2.HERE.parent / 'reviews/e2_extension_readback_call_cpu_20261019'
+BUILD = 'ea_24m_extensions_readback_20261019_v2'
 REVIEW_SHA256 = '3d30b0539fa014874acbcad10f5a410053226cf152a872b078fdb031bc4f22d2'
-TRANSITIONS_SHA256 = '472af5cbd9ae4f1dd6b4c6519aa91bdd27599922de06daa9b712bee62451ac36'
+TRANSITIONS_SHA256 = '88c8bbc7fe4ed87124ee71918713ec1eb33345cf4c155876e6f1af28a402692c'
 require = e2.require
 
 
@@ -216,6 +216,7 @@ def inspect(root, output, sid, build_directory, reservation_path):
 def prepare(root, output, sid, build_directory, evidence):
     e2.clean_tree()
     build, manifest = e2.check_build(build_directory)
+    e2.require_extension_readback_build(build)
     require(build['out_of_tree'] and not output.exists(), 'new out-of-tree extension attempt required')
     with (root / 'banks/.e2.prepare.lock').open('x'):
         pass
@@ -264,6 +265,7 @@ def check_plan(root, output, plan, live=False):
     require(code_compatible(e2.campaign.load_json(Path(plan['parent_attempt']) / 'plan.json'), plan),
             'extension source exceeds approved front-end changes')
     if live:
+        e2.require_extension_readback_build(plan['build'])
         e2.live_code(plan)
     return plan
 
@@ -278,6 +280,9 @@ def code_compatible(parent, plan):
     after = e2.scientific_source_hashes(plan['source_sha256'])
     for name in ('kg_assoc_e2_extension.py', 'run_ea_extensions.py'):
         after.pop(str(e2.HERE / name), None)
+    header = str(e2.HERE.parent / 'kg_assoc_readback_dispatch.cuh')
+    if after.pop(header, None) != '27b78580c23a285c5a1375ad953583ea6f841c75104f2bb6af69c35b1d582812':
+        return False
     if set(before) != set(after):
         return False
     for relative, record in transitions.items():

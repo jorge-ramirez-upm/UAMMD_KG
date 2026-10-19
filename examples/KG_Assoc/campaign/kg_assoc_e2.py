@@ -633,13 +633,21 @@ def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None)
 
 
 def require_extension_readback_build(build):
-    """Block the exact native source proven to omit extension readback."""
-    native = [value for name, value in build.get('source_sha256', {}).items()
-              if Path(name).name == 'kg_assoc_stars.cu']
-    require(len(native) == 1, 'extension build lacks native source identity')
-    require(native[0] != '07b6eb5f725f46c1f5b04ef45123fd8915a562c62cee916e2eb0b18eda581ae7',
-            'extension validation hold: this native build skips initial device readback '
-            'without chemistry reseeding; preserve all attempts and do not launch MD')
+    """Authenticate the corrected native call path and execute its CPU-only probe."""
+    required = {'kg_assoc_stars.cu': '9c0e9269b761ff38c07c8d5d2bc0da54d80dab42374030cb2cc39892b18f2c85',
+                'kg_assoc_readback_dispatch.cuh': '27b78580c23a285c5a1375ad953583ea6f841c75104f2bb6af69c35b1d582812'}
+    for name, expected in required.items():
+        actual = [value for path, value in build.get('source_sha256', {}).items()
+                  if Path(path).name == name]
+        require(actual == [expected], 'extension readback call path is not authenticated: ' + name)
+    check_hashes(build['executable_sha256'])
+    executables = [path for path in build['executable_sha256']
+                   if Path(path).name == 'kg_assoc_stars_candidate_smoke']
+    require(len(executables) == 1, 'extension diagnostic executable absent')
+    probe = subprocess.check_output([executables[0], '--readback-call-path-info'],
+                                    text=True, timeout=60)
+    require(probe == 'INITIAL_READBACK_CALL_PATH_V2 CPU_ONLY cases=4 fail_stop=3\n',
+            'extension compiled readback call-path probe failed')
 
 
 def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
@@ -659,7 +667,10 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
         'lineage_mode') else ('e2_smoke' if plan['smoke'] else 'e2_segment')
     if is_extension:
         purpose = 'e2_derived_extension'
-    scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
+    launch_approval = scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
+    if is_extension:
+        require(launch_approval.get('GPU_execution_authorized') is True,
+                'GPU execution pending separate user approval; preparation only')
     if derived_preparation(plan) or is_extension:
         require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)

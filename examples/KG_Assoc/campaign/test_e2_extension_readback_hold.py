@@ -92,7 +92,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
             for option in ('--check', '--prepare', '--execute'):
                 with self.subTest(option=option), mock.patch.object(
                         sys, 'argv', ['run_ea_extensions.py', option]), self.assertRaisesRegex(
-                        ValueError, 'skips initial device readback'):
+                        ValueError, 'not authenticated'):
                     runner.main()
             execute.assert_not_called()
             prepare.assert_not_called()
@@ -100,7 +100,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
         self.assertEqual(before, self.snapshot())
 
     def test_missing_native_identity_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, 'lacks native source identity'):
+        with self.assertRaisesRegex(ValueError, 'not authenticated'):
             e2.require_extension_readback_build({})
 
     def test_direct_launcher_cannot_start_affected_extension(self):
@@ -110,7 +110,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
         with mock.patch.object(e2, 'check_plan', return_value=plan), \
                 mock.patch.object(e2, 'launch_scope', return_value=[]), \
                 mock.patch.object(e2.subprocess, 'Popen') as popen, self.assertRaisesRegex(
-                ValueError, 'extension validation hold'):
+                ValueError, 'not authenticated'):
             e2.launch(self.root, self.root, execute=True, replicas=[1])
         popen.assert_not_called()
         self.assertEqual(before, self.snapshot())
@@ -121,7 +121,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
         for job in state['jobs']:
             plan = e2.campaign.load_json(Path(job['attempt'])/'plan.json')
             with self.subTest(system=job['system'], replica=job['replica']), \
-                    self.assertRaisesRegex(ValueError, 'skips initial device readback'):
+                    self.assertRaisesRegex(ValueError, 'not authenticated'):
                 e2.require_extension_readback_build(plan['build'])
         self.assertEqual(len(state['jobs']), 6)
 

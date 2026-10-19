@@ -14,6 +14,7 @@ import run_e2
 from run_ea_preparation import save, request_stop
 
 RESTART_OVERHEAD_AUTHORIZED = True
+STATE_DIRECTORY = 'manual_ea_extensions_readback_v2'
 
 
 def jobs():
@@ -42,7 +43,7 @@ def bind(root, directory, state, job, build):
             attempt = None
     if not attempt:
         attempt = root / 'banks/e2_attempts/F04_N010_RP080_EE08' / (
-            'extension_' + job['system'] + '_' + uuid.uuid4().hex)
+            'extension_' + job['system'] + '_readback_v2_' + uuid.uuid4().hex)
         extension.prepare(root, attempt, job['system'], build, extension.DOSSIER / 'AUTHORIZATION.md')
         state['plans'][job['system']] = str(attempt)
     attempt = Path(attempt)
@@ -53,7 +54,8 @@ def bind(root, directory, state, job, build):
         selector_scope=extension.SCOPE, authorized_system=job['system'],
         authorized_replicas=[job['replica']], maximum_additional_MD_steps_per_history=job['steps'],
         maximum_additional_MD_steps=job['steps'], absolute_start_step=24000000,
-        absolute_end_step=job['end_step'], diagnostic_window_steps=500000)
+        absolute_end_step=job['end_step'], diagnostic_window_steps=500000,
+        GPU_execution_authorized=False)
     if not approval.exists():
         e2.exclusive_json(approval, record)
     job.update(attempt=str(attempt), approval=str(approval),
@@ -249,7 +251,7 @@ def main():
     group.add_argument('--execute', action='store_true', help='user runs only the six authorized extensions')
     args = parser.parse_args()
     root = run_e2.discover()
-    state_path = root / 'aggregate/e2/manual_ea_extensions_v1/state.json'
+    state_path = root / 'aggregate/e2' / STATE_DIRECTORY / 'state.json'
     if args.status:
         if not state_path.exists():
             print('Not prepared. --prepare is CPU-only; --execute is user-run MD.')
@@ -287,6 +289,13 @@ def main():
                 authenticate(job)
         print('CHECK PASS: exact parents/build/source/approvals authenticated; no writes or GPU execution.')
         return 0
+    e2.require(state_path.exists(), 'CPU preparation required before execution approval')
+    state = e2.campaign.load_json(state_path)
+    validate_state(state)
+    for job in state['jobs']:
+        authenticate(job)
+        e2.require(e2.campaign.load_json(job['approval']).get('GPU_execution_authorized') is True,
+                   'GPU execution pending separate user approval; preparation only')
     e2.require(e2.socket.gethostname() == 'titan', 'extension execution is configured only for titan')
     return execute(root, build, state_path)
 

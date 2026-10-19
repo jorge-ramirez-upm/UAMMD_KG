@@ -28,7 +28,7 @@ class ExtensionScopeTests(unittest.TestCase):
         for entry in self.plan['histories']:
             entry.update(start_step=24000000, end_step=24000000 + steps)
         (self.attempt / 'plan.json').write_text(json.dumps(self.plan))
-        self.record.update(purpose='e2_derived_extension', selector_scope=extension.SCOPE, plan_sha256=e2.campaign.sha256(self.attempt / 'plan.json'), authorized_system=sid, authorized_replicas=[2], maximum_additional_MD_steps_per_history=steps, maximum_additional_MD_steps=steps, absolute_start_step=24000000, absolute_end_step=24000000 + steps, diagnostic_window_steps=500000)
+        self.record.update(purpose='e2_derived_extension', selector_scope=extension.SCOPE, plan_sha256=e2.campaign.sha256(self.attempt / 'plan.json'), authorized_system=sid, authorized_replicas=[2], maximum_additional_MD_steps_per_history=steps, maximum_additional_MD_steps=steps, absolute_start_step=24000000, absolute_end_step=24000000 + steps, diagnostic_window_steps=500000, GPU_execution_authorized=True)
         self.write_approval(self.record)
 
     @contextlib.contextmanager
@@ -42,6 +42,7 @@ class ExtensionScopeTests(unittest.TestCase):
         with contextlib.ExitStack() as stack:
             stack.enter_context(mock.patch.object(e2, 'check_plan', return_value=self.plan))
             stack.enter_context(mock.patch.object(e2, 'live_code'))
+            stack.enter_context(mock.patch.object(e2, 'require_extension_readback_build'))
             stack.enter_context(mock.patch.object(e2, 'matching_smoke', return_value={}))
             stack.enter_context(mock.patch.object(e2.socket, 'gethostname', return_value='titan'))
             stack.enter_context(mock.patch.object(extension, 'revalidate_parent'))
@@ -117,6 +118,15 @@ class ExtensionScopeTests(unittest.TestCase):
         self.assertNotIn('--switch-ea-from', command)
         self.assertEqual(command[command.index('--seed') + 1], '1321001')
         self.assertEqual(command[command.index('--steps') + 1], '32000000')
+
+    def test_preparation_approval_cannot_launch_GPU(self):
+        self.configure()
+        self.write_approval(dict(self.record, GPU_execution_authorized=False))
+        with self.execution() as popen, self.assertRaisesRegex(ValueError, 'pending separate'):
+            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
+        popen.assert_not_called()
+        for replica in (1, 2, 3):
+            self.assertEqual(list((self.attempt / f'r{replica:03d}').iterdir()), [])
 
 class LifecycleTests(unittest.TestCase):
 
@@ -326,7 +336,7 @@ class ExecuteLifecycleTests(unittest.TestCase):
         self.assertEqual(len(self.bound), bound)
 
     def test_check_and_status_are_read_only_and_never_launch(self):
-        with mock.patch.object(runner.run_e2, 'discover', return_value=self.root), mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'check_build'), mock.patch.object(e2.campaign, 'load_json', return_value={'source_sha256': {'kg_assoc_stars.cu': 'cpu_fixture_native'}}), mock.patch.object(extension, 'predecessor'), mock.patch.object(e2, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
+        with mock.patch.object(runner.run_e2, 'discover', return_value=self.root), mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'check_build'), mock.patch.object(e2, 'require_extension_readback_build'), mock.patch.object(e2.campaign, 'load_json', return_value={'source_sha256': {'kg_assoc_stars.cu': 'cpu_fixture_native'}}), mock.patch.object(extension, 'predecessor'), mock.patch.object(e2, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
             for option in ('--check', '--status'):
                 with mock.patch.object(sys, 'argv', ['run_ea_extensions.py', option]):
                     self.assertEqual(runner.main(), 0)
@@ -361,6 +371,7 @@ class FrozenPhysicalSourceTests(unittest.TestCase):
             'ceb4048a00897b8c335d718d885f9e14ac2c37e7:examples/KG_Assoc/kg_assoc_stars.cu'],
             text=True, cwd=e2.campaign.REPOSITORY_ROOT)
         current = (e2.HERE.parent / 'kg_assoc_stars.cu').read_text()
+        current = current.replace('    kg_assoc_test::dispatchInitialReadback(\n        parameters.reseedChemistry, parameters.e2Extension, [&]() {\n          initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,\n                                diagnosticContext);\n        });', '    if (parameters.reseedChemistry) {\n      initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,\n                            diagnosticContext);\n    }')
         marker = '      const double requestedEa = targetEa;'
         self.assertEqual(old.split(marker, 1)[1], current.split(marker, 1)[1])
         marker = 'void initialDeviceReadback('
@@ -373,7 +384,7 @@ class PreparedParentTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.root = e2.HERE.parent / 'kg_assoc_100m'
-        state = cls.root / 'aggregate/e2/manual_ea_extensions_v1/state.json'
+        state = cls.root / 'aggregate/e2' / runner.STATE_DIRECTORY / 'state.json'
         if not state.exists():
             raise unittest.SkipTest('real CPU-only preparation is not yet present')
         cls.jobs = e2.campaign.load_json(state)['jobs']
