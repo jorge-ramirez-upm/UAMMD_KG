@@ -234,6 +234,8 @@ def status(job):
         return 'complete_receipt_recorded; full replay on --execute', None
     stdout = directory / 'stdout.log'
     if stdout.exists() and 'STAR_ASSOCIATION_SMOKE PASS' in stdout.read_text():
+        if not Path(entry['output_prefix'] + '.initial_device_validation.tsv').is_file():
+            return 'validation_hold_missing_initial_device_readback', None
         return 'finished_pending_independent_validation', None
     return ('interrupted' if any(directory.iterdir()) else 'prepared'), None
 
@@ -263,8 +265,9 @@ def main():
                 print(job['system'], f"r{job['replica']:03d}", job['status'],
                       observed, job.get('attempt', ''), progress or '')
         return 0
-    e2.clean_tree()
     build = root / 'builds' / extension.BUILD
+    e2.require_extension_readback_build(e2.campaign.load_json(build / 'manifest.json'))
+    e2.clean_tree()
     e2.check_build(build)
     for sid in extension.DURATIONS:
         extension.predecessor(root, sid)

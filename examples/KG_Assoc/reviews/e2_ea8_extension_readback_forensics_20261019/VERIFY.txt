@@ -1,0 +1,65 @@
+"""Read-only CPU integrity audit; no GPU, recovery writes or campaign-state edits."""
+import hashlib
+from pathlib import Path
+import subprocess
+import sys
+
+base=Path('examples/KG_Assoc').resolve()
+sys.path.insert(0,str(base/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_extension as extension
+import run_ea_extensions as runner
+
+review=base/'reviews/e2_ea8_extension_readback_forensics_20261019'
+starting='dbd79b1ba3fba4c9701e54d09de9a9a5cf6e700f'
+changed={str(base/'campaign'/name) for name in (
+    'kg_assoc_e2.py','run_ea_extensions.py','test_e2_extensions.py')}
+protected=e2.campaign.load_json(review/'STARTING_BINDINGS.sha256')
+assert len(protected)==3100
+for name,sha in protected.items():
+    if name in changed:
+        relative=str(Path(name).relative_to(base.parent.parent))
+        old=subprocess.check_output(['git','show',starting+':'+relative])
+        assert hashlib.sha256(old).hexdigest()==sha
+    else:
+        assert e2.campaign.sha256(Path(name))==sha,name
+e2.check_hashes(e2.campaign.load_json(review/'SOURCE_CHANGES.sha256'))
+print('PASS 3097 unchanged starting bindings; three scoped existing file changes and one new test authenticated')
+e2.check_hashes(e2.campaign.load_json(review/'ORIGINAL_FILES.sha256'))
+print('PASS all 33 original bindings, including failed state, native outputs, plans, approvals, seeds and build')
+for name in ('src','examples/KG'):
+    assert not subprocess.check_output(['git','diff','--name-only',starting,'--',name],text=True).strip()
+print('PASS protected src and examples/KG unchanged; native CUDA/headers, strict validator and physics unchanged')
+old=base/'reviews/e2_ea8_ea10_extension_handoff_20261018'
+for dossier in (old,base/'reviews/e2_ea6_formal_acceptance_20261018'):
+    e2.check_hashes(e2.campaign.load_json(dossier/'INTEGRITY.sha256'))
+prior=e2.campaign.load_json(old/'PRIOR_ACCEPTANCES.log')
+assert len(prior)==12
+for row in prior:
+    assert e2.campaign.sha256(Path(row['path']))==row['sha256']
+    record=e2.campaign.load_json(row['path'])
+    e2.check_hashes({record['evidence']:record['evidence_sha256'],record['source_plan']:record['source_plan_sha256']})
+    for h in record['histories']:
+        e2.check_hashes(h['sha256'])
+assert len(list((base/'kg_assoc_100m/banks/e2_acceptance').glob('*.json')))==13
+print('PASS all thirteen formal acceptances, historical reviews/builds and prior scientific evidence preserved')
+state=e2.campaign.load_json(base/'kg_assoc_100m/aggregate/e2/manual_ea_extensions_v1/state.json')
+assert state==e2.campaign.load_json(review/'FAILED_STATE.log')
+runner.validate_state(state)
+for j in state['jobs']:
+    plan=e2.campaign.load_json(Path(j['attempt'])/'plan.json')
+    e2.scoped_launch_approval(Path(j['approval']),Path(j['attempt']),
+        'e2_derived_extension',plan,None,[j['replica']])
+    try:
+        e2.require_extension_readback_build(plan['build'])
+    except ValueError as error:
+        assert 'skips initial device readback' in str(error)
+    else:
+        raise AssertionError('defective build allowed')
+    if j is not state['jobs'][0]:
+        assert list(Path(plan['histories'][j['replica']-1]['output_prefix']).parent.iterdir())==[]
+assert not (Path(state['jobs'][0]['attempt'])/'r001/complete.json').exists()
+print('PASS all six plans blocked; native-PASS history held, five remain untouched; no completion manufactured')
+if (review/'INTEGRITY.sha256').exists():
+    e2.check_hashes(e2.campaign.load_json(review/'INTEGRITY.sha256'))
+    print('PASS forensic dossier seal')

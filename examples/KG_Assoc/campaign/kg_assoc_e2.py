@@ -632,11 +632,23 @@ def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None)
     return record
 
 
+def require_extension_readback_build(build):
+    """Block the exact native source proven to omit extension readback."""
+    native = [value for name, value in build.get('source_sha256', {}).items()
+              if Path(name).name == 'kg_assoc_stars.cu']
+    require(len(native) == 1, 'extension build lacks native source identity')
+    require(native[0] != '07b6eb5f725f46c1f5b04ef45123fd8915a562c62cee916e2eb0b18eda581ae7',
+            'extension validation hold: this native build skips initial device readback '
+            'without chemistry reseeding; preserve all attempts and do not launch MD')
+
+
 def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
            replica=None, replicas=None):
     plan = check_plan(root, attempt, live=execute)
     histories = launch_scope(plan, replica, replicas)
     is_extension = plan.get('lineage_mode') == 'Ea_24M_extension_v1'
+    if is_extension:
+        require_extension_readback_build(plan['build'])
     checked_histories = histories if derived_preparation(plan) or is_extension else plan['histories']
     for entry in checked_histories:
         require(not any(Path(entry['output_prefix']).parent.iterdir()), 'attempt already used; preserve it')

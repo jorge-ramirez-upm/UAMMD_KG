@@ -1,0 +1,13 @@
+Authenticated native source SHA256: 07b6eb5f725f46c1f5b04ef45123fd8915a562c62cee916e2eb0b18eda581ae7
+
+#ifdef KG_ASSOC_VALIDATE_CANDIDATES
+    if (parameters.reseedChemistry) {
+      initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,
+                            diagnosticContext);
+    }
+#endif
+
+All six commands pass --e2-extension and no --reseed-chemistry-from.
+reseedChemistry defaults false and is never enabled by --e2-extension.
+The same absolute output-prefix suffix is used by writer and validator.
+Prior smoke/8M-to-24M transfers enabled reseedChemistry, so they executed this call.

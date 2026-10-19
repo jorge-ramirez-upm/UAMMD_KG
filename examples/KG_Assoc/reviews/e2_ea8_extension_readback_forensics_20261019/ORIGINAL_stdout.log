@@ -1,0 +1,12 @@
+total atoms 43563
+polymer beads 41000
+stickers 4000
+solvent beads 2563
+number of stars 1000
+permanent bonds 40000
+box lengths 37.145 37.145 37.145
+volume 51250.8518236
+total bead density 0.849995628364
+polymer bead density 0.799986703462
+S1 total_timesteps 16000000 wall_seconds 12345 particle_timesteps_per_second 5.64607e+07 chemistry_sweeps 160000 mean_candidate_sticker_pairs 2510.03 creations 132435 breaks 130650 final_associating_bonds 1785 final_intra_star_bonds 104 final_inter_star_bonds 1681
+STAR_ASSOCIATION_SMOKE PASS

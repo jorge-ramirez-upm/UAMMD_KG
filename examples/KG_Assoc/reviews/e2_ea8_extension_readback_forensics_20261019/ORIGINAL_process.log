@@ -1,0 +1,26 @@
+{
+  "boot_id": "e6c55ebb-ad2e-4f91-8529-0e5b6224f737",
+  "command": [
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/ea_24m_extensions_20261018_v1/kg_assoc_stars_candidate_smoke",
+    "--restart-prefix",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r001/state",
+    "--e2-extension",
+    "--Ea",
+    "8",
+    "--derived-branch-id",
+    "F04_N010_RP080_EE08_EA08:extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055:r001",
+    "--steps",
+    "16000000",
+    "--diagnostic-every",
+    "1000",
+    "--seed",
+    "1220801",
+    "--md-seed",
+    "1331004",
+    "--output",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055/r001/state"
+  ],
+  "pid": 1513047,
+  "plan_sha256": "33448c5234cbbbbfcf9493e3f2b522b3a036c29cd23365428c86009a0194c41c",
+  "start_ticks": "237433786"
+}

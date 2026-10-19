@@ -1,0 +1,14 @@
+COMMAND --check
+ STOP: extension validation hold: this native build skips initial device readback without chemistry reseeding; preserve all attempts and do not launch MD
+
+COMMAND --status
+Completed-extension cap: 144000000 MD steps; recorded restart overhead authorized.
+Abandoned partial overhead lower/upper: 0 0
+F04_N010_RP080_EE08_EA08 r001 failed validation_hold_missing_initial_device_readback /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055 
+F04_N010_RP080_EE08_EA08 r002 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055 
+F04_N010_RP080_EE08_EA08 r003 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055 
+F04_N010_RP080_EE08_EA10 r001 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_fde0229e514d48668efcd3213d5a5e74 
+F04_N010_RP080_EE08_EA10 r002 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_fde0229e514d48668efcd3213d5a5e74 
+F04_N010_RP080_EE08_EA10 r003 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_fde0229e514d48668efcd3213d5a5e74 
+ 
+PASS --check reports explicit hold, --status is read-only; all 33 original bindings unchanged

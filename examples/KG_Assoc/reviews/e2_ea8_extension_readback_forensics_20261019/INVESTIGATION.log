@@ -1,0 +1,8 @@
+PASS all six original immutable plans/approvals, parents, reservations and shared build; five unstarted
+EXPECTED VALIDATION HOLD: [Errno 2] No such file or directory: '/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055/r001/state.initial_device_validation.tsv'
+PASS recorded completion: 24000000 -> 40000000; exactly 16000000 additional MD steps
+PASS event replay, numerical/geometry/seed/endpoint checks preceding required readback gate
+PASS 160000 candidate-oracle records; total candidate pairs 401605094
+COUNTERS {'bonds': (1797.0, 1785.0), 'intra': (82.0, 104.0), 'inter': (1715.0, 1681.0), 'creations': (126066.0, 132435.0), 'breaks': (124269.0, 130650.0)}
+READBACK ABSENT: trajectory remains unvalidated; no completion receipt or state mutation permitted
+PASS all original files unchanged after read-only replay

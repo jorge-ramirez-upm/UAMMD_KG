@@ -24,6 +24,7 @@ class ExtensionScopeTests(unittest.TestCase):
         sid = f'F04_N010_RP080_EE08_EA{ea:02d}'
         steps = extension.DURATIONS[sid]
         self.plan.update(lineage_mode=extension.MODE, reference_control=False, smoke=False, steps=steps, system=dict(system_id=sid))
+        self.plan['build'] = dict(source_sha256={'kg_assoc_stars.cu': 'cpu_fixture_native'})
         for entry in self.plan['histories']:
             entry.update(start_step=24000000, end_step=24000000 + steps)
         (self.attempt / 'plan.json').write_text(json.dumps(self.plan))
@@ -325,7 +326,7 @@ class ExecuteLifecycleTests(unittest.TestCase):
         self.assertEqual(len(self.bound), bound)
 
     def test_check_and_status_are_read_only_and_never_launch(self):
-        with mock.patch.object(runner.run_e2, 'discover', return_value=self.root), mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'check_build'), mock.patch.object(extension, 'predecessor'), mock.patch.object(e2, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
+        with mock.patch.object(runner.run_e2, 'discover', return_value=self.root), mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'check_build'), mock.patch.object(e2.campaign, 'load_json', return_value={'source_sha256': {'kg_assoc_stars.cu': 'cpu_fixture_native'}}), mock.patch.object(extension, 'predecessor'), mock.patch.object(e2, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
             for option in ('--check', '--status'):
                 with mock.patch.object(sys, 'argv', ['run_ea_extensions.py', option]):
                     self.assertEqual(runner.main(), 0)
@@ -376,6 +377,8 @@ class PreparedParentTests(unittest.TestCase):
         if not state.exists():
             raise unittest.SkipTest('real CPU-only preparation is not yet present')
         cls.jobs = e2.campaign.load_json(state)['jobs']
+        if any(job['status'] != 'prepared' for job in cls.jobs):
+            raise unittest.SkipTest('pre-execution fixtures no longer apply after user-run MD')
 
     def test_all_six_prepared_histories_are_empty_and_exactly_bound(self):
         for job in self.jobs:

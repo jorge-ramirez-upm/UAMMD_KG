@@ -1,0 +1,90 @@
+"""Read-only CPU forensic replay. Never invokes a simulation or writes campaign data."""
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+base = Path('examples/KG_Assoc').resolve()
+sys.path.insert(0, str(base/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_extension as extension
+import run_ea_extensions as runner
+
+review = base/'reviews/e2_ea8_extension_readback_forensics_20261019'
+root = base/'kg_assoc_100m'
+state_path = root/'aggregate/e2/manual_ea_extensions_v1/state.json'
+state = e2.campaign.load_json(state_path)
+runner.validate_state(state)
+job = state['jobs'][0]
+assert job['system'].endswith('EA08') and job['replica'] == 1 and job['status'] == 'failed'
+assert all(j['status'] == 'prepared' for j in state['jobs'][1:])
+original = e2.campaign.load_json(review/'ORIGINAL_FILES.sha256')
+e2.check_hashes(original)
+plan = e2.check_plan(root, Path(job['attempt']))
+entry = plan['histories'][0]
+# Authenticate historical sources without asserting a repaired runner equals the old source map.
+assert plan['git_sha'] == '79fbba03348b575faa2da988f9eaedf51772579c'
+for name, sha in plan['source_sha256'].items():
+    relative = str(Path(name).relative_to(base.parent.parent))
+    data = subprocess.check_output(['git','show',plan['git_sha']+':'+relative])
+    assert hashlib.sha256(data).hexdigest() == sha, name
+build = e2.campaign.load_json(Path(entry['command'][0]).parent/'manifest.json')
+assert build == plan['build'] and build['source_sha256'] == plan['source_sha256']
+e2.check_hashes(build['executable_sha256'])
+e2.check_hashes(build['build_log_sha256'])
+for selected in state['jobs']:
+    raw = e2.check_plan(root,Path(selected['attempt']))
+    e2.check_hashes({str(Path(selected['attempt'])/'plan.json'): selected['plan_sha256'],
+                     selected['approval']: selected['approval_sha256']})
+    e2.scoped_launch_approval(Path(selected['approval']),Path(selected['attempt']),
+        'e2_derived_extension',raw,None,[selected['replica']])
+    h = raw['histories'][selected['replica']-1]
+    assert '--e2-extension' in h['command'] and '--reseed-chemistry-from' not in h['command']
+    assert raw['executable_sha256'] == plan['executable_sha256']
+    if selected is not job:
+        assert list(Path(h['output_prefix']).parent.iterdir()) == []
+print('PASS all six original immutable plans/approvals, parents, reservations and shared build; five unstarted')
+
+prefix = Path(entry['output_prefix'])
+directory = prefix.parent
+started = e2.campaign.load_json(directory/'started.json')
+assert started['command'] == entry['command']
+assert started['plan_sha256'] == job['plan_sha256'] and started['approval_sha256'] == job['approval_sha256']
+e2.check_hashes(started['smoke_sha256'])
+assert not extension.native_running(directory/'process.json',job['plan_sha256'],entry['command'])
+stdout = (directory/'stdout.log').read_text()
+assert stdout.rstrip().endswith('STAR_ASSOCIATION_SMOKE PASS')
+assert 'total_timesteps 16000000 ' in stdout and 'chemistry_sweeps 160000 ' in stdout
+assert 'STAR_ASSOCIATION_SMOKE FAIL:' not in (directory/'stderr.log').read_text()
+assert not (directory/'complete.json').exists()
+metadata, rows = e2.validation.analysis.stationarity.read_state(str(prefix)+'.state')
+assert [row['step'] for row in rows] == e2.validation.diagnostic_steps(24000000,40000000)
+sidecar, pairs = e2.validation.analysis.restart.read_metadata(str(prefix)+'.assoc_restart')
+assert int(sidecar['completed_steps']) == 40000000
+assert re.search(r'\bstep 40000000$',Path(str(prefix)+'.restart.lammpsdat').read_text().splitlines()[0])
+missing = Path(str(prefix)+'.initial_device_validation.tsv')
+assert not missing.exists()
+try:
+    e2.validation.validate(entry,oracle=True)
+except FileNotFoundError as error:
+    assert Path(error.filename) == missing
+    print('EXPECTED VALIDATION HOLD:',error)
+else:
+    raise AssertionError('Missing readback was incorrectly accepted')
+# The unchanged strict validator performed all event replay/numerics/endpoint checks before this gate.
+# Independently inspect the oracle records that occur after the missing-readback gate in that validator.
+lines = Path(str(prefix)+'.candidate_validation.tsv').read_text().splitlines()
+assert lines[0] == '# step candidates oracle_verified_active_candidates'
+checks = [list(map(int,line.split())) for line in lines[1:]]
+assert [line[0] for line in checks] == list(range(24000100,40000001,100))
+assert all(len(line)==3 and 0 <= line[2] <= line[1] for line in checks)
+assert sum(line[1] for line in checks) == int(metadata['candidate_sticker_pairs'])
+print('PASS recorded completion: 24000000 -> 40000000; exactly 16000000 additional MD steps')
+print('PASS event replay, numerical/geometry/seed/endpoint checks preceding required readback gate')
+print('PASS 160000 candidate-oracle records; total candidate pairs',sum(line[1] for line in checks))
+print('COUNTERS', {k: (rows[0][k],rows[-1][k]) for k in ('bonds','intra','inter','creations','breaks')})
+print('READBACK ABSENT: trajectory remains unvalidated; no completion receipt or state mutation permitted')
+e2.check_hashes(original)
+print('PASS all original files unchanged after read-only replay')
