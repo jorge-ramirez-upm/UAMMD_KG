@@ -102,7 +102,14 @@ check-semiflexible: semiflexible
 
 .PHONY: clean-semiflexible
 clean-semiflexible:
-	rm -f $(PROJECT_DIR)/build/single/semiflexible $(PROJECT_DIR)/build/single/semiflexible.d $(PROJECT_DIR)/build/double/semiflexible $(PROJECT_DIR)/build/double/semiflexible.d
+	rm -f $(PROJECT_DIR)/build/single/semiflexible $(PROJECT_DIR)/build/single/semiflexible.d $(PROJECT_DIR)/build/double/semiflexible $(PROJECT_DIR)/build/double/semiflexible.d $(PROJECT_DIR)/build/single/every_step_gpu_stress_benchmark $(PROJECT_DIR)/build/double/every_step_gpu_stress_benchmark
+
+# Isolated Stage 4A.3c acquisition benchmark; it never links the simulator driver.
+.PHONY: every-step-gpu-benchmark
+every-step-gpu-benchmark: $(GPU_BUILD)/every_step_gpu_stress_benchmark
+$(GPU_BUILD)/every_step_gpu_stress_benchmark: $(PROJECT_DIR)/tests/every_step_gpu_stress_benchmark.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h
+	mkdir -p $(GPU_BUILD)
+	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) $< -o $@ $(LDLIBS)
 
 .PHONY: check-semiflexible-stress
 $(BUILD)/semiflexible_stress_correlator: $(PROJECT_DIR)/tests/semiflexible_stress_correlator.cpp $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
