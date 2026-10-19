@@ -93,14 +93,20 @@ def execution_approval(job):
     e2.require(record.get('GPU_execution_authorized') is True and
                record.get('preparation_approval_sha256') == job['approval_sha256'],
                'execution approval does not bind the immutable preparation approval')
-    e2.live_code(plan, record.get('execution_source_overrides'))
-    return path, plan, entry
+    e2.require(isinstance(job.get('source_authorization'), str) and
+               isinstance(job.get('source_authorization_sha256'), str),
+               'extension source authorization absent')
+    source_path = Path(job['source_authorization'])
+    e2.check_hashes({str(source_path): job['source_authorization_sha256']})
+    source_record = e2.extension_source_authorization(source_path, plan, path)
+    e2.live_code(plan, source_record['source_sha256_overrides'])
+    return path, source_path, plan, entry
 
 
 def classify(job, recover=False, replay=True):
     if 'attempt' not in job:
         return 'pending'
-    approval, plan, entry = execution_approval(job)
+    approval, source_authorization, plan, entry = execution_approval(job)
     directory = Path(entry['output_prefix']).parent
     if extension.native_running(directory / 'process.json', job['plan_sha256'], entry['command']):
         return 'running'
@@ -199,15 +205,16 @@ def execute(root, build, state_path):
                     if not (prefix.parent / 'started.json').exists():
                         bounds = dict(completed_MD_steps_lower_bound=0,
                             authorized_MD_steps_upper_bound=0, exact_partial_MD_steps_known=True)
+                    retired = {key: job[key] for key in (
+                        'attempt', 'plan_sha256', 'approval', 'approval_sha256',
+                        'execution_approval', 'execution_approval_sha256',
+                        'source_authorization', 'source_authorization_sha256') if key in job}
                     job['retired_attempts'].append(dict(
-                        attempt=job['attempt'], plan_sha256=job['plan_sha256'],
-                        approval=job['approval'], approval_sha256=job['approval_sha256'],
-                        execution_approval=job['execution_approval'],
-                        execution_approval_sha256=job['execution_approval_sha256'],
-                        reason='interrupted; no bitwise integrator checkpoint', **bounds))
+                        **retired, reason='interrupted; no bitwise integrator checkpoint', **bounds))
                     for key in ('attempt', 'plan_sha256', 'approval', 'approval_sha256',
-                                'execution_approval', 'execution_approval_sha256'):
-                        job.pop(key)
+                                'execution_approval', 'execution_approval_sha256',
+                                'source_authorization', 'source_authorization_sha256'):
+                        job.pop(key, None)
                     state['plans'].pop(job['system'], None)
                     job['status'] = 'pending'
                     save(state_path, state)
@@ -217,9 +224,10 @@ def execute(root, build, state_path):
                 save(state_path, state)
                 print('RUN', job['system'], f"r{job['replica']:03d}", '24M ->',
                       job['end_step'], 'logs:', Path(job['attempt']) / f"r{job['replica']:03d}", flush=True)
-                approval, _, _ = execution_approval(job)
+                approval, source_authorization, _, _ = execution_approval(job)
                 e2.launch(root, Path(job['attempt']), execute=True,
-                          approval=approval, replicas=[job['replica']])
+                          approval=approval, replicas=[job['replica']],
+                          source_authorization=source_authorization)
                 e2.require(classify(job, replay=True) == 'complete', 'completed extension did not validate')
                 job['status'] = 'complete'
                 save(state_path, state)
@@ -244,7 +252,7 @@ def status(job):
     attempt = Path(job['attempt'])
     e2.check_hashes({str(attempt / 'plan.json'): job['plan_sha256'],
                      job['approval']: job['approval_sha256']})
-    _, plan, entry = execution_approval(job)
+    _, _, plan, entry = execution_approval(job)
     directory = Path(entry['output_prefix']).parent
     if extension.native_running(directory / 'process.json', job['plan_sha256'], entry['command']):
         return 'running', extension.partial_step_bounds(Path(entry['output_prefix']), job['steps'])

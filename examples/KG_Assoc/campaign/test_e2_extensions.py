@@ -43,6 +43,9 @@ class ExtensionScopeTests(unittest.TestCase):
             stack.enter_context(mock.patch.object(e2, 'check_plan', return_value=self.plan))
             stack.enter_context(mock.patch.object(e2, 'live_code'))
             stack.enter_context(mock.patch.object(e2, 'require_extension_readback_build'))
+            stack.enter_context(mock.patch.object(e2, 'extension_source_authorization',
+                                                  return_value={'source_sha256_overrides': {}}))
+            stack.enter_context(mock.patch.object(e2, 'live_code'))
             stack.enter_context(mock.patch.object(e2, 'matching_smoke', return_value={}))
             stack.enter_context(mock.patch.object(e2.socket, 'gethostname', return_value='titan'))
             stack.enter_context(mock.patch.object(extension, 'revalidate_parent'))
@@ -128,6 +131,32 @@ class ExtensionScopeTests(unittest.TestCase):
         for replica in (1, 2, 3):
             self.assertEqual(list((self.attempt / f'r{replica:03d}').iterdir()), [])
 
+
+class SourceAuthorizationTests(unittest.TestCase):
+
+    def test_exact_map_rejects_missing_extra_physics_and_nonancestor_sources(self):
+        plan = dict(lineage_mode=extension.MODE, git_sha='prepared', executable_sha256={},
+                    source_sha256={'admin.py': 'old-admin', 'physics.cuh': 'frozen'})
+        overrides = {'admin.py': 'new-admin'}
+
+        def check(current, ancestor=True, succeeds=True):
+            result = mock.Mock(returncode=0 if ancestor else 1)
+            with mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'sources', return_value=current), \
+                    mock.patch.object(e2.campaign, 'git_sha', return_value='live'), \
+                    mock.patch.object(e2.subprocess, 'run', return_value=result), \
+                    mock.patch.object(e2, 'check_hashes'):
+                if succeeds:
+                    e2.live_code(plan, overrides)
+                else:
+                    with self.assertRaisesRegex(ValueError, 'prepared extension sources/history changed'):
+                        e2.live_code(plan, overrides)
+
+        check({'admin.py': 'new-admin', 'physics.cuh': 'frozen'})
+        check({'admin.py': 'new-admin'}, succeeds=False)
+        check({'admin.py': 'new-admin', 'physics.cuh': 'frozen', 'extra.py': 'extra'}, succeeds=False)
+        check({'admin.py': 'new-admin', 'physics.cuh': 'modified'}, succeeds=False)
+        check({'admin.py': 'new-admin', 'physics.cuh': 'frozen'}, ancestor=False, succeeds=False)
+
 class LifecycleTests(unittest.TestCase):
 
     def setUp(self):
@@ -139,7 +168,8 @@ class LifecycleTests(unittest.TestCase):
         self.job = dict(system=list(extension.DURATIONS)[0], replica=1, steps=16000000, end_step=40000000, status='running', attempt=str(self.root), plan_sha256='plan', approval_sha256='preparation', execution_approval_sha256='approval', retired_attempts=[])
         self.entry = dict(output_prefix=str(self.directory / 'state'), command=['mock_only'])
         self.patcher = mock.patch.object(
-            runner, 'execution_approval', return_value=(Path('approval_execution.json'), {}, self.entry))
+            runner, 'execution_approval',
+            return_value=(Path('approval_execution.json'), Path('source_authorization.json'), {}, self.entry))
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
@@ -303,13 +333,13 @@ class ExecuteLifecycleTests(unittest.TestCase):
         self.done.add(str(attempt))
 
     def test_same_command_preserves_partial_reservation_and_restarts_only_that_slot(self):
-        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'classify', side_effect=self.classify), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), {}, {})), mock.patch.object(e2, 'launch', side_effect=self.launch):
+        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'classify', side_effect=self.classify), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), Path('source.json'), {}, {})), mock.patch.object(e2, 'launch', side_effect=self.launch):
             self.assertEqual(runner.execute(self.root, self.root, self.path), 130)
         first = e2.campaign.load_json(self.path)
         old = Path(first['jobs'][1]['attempt'])
         before = {str(p): p.read_bytes() for p in old.rglob('*') if p.is_file()}
         self.assertEqual([j['status'] for j in first['jobs'][:3]], ['complete', 'interrupted', 'prepared'])
-        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'classify', side_effect=self.classify), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), {}, {})), mock.patch.object(e2, 'launch', side_effect=self.launch) as launch:
+        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'classify', side_effect=self.classify), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), Path('source.json'), {}, {})), mock.patch.object(e2, 'launch', side_effect=self.launch) as launch:
             self.assertEqual(runner.execute(self.root, self.root, self.path), 0)
             self.assertEqual(launch.call_count, 5)
         final = e2.campaign.load_json(self.path)
@@ -320,17 +350,17 @@ class ExecuteLifecycleTests(unittest.TestCase):
         retired = final['jobs'][1]['retired_attempts'][0]
         self.assertEqual(retired['completed_MD_steps_lower_bound'], 100)
         self.assertEqual(retired['authorized_MD_steps_upper_bound'], 16000000)
-        with mock.patch.object(runner, 'classify', return_value='complete'), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), {}, {})), mock.patch.object(e2, 'launch') as launch:
+        with mock.patch.object(runner, 'classify', return_value='complete'), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), Path('source.json'), {}, {})), mock.patch.object(e2, 'launch') as launch:
             self.assertEqual(runner.execute(self.root, self.root, self.path), 0)
             launch.assert_not_called()
 
     def test_genuine_failure_stops_all_future_starts(self):
-        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'classify', return_value='prepared'), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), {}, {})), mock.patch.object(e2, 'launch', side_effect=ValueError('oracle mismatch')) as launch:
+        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'classify', return_value='prepared'), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), Path('source.json'), {}, {})), mock.patch.object(e2, 'launch', side_effect=ValueError('oracle mismatch')) as launch:
             with self.assertRaisesRegex(ValueError, 'oracle mismatch'):
                 runner.execute(self.root, self.root, self.path)
             self.assertEqual(launch.call_count, 1)
         bound = len(self.bound)
-        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), {}, {})), mock.patch.object(e2, 'launch') as launch:
+        with mock.patch.object(runner, 'bind', side_effect=self.bind), mock.patch.object(runner, 'execution_approval', return_value=(Path('approval.json'), Path('source.json'), {}, {})), mock.patch.object(e2, 'launch') as launch:
             with self.assertRaisesRegex(ValueError, 'campaign held'):
                 runner.execute(self.root, self.root, self.path)
             launch.assert_not_called()
@@ -405,8 +435,9 @@ class PreparedParentTests(unittest.TestCase):
 
     def test_execution_approval_requires_the_unchanged_preparation_approval(self):
         for job in self.jobs:
-            approval, plan, entry = runner.execution_approval(job)
+            approval, source_authorization, plan, entry = runner.execution_approval(job)
             self.assertTrue(approval.name.endswith('_execution.json'))
+            self.assertTrue(source_authorization.name.endswith('_source_authorization.json'))
             self.assertEqual(plan['system']['system_id'], job['system'])
             self.assertEqual(entry['replica'], job['replica'])
             record = e2.campaign.load_json(approval)

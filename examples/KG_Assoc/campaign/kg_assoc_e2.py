@@ -467,6 +467,22 @@ def approval_record(path, plan_path, purpose):
     return record
 
 
+def extension_source_authorization(path, plan, execution_approval):
+    require(path is not None, 'extension execution requires immutable source authorization')
+    record = campaign.load_json(path)
+    require(record.get('schema_version') == 1 and record.get('approved') is True and
+            record.get('purpose') == 'e2_extension_source_authorization' and
+            record.get('plan_sha256') == campaign.sha256(Path(plan['attempt']) / 'plan.json') and
+            record.get('execution_approval_sha256') == campaign.sha256(execution_approval) and
+            isinstance(record.get('reviewer'), str) and record['reviewer'].strip() and
+            isinstance(record.get('approved_at'), str) and record['approved_at'].strip() and
+            type(record.get('source_sha256_overrides')) is dict and
+            all(type(name) is str and type(value) is str
+                for name, value in record['source_sha256_overrides'].items()),
+            'invalid extension source authorization')
+    return record
+
+
 def derived_preparation(plan):
     if plan.get('lineage_mode') != 'Ea_reference_transfer_v1' or plan['smoke']:
         return False
@@ -661,7 +677,7 @@ def require_extension_readback_build(build):
 
 
 def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
-           replica=None, replicas=None):
+           replica=None, replicas=None, source_authorization=None):
     plan = check_plan(root, attempt, live=False)
     histories = launch_scope(plan, replica, replicas)
     is_extension = plan.get('lineage_mode') == 'Ea_24M_extension_v1'
@@ -681,7 +697,8 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
     if is_extension:
         require(launch_approval.get('GPU_execution_authorized') is True,
                 'GPU execution pending separate user approval; preparation only')
-        live_code(plan, launch_approval.get('execution_source_overrides'))
+        source_record = extension_source_authorization(source_authorization, plan, approval)
+        live_code(plan, source_record['source_sha256_overrides'])
     if derived_preparation(plan) or is_extension:
         require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
@@ -696,7 +713,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
         for entry in histories:
             check_plan(root, attempt, live=False)
             if is_extension:
-                live_code(plan, launch_approval.get('execution_source_overrides'))
+                live_code(plan, source_record['source_sha256_overrides'])
             check_hashes(smoke_hashes)
             scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
             directory = Path(entry['output_prefix']).parent
@@ -728,9 +745,10 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
                 require('STAR_ASSOCIATION_SMOKE PASS' in (directory / 'stdout.log').read_text(),
                         'missing executable completion marker')
                 check_hashes(entry['parent']['sha256'])
-                live_code(plan, launch_approval.get('execution_source_overrides') if is_extension else None)
+                live_code(plan, source_record['source_sha256_overrides'] if is_extension else None)
                 if is_extension:
-                    check_plan(root, attempt, live=True)
+                    check_plan(root, attempt, live=False)
+                    live_code(plan, source_record['source_sha256_overrides'])
                     scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
                     started_record = campaign.load_json(directory / 'started.json')
                     require(started_record['plan_sha256'] == campaign.sha256(attempt / 'plan.json') and
