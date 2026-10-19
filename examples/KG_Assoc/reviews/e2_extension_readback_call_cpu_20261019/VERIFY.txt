@@ -1,0 +1,96 @@
+"""Read-only CPU repair audit. Optional --export archives metadata, never campaign data."""
+import hashlib
+from pathlib import Path
+import subprocess
+import sys
+
+base=Path('examples/KG_Assoc').resolve()
+sys.path.insert(0,str(base/'campaign'))
+import kg_assoc_e2 as e2
+import kg_assoc_e2_extension as extension
+import run_ea_extensions as runner
+
+review=extension.DOSSIER
+root=base/'kg_assoc_100m'
+starting='32adf91b3dda2ef94b535597744234685d422e87'
+source='055a1a1de43a04edebaad76364726d53cfe654f5'
+changed={str(base/n) for n in ('campaign/kg_assoc_e2.py','campaign/kg_assoc_e2_extension.py',
+ 'campaign/run_ea_extensions.py','campaign/test_e2_extension_readback_hold.py',
+ 'campaign/test_e2_extensions.py','kg_assoc_stars.cu')}
+baseline=e2.campaign.load_json(review/'BASELINE.sha256')
+assert len(baseline)==3128
+for name,sha in baseline.items():
+ if name in changed:
+  relative=str(Path(name).relative_to(base.parent.parent))
+  assert hashlib.sha256(subprocess.check_output(['git','show',starting+':'+relative])).hexdigest()==sha
+  assert Path(name).read_bytes()==subprocess.check_output(['git','show',source+':'+relative])
+ else:assert e2.campaign.sha256(Path(name))==sha,name
+print('PASS 3122 unchanged starting bindings; six scoped existing source/test changes')
+old_review=base/'reviews/e2_ea8_extension_readback_forensics_20261019'
+e2.check_hashes(e2.campaign.load_json(old_review/'ORIGINAL_FILES.sha256'))
+e2.check_hashes(e2.campaign.load_json(old_review/'INTEGRITY.sha256'))
+old_state_path=root/'aggregate/e2/manual_ea_extensions_v1/state.json'
+old_state=e2.campaign.load_json(old_state_path)
+assert old_state==e2.campaign.load_json(old_review/'FAILED_STATE.log')
+assert old_state['jobs'][0]['status']=='failed'
+print('PASS held 16M Ea8 r001, entire original state, old plans/approvals/seeds/builds and historical reviews unchanged')
+registration=base/'reviews/e2_ea6_formal_acceptance_20261018/REGISTRATION.log'
+a=e2.campaign.load_json(registration)
+e2.check_hashes({a['acceptance']:a['sha256']})
+prior=e2.campaign.load_json(base/'reviews/e2_ea8_ea10_extension_handoff_20261018/PRIOR_ACCEPTANCES.log')
+for row in prior:
+ e2.check_hashes({row['path']:row['sha256']})
+ record=e2.campaign.load_json(row['path'])
+ e2.check_hashes({record['source_plan']:record['source_plan_sha256'],record['evidence']:record['evidence_sha256']})
+ for history in record['histories']:e2.check_hashes(history['sha256'])
+assert len(prior)==12 and len(list((root/'banks/e2_acceptance').glob('*.json')))==13
+for directory in ('src','examples/KG'):
+ assert not subprocess.check_output(['git','diff','--name-only',starting,'--',directory],text=True).strip()
+print('PASS all thirteen formal acceptances/payload bindings and protected src/examples/KG unchanged')
+
+build_dir=root/'builds'/extension.BUILD
+manifest,manifest_path=e2.check_build(build_dir)
+assert manifest['git_sha']==source and manifest['out_of_tree'] is True
+assert manifest['source_sha256']==e2.sources()
+e2.require_extension_readback_build(manifest)
+assert runner.STATE_DIRECTORY=='manual_ea_extensions_readback_v2'
+state_path=root/'aggregate/e2'/runner.STATE_DIRECTORY/'state.json'
+state=e2.campaign.load_json(state_path);runner.validate_state(state)
+assert len(state['jobs'])==6 and len(state['plans'])==2
+assert sum(j['steps'] for j in state['jobs'])==144000000
+metadata={str(state_path):e2.campaign.sha256(state_path),str(manifest_path):e2.campaign.sha256(manifest_path)}
+plans={};histories=[]
+for job in state['jobs']:
+ assert job['status']=='prepared' and job['retired_attempts']==[]
+ attempt=Path(job['attempt']);assert '_readback_v2_' in attempt.name
+ assert str(attempt) not in old_state['plans'].values()
+ if str(attempt) not in plans:plans[str(attempt)]=e2.check_plan(root,attempt,live=True)
+ plan=plans[str(attempt)];entry=plan['histories'][job['replica']-1]
+ assert list(Path(entry['output_prefix']).parent.iterdir())==[]
+ approval=Path(job['approval']);record=e2.scoped_launch_approval(approval,attempt,'e2_derived_extension',plan,None,[job['replica']])
+ assert record['GPU_execution_authorized'] is False
+ assert entry['start_step']==24000000 and entry['end_step']==job['end_step']==24000000+job['steps']
+ assert plan['diagnostic_window_steps']==500000
+ assert entry['lineage']['chemistry_continuation']=='same_seed_absolute_step_keys'
+ assert entry['lineage']['bitwise_md_continuation'] is False
+ e2.validation.read_parent(entry)
+ metadata.update({str(attempt/'plan.json'):job['plan_sha256'],str(approval):job['approval_sha256']})
+ metadata.update(plan['reservation_sha256'])
+ histories.append(dict(job=job,entry=entry,initial_state_checks=plan['initial_state_checks']))
+assert len({h['entry']['md_seed'] for h in histories})==6
+assert len({h['entry']['effective_md_seed'] for h in histories})==6
+old_md=set();old_effective=set()
+for job in old_state['jobs']:
+ plan=e2.campaign.load_json(Path(job['attempt'])/'plan.json');entry=plan['histories'][job['replica']-1]
+ old_md.add(entry['md_seed']);old_effective.add(entry['effective_md_seed'])
+assert not old_md & {h['entry']['md_seed'] for h in histories}
+assert not old_effective & {h['entry']['effective_md_seed'] for h in histories}
+print('PASS exact six 24M parents, counters, fresh noncolliding MD reservations, CPU initialization and plan-bound preparation approvals')
+print('PASS 144M prospective steps only; new GPU steps zero; all outputs empty and all GPU approvals false')
+if '--export' in sys.argv:
+ e2.exclusive_json(review/'PREPARED.log',dict(source_commit=source,build=manifest,
+   metadata_sha256=metadata,histories=histories,assistant_GPU_steps=0,GPU_execution_authorized=False))
+ e2.exclusive_json(review/'PREPARED_METADATA.sha256',metadata)
+if (review/'INTEGRITY.sha256').exists():
+ e2.check_hashes(e2.campaign.load_json(review/'INTEGRITY.sha256'))
+ print('PASS CPU repair dossier seal')

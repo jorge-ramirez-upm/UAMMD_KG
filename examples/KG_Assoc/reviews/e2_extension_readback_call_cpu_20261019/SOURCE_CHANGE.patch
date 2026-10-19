@@ -1,0 +1,455 @@
+diff --git a/examples/KG_Assoc/campaign/kg_assoc_e2.py b/examples/KG_Assoc/campaign/kg_assoc_e2.py
+index aa46ff8..604571a 100644
+--- a/examples/KG_Assoc/campaign/kg_assoc_e2.py
++++ b/examples/KG_Assoc/campaign/kg_assoc_e2.py
+@@ -633,13 +633,21 @@ def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None)
+ 
+ 
+ def require_extension_readback_build(build):
+-    """Block the exact native source proven to omit extension readback."""
+-    native = [value for name, value in build.get('source_sha256', {}).items()
+-              if Path(name).name == 'kg_assoc_stars.cu']
+-    require(len(native) == 1, 'extension build lacks native source identity')
+-    require(native[0] != '07b6eb5f725f46c1f5b04ef45123fd8915a562c62cee916e2eb0b18eda581ae7',
+-            'extension validation hold: this native build skips initial device readback '
+-            'without chemistry reseeding; preserve all attempts and do not launch MD')
++    """Authenticate the corrected native call path and execute its CPU-only probe."""
++    required = {'kg_assoc_stars.cu': '9c0e9269b761ff38c07c8d5d2bc0da54d80dab42374030cb2cc39892b18f2c85',
++                'kg_assoc_readback_dispatch.cuh': '27b78580c23a285c5a1375ad953583ea6f841c75104f2bb6af69c35b1d582812'}
++    for name, expected in required.items():
++        actual = [value for path, value in build.get('source_sha256', {}).items()
++                  if Path(path).name == name]
++        require(actual == [expected], 'extension readback call path is not authenticated: ' + name)
++    check_hashes(build['executable_sha256'])
++    executables = [path for path in build['executable_sha256']
++                   if Path(path).name == 'kg_assoc_stars_candidate_smoke']
++    require(len(executables) == 1, 'extension diagnostic executable absent')
++    probe = subprocess.check_output([executables[0], '--readback-call-path-info'],
++                                    text=True, timeout=60)
++    require(probe == 'INITIAL_READBACK_CALL_PATH_V2 CPU_ONLY cases=4 fail_stop=3\n',
++            'extension compiled readback call-path probe failed')
+ 
+ 
+ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
+@@ -659,7 +667,10 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
+         'lineage_mode') else ('e2_smoke' if plan['smoke'] else 'e2_segment')
+     if is_extension:
+         purpose = 'e2_derived_extension'
+-    scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
++    launch_approval = scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
++    if is_extension:
++        require(launch_approval.get('GPU_execution_authorized') is True,
++                'GPU execution pending separate user approval; preparation only')
+     if derived_preparation(plan) or is_extension:
+         require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
+     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
+diff --git a/examples/KG_Assoc/campaign/kg_assoc_e2_extension.py b/examples/KG_Assoc/campaign/kg_assoc_e2_extension.py
+index 9a5ff9c..973da57 100644
+--- a/examples/KG_Assoc/campaign/kg_assoc_e2_extension.py
++++ b/examples/KG_Assoc/campaign/kg_assoc_e2_extension.py
+@@ -12,10 +12,10 @@ SCOPE = 'Ea_transfer_24M_extensions_v1'
+ DURATIONS = {'F04_N010_RP080_EE08_EA08': 16000000,
+              'F04_N010_RP080_EE08_EA10': 32000000}
+ REVIEW = e2.HERE.parent / 'reviews/e2_ea_transfer_24m_joint_20261018'
+-DOSSIER = e2.HERE.parent / 'reviews/e2_ea8_ea10_extension_handoff_20261018'
+-BUILD = 'ea_24m_extensions_20261018_v1'
++DOSSIER = e2.HERE.parent / 'reviews/e2_extension_readback_call_cpu_20261019'
++BUILD = 'ea_24m_extensions_readback_20261019_v2'
+ REVIEW_SHA256 = '3d30b0539fa014874acbcad10f5a410053226cf152a872b078fdb031bc4f22d2'
+-TRANSITIONS_SHA256 = '472af5cbd9ae4f1dd6b4c6519aa91bdd27599922de06daa9b712bee62451ac36'
++TRANSITIONS_SHA256 = '88c8bbc7fe4ed87124ee71918713ec1eb33345cf4c155876e6f1af28a402692c'
+ require = e2.require
+ 
+ 
+@@ -216,6 +216,7 @@ def inspect(root, output, sid, build_directory, reservation_path):
+ def prepare(root, output, sid, build_directory, evidence):
+     e2.clean_tree()
+     build, manifest = e2.check_build(build_directory)
++    e2.require_extension_readback_build(build)
+     require(build['out_of_tree'] and not output.exists(), 'new out-of-tree extension attempt required')
+     with (root / 'banks/.e2.prepare.lock').open('x'):
+         pass
+@@ -264,6 +265,7 @@ def check_plan(root, output, plan, live=False):
+     require(code_compatible(e2.campaign.load_json(Path(plan['parent_attempt']) / 'plan.json'), plan),
+             'extension source exceeds approved front-end changes')
+     if live:
++        e2.require_extension_readback_build(plan['build'])
+         e2.live_code(plan)
+     return plan
+ 
+@@ -278,6 +280,9 @@ def code_compatible(parent, plan):
+     after = e2.scientific_source_hashes(plan['source_sha256'])
+     for name in ('kg_assoc_e2_extension.py', 'run_ea_extensions.py'):
+         after.pop(str(e2.HERE / name), None)
++    header = str(e2.HERE.parent / 'kg_assoc_readback_dispatch.cuh')
++    if after.pop(header, None) != '27b78580c23a285c5a1375ad953583ea6f841c75104f2bb6af69c35b1d582812':
++        return False
+     if set(before) != set(after):
+         return False
+     for relative, record in transitions.items():
+diff --git a/examples/KG_Assoc/campaign/run_ea_extensions.py b/examples/KG_Assoc/campaign/run_ea_extensions.py
+index e18129f..e188996 100644
+--- a/examples/KG_Assoc/campaign/run_ea_extensions.py
++++ b/examples/KG_Assoc/campaign/run_ea_extensions.py
+@@ -14,6 +14,7 @@ import run_e2
+ from run_ea_preparation import save, request_stop
+ 
+ RESTART_OVERHEAD_AUTHORIZED = True
++STATE_DIRECTORY = 'manual_ea_extensions_readback_v2'
+ 
+ 
+ def jobs():
+@@ -42,7 +43,7 @@ def bind(root, directory, state, job, build):
+             attempt = None
+     if not attempt:
+         attempt = root / 'banks/e2_attempts/F04_N010_RP080_EE08' / (
+-            'extension_' + job['system'] + '_' + uuid.uuid4().hex)
++            'extension_' + job['system'] + '_readback_v2_' + uuid.uuid4().hex)
+         extension.prepare(root, attempt, job['system'], build, extension.DOSSIER / 'AUTHORIZATION.md')
+         state['plans'][job['system']] = str(attempt)
+     attempt = Path(attempt)
+@@ -53,7 +54,8 @@ def bind(root, directory, state, job, build):
+         selector_scope=extension.SCOPE, authorized_system=job['system'],
+         authorized_replicas=[job['replica']], maximum_additional_MD_steps_per_history=job['steps'],
+         maximum_additional_MD_steps=job['steps'], absolute_start_step=24000000,
+-        absolute_end_step=job['end_step'], diagnostic_window_steps=500000)
++        absolute_end_step=job['end_step'], diagnostic_window_steps=500000,
++        GPU_execution_authorized=False)
+     if not approval.exists():
+         e2.exclusive_json(approval, record)
+     job.update(attempt=str(attempt), approval=str(approval),
+@@ -249,7 +251,7 @@ def main():
+     group.add_argument('--execute', action='store_true', help='user runs only the six authorized extensions')
+     args = parser.parse_args()
+     root = run_e2.discover()
+-    state_path = root / 'aggregate/e2/manual_ea_extensions_v1/state.json'
++    state_path = root / 'aggregate/e2' / STATE_DIRECTORY / 'state.json'
+     if args.status:
+         if not state_path.exists():
+             print('Not prepared. --prepare is CPU-only; --execute is user-run MD.')
+@@ -287,6 +289,13 @@ def main():
+                 authenticate(job)
+         print('CHECK PASS: exact parents/build/source/approvals authenticated; no writes or GPU execution.')
+         return 0
++    e2.require(state_path.exists(), 'CPU preparation required before execution approval')
++    state = e2.campaign.load_json(state_path)
++    validate_state(state)
++    for job in state['jobs']:
++        authenticate(job)
++        e2.require(e2.campaign.load_json(job['approval']).get('GPU_execution_authorized') is True,
++                   'GPU execution pending separate user approval; preparation only')
+     e2.require(e2.socket.gethostname() == 'titan', 'extension execution is configured only for titan')
+     return execute(root, build, state_path)
+ 
+diff --git a/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py b/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py
+index cc440f2..2efb286 100644
+--- a/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py
++++ b/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py
+@@ -92,7 +92,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
+             for option in ('--check', '--prepare', '--execute'):
+                 with self.subTest(option=option), mock.patch.object(
+                         sys, 'argv', ['run_ea_extensions.py', option]), self.assertRaisesRegex(
+-                        ValueError, 'skips initial device readback'):
++                        ValueError, 'not authenticated'):
+                     runner.main()
+             execute.assert_not_called()
+             prepare.assert_not_called()
+@@ -100,7 +100,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
+         self.assertEqual(before, self.snapshot())
+ 
+     def test_missing_native_identity_is_rejected(self):
+-        with self.assertRaisesRegex(ValueError, 'lacks native source identity'):
++        with self.assertRaisesRegex(ValueError, 'not authenticated'):
+             e2.require_extension_readback_build({})
+ 
+     def test_direct_launcher_cannot_start_affected_extension(self):
+@@ -110,7 +110,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
+         with mock.patch.object(e2, 'check_plan', return_value=plan), \
+                 mock.patch.object(e2, 'launch_scope', return_value=[]), \
+                 mock.patch.object(e2.subprocess, 'Popen') as popen, self.assertRaisesRegex(
+-                ValueError, 'extension validation hold'):
++                ValueError, 'not authenticated'):
+             e2.launch(self.root, self.root, execute=True, replicas=[1])
+         popen.assert_not_called()
+         self.assertEqual(before, self.snapshot())
+@@ -121,7 +121,7 @@ class ExtensionReadbackHoldTests(unittest.TestCase):
+         for job in state['jobs']:
+             plan = e2.campaign.load_json(Path(job['attempt'])/'plan.json')
+             with self.subTest(system=job['system'], replica=job['replica']), \
+-                    self.assertRaisesRegex(ValueError, 'skips initial device readback'):
++                    self.assertRaisesRegex(ValueError, 'not authenticated'):
+                 e2.require_extension_readback_build(plan['build'])
+         self.assertEqual(len(state['jobs']), 6)
+ 
+diff --git a/examples/KG_Assoc/campaign/test_e2_extensions.py b/examples/KG_Assoc/campaign/test_e2_extensions.py
+index 6c0da54..18ab3d8 100644
+--- a/examples/KG_Assoc/campaign/test_e2_extensions.py
++++ b/examples/KG_Assoc/campaign/test_e2_extensions.py
+@@ -28,7 +28,7 @@ class ExtensionScopeTests(unittest.TestCase):
+         for entry in self.plan['histories']:
+             entry.update(start_step=24000000, end_step=24000000 + steps)
+         (self.attempt / 'plan.json').write_text(json.dumps(self.plan))
+-        self.record.update(purpose='e2_derived_extension', selector_scope=extension.SCOPE, plan_sha256=e2.campaign.sha256(self.attempt / 'plan.json'), authorized_system=sid, authorized_replicas=[2], maximum_additional_MD_steps_per_history=steps, maximum_additional_MD_steps=steps, absolute_start_step=24000000, absolute_end_step=24000000 + steps, diagnostic_window_steps=500000)
++        self.record.update(purpose='e2_derived_extension', selector_scope=extension.SCOPE, plan_sha256=e2.campaign.sha256(self.attempt / 'plan.json'), authorized_system=sid, authorized_replicas=[2], maximum_additional_MD_steps_per_history=steps, maximum_additional_MD_steps=steps, absolute_start_step=24000000, absolute_end_step=24000000 + steps, diagnostic_window_steps=500000, GPU_execution_authorized=True)
+         self.write_approval(self.record)
+ 
+     @contextlib.contextmanager
+@@ -42,6 +42,7 @@ class ExtensionScopeTests(unittest.TestCase):
+         with contextlib.ExitStack() as stack:
+             stack.enter_context(mock.patch.object(e2, 'check_plan', return_value=self.plan))
+             stack.enter_context(mock.patch.object(e2, 'live_code'))
++            stack.enter_context(mock.patch.object(e2, 'require_extension_readback_build'))
+             stack.enter_context(mock.patch.object(e2, 'matching_smoke', return_value={}))
+             stack.enter_context(mock.patch.object(e2.socket, 'gethostname', return_value='titan'))
+             stack.enter_context(mock.patch.object(extension, 'revalidate_parent'))
+@@ -118,6 +119,15 @@ class ExtensionScopeTests(unittest.TestCase):
+         self.assertEqual(command[command.index('--seed') + 1], '1321001')
+         self.assertEqual(command[command.index('--steps') + 1], '32000000')
+ 
++    def test_preparation_approval_cannot_launch_GPU(self):
++        self.configure()
++        self.write_approval(dict(self.record, GPU_execution_authorized=False))
++        with self.execution() as popen, self.assertRaisesRegex(ValueError, 'pending separate'):
++            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
++        popen.assert_not_called()
++        for replica in (1, 2, 3):
++            self.assertEqual(list((self.attempt / f'r{replica:03d}').iterdir()), [])
++
+ class LifecycleTests(unittest.TestCase):
+ 
+     def setUp(self):
+@@ -326,7 +336,7 @@ class ExecuteLifecycleTests(unittest.TestCase):
+         self.assertEqual(len(self.bound), bound)
+ 
+     def test_check_and_status_are_read_only_and_never_launch(self):
+-        with mock.patch.object(runner.run_e2, 'discover', return_value=self.root), mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'check_build'), mock.patch.object(e2.campaign, 'load_json', return_value={'source_sha256': {'kg_assoc_stars.cu': 'cpu_fixture_native'}}), mock.patch.object(extension, 'predecessor'), mock.patch.object(e2, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
++        with mock.patch.object(runner.run_e2, 'discover', return_value=self.root), mock.patch.object(e2, 'clean_tree'), mock.patch.object(e2, 'check_build'), mock.patch.object(e2, 'require_extension_readback_build'), mock.patch.object(e2.campaign, 'load_json', return_value={'source_sha256': {'kg_assoc_stars.cu': 'cpu_fixture_native'}}), mock.patch.object(extension, 'predecessor'), mock.patch.object(e2, 'launch') as launch, contextlib.redirect_stdout(io.StringIO()):
+             for option in ('--check', '--status'):
+                 with mock.patch.object(sys, 'argv', ['run_ea_extensions.py', option]):
+                     self.assertEqual(runner.main(), 0)
+@@ -361,6 +371,7 @@ class FrozenPhysicalSourceTests(unittest.TestCase):
+             'ceb4048a00897b8c335d718d885f9e14ac2c37e7:examples/KG_Assoc/kg_assoc_stars.cu'],
+             text=True, cwd=e2.campaign.REPOSITORY_ROOT)
+         current = (e2.HERE.parent / 'kg_assoc_stars.cu').read_text()
++        current = current.replace('    kg_assoc_test::dispatchInitialReadback(\n        parameters.reseedChemistry, parameters.e2Extension, [&]() {\n          initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,\n                                diagnosticContext);\n        });', '    if (parameters.reseedChemistry) {\n      initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,\n                            diagnosticContext);\n    }')
+         marker = '      const double requestedEa = targetEa;'
+         self.assertEqual(old.split(marker, 1)[1], current.split(marker, 1)[1])
+         marker = 'void initialDeviceReadback('
+@@ -373,7 +384,7 @@ class PreparedParentTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+         cls.root = e2.HERE.parent / 'kg_assoc_100m'
+-        state = cls.root / 'aggregate/e2/manual_ea_extensions_v1/state.json'
++        state = cls.root / 'aggregate/e2' / runner.STATE_DIRECTORY / 'state.json'
+         if not state.exists():
+             raise unittest.SkipTest('real CPU-only preparation is not yet present')
+         cls.jobs = e2.campaign.load_json(state)['jobs']
+diff --git a/examples/KG_Assoc/campaign/test_e2_readback_call_path.py b/examples/KG_Assoc/campaign/test_e2_readback_call_path.py
+new file mode 100644
+index 0000000..6ccacbe
+--- /dev/null
++++ b/examples/KG_Assoc/campaign/test_e2_readback_call_path.py
+@@ -0,0 +1,109 @@
++"""Optimized CPU call-path tests; the device callback is a spy, never a GPU readback."""
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import tempfile
++import unittest
++from unittest import mock
++
++import kg_assoc_e2 as e2
++import kg_assoc_e2_extension as extension
++import run_ea_extensions as runner
++
++
++class ReadbackCallPathTests(unittest.TestCase):
++    def test_optimized_exact_production_block_invokes_readback_and_stops_before_MD(self):
++        source = (e2.HERE.parent/'kg_assoc_stars.cu').read_text()
++        begin = source.index('    kg_assoc_test::dispatchInitialReadback(')
++        end = source.index('\n#endif', begin)
++        block = source[begin:end]
++        self.assertLess(end, source.index('      integrator->forwardTime();'))
++        self.assertEqual(block.count('initialDeviceReadback('), 1)
++        before = r'''
++#include "kg_assoc_readback_dispatch.cuh"
++struct Parameters { bool reseedChemistry; bool e2Extension; };
++int calls = 0;
++bool fail = false;
++void initialDeviceReadback(const Parameters&, int, int, int, int, int, int) {
++  ++calls;
++  if (fail) { throw std::runtime_error("CPU spy missing required readback"); }
++}
++int main() {
++  for (bool reseed : {false, true}) {
++    for (bool extension : {false, true}) {
++      for (bool missing : {false, true}) {
++        Parameters parameters{reseed, extension};
++        int data=0, simulationBox=0, particles=0, state=0, lengths=0, diagnosticContext=0;
++        calls=0;
++        fail=missing;
++        bool integrated=false;
++        try {
++'''
++        after = r'''
++          integrated=true;
++        } catch (const std::runtime_error&) {}
++        if (calls != int(reseed || extension) ||
++            integrated != (!missing || !(reseed || extension))) { return 1; }
++      }
++    }
++  }
++}
++'''
++        with tempfile.TemporaryDirectory() as name:
++            root = Path(name)
++            for mutation in (False, True):
++                body = block.replace('parameters.e2Extension', 'false') if mutation else block
++                path = root/'probe.cu'
++                path.write_text(before+body+after)
++                executable = root/'probe'
++                subprocess.run(['/usr/local/cuda-12.8/bin/nvcc',
++                    '-ccbin=/usr/local/gcc-11.2.0/bin/g++','-O3','-std=c++14',
++                    '-I'+str(e2.HERE.parent),str(path),'-o',str(executable)],
++                    check=True,capture_output=True,text=True,timeout=60)
++                result = subprocess.run([str(executable)],timeout=60)
++                self.assertEqual(result.returncode, int(mutation))
++
++    def test_ordinary_and_reseeded_physical_source_is_unchanged_except_validation_dispatch(self):
++        old = subprocess.check_output(['git','show',
++            '32adf91b3dda2ef94b535597744234685d422e87:examples/KG_Assoc/kg_assoc_stars.cu'],text=True)
++        current = (e2.HERE.parent/'kg_assoc_stars.cu').read_text()
++        begin = current.index('    kg_assoc_test::dispatchInitialReadback(')
++        end = current.index('\n#endif',begin)
++        old_begin = old.index('    if (parameters.reseedChemistry) {\n      initialDeviceReadback(')
++        old_end = old.index('\n#endif',old_begin)
++        current = current[:begin]+old[old_begin:old_end]+current[end:]
++        marker = '      const double requestedEa = targetEa;'
++        self.assertEqual(old.split(marker,1)[1], current.split(marker,1)[1])
++        marker = 'void initialDeviceReadback('
++        self.assertEqual(old[old.index(marker):old.index('int main(')],
++                         current[current.index(marker):current.index('int main(')])
++
++    def test_unknown_or_old_native_build_is_rejected(self):
++        for build in ({},dict(source_sha256={'kg_assoc_stars.cu':'unknown'})):
++            with self.assertRaisesRegex(ValueError,'not authenticated'):
++                e2.require_extension_readback_build(build)
++
++    def test_new_state_is_separate_and_original_failed_campaign_is_unchanged(self):
++        self.assertEqual(runner.STATE_DIRECTORY,'manual_ea_extensions_readback_v2')
++        old = e2.HERE.parent/'kg_assoc_100m/aggregate/e2/manual_ea_extensions_v1/state.json'
++        before = old.read_bytes()
++        self.assertEqual(json.loads(before)['jobs'][0]['status'],'failed')
++        frozen = e2.campaign.load_json(e2.HERE.parent/
++            'reviews/e2_ea8_extension_readback_forensics_20261019/ORIGINAL_FILES.sha256')
++        e2.check_hashes(frozen)
++        self.assertEqual(old.read_bytes(),before)
++
++    def test_corrected_optimized_binary_probe_and_tampering(self):
++        build = e2.HERE.parent/'kg_assoc_100m/builds'/extension.BUILD/'manifest.json'
++        if not build.exists():
++            self.skipTest('fresh optimized build not compiled yet')
++        record = e2.campaign.load_json(build)
++        e2.require_extension_readback_build(record)
++        with mock.patch.object(e2.subprocess,'check_output',return_value='bad CPU probe'):
++            with self.assertRaisesRegex(ValueError,'probe failed'):
++                e2.require_extension_readback_build(record)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/examples/KG_Assoc/kg_assoc_readback_dispatch.cuh b/examples/KG_Assoc/kg_assoc_readback_dispatch.cuh
+new file mode 100644
+index 0000000..97fc178
+--- /dev/null
++++ b/examples/KG_Assoc/kg_assoc_readback_dispatch.cuh
+@@ -0,0 +1,44 @@
++#ifndef KG_ASSOC_READBACK_DISPATCH_CUH_
++#define KG_ASSOC_READBACK_DISPATCH_CUH_
++
++#include <initializer_list>
++#include <stdexcept>
++
++namespace kg_assoc_test {
++
++// The callback is the real device readback in MD, and a CPU spy in the call-path probe.
++template <class Readback>
++void dispatchInitialReadback(bool reseeded, bool extension, Readback readback) {
++  if (reseeded || extension) {
++    readback();
++  }
++}
++
++inline void probeInitialReadbackDispatch() {
++  for (const bool reseeded : {false, true}) {
++    for (const bool extension : {false, true}) {
++      int calls = 0;
++      dispatchInitialReadback(reseeded, extension, [&]() { ++calls; });
++      if (calls != int(reseeded || extension)) {
++        throw std::runtime_error("initial readback call-path regression");
++      }
++      bool reachedIntegration = false;
++      bool rejected = false;
++      try {
++        dispatchInitialReadback(reseeded, extension, []() {
++          throw std::runtime_error("CPU spy: missing required device evidence");
++        });
++        reachedIntegration = true;
++      } catch (const std::runtime_error&) {
++        rejected = true;
++      }
++      if (reachedIntegration != !(reseeded || extension) ||
++          rejected != (reseeded || extension)) {
++        throw std::runtime_error("initial readback fail-stop regression");
++      }
++    }
++  }
++}
++
++}  // namespace kg_assoc_test
++#endif
+diff --git a/examples/KG_Assoc/kg_assoc_stars.cu b/examples/KG_Assoc/kg_assoc_stars.cu
+index c41f0d1..0379daa 100644
+--- a/examples/KG_Assoc/kg_assoc_stars.cu
++++ b/examples/KG_Assoc/kg_assoc_stars.cu
+@@ -10,6 +10,7 @@
+ #include "kg_assoc_chemical_reseed.cuh"
+ #ifdef KG_ASSOC_VALIDATE_CANDIDATES
+ #include "kg_assoc_candidate_oracle.cuh"
++#include "kg_assoc_readback_dispatch.cuh"
+ #endif
+ 
+ #include <chrono>
+@@ -777,6 +778,15 @@ int main(int argc, char** argv) {
+       std::cout << rng.next32() << '\n';
+       return 0;
+     }
++    if (argc == 2 && std::string(argv[1]) == "--readback-call-path-info") {
++#ifdef KG_ASSOC_VALIDATE_CANDIDATES
++      kg_assoc_test::probeInitialReadbackDispatch();
++      std::cout << "INITIAL_READBACK_CALL_PATH_V2 CPU_ONLY cases=4 fail_stop=3\n";
++      return 0;
++#else
++      throw std::runtime_error("readback call-path probe requires diagnostic build");
++#endif
++    }
+     Parameters parameters = parseArguments(argc, argv);
+     if (parameters.selfTest) {
+       if (!parameters.rAssocExplicit &&
+@@ -1125,10 +1135,11 @@ int main(int argc, char** argv) {
+     integrator->addInteractor(associating);
+ 
+ #ifdef KG_ASSOC_VALIDATE_CANDIDATES
+-    if (parameters.reseedChemistry) {
+-      initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,
+-                            diagnosticContext);
+-    }
++    kg_assoc_test::dispatchInitialReadback(
++        parameters.reseedChemistry, parameters.e2Extension, [&]() {
++          initialDeviceReadback(parameters, data, simulationBox, particles, state, lengths,
++                                diagnosticContext);
++        });
+ #endif
+ 
+     kg_assoc::Kinetics kinetics(

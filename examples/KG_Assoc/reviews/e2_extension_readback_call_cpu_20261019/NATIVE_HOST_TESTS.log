@@ -1,0 +1,20 @@
+MD_SEED SELF_TEST requested=22001 effective=3924086680
+MD_SEED SELF_TEST requested=22002 effective=3949264792
+MD_SEED SELF_TEST requested=22003 effective=3940888472
+MD_SEED SELF_TEST requested=32001 effective=3928609932
+MD_SEED SELF_TEST requested=32002 effective=3937019018
+MD_SEED SELF_TEST requested=32003 effective=3945428108
+STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants
+MD_SEED SELF_TEST requested=22001 effective=3924086680
+MD_SEED SELF_TEST requested=22002 effective=3949264792
+MD_SEED SELF_TEST requested=22003 effective=3940888472
+MD_SEED SELF_TEST requested=32001 effective=3928609932
+MD_SEED SELF_TEST requested=32002 effective=3937019018
+MD_SEED SELF_TEST requested=32003 effective=3945428108
+STAR_ASSOCIATION_SMOKE SELF_TEST PASS sticker subset and invariants
+CANDIDATE SELF_TEST PASS translations, degenerate grids, cutoff, active partners, kinetics
+CUTOFF_COUNTEREXAMPLE real_bytes=4 real_first=1.25 double_first=1.2499999776482582
+MIC_COUNTEREXAMPLE subtraction=1.25 remainder=1.2499999999999964
+CUTOFF_CONTRACT PASS cases=398 strict_boundaries periodic_faces images nondyadic_coordinates
+VALIDATION_EVIDENCE PASS missing extra active free provenance immutable readback_position_velocity_ids_types_partners_nonfinite_mapping velocity_ulp_rejections=12
+INITIAL_READBACK_CALL_PATH_V2 CPU_ONLY cases=4 fail_stop=3

@@ -1,0 +1,10 @@
+{
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2.py": "294cc4474e9f9771bad26262f95ea3d98c6da60ada872fd3f5c5721bcda25fe5",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2_extension.py": "cd24cd9951e2a3be7bd05af608c46cafb20e1daf1721c0a2c9c1c0e447b81ed0",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/run_ea_extensions.py": "854f5beb069ac2145a6a49323cd90caec414d992faccba6b0e3580cb801e0751",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py": "7c45f6f4f628f412b930e81597186e3d748bfbf5546379b396b4287c91ad48c2",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_e2_extensions.py": "0d39af6780d9571c6cfc44a9f1b121d1a4a9402089bc8bde757dd8e579f14f2e",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_e2_readback_call_path.py": "d5824172bf86e7add8c15be7e982563fa39bb8a79ea06a03fbfc5be2f41c6cee",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_readback_dispatch.cuh": "27b78580c23a285c5a1375ad953583ea6f841c75104f2bb6af69c35b1d582812",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_stars.cu": "9c0e9269b761ff38c07c8d5d2bc0da54d80dab42374030cb2cc39892b18f2c85"
+}

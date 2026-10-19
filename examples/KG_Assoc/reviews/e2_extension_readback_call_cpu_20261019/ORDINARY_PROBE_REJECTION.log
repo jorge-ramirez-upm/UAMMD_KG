@@ -1,0 +1,3 @@
+PASS ordinary executable rejects diagnostic-only host probe before device construction
+STAR_ASSOCIATION_SMOKE FAIL: readback call-path probe requires diagnostic build
+

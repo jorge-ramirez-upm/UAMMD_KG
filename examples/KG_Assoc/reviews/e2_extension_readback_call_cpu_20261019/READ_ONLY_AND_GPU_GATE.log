@@ -1,0 +1,13 @@
+COMMAND --check
+CHECK PASS: exact parents/build/source/approvals authenticated; no writes or GPU execution.
+COMMAND --status
+Completed-extension cap: 144000000 MD steps; recorded restart overhead authorized.
+Abandoned partial overhead lower/upper: 0 0
+F04_N010_RP080_EE08_EA08 r001 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592 
+F04_N010_RP080_EE08_EA08 r002 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592 
+F04_N010_RP080_EE08_EA08 r003 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592 
+F04_N010_RP080_EE08_EA10 r001 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe 
+F04_N010_RP080_EE08_EA10 r002 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe 
+F04_N010_RP080_EE08_EA10 r003 prepared prepared /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe 
+EXPECTED GPU GATE: GPU execution pending separate user approval; preparation only
+PASS read-only checks and real prepared-approval rejection; MD loop mocked unreachable; old/new metadata unchanged

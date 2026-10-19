@@ -1,0 +1,19 @@
+"""CPU integration regression: missing actual historical readback must remain rejected."""
+from pathlib import Path
+import sys
+sys.path.insert(0,str(Path('examples/KG_Assoc/campaign').resolve()))
+import kg_assoc_e2 as e2
+review=Path('examples/KG_Assoc/reviews/e2_ea8_extension_readback_forensics_20261019')
+e2.check_hashes(e2.campaign.load_json(review/'ORIGINAL_FILES.sha256'))
+state=e2.campaign.load_json(review/'FAILED_STATE.log')
+entry=e2.campaign.load_json(Path(state['jobs'][0]['attempt'])/'plan.json')['histories'][0]
+missing=Path(entry['output_prefix']+'.initial_device_validation.tsv')
+assert not missing.exists()
+try:
+    e2.validation.validate(entry,oracle=False)
+except FileNotFoundError as error:
+    assert Path(error.filename)==missing
+else:
+    raise AssertionError('Required missing readback was waived')
+e2.check_hashes(e2.campaign.load_json(review/'ORIGINAL_FILES.sha256'))
+print('PASS actual held native-PASS trajectory rejected for missing initial readback even with oracle=False; all 33 original bindings unchanged')

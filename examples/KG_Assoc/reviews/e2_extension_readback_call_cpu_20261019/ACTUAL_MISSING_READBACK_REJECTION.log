@@ -1,0 +1,1 @@
+PASS actual held native-PASS trajectory rejected for missing initial readback even with oracle=False; all 33 original bindings unchanged
