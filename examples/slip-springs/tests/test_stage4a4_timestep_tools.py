@@ -9,6 +9,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tests'))
 import stage4a4_equilibrium_reference as reference
 import stage4a4_timestep_analysis as analysis
+import stage4a4_static_drift_analysis as drift
 
 
 class Stage4A4ToolsTest(unittest.TestCase):
@@ -58,6 +59,31 @@ class Stage4A4ToolsTest(unittest.TestCase):
             result = analysis.analyze(directory, ref_path)
             self.assertEqual(result['static_screen'], 'pass-provisional')
             self.assertEqual(result['run']['second_half_frames_per_chain'], 2)
+
+    def test_drift_analysis_omits_midpoint_and_uses_conservative_comparison(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp); ref = reference.reference(8, 0, 65536, 3, chunk=256)
+            ref_path = root/'reference.json'; ref_path.write_text(json.dumps(ref))
+            values = {key: item['mean'] for key, item in ref['observables'].items()}
+            tangent = {key: item['mean'] for key, item in ref['orientation_correlation'].items()}
+            def fixture(name, dt, shift):
+                directory = root/name; directory.mkdir()
+                (directory/'metadata.json').write_text(json.dumps({'springs': 8, 'chains': 512, 'dt': dt,
+                    'steps': 20000, 'production_time': 20., 'seed': 9}))
+                (directory/'initial.csv').write_text('identical initial coordinates\n')
+                with (directory/'samples.csv').open('w') as out:
+                    out.write('step,time,chain,mean_r,mean_r2,re2,rg2,tangent1,tangent2,tangent3,tangent4\n')
+                    for time in (0., 10., 20.):
+                        for chain in range(512):
+                            out.write(f"0,{time},{chain},{values['mean_r']+shift},{values['mean_r2']},{values['re2']},{values['rg2']},{tangent['1']},{tangent['2']},{tangent['3']},{tangent['4']}\n")
+                return directory
+            small, large = fixture('small', .000025, 0.), fixture('large', .001, .001)
+            a, b = drift.run(small, ref_path), drift.run(large, ref_path)
+            result = drift.compare(a, b)
+            self.assertEqual((a['first_frames_per_chain'], a['second_frames_per_chain']), (1, 1))
+            self.assertTrue(result['same_initial_coordinates'])
+            self.assertIn('conservative unpaired', result['method'])
+            self.assertAlmostEqual(result['observables']['mean_r']['large_minus_small'], .001)
 
 
 if __name__ == '__main__': unittest.main()
