@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT/'tests'))
 import stage4a4_equilibrium_reference as reference
 import stage4a4_timestep_analysis as analysis
 import stage4a4_static_drift_analysis as drift
+import stage4a4_dynamic_timestep_analysis as dynamics
 
 
 class Stage4A4ToolsTest(unittest.TestCase):
@@ -84,6 +85,28 @@ class Stage4A4ToolsTest(unittest.TestCase):
             self.assertTrue(result['same_initial_coordinates'])
             self.assertIn('conservative unpaired', result['method'])
             self.assertAlmostEqual(result['observables']['mean_r']['large_minus_small'], .001)
+
+    def test_dynamic_analysis_checks_six_channel_h_and_unpaired_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            def fixture(name, spacing, offset):
+                directory = root/name; directory.mkdir()
+                (directory/'stress_metadata.json').write_text(json.dumps({'mode': 'every-step', 'spacing': spacing}))
+                header = ['lag_time', 'H', 'H_se', 'block_samples', 'pairs_per_chain']
+                for key in dynamics.CHANNELS: header.extend((key, key+'_se'))
+                with (directory/'stress_correlations.csv').open('w') as out:
+                    out.write(','.join(header)+'\n')
+                    for time, h in ((0, 7+offset), (.01, 5+offset), (.05, 3+offset), (.1, 2+offset), (.2, 1+offset)):
+                        values = [time, h, .01, max(1, round(time/spacing)), 100]
+                        for key in dynamics.CHANNELS: values.extend((h/.7, .01/.7))
+                        out.write(','.join(map(str, values))+'\n')
+                return directory
+            small, large = fixture('small', .001, 0), fixture('large', .002, .01)
+            result = dynamics.compare(dynamics.load(small), dynamics.load(large))
+            self.assertEqual(len(result['lags']), 3)
+            self.assertEqual(result['lags'][0]['gate'], 'pass')
+            self.assertIn('Cxy', result['h0']['channels'])
+            self.assertIn(result['crossing']['gate'], ('pass', 'unresolved'))
 
 
 if __name__ == '__main__': unittest.main()
