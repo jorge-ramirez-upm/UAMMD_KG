@@ -1,4 +1,5 @@
 #include "semiflexible.cuh"
+#include "semiflexible_slipspring.cuh"
 #include "semiflexible_stress.cuh"
 #include "semiflexible_scalar_output.h"
 #include <thrust/device_vector.h>
@@ -24,6 +25,7 @@ std::string jsonNumber(double x) { if(!std::isfinite(x)) return "null"; std::ost
 struct Options {
   int n=8,chains=64; Counter steps=1000,sample=100,seed=42001;
   double dt=0.0001,b0=1,kb=30,kappa=2,kbt=1,zeta=1;
+  Counter slipCount=0; double slipMs2=0;
   fs::path output,parameters,initial; bool forceOnly=false;
   stress3b::Settings stress;
   std::string scalarOutput="full";
@@ -44,6 +46,7 @@ Options parse(int argc,char** argv) {
     if(key=="--help") {
       std::cout<<"semiflexible --output NEW_DIR [--springs N --chains C --dt H --steps S --sample STRIDE --seed K]\n"
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
+        "[--slip-count Z --slip-ms2 A2 (development-only fixed attachments; stress must be off)]\n"
         "[--stress-mode off|diagnostic|stream|every-step --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
         "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
         "parameters: N, then N (b0 kb) pairs, then N+1 bead-indexed kappa values; --springs must match.\n"
@@ -69,6 +72,8 @@ Options parse(int argc,char** argv) {
       else if(key=="--correlator-mib")o.stress.correlatorMiB=value;
       else {if(value>1)throw std::runtime_error("stress-dump must be 0 or 1");o.stress.dump=value;}
     }
+    else if(key=="--slip-count") o.slipCount=integer(v);
+    else if(key=="--slip-ms2") o.slipMs2=number(v);
     else if(key=="--steps") o.steps=integer(v);
     else if(key=="--sample") o.sample=integer(v);
     else if(key=="--seed") o.seed=integer(v);
@@ -83,6 +88,9 @@ Options parse(int argc,char** argv) {
     else if(key=="--zeta") o.zeta=number(v);
     else throw std::runtime_error("unknown option: "+key);
   }
+  if(o.slipCount>Counter(o.n+1)*o.chains) throw std::runtime_error("slip-count exceeds number of bead sites");
+  if(o.slipCount && (!(o.slipMs2>0) || !std::isfinite(real(o.slipMs2)) || !(real(3*o.kbt/o.slipMs2)>0))) throw std::runtime_error("active slips require representable positive slip-ms2 and stiffness");
+  if(o.slipCount && o.stress.enabled()) throw std::runtime_error("slip-spring rheology/stress is deferred; use --stress-mode off");
   if(Counter(o.n+1)*o.chains>(INT_MAX-8)/8) throw std::runtime_error("too many beads for diagnostic keys");
   if(o.output.empty()||!o.sample||o.steps>maxSteps) throw std::runtime_error("output, positive sample, steps<=UINT64_MAX/8 required");
   if(!(o.dt>0&&o.kbt>0&&o.zeta>0&&o.b0>=0&&o.kb>0&&o.kappa>=0)) throw std::runtime_error("invalid physical parameters");
@@ -217,6 +225,31 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   size_t estimate=bytes*8+size_t(count)*1024;
   if(estimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
+  // Independent CPU RNG domain, never consuming backbone initialization or Philox counters.
+  std::vector<real4> springHosts;
+  if(o.slipCount) {
+    springHosts.assign(count,make_real4(0,0,0,0));
+    std::vector<int> sites(count);
+    std::iota(sites.begin(),sites.end(),0);
+    std::seed_seq seed{unsigned(o.seed),unsigned(o.seed>>32),0x53117u};
+    std::mt19937_64 rng(seed);
+    std::shuffle(sites.begin(),sites.end(),rng);
+    std::normal_distribution<double> standard(0.0,1.0);
+    const double stddev=std::sqrt(o.slipMs2/3.);
+    for(size_t j=0;j<size_t(o.slipCount);++j) {
+      const int i=sites[j];
+      const double x=double(host[i].x)+stddev*standard(rng);
+      const double y=double(host[i].y)+stddev*standard(rng);
+      const double z=double(host[i].z)+stddev*standard(rng);
+      if(!(std::isfinite(x)&&std::isfinite(y)&&std::isfinite(z)&&std::isfinite(real(x))&&std::isfinite(real(y))&&std::isfinite(real(z))))
+        throw std::runtime_error("slip anchor coordinate not representable");
+      springHosts[i]=make_real4(x,y,z,1);
+    }
+    auto file=outputFile(out/"fixed_slip_springs.csv");
+    file<<"chain,bead,ax,ay,az\n";
+    for(int i=0;i<count;++i) if(springHosts[i].w) file<<i/m<<','<<i%m<<','<<springHosts[i].x<<','<<springHosts[i].y<<','<<springHosts[i].z<<'\n';
+  }
+  thrust::device_vector<real4> springs(springHosts);
   thrust::device_vector<real4> r(host),next(count),forces(count);
   thrust::device_vector<real2> bonds(p.bonds);
   thrust::device_vector<real> angles; // Empty and unallocated for all-zero bending.
@@ -244,6 +277,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   auto evaluate=[&](Counter step) {
     stretch<<<(count+255)/256,256>>>(current,ptr(forces),ptr(bonds),count,m,ptr(error));++stretchLaunches;
     if(p.active) {bend<<<(count+255)/256,256>>>(current,ptr(forces),ptr(angles),count,m,ptr(error));++bendLaunches;}
+    if(o.slipCount) fixed_slip_force<<<(count+255)/256,256>>>(current,ptr(forces),ptr(springs),count,real(3*o.kbt/o.slipMs2),ptr(error));
     check(cudaGetLastError(),"force launch");diagnose(step);
   };
   auto pf=outputFile(out/"parameters.txt"); pf<<o.n<<'\n';
@@ -342,7 +376,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   if(observations)for(size_t i=0;i<bn;++i){stats<<i/o.n<<','<<i%o.n<<','<<observations<<','<<sums[i]/observations<<','<<squares[i]/observations;for(int b=0;b<33;++b)stats<<','<<hist[i*33+b];stats<<'\n';}
   stats.close();samples.close();ib.close();if(compactScalar)compactScalar->write(o.n);double finalTime=seconds(finalStart);
   int device;cudaDeviceProp prop{};check(cudaGetDevice(&device),"device");check(cudaGetDeviceProperties(&prop,device),"properties");
-  size_t deviceBytes=3*bytes+p.bonds.size()*sizeof(real2)+(angles.capacity()*sizeof(real))+sizeof(int);
+  size_t deviceBytes=3*bytes+springs.capacity()*sizeof(real4)+p.bonds.size()*sizeof(real2)+(angles.capacity()*sizeof(real))+sizeof(int);
   double denominator=double(count)*(o.forceOnly?0:o.steps);auto rate=[&](double x){if(denominator>0)return std::to_string(x/denominator*1e9);return std::string("null");};
   auto meta=outputFile(out/"metadata.json");
   meta<<"{\n\"model\":\"finite-rest-length-Kratky-Porod\",\"timer_version\":"<<(stressObserver?2:1)<<",\"precision_bits\":"<<8*sizeof(real)
