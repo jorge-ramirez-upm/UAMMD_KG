@@ -91,7 +91,7 @@ check-workers:
 # Separate Stage 4A.2 targets; historical all/check/Rouse rules are unchanged.
 .PHONY: semiflexible check-semiflexible
 semiflexible: $(GPU_BUILD)/semiflexible
-$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
+$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 check-semiflexible: semiflexible
@@ -117,3 +117,8 @@ $(BUILD)/semiflexible_stress_correlator: $(PROJECT_DIR)/tests/semiflexible_stres
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< $(KG_DIR)/correlator.cpp -pthread -o $@ $(LDLIBS)
 check-semiflexible-stress: semiflexible $(BUILD)/semiflexible_stress_correlator
 	timeout 180s python3 $(PROJECT_DIR)/tests/test_semiflexible_stress_gpu.py $(GPU_BUILD)/semiflexible $(BUILD)/semiflexible_stress_correlator
+
+# E1 fixed-anchor development-only smoke (requires CUDA GPU).
+.PHONY: check-fixed-slip-springs
+check-fixed-slip-springs: semiflexible
+	python3 $(PROJECT_DIR)/tests/test_fixed_slip_springs.py $(GPU_BUILD)/semiflexible
