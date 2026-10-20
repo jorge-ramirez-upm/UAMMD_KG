@@ -19,11 +19,7 @@ def rows(path):
 
 
 class FixedSpringGPU(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        if len(sys.argv) != 2:
-            raise RuntimeError("usage: test_fixed_slip_springs.py /path/to/semiflexible")
-        cls.binary = pathlib.Path(sys.argv.pop()).resolve()
+    binary = None
 
     def run_case(self, directory, name, input_path, additional):
         dest = directory / name
@@ -83,4 +79,7 @@ class FixedSpringGPU(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        raise SystemExit("usage: test_fixed_slip_springs.py /path/to/semiflexible")
+    FixedSpringGPU.binary = pathlib.Path(sys.argv.pop()).resolve()
     unittest.main()
