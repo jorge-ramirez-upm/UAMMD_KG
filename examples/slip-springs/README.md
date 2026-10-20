@@ -327,6 +327,14 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+Stage 4A.4 N=32 timestep preparation is described in
+[the N=32 protocol](STAGE4A4_N32_TIMESTEP_PROTOCOL.md), including resource estimates,
+timeouts, exact host execution/analysis commands and unresolved diagnostics.
+From `/tmp/UAMMD_KG-slip-springs-dev`, use
+`python3 examples/slip-springs/tests/run_stage4a4_n32_timestep.py` for CPU-only
+preflight. Only the explicit `--execute-n32` option starts the four sequential
+host cases. This preparation does not establish timestep acceptance.
+
 `--scalar-output full|compact` defaults to `full`, preserving existing files and
 Stage 4A.2 behavior. `compact` requires `--stress-mode stream`. It replaces
 `samples.csv` with `scalar_statistics.csv` (per-chain original final-half means,
