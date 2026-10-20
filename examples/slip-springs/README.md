@@ -327,6 +327,13 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+For a CPU-only initial timestep heuristic, see the
+[Stage 4A.5 preselector](STAGE4A5_TIMESTEP_PRESELECTOR.md).
+`OPENBLAS_NUM_THREADS=1 python3 examples/slip-springs/timestep_preselector.py --N 8 --kappa 10`
+prints a JSON comparison of the harmonic estimate and a 100-configuration exact
+ensemble Hessian estimate. It does not establish timestep accuracy or replace
+convergence validation.
+
 Stage 4A.4 N=32 timestep preparation is described in
 [the N=32 protocol](STAGE4A4_N32_TIMESTEP_PROTOCOL.md), including resource estimates,
 timeouts, exact host execution/analysis commands and unresolved diagnostics.
