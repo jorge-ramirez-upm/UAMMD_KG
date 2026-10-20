@@ -1,5 +1,9 @@
 # Validated GPU Rouse chains and Stage 4A.2 semiflexible dynamics
 
+## Consolidated project documents
+
+For a fresh continuation conversation, start with [PROJECT_STATUS.md](PROJECT_STATUS.md), then read [BACKBONE_MODEL_AND_VALIDATION.md](BACKBONE_MODEL_AND_VALIDATION.md), [TIMESTEP_SELECTION.md](TIMESTEP_SELECTION.md), [DEVELOPMENT_HISTORY.md](DEVELOPMENT_HISTORY.md), and [SLIP_SPRING_DESIGN_QUESTIONS.md](SLIP_SPRING_DESIGN_QUESTIONS.md). These summaries point to the historical stage reports and distinguish committed documentation from external host evidence.
+
 The validated Rouse executable in this standalone UAMMD/CUDA example simulates
 independent Gaussian chains with local Euler–Maruyama Brownian dynamics. It is a distinct coarse-grained model
 from Kremer–Grest molecular dynamics. Stage 1 implements equilibrium Gaussian
