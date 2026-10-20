@@ -1,4 +1,5 @@
 import contextlib
+import csv
 import io
 import json
 from pathlib import Path
@@ -119,6 +120,47 @@ class N32Test(unittest.TestCase):
         self.assertEqual(analysis.decision(.009, .001, .01)['decision'], 'unresolved')
         self.assertTrue(any('energies' in x for x in analysis.UNAVAILABLE))
         self.assertTrue(any('full contour' in x for x in analysis.UNAVAILABLE))
+
+    def test_histogram_contract_and_malformed_files(self):
+        fields = ['chain', 'bond', 'frames', 'mean_r', 'mean_r2'] + [f'bin{i}' for i in range(33)]
+        base = dict(frames=1001, mean_r=1., mean_r2=1., **{f'bin{i}': 1001 if i == 0 else 0 for i in range(33)})
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            def fixture(change=None, missing=False, duplicate=False):
+                with (directory/'bond_statistics.csv').open('w', newline='') as stream:
+                    writer = csv.DictWriter(stream, fieldnames=fields)
+                    writer.writeheader()
+                    for chain in range(512):
+                        for bond in range(32):
+                            if missing and (chain, bond) == (511, 31): continue
+                            row = dict(base, chain=chain, bond=bond)
+                            if change and (chain, bond) == (0, 0): row.update(change)
+                            writer.writerow(row)
+                    if duplicate: writer.writerow(dict(base, chain=0, bond=0))
+            reference = directory/'reference.json'
+            reference.write_text(json.dumps({'springs': 32, 'histogram': {
+                'probability': [1.] + [0.]*31, 'se': [0.]*32}}))
+            for steps, sample in ((800000, 400), (40000, 20)):
+                fixture()
+                analysis.validate_bond_histogram(directory, dict(steps=steps, sample=sample))
+                result = analysis.distributions(directory, reference)
+                self.assertEqual(result['frames_per_bond'], 1001)
+                self.assertEqual(result['probability'], [1.] + [0.]*32)
+                self.assertEqual(result['total_variation_gate']['decision'], 'pass')
+                self.assertIn('10 <= t <= 20', result['scope'])
+            for change in ({'frames': 2001, 'bin0': 2001}, {'frames': 1000}, {'frames': 1002},
+                           {'bin0': 1000}, {'bin0': 1002}, {'bin0': 1002, 'bin1': -1},
+                           {'bin1': '0.5'}, {'bin0': 'nan'}, {'bin0': 'inf'}, {'mean_r': 'nan'}, {'mean_r2': 'inf'},
+                           {'chain': 512}, {'chain': -1}, {'bond': 32}, {'bond': -1}):
+                with self.subTest(change=change):
+                    fixture(change)
+                    with self.assertRaises(ValueError):
+                        analysis.validate_bond_histogram(directory, dict(steps=800000, sample=400))
+            for options in ({'missing': True}, {'duplicate': True}):
+                with self.subTest(options=options):
+                    fixture(**options)
+                    with self.assertRaises(ValueError):
+                        analysis.validate_bond_histogram(directory, dict(steps=40000, sample=20))
 
     def test_truncated_trajectory_cannot_enter_analysis(self):
         with tempfile.TemporaryDirectory() as tmp:

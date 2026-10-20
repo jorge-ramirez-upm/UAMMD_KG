@@ -120,12 +120,19 @@ max(0,d−3s) > tolerance, otherwise unresolved. A stationarity failure blocks
 acceptance and calls for a separately budgeted extension decision, never an
 automatic longer run.
 
-Whole-run bond histograms retain chain SE and reference SE, a TV limit 0.02,
+Midpoint-inclusive second-half bond histograms (`10 <= t <= 20`, spacing
+0.01, 1,001 observations per chain–bond pair) retain chain SE and reference SE, a TV limit 0.02,
 0.01 absolute finite-bin differences and 0.005 overflow probability difference.
 Checking every finite bin includes central bins without choosing bins after
 seeing data. TV uncertainty uses the conservative triangle bound
-`0.5 sum(bin_SE)`; it does not assume independent bins. Half-specific histogram
-stationarity cannot be reconstructed. Local tangent correlation at separation 1
+`0.5 sum(bin_SE)`; it does not assume independent bins. First-half versus second-half histogram
+stationarity cannot be reconstructed because no first-half histogram is emitted.
+The scalar-half comparisons above omit the midpoint; these histogram statistics
+include it. The simulator calls `observe(0)` and then observes at positive sample
+stride multiples through the final step when divisible by the stride. Only
+observations with `step >= steps/2` accumulate bond statistics, where integer
+division defines the midpoint. The validator derives the histogram count from
+that schedule, while retaining the separate 2,001-frame full scalar check. Local tangent correlation at separation 1
 is the available local angle mean; separations 1–4 supply short-contour
 orientation correlations. Full-contour raw bond-vector correlations, trajectory
 energies (1%), local angle distributions (TV 0.02), and end-to-end distributions

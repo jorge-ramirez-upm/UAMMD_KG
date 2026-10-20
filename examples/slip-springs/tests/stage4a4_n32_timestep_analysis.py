@@ -17,7 +17,7 @@ UNAVAILABLE = [
     'local-angle distribution (TV 0.02): no trajectory angle histogram',
     'end-to-end distribution: no trajectory distribution diagnostic',
     'raw bond-vector correlations along the full contour: no trajectory output; tangent1..4 are available',
-    'bond histogram first/second-half stationarity: only whole-run histogram is emitted',
+    'bond histogram first/second-half stationarity: only the midpoint-inclusive second-half histogram is emitted',
 ]
 
 
@@ -25,6 +25,23 @@ def decision(delta, se, tolerance):
     lower, upper = max(0., abs(delta)-3*se), abs(delta)+3*se
     return dict(difference=delta, se=se, lower_3se=lower, upper_3se=upper, tolerance=tolerance,
                 decision='pass' if upper <= tolerance else ('fail' if lower > tolerance else 'unresolved'))
+
+
+def validate_bond_histogram(directory, meta):
+    """observe(0) and sample multiples accumulate iff step >= steps//2."""
+    first_index = (meta['steps']//2 + meta['sample'] - 1)//meta['sample']
+    frames = meta['steps']//meta['sample'] - first_index + 1
+    seen = set()
+    with (directory/'bond_statistics.csv').open(newline='') as stream:
+        for row in csv.DictReader(stream):
+            pair = int(row['chain']), int(row['bond'])
+            bins = [int(row[f'bin{i}']) for i in range(33)]
+            if (pair in seen or not (0 <= pair[0] < 512 and 0 <= pair[1] < 32) or
+                    int(row['frames']) != frames or min(bins) < 0 or sum(bins) != frames or
+                    not all(math.isfinite(float(value)) for value in row.values())):
+                raise ValueError('invalid or incomplete bond histogram')
+            seen.add(pair)
+    if len(seen) != 512*32: raise ValueError('missing bond histogram rows')
 
 
 def validate(directory, dt, reference):
@@ -52,17 +69,7 @@ def validate(directory, dt, reference):
                 raise ValueError('nonfinite or invalid sampled geometry')
             counts[chain] += 1
     if not np.all(counts == 2001): raise ValueError('incomplete scalar trajectory')
-    seen = set()
-    with (directory/'bond_statistics.csv').open(newline='') as stream:
-        for row in csv.DictReader(stream):
-            pair = int(row['chain']), int(row['bond'])
-            bins = [int(row[f'bin{i}']) for i in range(33)]
-            if (pair in seen or not (0 <= pair[0] < 512 and 0 <= pair[1] < 32) or
-                    int(row['frames']) != 2001 or min(bins) < 0 or sum(bins) != 2001 or
-                    not all(math.isfinite(float(value)) for value in row.values())):
-                raise ValueError('invalid or incomplete bond histogram')
-            seen.add(pair)
-    if len(seen) != 512*32: raise ValueError('missing bond histogram rows')
+    validate_bond_histogram(directory, meta)
     stress = json.loads((directory/'stress_metadata.json').read_text())
     for key, value in dict(mode='every-step', frames=meta['steps']+1, spacing=dt,
                            batch=256, cpu_workers=8, levels=24, slots=32, coarsening=2,
@@ -92,7 +99,7 @@ def distributions(directory, reference_path):
     result['total_variation_gate'] = decision(result['total_variation'], .5*sum(se), .02)
     result['bin_gates'] = [decision(d, s, .005 if i == 32 else .01)
                            for i, (d, s) in enumerate(zip(result['difference'], se))]
-    result['scope'] = 'whole-run bond histogram; all finite bins checked at 0.01, overflow at 0.005'
+    result['scope'] = 'second-half bond histogram, 10 <= t <= 20 at spacing 0.01 (both endpoints included); all finite bins checked at 0.01, overflow at 0.005'
     return result
 
 
