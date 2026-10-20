@@ -223,7 +223,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   auto initStart=Clock::now();
   int m=o.n+1,count=m*o.chains; size_t bytes=count*sizeof(real4);
   // Explicit bounded allocations, independent of number of steps/frames.
-  size_t estimate=bytes*8+size_t(count)*1024;
+  size_t estimate=bytes*8+size_t(count)*1024+(o.slipCount?size_t(count)*(sizeof(real4)+sizeof(int)):0);
   if(estimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
   // Independent CPU RNG domain, never consuming backbone initialization or Philox counters.
@@ -385,6 +385,8 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       <<",\"dt\":"<<o.dt<<",\"effective_mobility_step\":"<<double(real(o.dt/o.zeta))<<",\"effective_noise\":"<<double(real(std::sqrt(2*o.kbt*o.dt/o.zeta)))
       <<",\"steps\":"<<(o.forceOnly?0:o.steps)<<",\"production_time\":"<<(o.forceOnly?0:o.steps*o.dt)<<",\"sample\":"<<o.sample<<",\"seed\":"<<o.seed<<",\"rng_domain\":3,\"kbt\":"<<o.kbt<<",\"zeta\":"<<o.zeta
       <<",\"bending_device_bytes\":"<<(angles.capacity()*sizeof(real))<<",\"active_angles\":"<<std::count_if(p.kappa.begin(),p.kappa.end(),[](real v){return v!=0;})
+      <<",\"slip_count\":"<<o.slipCount<<",\"slip_ms2\":"<<(o.slipCount?jsonNumber(o.slipMs2):"null")
+      <<",\"slip_mode\":\""<<(o.slipCount?"fixed-attachment-development":"disabled")<<"\""
       <<",\"stretch_launches\":"<<stretchLaunches<<",\"bending_launches\":"<<bendLaunches<<",\"update_launches\":"<<updateLaunches
       <<",\"device_bytes\":"<<deviceBytes<<",\"cpu_workspace_budget_estimate_bytes\":"<<estimate
       <<",\"initialization_method\":\""<<(o.initial.empty()?"CPU-direct-equilibrium":"supplied-coordinates")<<"\",\"initialization_seconds\":"<<initializationTime<<",\"integration_seconds\":"<<updateTime<<",\"production_wall_seconds\":"<<productionTime
