@@ -11,6 +11,7 @@
 #include <iostream>
 #include <limits>
 #include <random>
+#include <numeric>
 #include <sstream>
 #include <vector>
 #include <algorithm>
