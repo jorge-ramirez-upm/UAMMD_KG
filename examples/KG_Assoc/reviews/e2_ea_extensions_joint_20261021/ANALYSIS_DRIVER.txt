@@ -18,10 +18,10 @@ import kg_assoc_e2 as e2
 import run_ea_extensions as runner
 old = runpy.run_path(str(PRIOR / 'ANALYSIS_DRIVER.txt'))
 segment = old['segment']
-segment.review.analysis.stationarity.iat = old['fast_iat']
 
 
 def analyze(index, output):
+    segment.review.analysis.stationarity.iat = old['fast_iat']
     state_path = ROOT / 'aggregate/e2/manual_ea_extensions_readback_v2/state.json'
     state = e2.campaign.load_json(state_path)
     runner.validate_state(state)

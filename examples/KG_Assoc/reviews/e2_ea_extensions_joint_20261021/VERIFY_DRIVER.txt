@@ -23,6 +23,14 @@ for path in acceptances:
     for history in record['histories']:
         e2.check_hashes(history['sha256'])
 e2.check_hashes(e2.campaign.load_json(dossier / 'INTEGRITY.sha256'))
+provenance = e2.campaign.load_json(dossier / 'PROVENANCE.sha256')
+e2.check_hashes(provenance)
+with tarfile.open(dossier / 'PROVENANCE.tar.gz') as archive:
+    assert len(archive.getmembers()) == len(provenance)
+    for member in archive:
+        assert member.isfile() and '..' not in Path(member.name).parts
+        original = str(repo / member.name)
+        assert hashlib.sha256(archive.extractfile(member).read()).hexdigest() == provenance[original]
 result = e2.campaign.load_json(dossier / 'RESULTS.log')
 assert len(result['histories']) == 6 and result['assessment_GPU_steps'] == 0
 assert result['extension_MD_steps'] == 144000000

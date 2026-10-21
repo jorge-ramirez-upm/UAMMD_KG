@@ -133,7 +133,7 @@ for r in records:
     kinetics.append(dict(label=label, **h['counts'], **ex,
         formation_per_free_sticker_time=h['counts']['creations']/(ex['free_sticker_steps']*dt),
         breaking_per_active_bond_time=h['counts']['breaks']/(ex['bond_steps']*dt),
-        **h['network_exposure']))
+        **{'network_'+key: value for key, value in h['network_exposure'].items()}))
     identity = r['identity']; last = identity['sampled'][-1]
     renewal.append(dict(label=label, origin=8000000, end=h['end_step'],
         **{k: v for k,v in identity.items() if k not in ('sampled', 'boundary_policy', 'giant_tie_policy')},

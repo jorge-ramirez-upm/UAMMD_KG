@@ -1,0 +1,16 @@
+test_direct_fft_Ea10_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea10_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea10_r3 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea8_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea8_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea8_r3 (__main__.AnalysisTests) ... ok
+test_exact_recovered_receipt (__main__.AnalysisTests) ... ok
+test_no_windows_cross_restart (__main__.AnalysisTests) ... ok
+test_sticker_and_neighbor_conservation (__main__.AnalysisTests) ... ok
+test_synthetic_direct_fft (__main__.AnalysisTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.752s
+
+OK
+PASS 5 FFT/direct IAT fixtures; exact event residence/returns; distinct-edge exposure

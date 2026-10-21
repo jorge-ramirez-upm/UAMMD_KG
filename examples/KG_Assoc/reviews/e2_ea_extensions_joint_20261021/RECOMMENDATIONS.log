@@ -1,0 +1,26 @@
+{
+  "assessment_GPU_steps": 0,
+  "formal_acceptance_registered": false,
+  "systems": [
+    {
+      "extension_authorized": false,
+      "outcome": "B",
+      "proposed_absolute_endpoint": 48000000,
+      "proposed_additional_steps_per_replica": 8000000,
+      "reason": "Ea8 r002 late intra/shape/coordination redistribution and r001 slow multiplicity excursion",
+      "reviewed_endpoint_step": 40000000,
+      "scientific_status": "hold",
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "extension_authorized": false,
+      "outcome": "B",
+      "proposed_absolute_endpoint": 88000000,
+      "proposed_additional_steps_per_replica": 32000000,
+      "reason": "Ea10 r001 multiplicity/shape drift, r002 triangle redistribution and sparse peripheral returns",
+      "reviewed_endpoint_step": 56000000,
+      "scientific_status": "hold",
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ]
+}
