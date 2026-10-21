@@ -1,0 +1,118 @@
+"""Real-plan CPU checks. Every native invocation is host-only; never integrate MD."""
+import copy
+from pathlib import Path
+import sys
+import unittest
+from unittest import mock
+
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+import run_ea_next_extensions as runner
+
+ROOT = e2.HERE.parent/'kg_assoc_100m'
+STATE_PATH = ROOT/'aggregate/e2'/extension.CAMPAIGN/'state.json'
+STATE = e2.campaign.load_json(STATE_PATH)
+
+
+class PreparedTests(unittest.TestCase):
+    def test_exact_six_bindings_and_fresh_streams(self):
+        runner.validate_state(STATE)
+        md = set()
+        kernels = set()
+        prefixes = set()
+        for job in STATE['jobs']:
+            plan,entry,_,_ = runner.authenticate(ROOT,job)
+            md.add(entry['md_seed']); kernels.add(entry['effective_md_seed']); prefixes.add(entry['output_prefix'])
+            self.assertEqual(entry['effective_md_seed'],e2.validation.effective_md_seed(entry['md_seed']))
+            self.assertEqual((entry['start_step'],entry['end_step']),extension.RANGES[job['system']])
+            self.assertEqual(list(Path(entry['output_prefix']).parent.iterdir()),[])
+            _,initial = e2.validation.read_parent(entry)
+            self.assertEqual(initial['creations'],entry['lineage']['parent_creations'])
+            self.assertEqual(initial['breaks'],entry['lineage']['parent_breaks'])
+            self.assertIn('--e2-reviewed-extension',entry['command'])
+        self.assertEqual((len(md),len(kernels),len(prefixes)),(6,6,6))
+
+    def test_gpu_execution_rejected_without_touching_real_attempts(self):
+        before = e2.hash_files(Path(j['attempt'])/'plan.json' for j in STATE['jobs'])
+        with mock.patch.object(e2,'launch') as launch, self.assertRaisesRegex(ValueError,'NOT authorized'):
+            runner.execute(ROOT,STATE,STATE_PATH.with_name('runtime.json'))
+        launch.assert_not_called()
+        self.assertFalse(STATE_PATH.with_name('runtime.json').exists())
+        self.assertEqual(before,e2.hash_files(Path(j['attempt'])/'plan.json' for j in STATE['jobs']))
+        for j in STATE['jobs']:
+            self.assertEqual(list((Path(j['attempt'])/f"r{j['replica']:03d}").iterdir()),[])
+
+    def test_source_executable_parent_seed_and_output_tampering_rejected(self):
+        job = STATE['jobs'][0]
+        attempt = Path(job['attempt'])
+        plan = e2.campaign.load_json(attempt/'plan.json')
+        changes = []
+        bad = copy.deepcopy(plan); bad['histories'][0]['md_seed'] = 1331010; changes.append(bad)
+        bad = copy.deepcopy(plan); bad['histories'][0]['parent']['snapshot'] = '/wrong/parent'; changes.append(bad)
+        bad = copy.deepcopy(plan); bad['histories'][1]['output_prefix'] = bad['histories'][0]['output_prefix']; changes.append(bad)
+        bad = copy.deepcopy(plan); bad['source_sha256'][str(e2.HERE.parent/'kg_assoc_kinetics.cuh')] = 'altered'; changes.append(bad)
+        bad = copy.deepcopy(plan); name = next(iter(bad['executable_sha256'])); bad['executable_sha256'][name] = 'altered'; changes.append(bad)
+        for bad in changes:
+            with self.subTest(change=len(changes)), self.assertRaises(ValueError):
+                extension.check_plan(ROOT,attempt,bad)
+
+    def test_preparation_is_idempotent_and_keeps_immutable_state(self):
+        before = e2.campaign.sha256(STATE_PATH)
+        result = runner.prepare(ROOT,STATE_PATH)
+        self.assertEqual(result,STATE)
+        self.assertEqual(e2.campaign.sha256(STATE_PATH),before)
+
+    def test_real_host_initializations_and_new_guard_negative_cases(self):
+        for index in (0,3):
+            job = STATE['jobs'][index]
+            plan = e2.campaign.load_json(Path(job['attempt'])/'plan.json')
+            entry = plan['histories'][0]
+            positive = e2.subprocess.run(entry['command']+['--validate-initial-state'],
+                capture_output=True,text=True,timeout=60)
+            self.assertEqual(positive.returncode,0,positive.stderr)
+            self.assertIn('INITIAL_STATE_VALIDATED',positive.stdout)
+            wrong = list(entry['command'])
+            wrong[wrong.index('--steps')+1] = '1000000'
+            wrong_seed = list(entry['command'])
+            wrong_seed[wrong_seed.index('--seed')+1] = str(entry['chemistry_seed']+1)
+            wrong_parent = list(entry['command'])
+            parent = e2.campaign.load_json(entry['lineage']['parent_plan'])['histories'][0]
+            wrong_parent[wrong_parent.index('--restart-prefix')+1] = parent['parent']['prefix']
+            for command in (wrong,wrong_seed,wrong_parent,entry['command']+['--dt','.02'],
+                            entry['command']+['--e2-extension'],entry['command']+['--force']):
+                rejected = e2.subprocess.run(command+['--validate-initial-state'],
+                    capture_output=True,text=True,timeout=60)
+                self.assertNotEqual(rejected.returncode,0)
+                self.assertNotIn('INITIAL_STATE_VALIDATED',rejected.stdout)
+
+    def test_legacy_24m_mode_and_ordinary_restart_remain_host_compatible(self):
+        for index in (0,3):
+            job = STATE['jobs'][index]
+            entry = e2.campaign.load_json(Path(job['attempt'])/'plan.json')['histories'][0]
+            prior = e2.campaign.load_json(entry['lineage']['parent_plan'])['histories'][0]
+            legacy = [entry['command'][0]]+prior['command'][1:]+['--validate-initial-state']
+            result = e2.subprocess.run(legacy,capture_output=True,text=True,timeout=60)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertIn('INITIAL_STATE_VALIDATED',result.stdout)
+            ordinary = [entry['command'][0],'--restart-prefix',entry['parent']['prefix'],
+                '--steps','1000','--seed',str(entry['chemistry_seed']),'--md-seed',str(entry['md_seed']),
+                '--validate-initial-state']
+            result = e2.subprocess.run(ordinary,capture_output=True,text=True,timeout=60)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertIn('INITIAL_STATE_VALIDATED',result.stdout)
+
+    def test_compiled_readback_dispatch_and_cpu_candidate_oracle(self):
+        build = ROOT/'builds'/extension.BUILD
+        extension.check_build(build)
+        result = e2.subprocess.check_output([str(build/'kg_assoc_stars_candidate_smoke'),
+                                           '--readback-call-path-info'],text=True,timeout=60)
+        self.assertEqual(result,'INITIAL_READBACK_CALL_PATH_V2 CPU_ONLY cases=4 fail_stop=3\n')
+        result = e2.subprocess.run([str(build/'kg_assoc_candidates_test')],
+                                  capture_output=True,text=True,timeout=60)
+        self.assertEqual(result.returncode,0,result.stderr)
+        print(result.stdout.strip())
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
