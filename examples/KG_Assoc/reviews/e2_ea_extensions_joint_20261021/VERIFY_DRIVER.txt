@@ -1,0 +1,47 @@
+"""Read-only integrity and acceptance audit. No native executables or MD calls."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tarfile
+import hashlib
+
+repo = Path.cwd()
+dossier = Path(__file__).resolve().parent
+assoc = repo / 'examples/KG_Assoc'
+sys.path.insert(0, str(assoc / 'campaign'))
+import kg_assoc_e2 as e2
+bindings = e2.campaign.load_json(dossier / 'PRESERVED.sha256')
+e2.check_hashes(bindings)
+acceptances = sorted((assoc / 'kg_assoc_100m/banks/e2_acceptance').glob('*.json'))
+assert len(acceptances) == 13
+for path in acceptances:
+    assert str(path.resolve()) in bindings
+    record = e2.campaign.load_json(path)
+    e2.check_hashes({record['evidence']: record['evidence_sha256'],
+                     record['source_plan']: record['source_plan_sha256']})
+    for history in record['histories']:
+        e2.check_hashes(history['sha256'])
+e2.check_hashes(e2.campaign.load_json(dossier / 'INTEGRITY.sha256'))
+result = e2.campaign.load_json(dossier / 'RESULTS.log')
+assert len(result['histories']) == 6 and result['assessment_GPU_steps'] == 0
+assert result['extension_MD_steps'] == 144000000
+assert result['candidate_comparisons'] == 1440000
+assert result['statistical_preparation_units'] == 3
+for h in result['histories']:
+    receipt = e2.campaign.load_json(Path(h['receipt']))
+    assert e2.campaign.sha256(Path(h['receipt'])) == h['receipt_sha256']
+    assert receipt['validation'] == h['validation']
+    e2.check_hashes(receipt['output_sha256'])
+    assert h['validation']['initial_device_readback']['status'] == 'valid'
+    archive_path = dossier / 'replay' / (h['label'] + '.tar.gz')
+    with tarfile.open(archive_path) as archive:
+        for member in archive:
+            assert member.isfile() and Path(member.name).name == member.name
+            raw = archive.extractfile(member).read()
+            expected = e2.campaign.load_json(dossier / 'ANALYSIS.sha256')[member.name]
+            assert hashlib.sha256(raw).hexdigest() == expected
+assert not subprocess.check_output(['git', 'diff',
+    '31c3d0660876fc020f1f15f5c38b5a4918945e29', '--', 'src', 'examples/KG'], text=True)
+print('PASS', len(bindings), 'unchanged protected bindings; 13 formal acceptances and payloads;')
+print('six endpoint receipts, archived analysis and initial GPU readbacks authenticated; no new GPU steps.')
