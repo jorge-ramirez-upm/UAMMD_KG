@@ -91,7 +91,7 @@ check-workers:
 # Separate Stage 4A.2 targets; historical all/check/Rouse rules are unchanged.
 .PHONY: semiflexible check-semiflexible
 semiflexible: $(GPU_BUILD)/semiflexible
-$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/fixed_slip_springs.h $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
+$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/fixed_slip_springs.h $(PROJECT_DIR)/slip_hopping.h $(PROJECT_DIR)/slip_hopping.cuh $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 check-semiflexible: semiflexible
@@ -135,3 +135,16 @@ check-fixed-slip-initialization: $(BUILD)/fixed_slip_initialization
 $(GPU_BUILD)/fixed_slip_forces: $(PROJECT_DIR)/tests/fixed_slip_forces.cu $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/semiflexible.cuh
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -UNDEBUG $< -o $@ $(LDLIBS)
+
+.PHONY: check-slip-hopping-cpu check-slip-hopping
+$(BUILD)/slip_hopping_limits: $(PROJECT_DIR)/tests/slip_hopping_limits.cpp $(PROJECT_DIR)/slip_hopping.h
+	mkdir -p $(BUILD)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -UNDEBUG $< -o $@ $(LDLIBS)
+check-slip-hopping-cpu: $(BUILD)/slip_hopping_limits
+	$(BUILD)/slip_hopping_limits
+	timeout 120s python3 $(PROJECT_DIR)/tests/test_slip_hopping_reference.py
+$(GPU_BUILD)/slip_hopping_gpu: $(PROJECT_DIR)/tests/slip_hopping_gpu.cu $(PROJECT_DIR)/slip_hopping.cuh $(PROJECT_DIR)/slip_hopping.h $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh
+	mkdir -p $(GPU_BUILD)
+	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) $< -o $@ $(LDLIBS)
+check-slip-hopping: check-slip-hopping-cpu semiflexible $(GPU_BUILD)/slip_hopping_gpu
+	timeout 180s python3 $(PROJECT_DIR)/tests/test_slip_hopping_gpu.py $(GPU_BUILD)/slip_hopping_gpu $(GPU_BUILD)/semiflexible

@@ -414,3 +414,17 @@ without separate authorization. CPU artifacts stay under build/orientation-cpu.
 Keep the3e-11 absolute/relative direct tolerance and ASan/UBSan/leak checks;
 run in an environment allowing LSan thread inspection. No sanitizer suppression
 or threshold relaxation is authorized. Preserve all old tests/frozen artifacts.
+
+
+## E1 Stage B authorization and boundary
+
+The user's 21 October 2026 Stage B task accepts audited Stage A and authorizes
+only fixed-anchor nearest-neighbor Metropolis hopping and bounded verification.
+See E1_STAGE_B_REPORT.md and EQUILIBRIUM_MODEL_E1.md. Retain NU=0 as the exact
+Stage A path and Z=0 as the bare backbone path. Use global Poisson sequential
+attempts with replacement at m=1; preserve occupancy, contour order, stable
+anchor identity and per-chain/global populations. Keep RNGs isolated and reject
+unsupported means/counts without clipping. Active slip-springs require stress
+off. Do not change frozen historical source identities or scientific thresholds.
+No Stage C, escape, renewal, constraint release, deformation, slip-spring stress,
+long campaign, full-E1 ergodicity or terminal rheology acceptance is authorized.

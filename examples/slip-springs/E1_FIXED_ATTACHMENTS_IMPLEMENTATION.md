@@ -99,4 +99,6 @@ has finite-step bias and added stiffness can require a smaller timestep. Neither
 terminal entangled dynamics nor a physical relaxation modulus is established.
 
 No hopping, escape, renewal, constraint release, stress correlations or
-deformation is implemented. Stage B has not started.
+deformation is implemented. Stage A is retained exactly by `--hop-rate 0` (the default); the separately
+authorized [Stage B](E1_STAGE_B_REPORT.md) adds interior hopping only. Stage C
+has not started.

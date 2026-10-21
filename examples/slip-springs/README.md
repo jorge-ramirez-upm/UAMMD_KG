@@ -332,6 +332,44 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage B adds fixed-anchor nearest-neighbor Metropolis hopping with
+`--hop-rate NU` (inverse simulation time, default 0). See the
+[Stage B report](E1_STAGE_B_REPORT.md) for splitting, invariants, event limits,
+detailed balance, test results and fixed-population/order-sector limitations.
+Every BD step is followed by one sequential Poisson hopping batch at the new
+coordinates. NU=0 preserves accepted Stage A data; Z=0 preserves the bare
+backbone. Active springs continue to require `--stress-mode off`.
+
+Tested CUDA 13 commands (choose the host's architecture), from the repository root:
+
+```sh
+B_BUILD="$PWD/examples/slip-springs/build/e1-stage-b"
+make -C examples/slip-springs check-slip-hopping-cpu
+make -C examples/slip-springs check-slip-hopping PRECISION=single CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$B_BUILD/single"
+make -C examples/slip-springs check-slip-hopping PRECISION=double CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$B_BUILD/double"
+B_RUNS=$(mktemp -d /tmp/e1-stage-b.XXXXXX)
+"$B_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt .0001 --steps 100 --sample 10 --seed 4317 --slip-count 32 --slip-ms2 5 --hop-rate 100 --stress-mode off --output "$B_RUNS/short"
+```
+
+This short example ran in both precisions. A moderately long **unexecuted
+host-only** example retains N8,C64,dt0.0001,seed4317 and uses:
+
+```sh
+"$B_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt .0001 --steps 10000 --sample 100 --seed 4317 --slip-count 32 --slip-ms2 5 --hop-rate 100 --stress-mode off --output "$B_RUNS/moderate"
+```
+
+These are development examples, not calibrated rates or accepted timesteps.
+`slip_springs_initial.csv` and `slip_springs_final.csv` retain stable IDs and
+fixed anchors with current attachments; `hopping_metadata.json` reports rates,
+event/rejection counts, memory and splitting/RNG conventions. The legacy
+`fixed_slip_springs.csv` is an initial snapshot. Unsupported means above 10000,
+excessive drawn counts above 100000 and numerical/invariant failures abort;
+no attempts are clipped. The global serial GPU event loop is a documented
+scaling limit. Stage C, end escape/renewal, slip-spring stress and terminal
+rheological validation are absent. CUDA 11.5's documented compiler limitation
+and frozen historical source-hash authentication rules remain unchanged.
+
+
 E1 Stage A optionally adds fixed harmonic springs with `--slip-count Z` and
 `--slip-ms2 A2`; the default `Z=0` preserves the validated backbone. Active
 springs require `--stress-mode off`. See the [implementation and commands](E1_FIXED_ATTACHMENTS_IMPLEMENTATION.md)
@@ -352,7 +390,8 @@ same N8,C64,dt0.0001,seed4317 command with `--steps 10000 --sample 100` and a
 new output directory. Neither example establishes numerical/scientific timestep
 acceptance. Spring anchors and indices are exported in `fixed_slip_springs.csv`;
 metadata records requested extension, effective stiffness, allocation and launch
-counts. No Stage B, slip-spring stress, deformation or terminal dynamics is added.
+counts. Stage A itself adds no hopping. Neither Stage A nor Stage B adds slip-spring
+stress, deformation, renewal or terminal dynamics validation.
 
 
 For a CPU-only initial timestep heuristic, see the

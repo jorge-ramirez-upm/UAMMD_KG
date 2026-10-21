@@ -1,6 +1,8 @@
 # Equilibrium Model E1 — canonical anchored slip-springs
 Status: **scientific design frozen (2026-10-20); Stage A fixed attachments implemented and audited (2026-10-21)**.
-See [the Stage A audit](E1_STAGE_A_AUDIT.md); hopping and renewal remain unimplemented.
+Stage A is accepted; Stage B interior hopping is implemented and bounded-tested. See
+[the Stage A audit](E1_STAGE_A_AUDIT.md) and [Stage B report](E1_STAGE_B_REPORT.md).
+Renewal remains unimplemented; full E1 dynamical ergodicity is not established.
 Scope: `examples/slip-springs/` only. This document specifies the equilibrium measure and ideal continuous-time transition kernels. It does **not** authorize production simulation, timestep acceptance, or a rheological estimator.
 
 ## 1. Scientific objective and boundary
@@ -75,6 +77,10 @@ Thus this jump kernel satisfies detailed balance at fixed bead positions and oth
 
 `nu_hop` is intended as an artificial fast variable; independence of slow observables at sufficiently high rate is an **unproven hypothesis**, especially because end escape uses the same rate. Do not assert that the limit `nu_hop→infinity` yields finite, rate-independent terminal behavior.
 
+Stage B implements only the interior kernel above, with m=1. Outward attempts
+are rejected; chain populations and spring order remain in their initial sectors.
+See the implementation report for explicit numerical/resource limits.
+
 ## 5. End escape and canonical renewal kernel
 
 At either occupied terminal bead, an *outward* attempt is made at rate `nu_hop/2`. Propose a destination chain uniformly among all `M` chains, including the source, and select its left/right end equally. If the chosen destination end **was occupied in the pre-event state** (including the source bead), reject the entire move. Otherwise:
@@ -117,7 +123,7 @@ F_ss(on attached bead) = -k_ss*(r_site-a).
 ```
 Do not modify the existing six-channel stress estimator or claim a final rheology formula in E1.
 
-## 8. Narrow implementation sequence (only Stage A implemented)
+## 8. Narrow implementation sequence (Stages A and B implemented)
 
 1. Development-only, no-hopping, fixed-attachment harmonic connectors: exact annealed initialization and basic force checks. Disabled connectors must recover the validated backbone. Keep all changes in `examples/slip-springs/`.
 2. Explicit adjacent-bead stochastic Metropolis hopping with Poisson batches at `m=1`, respecting exclusion/order.
