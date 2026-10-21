@@ -40,6 +40,16 @@ physical replay pairs and successful independent authentication; see
 was 16.35 s and evidence 10.43 MiB on the recorded host. No scientific equilibrium
 acceptance is established; repetitions, B/C and D2 remain unauthorized.
 
+D1.4 now prepares the distinct Phase B four-cell/two-replica T10 manifest,
+gated runner and independently authenticated drift/ACF analysis; see
+[E1_STAGE_D14_PHASE_B_PREPARATION.md](E1_STAGE_D14_PHASE_B_PREPARATION.md).
+Fresh accepted-source CUDA13 compilation, read-only GPU preflight, CPU/synthetic
+regressions and two tiny nine-step fixtures passed. No Phase B scientific run
+was executed, and no Phase B approval exists: execution budgets remain null.
+R=2 uncertainty is weak, all IATs remain unresolved, and no scientific accuracy
+or timestep acceptance is inferred. Accepted simulator/observer and historical
+frozen evidence remain unchanged.
+
 The current numerical reference choices are `kBT=1`, `zeta=1`, `b0=1`, `kb=30`, double precision for scientific validation, and typically `seed=433201` for timestep studies. Interior `kappa` is nonnegative and endpoint entries are zero. The baseline timestep in Stage 4A.4 was `2.5e-5`; `5e-4` and `1e-3` were comparison candidates, not silently promoted production values.
 
 The recorded CPU stress benchmark reached 1.938 million chain observations per second (946.2 complete frames/s) in its selected largest-bank median. A separate archived GPU measurement reported 1.943 ns/bead/step integration-only and 2.384 ns/bead/step overall for its tested N=8 configuration. These are measurements of named hosts and configurations, not portable performance guarantees; GPU stress, transfer, CPU-worker, output, and wall scopes overlap and must not be added.

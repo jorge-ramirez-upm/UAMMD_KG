@@ -333,6 +333,17 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage D1.4 prepares the **Phase B-only** eight-replica T10 runner and
+independent time-resolved equilibrium-drift analysis. See
+[E1_STAGE_D14_PHASE_B_PREPARATION.md](E1_STAGE_D14_PHASE_B_PREPARATION.md) for
+the frozen manifest, exact sparse schedules, R=2 limitations, tests and fresh
+build/preflight identities. No Phase B execution is authorized; its approval
+template remains false with null limits. Default invocation is read-only:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 examples/slip-springs/e1_d14_phase_b_runner.py
+```
+
 E1 Stage D1.3 adds the **Phase A-only** frozen execution manifest, gated runner,
 independent authentication and paired benchmark analyzer. See
 [E1_STAGE_D13_PHASE_A_PREPARATION.md](E1_STAGE_D13_PHASE_A_PREPARATION.md) for
@@ -362,8 +373,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 examples/slip-springs/e1_d12_plan.py --check e
 ```
 
 Only the completed D1.3 Phase A benchmark was authorized under its separate
-approval record; no repeat or B/C execution is authorized. B/C execution remains
-unsupported. Preserve all frozen D1.1/D1.2/D1.3 files and completed evidence.
+approval record; no repeat or B/C execution is authorized. Phase B has a
+preparation-only runner; Phase C execution remains unsupported. Preserve all frozen D1.1/D1.2/D1.3 files and completed evidence.
 
 
 E1 Stage D1.1 provides a frozen **proposed** 8-cell/32-replica equilibrium pilot,

@@ -1,0 +1,148 @@
+{
+  "build": {
+    "architecture": "sm_86",
+    "binary": {
+      "file": {
+        "bytes": 2709792,
+        "sha256": "45876d8b61150b6259236d31e7a2d0f5f1418f710f444430b8fd4fbd4c8eb063"
+      },
+      "path": "/tmp/e1-d14-build/bin/semiflexible"
+    },
+    "bytes": 384670,
+    "cxx": {
+      "file": {
+        "bytes": 932680,
+        "sha256": "2360901d864cf10bfd6296e261cb2c14053552a80377761ab07146ec9ec9a2c0"
+      },
+      "path": "/usr/bin/x86_64-linux-gnu-g++-11",
+      "version": "x86_64-linux-gnu-g++-11 (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0\nCopyright (C) 2021 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "dependencies": 1914,
+    "ended_utc": "2026-10-21T21:22:16.480499+00:00",
+    "linked_libraries": 5,
+    "nvcc": {
+      "file": {
+        "bytes": 30153384,
+        "sha256": "b8e2347d9d7fcadf8812a27324d515de99d033d3e48611811ece7e66d7895f8a"
+      },
+      "path": "/usr/local/cuda-13.0/bin/nvcc",
+      "version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0"
+    },
+    "path": "/tmp/e1-d14-build/build.json",
+    "precision_bits": 64,
+    "sha256": "79a9dca3f43e5982abe1e21c828d70ef008bc2e2026bf43e05e9bd05f289d7d5",
+    "source": {
+      "origin": "git@github.com:jorge-ramirez-upm/UAMMD_KG.git",
+      "path": "/tmp/e1-d11-source",
+      "repository": "github.com/jorge-ramirez-upm/UAMMD_KG",
+      "sha": "0dea651b58171a72206774bcebb2f4c74960069b"
+    },
+    "started_utc": "2026-10-21T21:21:58.070124+00:00",
+    "wall_seconds": 18.403452296974137
+  },
+  "limits_approved": false,
+  "manifest_sha256": "1fdb92b972137276fda6f1fc0b057192b3ee8afcb5eb345efd8c27c15f557f9a",
+  "output_root_created": false,
+  "preflight": {
+    "blockers": [
+      "independent approval and explicit resource budgets required"
+    ],
+    "bytes": 21122,
+    "environment": {
+      "driver_api_version": 13000,
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": "GPU-83d1eede-bd03-c365-6f3a-b6d6e2be6274",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "LD_LIBRARY_PATH": "/usr/local/cuda-13.0/lib64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PATH": "/usr/local/cuda-13.0/bin:/usr/bin:/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TZ": "UTC"
+      },
+      "gpu": {
+        "compute_capability": "8.6",
+        "driver": "580.178.04",
+        "name": "NVIDIA GeForce RTX 3060 Ti",
+        "total_bytes": 8589934592,
+        "uuid": "GPU-83d1eede-bd03-c365-6f3a-b6d6e2be6274"
+      },
+      "machine": "x86_64",
+      "numpy": "2.2.4",
+      "numpy_extension": {
+        "bytes": 10449209,
+        "sha256": "8ca68515b6c0151fd4d0a10adb042c1a3e84da82a6a971dddb31fa43a322383d"
+      },
+      "numpy_module": {
+        "bytes": 22147,
+        "sha256": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236"
+      },
+      "platform": "Linux-5.15.0-198-generic-x86_64-with-glibc2.35",
+      "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+      "python_executable": {
+        "bytes": 5941864,
+        "sha256": "a2f33a6e006989270f4340528eb61f8f97366e00a5d1b602ac8672ea44fc56ae"
+      },
+      "runtime_library": {
+        "bytes": 704288,
+        "sha256": "96c42e418cec19054186b9429c321603cc190bf26a18104e19408117a2a817b0"
+      },
+      "runtime_version": 13000
+    },
+    "environment_sha256": "05e9f076948c5d562925dd24b9d9d47bc8611698516efea13808029ad5d8c79a",
+    "execution_authorized": false,
+    "observed_resources": {
+      "available_host_bytes": 30364889088,
+      "free_disk_bytes": 1247423946752,
+      "free_gpu_bytes": 8072724480
+    },
+    "path": "/tmp/e1-d14-live-preflight.json",
+    "sha256": "05e336869f3b864a0d845b1263eb76285801e5e05fed8a61bf9bb4ac6c5ddb3b"
+  },
+  "preparation_source_sha": "50e5b50c794837e26d2ad6daf90cd410f4c8e2f6",
+  "schema": "e1-d14-preparation-references-v1",
+  "scientific_simulations_executed": false,
+  "synthetic_drift_report_serialized_bytes": 32763132,
+  "technical_simulations": "Two nine-step fixtures per invocation: N3/M4 flexible, N17/M2 stiff; each Z4; old accepted binary and fresh Phase B build verified; never actual Phase B matrix",
+  "test_logs": {
+    "cpu-final": {
+      "bytes": 1636,
+      "path": "/tmp/e1-d14-cpu-final.log",
+      "sha256": "47e822e34285121a345be6921ed029fb2f0e1541391681b28564c6d4301c6cc4"
+    },
+    "d11-regression": {
+      "bytes": 2747,
+      "path": "/tmp/e1-d14-d11-regression.log",
+      "sha256": "211f431041e4c7c77fcb3b5a6026c18d652b1fc3f35242a646276dcde99a53e9"
+    },
+    "d11-rerun": {
+      "bytes": 2123,
+      "path": "/tmp/e1-d14-d11-rerun.log",
+      "sha256": "141973a03dafe9d18988324fb200441bb87553c3c5625bb722ddd7754221fef0"
+    },
+    "d12-regression": {
+      "bytes": 566,
+      "path": "/tmp/e1-d14-d12-regression.log",
+      "sha256": "f1384db19b8c2b54e178ec1643d0d59fa3469ec85926a9adff031c7cdde1d97e"
+    },
+    "phase-a-regression": {
+      "bytes": 970,
+      "path": "/tmp/e1-d14-phase-a-regression.log",
+      "sha256": "fbefcc1f8a1b95de266d30c4a77802e0d0ff62aba808c80785a96c3f3cd63546"
+    },
+    "technical-final": {
+      "bytes": 426,
+      "path": "/tmp/e1-d14-technical-final.log",
+      "sha256": "5f75922f4c1181455e64eae96ca1b5d70ccc2666f7bad9f3c40eebad9605e838"
+    }
+  },
+  "test_results": {
+    "d11_cpu": 24,
+    "d12_cpu": 6,
+    "initial_d11_result": "23 passed, one /proc status read race; unchanged rerun 24 passed",
+    "phase_a_cpu": 11,
+    "phase_b_cpu": 19,
+    "tiny_gpu": 4
+  }
+}
