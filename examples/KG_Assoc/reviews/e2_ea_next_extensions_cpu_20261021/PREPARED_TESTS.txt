@@ -2,6 +2,7 @@
 import copy
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -92,7 +93,11 @@ class PreparedTests(unittest.TestCase):
             entry = e2.campaign.load_json(Path(job['attempt'])/'plan.json')['histories'][0]
             prior = e2.campaign.load_json(entry['lineage']['parent_plan'])['histories'][0]
             legacy = [entry['command'][0]]+prior['command'][1:]+['--validate-initial-state']
-            result = e2.subprocess.run(legacy,capture_output=True,text=True,timeout=60)
+            # The old output prefix is protected and already exists; use an empty CPU-only path.
+            with tempfile.TemporaryDirectory() as folder:
+                legacy[legacy.index('--output')+1] = str(Path(folder)/'host_check')
+                result = e2.subprocess.run(legacy,capture_output=True,text=True,timeout=60)
+                self.assertEqual(list(Path(folder).iterdir()),[])
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertIn('INITIAL_STATE_VALIDATED',result.stdout)
             ordinary = [entry['command'][0],'--restart-prefix',entry['parent']['prefix'],
