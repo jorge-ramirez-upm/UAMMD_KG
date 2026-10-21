@@ -1,0 +1,149 @@
+"""CPU-only, one-segment-at-a-time replay. Never invokes a native executable."""
+import argparse
+from collections import Counter
+import csv
+import json
+from pathlib import Path
+import runpy
+import sys
+
+REPO = Path.cwd()
+ASSOC = REPO / 'examples/KG_Assoc'
+ROOT = ASSOC / 'kg_assoc_100m'
+DOSSIER = Path(__file__).resolve().parent
+PRIOR = ASSOC / 'reviews/e2_ea_transfer_24m_joint_20261018'
+sys.path.insert(0, str(ASSOC / 'campaign'))
+sys.path.insert(0, str(ASSOC / 'analysis'))
+import kg_assoc_e2 as e2
+import run_ea_extensions as runner
+old = runpy.run_path(str(PRIOR / 'ANALYSIS_DRIVER.txt'))
+segment = old['segment']
+segment.review.analysis.stationarity.iat = old['fast_iat']
+
+
+def analyze(index, output):
+    state_path = ROOT / 'aggregate/e2/manual_ea_extensions_readback_v2/state.json'
+    state = e2.campaign.load_json(state_path)
+    runner.validate_state(state)
+    job = state['jobs'][index]
+    assert job['status'] in ('complete', 'recovered_complete') and not job['retired_attempts']
+    approval, source, plan, entry = runner.execution_approval(job)
+    directory = Path(entry['output_prefix']).parent
+    receipt_path = directory / ('validation_recovery.json' if index == 0 else 'complete.json')
+    receipt = e2.campaign.load_json(receipt_path)
+    assert receipt['plan_sha256'] == job['plan_sha256']
+    assert receipt['end_step'] == entry['end_step'] == job['end_step']
+    if index == 0:
+        runner.recovery_record(job, entry, directory / 'incomplete.json')
+        assert e2.campaign.sha256(receipt_path) == job['recovery_record_sha256']
+        assert e2.campaign.sha256(directory / 'incomplete.json') == job['original_incomplete_sha256']
+    else:
+        assert receipt['status'] == 'validated' and not (directory / 'incomplete.json').exists()
+    started = e2.campaign.load_json(directory / 'started.json')
+    assert started['command'] == entry['command'] and started['host'] == 'titan'
+    assert started['plan_sha256'] == job['plan_sha256']
+    assert started['approval_sha256'] == job['execution_approval_sha256']
+    e2.check_hashes(started['smoke_sha256'])
+    e2.check_hashes(receipt['output_sha256'])
+    assert 'STAR_ASSOCIATION_SMOKE PASS' in (directory / 'stdout.log').read_text()
+    assert not Path(entry['output_prefix'] + '.candidate_mismatch.tsv').exists()
+    captures = []
+    original = e2.validation.analysis.topology.frame_observables
+
+    def capture(*args, **kwargs):
+        graph = original(*args, **kwargs)
+        degrees = Counter(graph['neighbor_degree'].values())
+        loops = Counter(graph['intra_degree'][star] for star in args[4]['stars'])
+        multiples = Counter(graph['edge_multiplicity'].values())
+        components, _ = old['partition'](graph['neighbors'])
+        compact = dict(step=int(args[1]), isolated_stars=degrees[0],
+            satellite_components=sum(len(m) > 1 for m in components[1:]),
+            satellite_stars=sum(len(m) for m in components[1:] if len(m) > 1))
+        compact.update({f'degree_{i}_fraction': degrees[i] / 1000 for i in range(5)})
+        compact.update({f'intra_loop_{i}_stars': loops[i] for i in range(3)})
+        compact.update({f'multiplicity_{i}_edges': multiples[i] for i in range(1, 5)})
+        compact['multiplicity_0_edges'] = 499500 - sum(multiples.values())
+        captures.append(compact)
+        return graph
+
+    e2.validation.analysis.topology.frame_observables = capture
+    try:
+        rows, events, validation = e2.validation.validate(entry, oracle=True)
+    finally:
+        e2.validation.analysis.topology.frame_observables = original
+    assert validation == receipt['validation']
+    assert len(rows) == len(captures)
+    for row, compact in zip(rows, captures):
+        assert row['step'] == compact['step']
+        row.update(compact)
+    start, end = entry['start_step'], entry['end_step']
+    assert start == 24000000 and end - start == job['steps']
+    system, initial = e2.validation.read_parent(entry)
+    _, raw = e2.validation.analysis.dynamics.read_events(entry['output_prefix'] + '.events', system)
+    _, final_pairs = e2.validation.analysis.restart.read_metadata(entry['output_prefix'] + '.assoc_restart')
+    counts = dict(creations=sum(event['type'] == 'C' for event in events),
+                  breaks=sum(event['type'] == 'B' for event in events),
+                  neighbor_gains=sum(event['neighbor_gain'] for event in events),
+                  neighbor_losses=sum(event['neighbor_loss'] for event in events))
+    exposure = old['integer_exposure'](raw, len(initial['pairs']), start, end, 4000)
+    renewal = old['network_renewal'](initial['pairs'], raw, system, start, end,
+                                     [row['step'] for row in rows])
+    assert renewal['distinct_edge_gains'] == counts['neighbor_gains']
+    assert renewal['distinct_edge_losses'] == counts['neighbor_losses']
+    network_exposure = old['exposure_helpers']['exposure'](
+        initial['pairs'], raw, system['atom_to_star'], 1000, start, end)
+    metrics = segment.METRICS + tuple(key for key in captures[0] if key != 'step')
+    windows = {str(width): [old['statistics_window'](rows, events, left, left + width, metrics)
+               for left in range(start, end, width)]
+               for width in (500000, 1000000, 2000000, 4000000, 8000000)}
+    phases = {name: old['statistics_window'](rows, events, left, right, metrics)
+              for name, left, right in [('full', start, end),
+                ('early', start, start + (end-start)//4),
+                ('middle', start+(end-start)//4, start+3*(end-start)//4),
+                ('last_quarter', start+3*(end-start)//4, end)]}
+    # Window statistics are segment-local. No correlation or lifetime origin crosses 24M.
+    label = f"EA{int(entry['physics']['Ea']):02d}_R{entry['replica']:03d}"
+    record = dict(label=label, job=job, entry=entry, source_git_sha=plan['git_sha'],
+        source_sha256=plan['source_sha256'], executable_sha256=plan['executable_sha256'],
+        build=plan['build'], receipt=str(receipt_path), receipt_sha256=e2.campaign.sha256(receipt_path),
+        receipt_kind=receipt['status'], validation=validation, output_sha256=receipt['output_sha256'],
+        start_step=start, end_step=end, counts=counts, exact_integer_step_exposure=exposure,
+        network_exposure=network_exposure, initial=rows[0], final=rows[-1], phases=phases,
+        final_graph=old['graph_summary'](final_pairs, system),
+        renewal_summary={k: v for k, v in renewal.items() if k not in ('sampled', 'episodes', 'stars')})
+    for suffix, value in [('SUMMARY', record), ('WINDOWS', windows),
+                          ('TIMESERIES', rows), ('RENEWAL', renewal)]:
+        e2.exclusive_json(output / (label + '_' + suffix + '.log'), value)
+    # Independent structural identity tracking over both segments; only an event/topology ledger,
+    # never a segment-crossing lifetime or correlation estimate.
+    prior_plan = e2.campaign.load_json(entry['lineage']['parent_plan'])
+    prior = prior_plan['histories'][entry['replica'] - 1]
+    _, prior_initial = e2.validation.read_parent(prior)
+    _, prior_raw = e2.validation.analysis.dynamics.read_events(prior['output_prefix'] + '.events', system)
+    full = old['network_renewal'](prior_initial['pairs'], prior_raw + raw, system, 8000000, end,
+                                [8000000, 24000000] + list(range(24500000, end+1, 500000)))
+    # Identity residence for each segment is retained separately in RENEWAL archives. Here only
+    # identity survival/overlap and accumulated event coverage are used scientifically.
+    e2.exclusive_json(output / (label + '_ORIGINAL_IDENTITY.log'),
+                      {k: v for k, v in full.items() if k not in ('episodes', 'stars')})
+    print('PASS', label, counts, validation['oracle_sweeps'], flush=True)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--history', type=int, choices=range(6))
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--self-test', action='store_true')
+    args = parser.parse_args()
+    if args.self_test:
+        old['compiler_free_tests']()
+        # Absolute-time partitions may touch 24M, but never cross it.
+        for end in (40000000, 56000000):
+            for width in (500000, 1000000, 2000000, 4000000, 8000000):
+                bounds = list(range(24000000, end, width))
+                assert bounds[0] == 24000000 and bounds[-1] + width == end
+        print('PASS segment-local partitions at all five scales')
+    else:
+        assert args.history is not None and args.output is not None
+        args.output.mkdir(parents=True, exist_ok=True)
+        analyze(args.history, args.output)
