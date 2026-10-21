@@ -2,20 +2,24 @@
 
 ## 1. Status, authority and objectives
 
-Protocol version: **D0 v1, documentation design baseline**. Inspection starting
-revision: **621f3f10118d30797a636c17945c59982f87b58e**, matching local HEAD and an
-independent query of remote `refs/heads/slip-springs`. The working tree was
-clean, on `slip-springs`. This document records design, not new validation
-results. No code, tests, builds, reference ensembles, pilots or simulations
-were run or changed for D0.
+Protocol version: **D0.1, timestep amendment and bounded CPU screening**
+(21 October 2026). Amendment starting revision:
+**31643cef8838a22b38267338f124f558274b39dd**, verified on `slip-springs` with a
+clean tracked working tree. Original D0 inspection was at
+`621f3f10118d30797a636c17945c59982f87b58e`; its documentation-only execution
+record remains historical. D0.1 changes timestep proposals and their arithmetic,
+with six independently seeded 100-configuration CPU Hessian screens and the
+seven existing preselector tests; see [screening report](E1_STAGE_D_TIMESTEP_SCREENING.md).
+No observer, dynamics, force/Hessian code, scientific accuracy margin or earlier
+scientific result is changed. No GPU trajectory or pilot was run.
 
 | Status | Meaning in this document |
 |---|---|
 | Frozen existing science | E1 measure, Hamiltonian, rates and accepted A/B/C behavior; unchanged |
 | D0 design baseline | Separate D1/D2 questions, references, dependency handling, evidence categories, data/provenance requirements and approval gates below; changes require a versioned amendment |
 | Proposed numerical choices | Every new matrix entry, tolerance, replica count, cadence, duration, support floor and resource cap below; requires scientific approval before becoming a campaign acceptance plan |
-| Authorized now | Read-only inspection, this documentation, commit and push on `slip-springs` |
-| Not authorized | Instrumentation or initial-state importer implementation, new tests, pilot execution, reference generation, production or analysis of new trajectories |
+| Authorized now | D0.1 documentation, bounded existing CPU preselector and relevant tests, commit and push on `slip-springs` |
+| Not authorized | Instrumentation or initial-state importer implementation, new tests, pilot execution, campaign reference generation, production or analysis of new trajectories |
 
 Commitment of this design freezes its recorded contents, **not scientific
 approval of its proposed numerical choices or permission to execute them**.
@@ -197,7 +201,7 @@ on, stress off, full scalar output and double precision for primary science.
 |---|---|---|
 | N | 8,32 | Local versus longer contour; no terminal-time claim |
 | kappa | 0,2,10 | Flexible, intermediate and stiff backbone references |
-| dt | 5e-5,2.5e-5 | Factor two; existing conservative bare-backbone baseline informs the finer level, but does not validate it here |
+| dt | 1e-4,2.5e-4 | Primary finer/coarser pair, ratio 2.5; proposed for testing, not validated |
 | nu_hop | 10,100 | Factor ten in the jump dynamics; provisional numerical comparison, not calibrated physical rates |
 | Host N_e | 16 (dilute),4 (denser stress case) | Vary constraint density without a kappa dependence |
 | A2 | 5 at every kappa and both density levels | Provisional host-controlled extension, consistent with a prior short development example, not a measured tube scale |
@@ -240,34 +244,54 @@ adiabatic limit. Existing hard resource/numerical guards remain mandatory.
 
 ### 3.1 Timestep rationale and what two timesteps cannot prove
 
-An occupied bead has an added isotropic Hessian k_ss*I at fixed attachment.
-For an isolated tether, tau_ss=zeta/k_ss=zeta*A2/(3kBT); Euler–Maruyama is
-linearly stable only if dt*k_ss/zeta<2. Its stationary component variance is
-`(kBT/k_ss)/(1-dt*k_ss/(2*zeta))`, showing bias well before instability. This
-scalar calculation is a scale illustration, not the chain stability bound.
-Single occupancy bounds the added fixed-state curvature by k_ss, not Z*k_ss
-on every bead; the combined backbone curvature still governs the fastest mode.
+| Purpose | Proposed dt |
+|---|---:|
+| Primary finer | 1e-4 |
+| Primary coarser | 2.5e-4 |
+| Reserved finer reference | 5e-5 |
+| Exploratory larger | 5e-4 |
 
-The bare harmonic screening estimate `4kb+16kappa/b0^2` can be augmented by
-k_ss to flag inappropriate choices. It is not a global bound: bending has
-singular short-bond geometry, equilibrium curvatures fluctuate, and the existing
-Q99 Hessian heuristic sampled only the bare backbone. At A2=5, k_ss=0.6;
-small added local curvature does not guarantee accurate global sizes,
-populations or connector statistics. No bound on slow equilibration follows
-from tau_ss. Tighter A2 in a future approved matrix requires a fresh assessment.
+Only the primary pair enters the matrix and initial pilot counts. Activate the
+reserved reference for separately approved ambiguous/disagreeing cells; the
+exploratory level needs a separate approved manifest/budget. None is validated.
 
-Poisson processing already permits repeated attempts within dt; nu*dt need
-not be forced small to approximate a Bernoulli clock. Nevertheless, moving-bead
-coupling, numerical invariant bias and computational load require dt/rate
-comparisons. The largest proposed mean is 512*100*5e-5=2.56, below the accepted
-10000 guard; this is an arithmetic check, not measured performance.
+An occupied bead has an added isotropic Hessian k_ss*I3 at fixed attachment
+and fixed anchors. At A2=5, k_ss=3kBT/A2=0.6. Single occupancy makes H_ss
+positive semidefinite and block diagonal with operator norm at most 0.6, so
+
+```text
+lambda_max(H_bb + H_ss) <= lambda_max(H_bb) + 0.6.
+```
+
+This is a fixed-attachment positional Hessian inequality, not stability of the
+stochastic hopping/renewal process or an equilibrium-accuracy guarantee. It
+needs no sampled slip-spring states and does not multiply curvature by Z.
+The bare harmonic approximation `4kb+16kappa/b0^2` is not a nonlinear bound:
+bending has singular short-bond geometry and local curvature fluctuates.
+The [D0.1 screen](E1_STAGE_D_TIMESTEP_SCREENING.md) reports six-system Q99
+curvatures and q=dt*Q99/zeta, with the additive 0.6 estimate separately.
+Its finite sample may miss rare configurations. It reveals no reason to reject
+2.5e-4 from the upcoming pilot, but cannot approve any timestep scientifically.
+
+For a fixed positive harmonic mode lambda, EM is linearly stable only if
+q=dt*lambda/zeta<2; its stationary variance is
+`(kBT/lambda)/(1-q/2)`. The relative excess `q/(2-q)` illustrates bias before
+instability, not an error bound on nonlinear chain sizes or connector moments.
+For an isolated tether tau_ss=zeta/k_ss=5/3; neither that time nor the fastest
+local backbone mode bounds slow equilibration. Tighter A2 requires reassessment.
+Local stability, static equilibrium accuracy and dynamical accuracy are distinct.
+
+Poisson processing permits repeated attempts within dt; nu*dt need not be
+forced small to approximate a Bernoulli clock. Moving-bead coupling, invariant
+bias and load still require dt/rate comparisons. The largest primary mean is
+512*100*2.5e-4=12.8 attempts/step (25.6 at exploratory 5e-4), below the accepted
+10000 guard; this is arithmetic, not performance evidence. Expected attempts
+per physical time remain Z*nu_hop at every dt.
 
 Two timesteps test agreement and bias sensitivity, not convergence order or
-the exact dt->0 limit. Propose dt=1.25e-5 as a reserved third level only for
-approved ambiguous/disagreeing cells. Do not declare the finest tested step
-exact or extrapolate a first-order law from an unresolved difference. Prior
-N32 size/stationarity comparisons were unresolved; neither 5e-4 nor the new
-finer pair inherits active-spring acceptance from earlier backbone campaigns.
+the exact dt->0 limit. The primary pair is not dt versus dt/2. The reserved
+5e-5 is not exact. Prior N32 global-size/stationarity comparisons remained
+unresolved, and earlier bare-backbone evidence does not validate active E1.
 
 ## 4. Data audit at the inspected revision
 
@@ -356,19 +380,31 @@ For each approved cell and independent replica:
    synchronized backbone/spring quantities after completed batches. Never
    recenter evolving beads without the corresponding anchor transformation;
    offline translation-invariant shape calculations require no dynamics change.
-3. Propose selected shared physical times 0,5e-5,1e-4,.0025,.01,.05,.25,1,2,
-   subject to a pilot-informed final horizon. All are exactly scheduled integer
-   steps for both proposed dt levels; serialize the integer schedules instead
-   of comparing nearest bins or interpolating. A future observation schedule
-   can combine dense pilot bursts, selected early frames and coarser long-time
-   records. The present constant `--sample` alone does not provide that union.
+3. Propose shared physical times 0,.0005,.0025,.01,.05,.25,1,2,
+   subject to a pilot-informed final horizon. The old 5e-5 and 1e-4 shared
+   frames cannot occur at primary coarser dt=2.5e-4; 2.5e-4 itself is not an
+   integer step at primary finer dt=1e-4. Replace the shared early frames
+   explicitly with .0005, the smallest common positive time; never round or
+   interpolate. Integer schedules are:
+
+   | dt | Steps at the shared times above |
+   |---:|---|
+   | 1e-4 | 0,5,25,100,500,2500,10000,20000 |
+   | 2.5e-4 | 0,2,10,40,200,1000,4000,8000 |
+   | 5e-5 (reserved) | 0,10,50,200,1000,5000,20000,40000 |
+   | 5e-4 (exploratory) | 0,1,5,20,100,500,2000,4000 |
+
+   Additionally retain step 1 at each dt as a timestep-specific first-update
+   diagnostic; those unequal times are not cross-dt contrasts. Serialize
+   integer schedules. The present constant `--sample` alone does not provide
+   the union of selected frames and regular records.
 4. Compare each time ensemble to the absolute canonical reference; also compare
    paired changes from t=0 within each replica. Require both: a chance initial
    offset must not cancel a later bias. Propose early/middle/late windows only
    after the pilot fixes duration, before confirmatory runs. Record drift and
    window contrasts, with simultaneous uncertainty across the whole schedule.
-5. Compare dt and dt/2 at identical times/durations and parameters, and compare
-   both nu levels against the same target. Use independent seeds across cells
+5. Compare the primary finer and coarser dt at identical times/durations and
+   parameters, and compare both nu levels against the same target. Use independent seeds across cells
    unless an explicit paired-start design and its covariance are preregistered.
    Sharing a seed across timesteps does not couple Brownian paths correctly;
    step-based Philox and different Poisson batches preclude assuming pathwise
@@ -626,8 +662,10 @@ scientific approval of tolerances, propose a bounded host-only planning pilot:
   (N32,kappa10,dilute,nu10); both proposed dt levels; four independent exact-start
   replicas each: 32 short runs. This estimates costs/dispersion, not acceptance.
 - Start with T=0.25 and a dense scalar/spring diagnostic cadence 5e-4.
-  Selected early snapshots retain first-step effects. Propose a later cadence
-  0.005 for planning longer records, subject to a documented pilot IAT study.
+  This is exactly 5 finer or 2 coarser primary steps (10 reserved, 1 exploratory); retain
+  separately tagged step-1 frames. Propose a later cadence
+  0.005 for planning longer records: exactly 50 finer or 20 coarser steps (100
+  reserved, 10 exploratory), subject to a documented pilot IAT study.
   Sampling at all BD steps is unnecessary for static ensemble means, but
   the retained cadence must resolve the slow-coordinate correlation analysis.
 - A preregistered optional extension of selected existing replicas to T=.5,1,2
@@ -644,6 +682,19 @@ scientific approval of tolerances, propose a bounded host-only planning pilot:
   actual file sizes, CPU/GPU memory and renewal coverage. Then propose fixed
   confirmation R,T,cadence,windows and seed manifest with no outcome-based
   tolerance edits. New confirmatory data must be independent of pilot data.
+
+For T=.25 the primary run lengths are 2500/1000 steps (finer/coarser),
+versus 10000/5000 for the old 2.5e-5/5e-5 pair. The 32-run initial pilot
+therefore totals 56000 replica BD steps, versus 240000 previously, a factor
+30/7 reduction (76.7% fewer). Optional horizons .5,1,2 require respectively
+5000/2000,10000/4000,20000/8000 primary steps; these are total lengths, not
+extension increments. Reserved/exploratory T=.25 lengths are 5000/500.
+The dense cadence yields 501 regular frames including t=0; the separate
+primary step-1 frame adds one. Shared selected times are already cadence
+multiples. Count additional audit snapshots separately.
+These reductions apply to BD steps, not total runtime. Observation counts at
+fixed physical cadence and expected hopping attempts Z*nu*T are unchanged;
+serial hopping and diagnostics may dominate. Keep existing wall/storage caps.
 
 Production horizon must address the slowest *measured supported* internal,
 occupancy, connector and population coordinate; no Rouse terminal-time formula
@@ -669,7 +720,7 @@ one replica at a time and retaining only the replica estimators required for
 simultaneous inference; preserve original records/checksums.
 
 For cost budgeting use
-`steps=T/dt`, proposed events approximately `Z*nu*T`, and
+`steps=T/dt` (require an exact integer), expected attempts `Z*nu*T`, and
 `raw scalar rows approximately M*(1+floor(T/cadence))`. Accepted-renewal
 cost includes the serial destination scan. Stage C measured only a tiny
 N8,M64,Z32,nu100,100-step example: single integration/overall 79.827/127.798
