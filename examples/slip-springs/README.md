@@ -333,6 +333,54 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage D1.0 adds a **default-off, read-only equilibrium observer**. Use
+`--equilibrium-steps FILE` with whitespace-separated integer BD steps, starting
+at 0 and ending at `--steps`, strictly increasing and unique. Time requests are
+not accepted or rounded; time is `step*dt`. Optional
+`--equilibrium-snapshots FILE` selects at most eight observation steps including
+initial/final; default snapshots are just initial/final. Stress must be off and
+scalar output full. This instrumentation is pending independent acceptance;
+**no Stage D scientific pilot is authorized**. See the
+[observer report and version-1 schemas](E1_STAGE_D1_OBSERVER_REPORT.md).
+
+Build in isolated directories, preserving any pinned campaign binaries:
+
+```sh
+D1_BUILD=/tmp/e1-d1-build
+make -C examples/slip-springs semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=single GPU_BUILD="$D1_BUILD/single"
+make -C examples/slip-springs semiflexible CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 PRECISION=double GPU_BUILD="$D1_BUILD/double"
+```
+
+These tested short (12-step) and moderately longer (64-step) **technical fixtures**
+exercise serialization; their artificially high hopping rate is a software-test
+setting, not a scientific rate proposal. N=8,M=4,kappa=10,A2=5,Z=6,
+kb=30,b0=kBT=zeta=1; legacy sample stride 4, seed 914203:
+
+```sh
+D1_EXAMPLE=$(mktemp -d /tmp/e1-d1-example.XXXXXX)
+printf '0 1 2 5 12\n' > "$D1_EXAMPLE/short.steps"
+printf '0 1 2 5 12 32 64\n' > "$D1_EXAMPLE/long.steps"
+"$D1_BUILD/double/semiflexible" --output "$D1_EXAMPLE/short" --springs 8 --chains 4 --kappa 10 --slip-count 6 --slip-ms2 5 --hop-rate 20000 --end-renewal 1 --dt .00025 --steps 12 --sample 4 --seed 914203 --equilibrium-steps "$D1_EXAMPLE/short.steps"
+"$D1_BUILD/double/semiflexible" --output "$D1_EXAMPLE/long" --springs 8 --chains 4 --kappa 10 --slip-count 6 --slip-ms2 5 --hop-rate 20000 --end-renewal 1 --dt .0001 --steps 64 --sample 4 --seed 914203 --equilibrium-steps "$D1_EXAMPLE/long.steps"
+python3 examples/slip-springs/e1_observer_check.py "$D1_EXAMPLE/short"
+python3 examples/slip-springs/e1_observer_check.py "$D1_EXAMPLE/long"
+```
+
+The checker must pass before using observer data. It requires the final
+`equilibrium_complete.json`, validates file sizes/frame counts and reconstructs
+saved snapshots. This is structural/software verification, not a scientific
+acceptance analyzer or a replacement for source/executable/raw-data checksums.
+Backbone values at legacy steps stay in `samples.csv`; only extra scheduled
+frames enter `equilibrium_backbone.csv`. Longer tangents, populations, site
+identities, live connector components and interval events are separate streams.
+Complete coordinates/anchors are saved only at the bounded snapshot steps.
+Regression tests (new temporary directories; no campaign execution):
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 timeout 180s python3 examples/slip-springs/tests/test_e1_observer.py "$D1_BUILD/single/semiflexible" -v
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 timeout 180s python3 examples/slip-springs/tests/test_e1_observer.py "$D1_BUILD/double/semiflexible" -v
+```
+
 E1 Stage C adds end escape and canonical renewal with `--end-renewal 1`.
 The default `--end-renewal 0` preserves accepted Stage B behavior. Hopping uses
 `--hop-rate NU` (inverse simulation time, default 0). Every Brownian step is
