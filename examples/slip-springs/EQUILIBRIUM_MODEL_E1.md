@@ -1,5 +1,6 @@
 # Equilibrium Model E1 — canonical anchored slip-springs
-Status: **scientific design frozen (2026-10-20); not yet implemented**.
+Status: **scientific design frozen (2026-10-20); Stage A fixed attachments implemented and audited (2026-10-21)**.
+See [the Stage A audit](E1_STAGE_A_AUDIT.md); hopping and renewal remain unimplemented.
 Scope: `examples/slip-springs/` only. This document specifies the equilibrium measure and ideal continuous-time transition kernels. It does **not** authorize production simulation, timestep acceptance, or a rheological estimator.
 
 ## 1. Scientific objective and boundary
@@ -116,7 +117,7 @@ F_ss(on attached bead) = -k_ss*(r_site-a).
 ```
 Do not modify the existing six-channel stress estimator or claim a final rheology formula in E1.
 
-## 8. Narrow implementation sequence, not yet authorized
+## 8. Narrow implementation sequence (only Stage A implemented)
 
 1. Development-only, no-hopping, fixed-attachment harmonic connectors: exact annealed initialization and basic force checks. Disabled connectors must recover the validated backbone. Keep all changes in `examples/slip-springs/`.
 2. Explicit adjacent-bead stochastic Metropolis hopping with Poisson batches at `m=1`, respecting exclusion/order.

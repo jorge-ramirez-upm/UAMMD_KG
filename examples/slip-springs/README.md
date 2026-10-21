@@ -17,7 +17,8 @@ The validated Rouse reference has Stage 1/2A regressions, the full 54-simulation
 Stage 2B matrix, N32 terminal 504/504 checks, accepted parallel CPU processing,
 million-step memory 728/728 checks, and N100 terminal 686/686 checks. The
 [N100 results](STAGE2B_N100_TERMINAL_RESULTS.md) include a permanent text-artifact
-archive and hashes. Slip-spring physics has not been implemented or validated.
+archive and hashes. E1 Stage A adds development-only fixed-attachment springs;
+see [the independent audit](E1_STAGE_A_AUDIT.md). Slip-spring dynamics is not scientifically validated.
 User-executed Linux-host results show byte-identical correlations across tested
 worker counts, 728/728 analytical 5-SE checks in the million-step memory run,
 and 6.28x single-precision overall speedup at 16 workers. On the RTX 3060 Ti /
@@ -331,6 +332,29 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage A optionally adds fixed harmonic springs with `--slip-count Z` and
+`--slip-ms2 A2`; the default `Z=0` preserves the validated backbone. Active
+springs require `--stress-mode off`. See the [implementation and commands](E1_FIXED_ATTACHMENTS_IMPLEMENTATION.md)
+and [audit/test outcomes](E1_STAGE_A_AUDIT.md). Build and test both precisions
+in an isolated directory (CUDA 13.0.88 and `sm_86` tested here):
+
+```sh
+E1_BUILD="$PWD/examples/slip-springs/build/e1-audit"
+make -C examples/slip-springs check-fixed-slip-initialization
+make -C examples/slip-springs check-fixed-slip-springs PRECISION=single CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$E1_BUILD/single"
+make -C examples/slip-springs check-fixed-slip-springs PRECISION=double CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$E1_BUILD/double"
+E1_RUNS=$(mktemp -d /tmp/e1-fixed.XXXXXX)
+"$E1_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt 0.0001 --steps 100 --sample 10 --seed 4317 --slip-count 32 --slip-ms2 5 --stress-mode off --output "$E1_RUNS/short"
+```
+
+The short example was tested. A moderately long host-only demonstration is the
+same N8,C64,dt0.0001,seed4317 command with `--steps 10000 --sample 100` and a
+new output directory. Neither example establishes numerical/scientific timestep
+acceptance. Spring anchors and indices are exported in `fixed_slip_springs.csv`;
+metadata records requested extension, effective stiffness, allocation and launch
+counts. No Stage B, slip-spring stress, deformation or terminal dynamics is added.
+
+
 For a CPU-only initial timestep heuristic, see the
 [Stage 4A.5 preselector](STAGE4A5_TIMESTEP_PRESELECTOR.md).
 `OPENBLAS_NUM_THREADS=1 python3 examples/slip-springs/timestep_preselector.py --N 8 --kappa 10`
@@ -391,7 +415,8 @@ length harmonic stretching plus Kratky–Porod bending, free ends, unwrapped
 coordinates and Euler–Maruyama overdamped Brownian dynamics. Default mode retains
 the accepted backbone behavior. Stage 4A.3b optionally adds stress streaming
 with accepted Stage 4A.3b implementation; scientific host acceptance is pending. There
-is no excluded volume, hydrodynamics or slip-spring interaction. This model's bounded
+is no excluded volume or hydrodynamics. Fixed-attachment springs are opt-in
+Stage A development physics; backbone acceptance applies with them disabled. This model's bounded
 checks pass; **STAGE 4A.2 ACCEPTED — GPU SEMIFLEXIBLE BACKBONE SCIENTIFIC
 VALIDATION PASSED** (17 October 2026). The original 204-run analysis has zero
 statistical failures. The [permanent evidence archive](validation/stage4a2-acceptance/README.md)

@@ -91,7 +91,7 @@ check-workers:
 # Separate Stage 4A.2 targets; historical all/check/Rouse rules are unchanged.
 .PHONY: semiflexible check-semiflexible
 semiflexible: $(GPU_BUILD)/semiflexible
-$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
+$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/fixed_slip_springs.h $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 check-semiflexible: semiflexible
@@ -120,5 +120,18 @@ check-semiflexible-stress: semiflexible $(BUILD)/semiflexible_stress_correlator
 
 # E1 fixed-anchor development-only smoke (requires CUDA GPU).
 .PHONY: check-fixed-slip-springs
-check-fixed-slip-springs: semiflexible
+check-fixed-slip-springs: check-fixed-slip-initialization semiflexible $(GPU_BUILD)/fixed_slip_forces
+	$(GPU_BUILD)/fixed_slip_forces
 	python3 $(PROJECT_DIR)/tests/test_fixed_slip_springs.py $(GPU_BUILD)/semiflexible
+
+# CPU initializer tests remain runnable without a CUDA toolkit or GPU.
+.PHONY: check-fixed-slip-initialization
+$(BUILD)/fixed_slip_initialization: $(PROJECT_DIR)/tests/fixed_slip_initialization.cpp $(PROJECT_DIR)/fixed_slip_springs.h
+	mkdir -p $(BUILD)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -UNDEBUG $< -o $@ $(LDLIBS)
+check-fixed-slip-initialization: $(BUILD)/fixed_slip_initialization
+	$(BUILD)/fixed_slip_initialization
+
+$(GPU_BUILD)/fixed_slip_forces: $(PROJECT_DIR)/tests/fixed_slip_forces.cu $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/semiflexible.cuh
+	mkdir -p $(GPU_BUILD)
+	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -UNDEBUG $< -o $@ $(LDLIBS)

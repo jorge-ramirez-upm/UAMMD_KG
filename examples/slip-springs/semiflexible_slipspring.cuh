@@ -13,7 +13,8 @@ __global__ void fixed_slip_force(const real4* positions, real4* forces,
   if(anchor.w==real(0)) return;
   const real3 displacement=make_real3(positions[i])-make_real3(anchor);
   const real3 contribution=-springK*displacement;
-  const real additionalEnergy=real(0.5)*springK*dot(displacement,displacement);
+  // Scale before the dot product: |displacement|^2 can overflow for finite U.
+  const real additionalEnergy=-dot(contribution,real(0.5)*displacement);
   real4 f=forces[i];
   const real3 total=make_real3(f)+contribution;
   const real energy=f.w+additionalEnergy;

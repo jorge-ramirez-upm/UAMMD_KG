@@ -32,6 +32,7 @@ struct Settings {
   }
 };
 
+#ifdef __CUDACC__
 // Benchmark-derived adapter for every-step semiflexible stress. A single CUDA
 // producer owns a slot until its copy event; one consumer owns the chain-major
 // bank and deterministic persistent worker ranges. Slots are never overwritten.
@@ -68,6 +69,7 @@ class EveryStepTransport {
   std::size_t deviceBytes() const{return 2*batch*std::size_t(chains)*sizeof(streaming::Sample);}
   std::size_t hostBytes() const{return deviceBytes();}
 };
+#endif // CUDA transport is absent from the CPU correlation reference.
 inline std::ofstream file(const std::filesystem::path& p) {
   std::ofstream f(p);f.exceptions(std::ios::badbit|std::ios::failbit);f<<std::setprecision(17);return f;
 }

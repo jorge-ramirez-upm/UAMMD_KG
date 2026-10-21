@@ -1,5 +1,6 @@
 #include "semiflexible.cuh"
 #include "semiflexible_slipspring.cuh"
+#include "fixed_slip_springs.h"
 #include "semiflexible_stress.cuh"
 #include "semiflexible_scalar_output.h"
 #include <thrust/device_vector.h>
@@ -11,7 +12,6 @@
 #include <iostream>
 #include <limits>
 #include <random>
-#include <numeric>
 #include <sstream>
 #include <vector>
 #include <algorithm>
@@ -90,7 +90,7 @@ Options parse(int argc,char** argv) {
     else throw std::runtime_error("unknown option: "+key);
   }
   if(o.slipCount>Counter(o.n+1)*o.chains) throw std::runtime_error("slip-count exceeds number of bead sites");
-  if(o.slipCount && (!(o.slipMs2>0) || !std::isfinite(real(o.slipMs2)) || !(real(3*o.kbt/o.slipMs2)>0))) throw std::runtime_error("active slips require representable positive slip-ms2 and stiffness");
+  if(o.slipCount) fixed_slips::stiffness<real>(o.kbt,o.slipMs2);
   if(o.slipCount && o.stress.enabled()) throw std::runtime_error("slip-spring rheology/stress is deferred; use --stress-mode off");
   if(Counter(o.n+1)*o.chains>(INT_MAX-8)/8) throw std::runtime_error("too many beads for diagnostic keys");
   if(o.output.empty()||!o.sample||o.steps>maxSteps) throw std::runtime_error("output, positive sample, steps<=UINT64_MAX/8 required");
@@ -223,32 +223,17 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   auto initStart=Clock::now();
   int m=o.n+1,count=m*o.chains; size_t bytes=count*sizeof(real4);
   // Explicit bounded allocations, independent of number of steps/frames.
-  size_t estimate=bytes*8+size_t(count)*1024+(o.slipCount?size_t(count)*(sizeof(real4)+sizeof(int)):0);
+  size_t estimate=bytes*8+size_t(count)*1024+(o.slipCount?size_t(count)*(2*sizeof(real4)+sizeof(int)):0);
   if(estimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
   // Independent CPU RNG domain, never consuming backbone initialization or Philox counters.
-  std::vector<real4> springHosts;
+  const real springK=o.slipCount?fixed_slips::stiffness<real>(o.kbt,o.slipMs2):real(0);
+  auto springHosts=fixed_slips::initialize(host,o.slipCount,o.slipMs2,o.seed);
   if(o.slipCount) {
-    springHosts.assign(count,make_real4(0,0,0,0));
-    std::vector<int> sites(count);
-    std::iota(sites.begin(),sites.end(),0);
-    std::seed_seq seed{unsigned(o.seed),unsigned(o.seed>>32),0x53117u};
-    std::mt19937_64 rng(seed);
-    std::shuffle(sites.begin(),sites.end(),rng);
-    std::normal_distribution<double> standard(0.0,1.0);
-    const double stddev=std::sqrt(o.slipMs2/3.);
-    for(size_t j=0;j<size_t(o.slipCount);++j) {
-      const int i=sites[j];
-      const double x=double(host[i].x)+stddev*standard(rng);
-      const double y=double(host[i].y)+stddev*standard(rng);
-      const double z=double(host[i].z)+stddev*standard(rng);
-      if(!(std::isfinite(x)&&std::isfinite(y)&&std::isfinite(z)&&std::isfinite(real(x))&&std::isfinite(real(y))&&std::isfinite(real(z))))
-        throw std::runtime_error("slip anchor coordinate not representable");
-      springHosts[i]=make_real4(x,y,z,1);
-    }
     auto file=outputFile(out/"fixed_slip_springs.csv");
     file<<"chain,bead,ax,ay,az\n";
     for(int i=0;i<count;++i) if(springHosts[i].w) file<<i/m<<','<<i%m<<','<<springHosts[i].x<<','<<springHosts[i].y<<','<<springHosts[i].z<<'\n';
+    file.close();
   }
   thrust::device_vector<real4> springs(springHosts);
   thrust::device_vector<real4> r(host),next(count),forces(count);
@@ -258,7 +243,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   thrust::device_vector<int> error(1,INT_MAX);
   auto ptr=[](auto& v){return thrust::raw_pointer_cast(v.data());};
   real4* current=ptr(r);real4* following=ptr(next);
-  Counter stretchLaunches=0,bendLaunches=0,updateLaunches=0;
+  Counter stretchLaunches=0,bendLaunches=0,updateLaunches=0,slipLaunches=0;
   auto diagnose=[&](Counter step,bool proposed=false) {
     int key;check(cudaMemcpy(&key,ptr(error),sizeof(int),cudaMemcpyDeviceToHost),"diagnostic readback");
     if(key!=INT_MAX) {
@@ -271,14 +256,16 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       }
       auto f=outputFile(out/"failure.json");
       f<<"{\"step\":"<<step<<",\"time\":"<<double(step)*o.dt<<",\"flat_bead\":"<<key/8
-       <<",\"chain\":"<<(key/8)/m<<",\"bead\":"<<(key/8)%m<<",\"reason\":"<<key%8<<",\"stage\":\""<<(proposed?"proposal":"force")<<"\",\"precision_bits\":"<<8*sizeof(real)<<",\"kbt\":"<<o.kbt<<",\"zeta\":"<<o.zeta<<",\"seed\":"<<o.seed<<",\"dt\":"<<o.dt<<"}\n";
+       <<",\"chain\":"<<(key/8)/m<<",\"bead\":"<<(key/8)%m<<",\"reason\":"<<key%8<<",\"stage\":\""<<(proposed?"proposal":"force")<<"\",\"precision_bits\":"<<8*sizeof(real)<<",\"kbt\":"<<o.kbt<<",\"zeta\":"<<o.zeta<<",\"seed\":"<<o.seed<<",\"dt\":"<<o.dt
+       <<",\"slip_count\":"<<o.slipCount<<",\"slip_ms2\":"<<(o.slipCount?jsonNumber(o.slipMs2):"null")
+       <<",\"slip_effective_stiffness\":"<<(o.slipCount?jsonNumber(double(springK)):"null")<<"}\n";
       throw std::runtime_error("GPU diagnostic failure at step "+std::to_string(step)+", bead "+std::to_string(key/8)+", reason "+std::to_string(key%8));
     }
   };
   auto evaluate=[&](Counter step) {
     stretch<<<(count+255)/256,256>>>(current,ptr(forces),ptr(bonds),count,m,ptr(error));++stretchLaunches;
     if(p.active) {bend<<<(count+255)/256,256>>>(current,ptr(forces),ptr(angles),count,m,ptr(error));++bendLaunches;}
-    if(o.slipCount) fixed_slip_force<<<(count+255)/256,256>>>(current,ptr(forces),ptr(springs),count,real(3*o.kbt/o.slipMs2),ptr(error));
+    if(o.slipCount) {fixed_slip_force<<<(count+255)/256,256>>>(current,ptr(forces),ptr(springs),count,springK,ptr(error));++slipLaunches;}
     check(cudaGetLastError(),"force launch");diagnose(step);
   };
   auto pf=outputFile(out/"parameters.txt"); pf<<o.n<<'\n';
@@ -386,6 +373,9 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       <<",\"steps\":"<<(o.forceOnly?0:o.steps)<<",\"production_time\":"<<(o.forceOnly?0:o.steps*o.dt)<<",\"sample\":"<<o.sample<<",\"seed\":"<<o.seed<<",\"rng_domain\":3,\"kbt\":"<<o.kbt<<",\"zeta\":"<<o.zeta
       <<",\"bending_device_bytes\":"<<(angles.capacity()*sizeof(real))<<",\"active_angles\":"<<std::count_if(p.kappa.begin(),p.kappa.end(),[](real v){return v!=0;})
       <<",\"slip_count\":"<<o.slipCount<<",\"slip_ms2\":"<<(o.slipCount?jsonNumber(o.slipMs2):"null")
+      <<",\"slip_effective_stiffness\":"<<(o.slipCount?jsonNumber(double(springK)):"null")
+      <<",\"slip_device_bytes\":"<<springs.capacity()*sizeof(real4)<<",\"slip_launches\":"<<slipLaunches
+      <<",\"slip_initialization_rng_domain\":"<<(o.slipCount?"340247":"null")
       <<",\"slip_mode\":\""<<(o.slipCount?"fixed-attachment-development":"disabled")<<"\""
       <<",\"stretch_launches\":"<<stretchLaunches<<",\"bending_launches\":"<<bendLaunches<<",\"update_launches\":"<<updateLaunches
       <<",\"device_bytes\":"<<deviceBytes<<",\"cpu_workspace_budget_estimate_bytes\":"<<estimate
