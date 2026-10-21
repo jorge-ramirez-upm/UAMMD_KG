@@ -107,11 +107,11 @@ def validate_lineage(entry, metadata, pairs):
             entry['physics'] == prior['physics'], 'extension chemistry/lineage/steps differ')
 
 
-def reservation(root, path, attempt, sid):
+def reservation(root, path, attempt, sid, scope=SCOPE):
     path = Path(path).resolve()
     require(path.parent == root / 'banks/e2_md_reservations', 'wrong MD reservation directory')
     record = e2.campaign.load_json(path)
-    require(record['schema_version'] == 1 and record['purpose'] == SCOPE and
+    require(record['schema_version'] == 1 and record['purpose'] == scope and
             record['attempt'] == str(attempt) and record['system'] == sid and
             [r['replica'] for r in record['streams']] == [1, 2, 3], 'wrong MD reservation identity')
     require(all(type(r['replica']) is int for r in record['streams']), 'invalid MD reservation replica type')
@@ -147,7 +147,7 @@ def reservation(root, path, attempt, sid):
     return record
 
 
-def reserve_md(root, attempt, sid):
+def reserve_md(root, attempt, sid, scope=SCOPE):
     chemical, requested, effective, _ = transfer.streams_in_use(root)
     for path in [transfer.RESERVATIONS, *(root / 'banks/e2_seed_reservations').glob('*.json')]:
         for row in e2.campaign.load_json(path)['streams']:
@@ -164,9 +164,9 @@ def reserve_md(root, attempt, sid):
             effective.add(kernel)
         seed += 1
     path = root / 'banks/e2_md_reservations' / (attempt.name + '.json')
-    e2.exclusive_json(path, dict(schema_version=1, purpose=SCOPE, system=sid,
+    e2.exclusive_json(path, dict(schema_version=1, purpose=scope, system=sid,
         attempt=str(attempt), streams=streams, chemistry_policy='inherited; no chemistry allocation'))
-    reservation(root, path, attempt, sid)
+    reservation(root, path, attempt, sid, scope=scope)
     return path
 
 
@@ -288,7 +288,11 @@ def code_compatible(parent, plan):
     for relative, record in transitions.items():
         path = e2.HERE.parent / relative
         name = str(path)
-        text = path.read_text()
+        # Historical lineage is checked against its committed source, not a later front end.
+        text = (e2.subprocess.check_output(['git', 'show', plan['git_sha'] + ':' +
+                    str(path.relative_to(e2.campaign.REPOSITORY_ROOT))],
+                    cwd=e2.campaign.REPOSITORY_ROOT, text=True)
+                if plan.get('git_sha') else path.read_text())
         if before.get(name) != record['before_sha256'] or after.get(name) != record['after_sha256'] or \
                 hashlib.sha256(text.encode()).hexdigest() != record['after_sha256']:
             return False
@@ -402,7 +406,7 @@ def check_approval(record, plan, replica, replicas):
                 ('diagnostic_window_steps', 500000))), 'extension approval identity/cap differs')
 
 
-def partial_step_bounds(prefix, steps):
+def partial_step_bounds(prefix, steps, start=24000000):
     """Only flushed complete records give a lower bound; no checkpoint means no exact count."""
     lower = 0
     for suffix, columns in [('.state', 21), ('.candidate_validation.tsv', 3), ('.numerics.tsv', 6)]:
@@ -424,7 +428,7 @@ def partial_step_bounds(prefix, steps):
                 absolute = int(fields[0])
             except ValueError:
                 continue
-            require(24000000 <= absolute <= 24000000 + steps, 'partial absolute step outside cap')
-            lower = max(lower, absolute - 24000000)
+            require(start <= absolute <= start + steps, 'partial absolute step outside cap')
+            lower = max(lower, absolute - start)
     return dict(completed_MD_steps_lower_bound=lower, authorized_MD_steps_upper_bound=steps,
                 exact_partial_MD_steps_known=False)

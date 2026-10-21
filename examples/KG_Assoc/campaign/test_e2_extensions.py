@@ -84,7 +84,8 @@ class ExtensionScopeTests(unittest.TestCase):
             self.write_approval(dict(self.record, **change))
             with self.subTest(change=change), self.execution() as popen:
                 with self.assertRaises(ValueError):
-                    e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
+                    e2.launch(self.root, self.attempt, True, self.approval, replicas=[2],
+                              source_authorization=self.approval)
                 popen.assert_not_called()
 
     def test_selected_execution_preserves_unselected_and_used_attempts(self):
@@ -92,7 +93,8 @@ class ExtensionScopeTests(unittest.TestCase):
         sentinel = self.attempt / 'r001/preserved'
         sentinel.write_text('earlier history')
         with self.execution() as popen:
-            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
+            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2],
+                      source_authorization=self.approval)
             self.assertEqual(popen.call_count, 1)
             self.assertTrue(callable(popen.call_args.kwargs['preexec_fn']))
         self.assertEqual(sentinel.read_text(), 'earlier history')
@@ -100,13 +102,15 @@ class ExtensionScopeTests(unittest.TestCase):
         self.assertTrue((self.attempt / 'r002/process.json').exists())
         self.assertTrue((self.attempt / 'r002/complete.json').exists())
         with self.execution() as popen, self.assertRaisesRegex(ValueError, 'attempt already used'):
-            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
+            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2],
+                      source_authorization=self.approval)
         popen.assert_not_called()
 
     def test_first_failure_preserved_and_remaining_unstarted(self):
         self.configure()
         with self.execution(status=1) as popen, self.assertRaisesRegex(ValueError, 'MD executable failed'):
-            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
+            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2],
+                      source_authorization=self.approval)
         self.assertEqual(popen.call_count, 1)
         self.assertTrue((self.attempt / 'r002/incomplete.json').exists())
         self.assertEqual(list((self.attempt / 'r001').iterdir()), [])
@@ -126,7 +130,8 @@ class ExtensionScopeTests(unittest.TestCase):
         self.configure()
         self.write_approval(dict(self.record, GPU_execution_authorized=False))
         with self.execution() as popen, self.assertRaisesRegex(ValueError, 'pending separate'):
-            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2])
+            e2.launch(self.root, self.attempt, True, self.approval, replicas=[2],
+                      source_authorization=self.approval)
         popen.assert_not_called()
         for replica in (1, 2, 3):
             self.assertEqual(list((self.attempt / f'r{replica:03d}').iterdir()), [])
@@ -265,7 +270,10 @@ class CompatibilityTests(unittest.TestCase):
     def test_exact_transition_and_frozen_physics(self):
         review = e2.campaign.load_json(extension.REVIEW / 'PROVENANCE.log')
         parent = e2.campaign.load_json(Path(review['histories'][3]['attempt']) / 'plan.json')
-        plan = dict(source_sha256=e2.sources(), executable_sha256=parent['executable_sha256'])
+        build = e2.campaign.load_json(e2.HERE.parent /
+            'kg_assoc_100m/builds/ea_24m_extensions_readback_20261019_v2/manifest.json')
+        plan = dict(source_sha256=build['source_sha256'],
+                    executable_sha256=build['executable_sha256'], git_sha=build['git_sha'])
         self.assertTrue(extension.code_compatible(parent, plan))
         changed = copy.deepcopy(plan)
         key = str(e2.HERE.parent / 'kg_assoc_kinetics.cuh')

@@ -19,8 +19,18 @@ require = validation.require
 HERE = campaign.HERE
 INVENTORY = HERE / 'e2_remaining_inventory_20261011.json'
 EXECUTABLES = ('kg_assoc_stars', 'kg_assoc_stars_candidate_smoke', 'kg_assoc_candidates_test')
+EXTENSION_MODES = ('Ea_24M_extension_v1', 'Ea_reviewed_extension_v2')
 BUILD_TARGETS = EXECUTABLES + ('kg_assoc_production', 'kg_assoc_campaign_production',
                                'kg_assoc_campaign_production_smoke')
+
+
+def extension_module(plan):
+    if plan.get('lineage_mode') == 'Ea_reviewed_extension_v2':
+        import kg_assoc_e2_next_extension as extension
+    else:
+        require(plan.get('lineage_mode') == 'Ea_24M_extension_v1', 'unknown extension mode')
+        import kg_assoc_e2_extension as extension
+    return extension
 
 
 def exclusive_json(path, value):
@@ -80,7 +90,7 @@ def clean_tree():
 def live_code(plan=None, execution_source_overrides=None):
     clean_tree()
     if plan is not None:
-        if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
+        if plan.get('lineage_mode') in EXTENSION_MODES:
             current_sources = sources()
             expected_sources = dict(plan['source_sha256'])
             if execution_source_overrides is not None:
@@ -95,13 +105,13 @@ def live_code(plan=None, execution_source_overrides=None):
                     'prepared extension sources/history changed')
         else:
             require(campaign.git_sha() == plan['git_sha'], 'prepared code SHA changed')
-        if plan.get('lineage_mode') != 'Ea_24M_extension_v1' or plan['source_sha256'] == sources():
+        if plan.get('lineage_mode') not in EXTENSION_MODES or plan['source_sha256'] == sources():
             check_hashes(plan['source_sha256'])
         check_hashes(plan['executable_sha256'])
         if plan.get('build'):
             check_hashes(plan['build']['build_log_sha256'])
             check_hashes(plan['build']['executable_sha256'])
-    if not (plan and plan.get('lineage_mode') in ('Ea_reference_transfer_v1', 'Ea_24M_extension_v1') and
+    if not (plan and plan.get('lineage_mode') in ('Ea_reference_transfer_v1', *EXTENSION_MODES) and
             plan.get('build', {}).get('out_of_tree')):
         subprocess.run(['make', '-q', *EXECUTABLES], cwd=HERE.parent, check=True)
 
@@ -221,7 +231,7 @@ def corrected_c1(root, replica, replay=True):
 
 
 def command(entry, smoke):
-    extension = entry.get('lineage', {}).get('mode') == 'Ea_24M_extension_v1'
+    extension = entry.get('lineage', {}).get('mode') in EXTENSION_MODES
     preparation = extension or (bool(entry.get('lineage')) and
         entry['end_step'] - entry['start_step'] == 16000000)
     executable = Path(entry.get('executable_directory', HERE.parent)) / (
@@ -239,7 +249,9 @@ def command(entry, smoke):
     elif entry['parent_Ea'] != entry['physics']['Ea']:
         result += ['--switch-ea-from', str(entry['parent_Ea']), '--Ea', str(entry['physics']['Ea'])]
     if extension:
-        result += ['--e2-extension', '--Ea', str(entry['physics']['Ea']),
+        option = ('--e2-reviewed-extension' if entry['lineage']['mode'] ==
+                  'Ea_reviewed_extension_v2' else '--e2-extension')
+        result += [option, '--Ea', str(entry['physics']['Ea']),
                    '--derived-branch-id', entry['lineage']['branch_id']]
     elif entry.get('lineage'):
         result += ['--reseed-chemistry-from', str(entry['lineage']['parent_chemistry_seed']),
@@ -258,8 +270,8 @@ def check_plan(root, attempt, live=False):
     require(plan['schema_version'] == 1 and plan['stage'] == 'E2-G1' and
             plan['dataset_root'] == str(root) and plan['attempt'] == str(attempt), 'wrong E2 plan')
     if plan.get('lineage_mode'):
-        if plan['lineage_mode'] == 'Ea_24M_extension_v1':
-            import kg_assoc_e2_extension as extension
+        if plan['lineage_mode'] in EXTENSION_MODES:
+            extension = extension_module(plan)
             return extension.check_plan(root, attempt, plan, live)
         import kg_assoc_e2_transfer as transfer
         require(plan['lineage_mode'] == transfer.MODE, 'unknown derived lineage mode')
@@ -557,9 +569,9 @@ def smoke_code_compatible(smoke, plan):
 
 
 def matching_smoke(root, attempt, plan):
-    if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
-        import kg_assoc_e2_extension as extension
-        require(attempt is None, 'extension evidence is its exact validated 24M predecessor')
+    if plan.get('lineage_mode') in EXTENSION_MODES:
+        extension = extension_module(plan)
+        require(attempt is None, 'extension evidence is its exact validated predecessor')
         return extension.inherited_gpu_evidence(root, plan)
     require(attempt is not None, 'ordinary E2 requires matching capped GPU smoke evidence')
     smoke = verify(root, inside(root, attempt))
@@ -579,8 +591,8 @@ def matching_smoke(root, attempt, plan):
 
 def launch_scope(plan, replica, replicas=None):
     require(replica is None or replicas is None, 'choose one explicit selector')
-    if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
-        import kg_assoc_e2_extension as extension
+    if plan.get('lineage_mode') in EXTENSION_MODES:
+        extension = extension_module(plan)
         return extension.launch_scope(plan, replica, replicas)
     if derived_preparation(plan):
         require(replica is None, 'use an explicitly approved replica list for 16M preparation')
@@ -621,8 +633,8 @@ def launch_scope(plan, replica, replicas=None):
 
 def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None):
     record = approval_record(path, attempt / 'plan.json', purpose)
-    if plan.get('lineage_mode') == 'Ea_24M_extension_v1':
-        import kg_assoc_e2_extension as extension
+    if plan.get('lineage_mode') in EXTENSION_MODES:
+        extension = extension_module(plan)
         extension.check_approval(record, plan, replica, replicas)
     elif derived_preparation(plan):
         selected = launch_scope(plan, replica, replicas)
@@ -661,12 +673,15 @@ def scoped_launch_approval(path, attempt, purpose, plan, replica, replicas=None)
 
 def require_extension_readback_build(build):
     """Authenticate the corrected native call path and execute its CPU-only probe."""
-    required = {'kg_assoc_stars.cu': '9c0e9269b761ff38c07c8d5d2bc0da54d80dab42374030cb2cc39892b18f2c85',
+    required = {'kg_assoc_stars.cu': ('9c0e9269b761ff38c07c8d5d2bc0da54d80dab42374030cb2cc39892b18f2c85',
+                                    '9e77c0963af20bf0f8540fa2a8cc66c8e19ce211c320c11ab94b154753b6e48d'),
                 'kg_assoc_readback_dispatch.cuh': '27b78580c23a285c5a1375ad953583ea6f841c75104f2bb6af69c35b1d582812'}
     for name, expected in required.items():
         actual = [value for path, value in build.get('source_sha256', {}).items()
                   if Path(path).name == name]
-        require(actual == [expected], 'extension readback call path is not authenticated: ' + name)
+        accepted = expected if isinstance(expected, tuple) else (expected,)
+        require(len(actual) == 1 and actual[0] in accepted,
+                'extension readback call path is not authenticated: ' + name)
     check_hashes(build['executable_sha256'])
     executables = [path for path in build['executable_sha256']
                    if Path(path).name == 'kg_assoc_stars_candidate_smoke']
@@ -681,7 +696,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
            replica=None, replicas=None, source_authorization=None):
     plan = check_plan(root, attempt, live=False)
     histories = launch_scope(plan, replica, replicas)
-    is_extension = plan.get('lineage_mode') == 'Ea_24M_extension_v1'
+    is_extension = plan.get('lineage_mode') in EXTENSION_MODES
     if is_extension:
         require_extension_readback_build(plan['build'])
     checked_histories = histories if derived_preparation(plan) or is_extension else plan['histories']
@@ -699,13 +714,14 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
         require(launch_approval.get('GPU_execution_authorized') is True,
                 'GPU execution pending separate user approval; preparation only')
         source_record = extension_source_authorization(source_authorization, plan, approval)
+        source_binding = hash_files([source_authorization])
         live_code(plan, source_record['source_sha256_overrides'])
     if derived_preparation(plan) or is_extension:
         require(socket.gethostname() == 'titan', '16M preparation is authorized only on titan')
     smoke_hashes = {} if plan['smoke'] else matching_smoke(root, smoke_attempt, plan)
     writer = exclusive_json
     if is_extension:
-        import kg_assoc_e2_extension as extension
+        extension = extension_module(plan)
         writer = extension.atomic_receipt
     lock = attempt / '.launch.lock'
     with lock.open('x') as stream:
@@ -714,6 +730,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
         for entry in histories:
             check_plan(root, attempt, live=False)
             if is_extension:
+                check_hashes(source_binding)
                 live_code(plan, source_record['source_sha256_overrides'])
             check_hashes(smoke_hashes)
             scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)
@@ -723,6 +740,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
                 extension.revalidate_parent(entry)
             writer(directory / 'started.json', dict(plan_sha256=campaign.sha256(attempt / 'plan.json'),
                            command=entry['command'], approval_sha256=campaign.sha256(approval),
+                           **(dict(source_authorization_sha256=source_binding) if is_extension else {}),
                            smoke_sha256=smoke_hashes, host=socket.gethostname(), started_at=timestamp()))
             start = time.monotonic()
             try:
@@ -748,6 +766,7 @@ def launch(root, attempt, execute=False, approval=None, smoke_attempt=None,
                 check_hashes(entry['parent']['sha256'])
                 live_code(plan, source_record['source_sha256_overrides'] if is_extension else None)
                 if is_extension:
+                    check_hashes(source_binding)
                     check_plan(root, attempt, live=False)
                     live_code(plan, source_record['source_sha256_overrides'])
                     scoped_launch_approval(approval, attempt, purpose, plan, replica, replicas)

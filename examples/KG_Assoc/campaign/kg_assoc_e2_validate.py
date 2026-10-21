@@ -60,8 +60,9 @@ def read_parent(entry):
     parent_seed = entry['chemistry_seed']
     if 'lineage' in entry:
         import kg_assoc_e2_transfer as transfer
-        if entry['lineage']['mode'] == 'Ea_24M_extension_v1':
-            import kg_assoc_e2_extension as extension
+        if entry['lineage']['mode'] in ('Ea_24M_extension_v1', 'Ea_reviewed_extension_v2'):
+            import kg_assoc_e2 as e2
+            extension = e2.extension_module(dict(lineage_mode=entry['lineage']['mode']))
             extension.validate_lineage(entry, metadata, pairs)
         else:
             transfer.validate_lineage(entry, metadata, pairs)
@@ -125,7 +126,7 @@ def validate(entry, oracle=False):
     # Ordinary 16M Ea transfers retain every smoke diagnostic; callers cannot disable them.
     oracle = oracle or (bool(entry.get('lineage')) and
                         entry['end_step'] - entry['start_step'] == 16000000)
-    if entry.get('lineage', {}).get('mode') == 'Ea_24M_extension_v1':
+    if entry.get('lineage', {}).get('mode') in ('Ea_24M_extension_v1', 'Ea_reviewed_extension_v2'):
         # A caller cannot disable either readback or the oracle for an extension.
         oracle = True
     prefix = Path(entry['output_prefix'])

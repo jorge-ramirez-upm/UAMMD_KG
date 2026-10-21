@@ -207,7 +207,8 @@ def reserved_streams(root, ignore_attempt=None, seed_reservations=None):
         while changed:
             changed = False
             for plan in pending:
-                if (plan.get('lineage_mode') not in (None, 'Ea_24M_extension_v1') or
+                if (plan.get('lineage_mode') not in (None, 'Ea_24M_extension_v1',
+                                                    'Ea_reviewed_extension_v2') or
                         plan.get('system', {}).get('system_id') != row['system_id']):
                     continue
                 for history in plan.get('histories', []):
