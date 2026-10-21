@@ -1,0 +1,80 @@
+Historical generic-recovery expectation preserved, replaced by explicit-policy test: test_e2_extension_readback_hold.ExtensionReadbackHoldTests.test_finished_recovery_still_requires_authenticated_original_evidence
+Historical generic-recovery expectation preserved, replaced by explicit-policy test: test_e2_extension_readback_hold.ExtensionReadbackHoldTests.test_missing_original_evidence_rejects_recovery_without_incomplete_receipt
+test_acceptance_reader_binds_derived_lineage_without_registering (test_e2_transfer.TransferTests)
+An in-memory schema fixture only; no acceptance file or physical trajectory. ... ok
+test_all_twelve_streams_and_exact_inherited_states (test_e2_transfer.TransferTests) ... ok
+test_claimed_campaign_reservations_remain_ineligible (test_e2_transfer.TransferTests) ... ok
+test_complete_validator_accepts_synthetic_branch_and_rejects_offsets (test_e2_transfer.TransferTests) ... ok
+test_native_corrupt_sidecar_reciprocity_and_counters_rejected (test_e2_transfer.TransferTests) ... ok
+test_native_initial_state_fidelity_all_targets_and_controls (test_e2_transfer.TransferTests) ... ok
+test_native_ordinary_restart_compatibility_and_nonoverwrite (test_e2_transfer.TransferTests) ... ok
+test_native_rejects_wrong_physics_seeds_and_flags_before_gpu (test_e2_transfer.TransferTests) ... ok
+test_prepare_check_tamper_duplicate_and_approval_gates (test_e2_transfer.TransferTests) ... ok
+test_reference_hash_corruption_rejected (test_e2_transfer.TransferTests) ... ok
+test_rejects_substituted_lineage_pairs_physics_and_seeds (test_e2_transfer.TransferTests) ... ok
+test_seed_collisions_in_plans_and_effective_reservations (test_e2_transfer.TransferTests) ... ok
+test_unsupported_targets_paths_durations_and_reuse (test_e2_transfer.TransferTests) ... ok
+test_versioned_reservations_leave_prior_stream_bindings_immutable (test_e2_transfer.TransferTests) ... ok
+test_exact_transition_and_frozen_physics (test_e2_extensions.CompatibilityTests) ... ok
+test_linux_process_birth_identity_and_reuse (test_e2_extensions.CompatibilityTests) ... ok
+test_parent_death_supervision_with_short_CPU_child (test_e2_extensions.CompatibilityTests) ... ok
+test_check_and_status_are_read_only_and_never_launch (test_e2_extensions.ExecuteLifecycleTests) ... ok
+test_genuine_failure_stops_all_future_starts (test_e2_extensions.ExecuteLifecycleTests) ... RUN F04_N010_RP080_EE08_EA08 r001 24M -> 40000000 logs: /tmp/tmp3ijdwmsu/manual/attempt_0/r001
+ok
+test_same_command_preserves_partial_reservation_and_restarts_only_that_slot (test_e2_extensions.ExecuteLifecycleTests) ... RUN F04_N010_RP080_EE08_EA08 r001 24M -> 40000000 logs: /tmp/tmp9xsy0glt/manual/attempt_0/r001
+RUN F04_N010_RP080_EE08_EA08 r002 24M -> 40000000 logs: /tmp/tmp9xsy0glt/manual/attempt_1/r002
+Stopped safely. Outputs/reservations preserved. Reissue --execute when ready.
+SKIP independently validated F04_N010_RP080_EE08_EA08 1
+RUN F04_N010_RP080_EE08_EA08 r002 24M -> 40000000 logs: /tmp/tmp9xsy0glt/manual/attempt_6/r002
+RUN F04_N010_RP080_EE08_EA08 r003 24M -> 40000000 logs: /tmp/tmp9xsy0glt/manual/attempt_2/r003
+RUN F04_N010_RP080_EE08_EA10 r001 24M -> 56000000 logs: /tmp/tmp9xsy0glt/manual/attempt_3/r001
+RUN F04_N010_RP080_EE08_EA10 r002 24M -> 56000000 logs: /tmp/tmp9xsy0glt/manual/attempt_4/r002
+RUN F04_N010_RP080_EE08_EA10 r003 24M -> 56000000 logs: /tmp/tmp9xsy0glt/manual/attempt_5/r003
+ALL SIX EXTENSIONS NUMERICALLY VALIDATED. Ea8/Ea10 scientific acceptance is still held.
+SKIP independently validated F04_N010_RP080_EE08_EA08 1
+SKIP independently validated F04_N010_RP080_EE08_EA08 2
+SKIP independently validated F04_N010_RP080_EE08_EA08 3
+SKIP independently validated F04_N010_RP080_EE08_EA10 1
+SKIP independently validated F04_N010_RP080_EE08_EA10 2
+SKIP independently validated F04_N010_RP080_EE08_EA10 3
+ALL SIX EXTENSIONS NUMERICALLY VALIDATED. Ea8/Ea10 scientific acceptance is still held.
+ok
+test_command_keeps_chemistry_and_uses_diagnostic_executable (test_e2_extensions.ExtensionScopeTests) ... ok
+test_exact_two_scopes_and_no_implicit_replicas (test_e2_extensions.ExtensionScopeTests) ... ok
+test_first_failure_preserved_and_remaining_unstarted (test_e2_extensions.ExtensionScopeTests) ... ok
+test_preparation_approval_cannot_launch_GPU (test_e2_extensions.ExtensionScopeTests) ... ok
+test_selected_execution_preserves_unselected_and_used_attempts (test_e2_extensions.ExtensionScopeTests) ... ok
+test_tampered_approvals_never_launch (test_e2_extensions.ExtensionScopeTests) ... ok
+test_wrong_target_steps_start_and_end_fail_closed (test_e2_extensions.ExtensionScopeTests) ... ok
+test_physical_loader_and_integration_tail_are_byte_identical (test_e2_extensions.FrozenPhysicalSourceTests) ... ok
+test_active_native_process_prevents_duplicate_execution (test_e2_extensions.LifecycleTests) ... ok
+test_atomic_receipt_never_overwrites (test_e2_extensions.LifecycleTests) ... ok
+test_completed_receipt_is_independently_replayed_without_MD (test_e2_extensions.LifecycleTests) ... ok
+test_finished_MD_receipt_cannot_be_promoted_by_generic_execution (test_e2_extensions.LifecycleTests) ... ok
+test_numerical_failure_overrides_a_completion_receipt (test_e2_extensions.LifecycleTests) ... ok
+test_partial_work_bounds_do_not_claim_an_exact_step_count (test_e2_extensions.LifecycleTests) ... ok
+test_prepared_partial_and_failure_classification (test_e2_extensions.LifecycleTests) ... ok
+test_recovery_record_is_distinct_and_replayed (test_e2_extensions.LifecycleTests) ... ok
+test_state_cannot_expand_scope_or_remove_caps (test_e2_extensions.LifecycleTests) ... ok
+test_untrusted_partial_is_not_an_automatic_retry (test_e2_extensions.LifecycleTests) ... ok
+test_fresh_reservations_and_original_allocator_exclude_unused_streams (test_e2_extensions.MDReservationTests) ... ok
+skipped 'pre-execution fixtures no longer apply after user-run MD'
+test_exact_map_rejects_missing_extra_physics_and_nonancestor_sources (test_e2_extensions.SourceAuthorizationTests) ... ok
+test_corrected_optimized_binary_probe_and_tampering (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_new_state_is_separate_and_original_failed_campaign_is_unchanged (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_optimized_exact_production_block_invokes_readback_and_stops_before_MD (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_ordinary_and_reseeded_physical_source_is_unchanged_except_validation_dispatch (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_unknown_or_old_native_build_is_rejected (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_all_six_actual_plans_share_the_rejected_build (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_check_prepare_execute_block_before_mutation_or_GPU (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_direct_launcher_cannot_start_affected_extension (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_exact_native_PASS_missing_readback_exception_preserves_attempt (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_missing_native_identity_is_rejected (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_strict_readback_checker_rejects_absence (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_native_pass_cannot_use_generic_recovery_even_with_validator_available (__main__.ExplicitRecoveryPolicyTests) ... ok
+test_native_pass_with_missing_evidence_requires_explicit_recovery (__main__.ExplicitRecoveryPolicyTests) ... ok
+
+----------------------------------------------------------------------
+Ran 53 tests in 88.148s
+
+OK (skipped=1)
