@@ -59,6 +59,9 @@ correlations = []
 metrics = ['bonds', 'intra', 'inter', 'bound_fraction', 'L1', 'L2', 'mean_degree',
            'largest_cluster_fraction', 'isolated_stars', 'satellite_stars',
            'mean_rg2', 'mean_center_terminal_r2']
+metrics += ([f'degree_{i}_fraction' for i in range(5)] +
+            [f'intra_loop_{i}_stars' for i in range(3)] +
+            [f'multiplicity_{i}_edges' for i in range(5)])
 for r in records:
     h = r['h']; entry = h['entry']; label = h['label']
     prefix = entry['output_prefix']
@@ -88,6 +91,21 @@ for r in records:
                         start=w['start_step_exclusive'], end=w['end_step_inclusive'], observable=metric,
                         mean=v['mean'], sem=v['sem_estimate'], IAT_time=v['tau_time'],
                         ESS=v['effective_samples_estimate'], resolution_warning=v['resolution_warning']))
+            # The original dossier stopped at 4M coarsening. Add 8M structural estimates
+            # entirely within 8M--24M, using the same established estimator.
+            for left in (8000000, 16000000):
+                selected = [x for x in rows if left < x['step'] <= left+8000000]
+                for metric in metrics:
+                    values = [x[metric] for x in selected]
+                    times = [x['time'] for x in selected]
+                    v = helper['segment'].review.estimate(values, times)
+                    constant = len(set(values)) == 1
+                    windows.append(dict(label=label, segment=phase, width=8000000,
+                        start=left, end=left+8000000, observable=metric,
+                        mean=v['mean'], sem=v['sem_estimate'],
+                        IAT_time=None if constant else v['tau_time'],
+                        ESS=None if constant else v['effective_samples_estimate'],
+                        resolution_warning=constant or v['resolution_warning']))
         # Dynamical origins are restricted to this segment, including the final-quarter estimate.
         for selection in ('full', 'last_quarter'):
             selected = rows[1:] if selection == 'full' else [x for x in rows if
@@ -157,7 +175,7 @@ table('PAIRED_CONTRASTS.csv', paired)
 plots = out / 'plots'
 plots.mkdir(exist_ok=True)
 colors = ['#0072B2', '#D55E00', '#009E73']
-for name, keys in [('structure', metrics[:10]), ('conformation', metrics[10:])]:
+for name, keys in [('structure', metrics[:10]), ('conformation', metrics[10:12])]:
     fig, axes = plt.subplots(len(keys), 2, figsize=(13, 2.1*len(keys)), squeeze=False)
     for column, ea in enumerate((8, 10)):
         for r in records:
@@ -198,6 +216,38 @@ for r in records:
     axis.set_title(f'Ea={ea} r{rep:03d}; separate censored residence segments')
     axis.set_xlabel('Absolute MD step / 1M'); axis.set_ylabel('Isolated star ID')
 fig.tight_layout(); fig.savefig(plots/'isolated_star_histories.png', dpi=140); plt.close(fig)
+fig, axes = plt.subplots(3, 2, figsize=(13, 9))
+for column, ea in enumerate((8, 10)):
+    for r in records:
+        h = r['h']; rep = h['entry']['replica']
+        if h['entry']['physics']['Ea'] != ea: continue
+        late = [x for x in r['rows'] if x['step'] > h['end_step']-4000000]
+        for axis, key in zip(axes[:, column], ['intra', 'L1', 'mean_degree']):
+            values = np.asarray([x[key] for x in late]); values -= values.mean()
+            if not np.any(values): continue
+            n = 1 << (2*len(values)-1).bit_length()
+            spectrum = np.fft.rfft(values, n=n)
+            acf = np.fft.irfft(spectrum*spectrum.conjugate(), n=n)[:1001]/np.dot(values, values)
+            axis.plot(np.arange(len(acf))*.001, acf, color=colors[rep-1], label=f'r{rep:03d}')
+            axis.axhline(0, color='gray', lw=.6); axis.set_ylabel(key+' ACF')
+            axis.set_xlabel('Lag / 1M steps; final 4M within extension only'); axis.grid(alpha=.2)
+    axes[0, column].set_title(f'Ea={ea}'); axes[0, column].legend()
+fig.tight_layout(); fig.savefig(plots/'late_autocorrelations.png', dpi=140); plt.close(fig)
+fig, axes = plt.subplots(3, 2, figsize=(13, 9))
+for column, ea in enumerate((8, 10)):
+    for r in records:
+        h = r['h']; rep = h['entry']['replica']
+        if h['entry']['physics']['Ea'] != ea: continue
+        late = [x for x in r['rows'] if x['step'] > h['end_step']-4000000]
+        for row, (prefix, bins, suffix) in enumerate([
+                ('degree_', range(5), '_fraction'), ('intra_loop_', range(3), '_stars'),
+                ('multiplicity_', range(1,5), '_edges')]):
+            values = [np.mean([x[prefix+str(i)+suffix] for x in late]) for i in bins]
+            axes[row,column].bar(np.asarray(list(bins))+(rep-2)*.22, values, width=.21,
+                                 color=colors[rep-1], label=f'r{rep:03d}')
+            axes[row,column].set_xlabel(prefix); axes[row,column].grid(axis='y', alpha=.2)
+    axes[0,column].set_title(f'Ea={ea}; final 4M'); axes[0,column].legend()
+fig.tight_layout(); fig.savefig(plots/'late_distributions.png', dpi=140); plt.close(fig)
 e2.exclusive_json(out/'RESULTS.log', dict(starting_sha='31c3d0660876fc020f1f15f5c38b5a4918945e29',
     assessment_GPU_steps=0, extension_MD_steps=sum(h['end_step']-h['start_step'] for h in [r['h'] for r in records]),
     candidate_comparisons=sum(r['h']['validation']['oracle_sweeps'] for r in records),
