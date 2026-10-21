@@ -333,13 +333,26 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage D1.1 provides a frozen **proposed** 8-cell/32-replica equilibrium pilot,
+a fresh-build/provenance tool, a default read-only runner preflight, and separate
+fail-closed authentication/exploratory analysis. See
+[pilot preparation, exact schedules and review gates](E1_STAGE_D1_PILOT_PREPARATION.md)
+and [manifest](e1_d1_pilot_config/manifest.json). No pilot is authorized or executed;
+all approval-template budgets remain null. This stage changes no simulator or
+observer behavior. Safe preparation checks:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 examples/slip-springs/e1_d1_pilot_runner.py
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 timeout 120s python3 examples/slip-springs/tests/test_e1_d1_pilot.py -v
+```
+
 E1 Stage D1.0 adds a **default-off, read-only equilibrium observer**. Use
 `--equilibrium-steps FILE` with whitespace-separated integer BD steps, starting
 at 0 and ending at `--steps`, strictly increasing and unique. Time requests are
 not accepted or rounded; time is `step*dt`. Optional
 `--equilibrium-snapshots FILE` selects at most eight observation steps including
 initial/final; default snapshots are just initial/final. Stress must be off and
-scalar output full. This instrumentation is pending independent acceptance;
+scalar output full. The observer has bounded technical acceptance;
 **no Stage D scientific pilot is authorized**. See the
 [observer report and version-1 schemas](E1_STAGE_D1_OBSERVER_REPORT.md).
 
