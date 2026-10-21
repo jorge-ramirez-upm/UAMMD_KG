@@ -1,0 +1,43 @@
+"""Read-only audit of preparation, raw bindings, immutable history and GPU-disabled gates."""
+import hashlib
+from pathlib import Path
+import sys
+import tarfile
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+import run_ea_next_extensions as runner
+
+dossier = Path(__file__).resolve().parent
+root = e2.HERE.parent/'kg_assoc_100m'
+old = e2.campaign.load_json(dossier/'PRESERVED.sha256')
+e2.check_hashes(old)
+bindings = e2.campaign.load_json(dossier/'PREPARATION_BINDINGS.sha256')
+e2.check_hashes(bindings)
+e2.check_hashes(e2.campaign.load_json(dossier/'INTEGRITY.sha256'))
+state = e2.campaign.load_json(root/'aggregate/e2'/extension.CAMPAIGN/'state.json')
+runner.validate_state(state)
+assert state == e2.campaign.load_json(dossier/'STATE.log')
+for job in state['jobs']:
+    plan,entry,_,_ = runner.authenticate(root,job)
+    assert list(Path(entry['output_prefix']).parent.iterdir()) == []
+    assert not (Path(job['attempt'])/f"approval_r{job['replica']:03d}_execution.json").exists()
+    assert e2.campaign.load_json(job['approval'])['GPU_execution_authorized'] is False
+with tarfile.open(dossier/'PREPARATION.tar.gz') as archive:
+    for member in archive:
+        assert member.isfile() and '..' not in Path(member.name).parts
+        original = str(e2.campaign.REPOSITORY_ROOT/member.name)
+        assert hashlib.sha256(archive.extractfile(member).read()).hexdigest() == bindings[original]
+acceptances = list((root/'banks/e2_acceptance').glob('*.json'))
+assert len(acceptances) == 13
+for path in acceptances:
+    assert str(path) in old
+    record = e2.campaign.load_json(path)
+    e2.check_hashes({record['evidence']:record['evidence_sha256'],
+                     record['source_plan']:record['source_plan_sha256']})
+    for history in record['histories']:
+        e2.check_hashes(history['sha256'])
+assert not e2.subprocess.check_output(['git','diff',extension.PARENT_SOURCE_COMMIT,
+                                      '--','src','examples/KG'],text=True)
+print('PASS:',len(old),'preserved bindings;',len(bindings),'new preparation/source/build bindings;')
+print('13 acceptances and payloads; six empty attempts; six GPU-disabled approvals; zero MD steps.')

@@ -1,0 +1,89 @@
+{
+  "GPU_execution_authorized": false,
+  "campaign": "manual_ea_extensions_48m_88m_v1",
+  "completed_extension_cap": 120000000,
+  "created_at": "2026-10-21T09:56:20.414680+00:00",
+  "jobs": [
+    {
+      "approval": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/approval_r001.json",
+      "approval_sha256": "e6dd7731e4da85b35bbaae7c0bc74157af469cd25a83f3b507809a5a5b1d2b93",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7",
+      "end_step": 48000000,
+      "plan_sha256": "52fb04671910f2cc63ac71fce4958068f6e6ee05c2c0c4828b1477ea7fffd3bb",
+      "preparation_source_authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/approval_r001_preparation_sources.json",
+      "preparation_source_authorization_sha256": "a4db3f7ab7e5743207b96bfd4e7ec81572d0dd7a77195285e2e1cf9917555dbd",
+      "replica": 1,
+      "start_step": 40000000,
+      "status": "prepared",
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "approval": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/approval_r002.json",
+      "approval_sha256": "89bc4f942e6b6cf4d5120c17c8b064a45750c0dc1f266fa505fa6a3b8ff57ff1",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7",
+      "end_step": 48000000,
+      "plan_sha256": "52fb04671910f2cc63ac71fce4958068f6e6ee05c2c0c4828b1477ea7fffd3bb",
+      "preparation_source_authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/approval_r002_preparation_sources.json",
+      "preparation_source_authorization_sha256": "611a4211e917877725053653f21bbd287fbefa73c1aeff67de02e2db8aec30f6",
+      "replica": 2,
+      "start_step": 40000000,
+      "status": "prepared",
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "approval": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/approval_r003.json",
+      "approval_sha256": "4e3cb30f1f3015b8ba2fce5239e3274f7dab715504d847686accc079bb9ee3c7",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7",
+      "end_step": 48000000,
+      "plan_sha256": "52fb04671910f2cc63ac71fce4958068f6e6ee05c2c0c4828b1477ea7fffd3bb",
+      "preparation_source_authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/approval_r003_preparation_sources.json",
+      "preparation_source_authorization_sha256": "446ddc9635cbb1ca4ca54c491c7df4452d8e1c8e8008ed7905fc3199a7eeb528",
+      "replica": 3,
+      "start_step": 40000000,
+      "status": "prepared",
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "approval": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/approval_r001.json",
+      "approval_sha256": "01541bb5f9662d2a4bc3d18289066e039db9635a329ceadf4575d612d4d0735e",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25",
+      "end_step": 88000000,
+      "plan_sha256": "827db432d0abc3f660a16bd6746c9089c47b2daeaf39a73ec5a75906985fae06",
+      "preparation_source_authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/approval_r001_preparation_sources.json",
+      "preparation_source_authorization_sha256": "b32048f91ebcda08084efe38b16a8485c62b23c8476ea0142759ffb19aa71b27",
+      "replica": 1,
+      "start_step": 56000000,
+      "status": "prepared",
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "approval": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/approval_r002.json",
+      "approval_sha256": "67ca08fafc19242a853c9f1118149d49bc0b7ef0e3c803f97eec75d8b859d2e0",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25",
+      "end_step": 88000000,
+      "plan_sha256": "827db432d0abc3f660a16bd6746c9089c47b2daeaf39a73ec5a75906985fae06",
+      "preparation_source_authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/approval_r002_preparation_sources.json",
+      "preparation_source_authorization_sha256": "831d64b883bc611c81d1796a19df1d04c54fe71ab77e9b8ddc0f270ef40784cc",
+      "replica": 2,
+      "start_step": 56000000,
+      "status": "prepared",
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "approval": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/approval_r003.json",
+      "approval_sha256": "7b140187556dd8632aaf68363f3610410625ede3c41098ca63cccd78d9a8c398",
+      "attempt": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25",
+      "end_step": 88000000,
+      "plan_sha256": "827db432d0abc3f660a16bd6746c9089c47b2daeaf39a73ec5a75906985fae06",
+      "preparation_source_authorization": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/approval_r003_preparation_sources.json",
+      "preparation_source_authorization_sha256": "e5f7a0e7b9c0ad5d778c60ba0486d8796271b14951c5783d50d7816d662c2755",
+      "replica": 3,
+      "start_step": 56000000,
+      "status": "prepared",
+      "system": "F04_N010_RP080_EE08_EA10"
+    }
+  ],
+  "restart_overhead_policy": "preserve partial attempts; record overhead separately; fresh plan-bound approval",
+  "schema_version": 1,
+  "scope": "Ea_transfer_40M_56M_extensions_v1"
+}

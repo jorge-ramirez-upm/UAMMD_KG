@@ -1,0 +1,17 @@
+test_cap_or_family_changes_are_rejected (__main__.LifecycleTests) ... ok
+test_completed_jobs_are_skipped_without_new_md (__main__.LifecycleTests) ... SKIP independently validated F04_N010_RP080_EE08_EA08 1
+SKIP independently validated F04_N010_RP080_EE08_EA08 2
+SKIP independently validated F04_N010_RP080_EE08_EA08 3
+SKIP independently validated F04_N010_RP080_EE08_EA10 1
+SKIP independently validated F04_N010_RP080_EE08_EA10 2
+SKIP independently validated F04_N010_RP080_EE08_EA10 3
+ok
+test_native_pass_validation_hold_never_allocates_or_launches (__main__.LifecycleTests) ... ok
+test_partial_attempt_is_preserved_and_replacement_needs_new_approval (__main__.LifecycleTests) ... ok
+test_true_numerical_failure_is_not_a_restart_request (__main__.LifecycleTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.006s
+
+OK
+ALL SIX NEXT EXTENSIONS NUMERICALLY VALIDATED; scientific acceptance remains held.

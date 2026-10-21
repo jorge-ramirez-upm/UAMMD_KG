@@ -1,0 +1,15 @@
+"""Bounded CPU-only replay of the representative recovered/ordinary numerical parents."""
+import argparse
+from pathlib import Path
+import sys
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+p = argparse.ArgumentParser(description=__doc__)
+p.add_argument('--Ea',type=int,choices=(8,10),required=True)
+a = p.parse_args()
+state = e2.campaign.load_json(e2.HERE.parent/'kg_assoc_100m/aggregate/e2'/extension.CAMPAIGN/'state.json')
+job = next(j for j in state['jobs'] if j['system'].endswith(f'EA{a.Ea:02d}') and j['replica']==1)
+entry = e2.campaign.load_json(Path(job['attempt'])/'plan.json')['histories'][0]
+extension.revalidate_parent(entry)
+print(f'PASS strict independent Ea{a.Ea} r001 parent replay; zero MD')

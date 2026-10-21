@@ -1,0 +1,17 @@
+test_compiled_readback_dispatch_and_cpu_candidate_oracle (__main__.PreparedTests) ... CANDIDATE SELF_TEST PASS translations, degenerate grids, cutoff, active partners, kinetics
+CUTOFF_COUNTEREXAMPLE real_bytes=4 real_first=1.25 double_first=1.2499999776482582
+MIC_COUNTEREXAMPLE subtraction=1.25 remainder=1.2499999999999964
+CUTOFF_CONTRACT PASS cases=398 strict_boundaries periodic_faces images nondyadic_coordinates
+VALIDATION_EVIDENCE PASS missing extra active free provenance immutable readback_position_velocity_ids_types_partners_nonfinite_mapping velocity_ulp_rejections=12
+ok
+test_exact_six_bindings_and_fresh_streams (__main__.PreparedTests) ... ok
+test_gpu_execution_rejected_without_touching_real_attempts (__main__.PreparedTests) ... ok
+test_legacy_24m_mode_and_ordinary_restart_remain_host_compatible (__main__.PreparedTests) ... ok
+test_preparation_is_idempotent_and_keeps_immutable_state (__main__.PreparedTests) ... ok
+test_real_host_initializations_and_new_guard_negative_cases (__main__.PreparedTests) ... ok
+test_source_executable_parent_seed_and_output_tampering_rejected (__main__.PreparedTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 40.250s
+
+OK

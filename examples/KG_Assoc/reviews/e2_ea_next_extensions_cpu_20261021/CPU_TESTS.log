@@ -1,0 +1,82 @@
+test_all_six_real_parents_and_recovered_identity (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_completed_native_without_receipt_is_never_reclassified_as_partial (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_duplicate_reserved_md_stream_is_rejected (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_forged_recovered_parent_is_rejected (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_frozen_device_readback_body_and_dispatch_are_unchanged (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_historical_source_map_matches_starting_commit (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_mismatched_executable_rejected_before_native_probe (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_next_mode_exact_source_matching_and_ancestry (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_old_build_rejected_for_new_scope (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_partial_bounds_use_correct_absolute_origin (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_tampered_parent_hash_rejected_without_touching_real_outputs (test_e2_next_extensions.ParentAndStateTests) ... ok
+test_command_preserves_chemistry_and_selects_reviewed_native_guard (test_e2_next_extensions.ScopeTests) ... ok
+test_duplicate_output_paths_are_rejected_by_plan_reconstruction (test_e2_next_extensions.ScopeTests) ... ok
+test_exact_ranges_and_explicit_selections (test_e2_next_extensions.ScopeTests) ... ok
+test_missing_readback_fails_completion_and_never_retries (test_e2_next_extensions.ScopeTests) ... ok
+test_pre_and_post_run_use_identical_authorized_source_map (test_e2_next_extensions.ScopeTests) ... ok
+test_preparation_approval_rejects_gpu_before_popen (test_e2_next_extensions.ScopeTests) ... ok
+test_reused_outputs_preserve_unselected_directories (test_e2_next_extensions.ScopeTests) ... ok
+test_source_authorization_tamper_after_native_pass_is_held (test_e2_next_extensions.ScopeTests) ... ok
+test_tampered_scope_or_approval_hash_never_launches (test_e2_next_extensions.ScopeTests) ... ok
+test_exact_transition_and_frozen_physics (test_e2_extensions.CompatibilityTests) ... ok
+test_linux_process_birth_identity_and_reuse (test_e2_extensions.CompatibilityTests) ... ok
+test_parent_death_supervision_with_short_CPU_child (test_e2_extensions.CompatibilityTests) ... ok
+test_check_and_status_are_read_only_and_never_launch (test_e2_extensions.ExecuteLifecycleTests) ... ok
+test_genuine_failure_stops_all_future_starts (test_e2_extensions.ExecuteLifecycleTests) ... RUN F04_N010_RP080_EE08_EA08 r001 24M -> 40000000 logs: /tmp/tmp0yzfvulv/manual/attempt_0/r001
+ok
+test_same_command_preserves_partial_reservation_and_restarts_only_that_slot (test_e2_extensions.ExecuteLifecycleTests) ... RUN F04_N010_RP080_EE08_EA08 r001 24M -> 40000000 logs: /tmp/tmph4nisbfx/manual/attempt_0/r001
+RUN F04_N010_RP080_EE08_EA08 r002 24M -> 40000000 logs: /tmp/tmph4nisbfx/manual/attempt_1/r002
+Stopped safely. Outputs/reservations preserved. Reissue --execute when ready.
+SKIP independently validated F04_N010_RP080_EE08_EA08 1
+RUN F04_N010_RP080_EE08_EA08 r002 24M -> 40000000 logs: /tmp/tmph4nisbfx/manual/attempt_6/r002
+RUN F04_N010_RP080_EE08_EA08 r003 24M -> 40000000 logs: /tmp/tmph4nisbfx/manual/attempt_2/r003
+RUN F04_N010_RP080_EE08_EA10 r001 24M -> 56000000 logs: /tmp/tmph4nisbfx/manual/attempt_3/r001
+RUN F04_N010_RP080_EE08_EA10 r002 24M -> 56000000 logs: /tmp/tmph4nisbfx/manual/attempt_4/r002
+RUN F04_N010_RP080_EE08_EA10 r003 24M -> 56000000 logs: /tmp/tmph4nisbfx/manual/attempt_5/r003
+ALL SIX EXTENSIONS NUMERICALLY VALIDATED. Ea8/Ea10 scientific acceptance is still held.
+SKIP independently validated F04_N010_RP080_EE08_EA08 1
+SKIP independently validated F04_N010_RP080_EE08_EA08 2
+SKIP independently validated F04_N010_RP080_EE08_EA08 3
+SKIP independently validated F04_N010_RP080_EE08_EA10 1
+SKIP independently validated F04_N010_RP080_EE08_EA10 2
+SKIP independently validated F04_N010_RP080_EE08_EA10 3
+ALL SIX EXTENSIONS NUMERICALLY VALIDATED. Ea8/Ea10 scientific acceptance is still held.
+ok
+test_command_keeps_chemistry_and_uses_diagnostic_executable (test_e2_extensions.ExtensionScopeTests) ... ok
+test_exact_two_scopes_and_no_implicit_replicas (test_e2_extensions.ExtensionScopeTests) ... ok
+test_first_failure_preserved_and_remaining_unstarted (test_e2_extensions.ExtensionScopeTests) ... ok
+test_preparation_approval_cannot_launch_GPU (test_e2_extensions.ExtensionScopeTests) ... ok
+test_selected_execution_preserves_unselected_and_used_attempts (test_e2_extensions.ExtensionScopeTests) ... ok
+test_tampered_approvals_never_launch (test_e2_extensions.ExtensionScopeTests) ... ok
+test_wrong_target_steps_start_and_end_fail_closed (test_e2_extensions.ExtensionScopeTests) ... ok
+test_physical_loader_and_integration_tail_are_byte_identical (test_e2_extensions.FrozenPhysicalSourceTests) ... ok
+test_active_native_process_prevents_duplicate_execution (test_e2_extensions.LifecycleTests) ... ok
+test_atomic_receipt_never_overwrites (test_e2_extensions.LifecycleTests) ... ok
+test_completed_receipt_is_independently_replayed_without_MD (test_e2_extensions.LifecycleTests) ... ok
+test_finished_MD_receipt_cannot_be_promoted_by_generic_execution (test_e2_extensions.LifecycleTests) ... ok
+test_numerical_failure_overrides_a_completion_receipt (test_e2_extensions.LifecycleTests) ... ok
+test_partial_work_bounds_do_not_claim_an_exact_step_count (test_e2_extensions.LifecycleTests) ... ok
+test_prepared_partial_and_failure_classification (test_e2_extensions.LifecycleTests) ... ok
+test_recovery_record_is_distinct_and_replayed (test_e2_extensions.LifecycleTests) ... ok
+test_state_cannot_expand_scope_or_remove_caps (test_e2_extensions.LifecycleTests) ... ok
+test_untrusted_partial_is_not_an_automatic_retry (test_e2_extensions.LifecycleTests) ... ok
+test_fresh_reservations_and_original_allocator_exclude_unused_streams (test_e2_extensions.MDReservationTests) ... ok
+skipped 'pre-execution fixtures no longer apply after user-run MD'
+test_exact_map_rejects_missing_extra_physics_and_nonancestor_sources (test_e2_extensions.SourceAuthorizationTests) ... ok
+test_authenticated_parent_and_build_tampering (test_e2_readback.ReadbackTests) ... ok
+test_missing_malformed_and_failed_evidence (test_e2_readback.ReadbackTests) ... ok
+test_parent_representation_and_periodic_folding (test_e2_readback.ReadbackTests) ... ok
+test_valid_and_exact_periodic_image (test_e2_readback.ReadbackTests) ... ok
+test_compatibility_canonicalizes_only_exact_validation_changes (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_diagnostic_executable_selected_for_ordinary_16m (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_exact_three_target_triplets (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_first_failure_stops_and_used_outputs_cannot_restart (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_missing_or_wrong_typed_approval_fields (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_only_titan_and_matching_smoke_are_allowed (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_subsets_and_old_smoke_approvals_cannot_launch (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+test_wrong_target_control_duration_and_endpoints (test_e2_derived_preparation.DerivedPreparationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 1.754s
+
+OK (skipped=1)

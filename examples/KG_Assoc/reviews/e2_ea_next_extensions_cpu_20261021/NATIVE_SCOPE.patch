@@ -1,0 +1,65 @@
+diff --git a/examples/KG_Assoc/kg_assoc_stars.cu b/examples/KG_Assoc/kg_assoc_stars.cu
+index 0379daa..e9c5712 100644
+--- a/examples/KG_Assoc/kg_assoc_stars.cu
++++ b/examples/KG_Assoc/kg_assoc_stars.cu
+@@ -64,6 +64,7 @@ struct Parameters {
+   std::string derivedBranchId;
+   bool reseedChemistry = false;
+   bool e2Extension = false;
++  bool reviewedExtension = false;
+   bool referenceControl = false;
+   bool validateInitialState = false;
+   unsigned long long parentChemicalSeed = 0;
+@@ -106,6 +107,7 @@ void printHelp() {
+             << "  --reseed-chemistry-from OLD --seed NEW (guarded Ea transfer)\n"
+             << "  --reference-control (explicit Ea4 reseeded validation control)\n"
+             << "  --e2-extension (guarded Ea8/Ea10 24M-parent diagnostic continuation)\n"
++            << "  --e2-reviewed-extension (Ea8 40M-to-48M or Ea10 56M-to-88M)\n"
+             << "  --validate-initial-state (host-only; creates no outputs)\n"
+             << "  --md-seed-info S (host-only effective kernel seed)\n"
+             << "  --restart-prefix PREFIX --output PREFIX --force --self-test\n";
+@@ -120,6 +122,9 @@ Parameters parseArguments(int argc, char** argv) {
+       parameters.derivedBranchId = nextArgument(index, argc, argv);
+     } else if (option == "--e2-extension") {
+       parameters.e2Extension = true;
++    } else if (option == "--e2-reviewed-extension") {
++      parameters.e2Extension = true;
++      parameters.reviewedExtension = true;
+     } else if (option == "--reseed-chemistry-from") {
+       parameters.parentChemicalSeed = parseSeed(nextArgument(index, argc, argv));
+       parameters.reseedChemistry = true;
+@@ -197,9 +202,11 @@ Parameters parseArguments(int argc, char** argv) {
+       (parameters.restartPrefix.empty() || !parameters.eaExplicit || !parameters.seedExplicit ||
+        parameters.mdSeed == 0 || parameters.force || parameters.reseedChemistry ||
+        parameters.referenceControl || parameters.switchEa ||
+-       !((parameters.ea == 8.0 && parameters.steps == 16000000) ||
++       (parameters.reviewedExtension && parameters.explicitPhysics.count("--e2-extension")) ||
++       !((parameters.ea == 8.0 &&
++          parameters.steps == (parameters.reviewedExtension ? 8000000 : 16000000)) ||
+          (parameters.ea == 10.0 && parameters.steps == 32000000)))) {
+-    throw std::runtime_error("extension requires the exact same-Ea 24M continuation scope");
++    throw std::runtime_error("extension requires its exact same-Ea continuation scope");
+   }
+   if ((!parameters.derivedBranchId.empty() && !parameters.reseedChemistry &&
+        !parameters.e2Extension) ||
+@@ -606,7 +613,8 @@ void writeProvenance(std::ofstream& stateFile,
+   if (parameters.reseedChemistry || parameters.e2Extension) {
+     for (std::ofstream* output : {&stateFile, &eventFile}) {
+       *output << "# lineage_mode="
+-              << (parameters.e2Extension ? "Ea_24M_extension_v1" : "Ea_reference_transfer_v1")
++              << (parameters.reviewedExtension ? "Ea_reviewed_extension_v2" :
++                  parameters.e2Extension ? "Ea_24M_extension_v1" : "Ea_reference_transfer_v1")
+               << " branch_id=" << parameters.derivedBranchId
+               << " parent_chemistry_seed=" << parameters.parentChemicalSeed
+               << " reference_control=" << parameters.referenceControl
+@@ -833,7 +841,9 @@ int main(int argc, char** argv) {
+             throw std::runtime_error("extension forbids physical parameter overrides");
+           }
+         }
+-        if (restart.completedSteps != 24000000 || parent.ea != parameters.ea ||
++        const long long expectedParentStep = parameters.reviewedExtension ?
++            (parameters.ea == 8.0 ? 40000000 : 56000000) : 24000000;
++        if (restart.completedSteps != expectedParentStep || parent.ea != parameters.ea ||
+             parent.arms != 4 || parent.beadsPerArm != 10 || parent.ee != 8.0 ||
+             parent.dt != .01 || parent.temperature != 1.0 || parent.nu0 != 20.0 ||
+             parent.every != 100 || parent.rAssoc != 1.25 || parent.damping != 2.0 ||

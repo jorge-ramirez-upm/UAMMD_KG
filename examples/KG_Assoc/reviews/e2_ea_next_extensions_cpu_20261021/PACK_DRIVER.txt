@@ -1,0 +1,72 @@
+"""Package preparation metadata copies; never modify originals or grant GPU authority."""
+import csv
+from pathlib import Path
+import shutil
+import sys
+import tarfile
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+
+out = Path(__file__).resolve().parent
+root = e2.HERE.parent/'kg_assoc_100m'
+state_path = root/'aggregate/e2'/extension.CAMPAIGN/'state.json'
+state = e2.campaign.load_json(state_path)
+paths = {state_path}
+rows = []
+plans = {}
+for job in state['jobs']:
+    attempt = Path(job['attempt'])
+    plan = e2.campaign.load_json(attempt/'plan.json')
+    plans[str(attempt/'plan.json')] = plan
+    entry = plan['histories'][job['replica']-1]
+    for path in (attempt/'plan.json',Path(job['approval']),Path(job['preparation_source_authorization'])):
+        paths.add(path)
+    paths.update(Path(path) for path in plan['reservation_sha256'])
+    metadata,_ = e2.validation.analysis.restart.read_metadata(entry['parent']['prefix']+'.assoc_restart')
+    approval = e2.campaign.load_json(job['approval'])
+    assert approval['GPU_execution_authorized'] is False
+    assert list(Path(entry['output_prefix']).parent.iterdir()) == []
+    rows.append(dict(system=job['system'],replica=job['replica'],start_step=entry['start_step'],
+        end_step=entry['end_step'],additional_steps=entry['end_step']-entry['start_step'],
+        parent_restart=entry['parent']['snapshot'],
+        parent_restart_sha256=e2.campaign.sha256(Path(entry['parent']['snapshot'])),
+        parent_sidecar=entry['parent']['prefix']+'.assoc_restart',
+        parent_sidecar_sha256=e2.campaign.sha256(Path(entry['parent']['prefix']+'.assoc_restart')),
+        parent_receipt=entry['lineage']['parent_receipt'],
+        parent_receipt_sha256=entry['lineage']['parent_receipt_sha256'],
+        parent_creations=int(metadata['creations']),parent_breaks=int(metadata['breaks']),
+        chemistry_seed=entry['chemistry_seed'],md_seed=entry['md_seed'],
+        effective_md_seed=entry['effective_md_seed'],branch_id=entry['lineage']['branch_id'],
+        plan=str(attempt/'plan.json'),plan_sha256=job['plan_sha256'],
+        preparation_approval=job['approval'],preparation_approval_sha256=job['approval_sha256'],
+        source_authorization=job['preparation_source_authorization'],
+        source_authorization_sha256=job['preparation_source_authorization_sha256'],
+        reservation=entry['lineage']['seed_reservations'],
+        reservation_sha256=entry['lineage']['seed_reservations_sha256'],
+        output_prefix=entry['output_prefix'],GPU_execution_authorized=False))
+build = root/'builds'/extension.BUILD
+paths.update(build/name for name in ('manifest.json','stdout.log','stderr.log'))
+with tarfile.open(out/'PREPARATION.tar.gz','x:gz') as archive:
+    for path in sorted(paths):
+        archive.add(path,arcname=str(path.relative_to(e2.campaign.REPOSITORY_ROOT)))
+bindings = e2.hash_files(paths)
+bindings.update(e2.campaign.load_json(build/'manifest.json')['executable_sha256'])
+bindings.update(e2.sources())
+bindings.update(e2.hash_files([extension.DOSSIER/'AUTHORIZATION.md']))
+e2.exclusive_json(out/'PREPARATION_BINDINGS.sha256',bindings)
+e2.exclusive_json(out/'PLANS.log',plans)
+shutil.copyfile(state_path,out/'STATE.log')
+shutil.copyfile(build/'manifest.json',out/'BUILD.log')
+shutil.copyfile('/tmp/ea_next_preparation_preserved.json',out/'PRESERVED.sha256')
+shutil.copyfile('/tmp/ea_next_cpu_tests.log',out/'CPU_TESTS.log')
+shutil.copyfile('/tmp/ea_next_prepared_tests.log',out/'PREPARED_TESTS.log')
+shutil.copyfile('/tmp/ea_next_lifecycle_tests.log',out/'LIFECYCLE_TESTS.log')
+shutil.copyfile(root/'aggregate/e2/ea_next_extensions_cpu_20261021_v1/regression/E2_REGRESSION.log',
+                out/'E2_REGRESSION.log')
+with (out/'PARENTS_AND_CHILDREN.csv').open('x',newline='') as stream:
+    writer = csv.DictWriter(stream,fieldnames=list(rows[0]))
+    writer.writeheader();writer.writerows(rows)
+(out/'NATIVE_SCOPE.patch').write_text(e2.subprocess.check_output(['git','diff',
+    extension.PARENT_SOURCE_COMMIT,'--','examples/KG_Assoc/kg_assoc_stars.cu'],text=True))
+print('PACKED',len(rows),'histories;',len(paths),'metadata files;',len(bindings),'new bindings')

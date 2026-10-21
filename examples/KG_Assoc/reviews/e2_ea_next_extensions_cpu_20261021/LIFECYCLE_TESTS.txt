@@ -1,0 +1,90 @@
+"""Interruption/hold/skip tests confined to temporary CPU fixtures."""
+import copy
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest import mock
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+import run_ea_next_extensions as runner
+
+
+class LifecycleTests(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        self.root = Path(self.folder.name)
+        jobs = []
+        for sid,r,start,end in runner.expected_jobs():
+            directory = self.root/sid/f'r{r:03d}'
+            directory.mkdir(parents=True)
+            jobs.append(dict(system=sid,replica=r,start_step=start,end_step=end,
+                attempt=str(directory.parent),plan_sha256='fixture',status='prepared'))
+        self.state = dict(schema_version=1,campaign=extension.CAMPAIGN,scope=extension.SCOPE,
+            completed_extension_cap=120000000,GPU_execution_authorized=False,jobs=jobs)
+        self.job = jobs[0]
+        self.directory = Path(self.job['attempt'])/'r001'
+        self.entry = dict(output_prefix=str(self.directory/'state'),command=['CPU fixture'],
+            start_step=40000000,end_step=48000000)
+        self.runtime = self.root/'runtime.json'
+
+    def test_completed_jobs_are_skipped_without_new_md(self):
+        with mock.patch.object(runner,'authenticate',return_value=({},self.entry,Path('approval'),Path('sources'))), \
+                mock.patch.object(runner,'classify',return_value='complete') as classify, \
+                mock.patch.object(e2,'launch') as launch:
+            runner.execute(self.root,self.state,self.runtime)
+        launch.assert_not_called()
+        self.assertEqual(classify.call_count,6)
+        self.assertTrue(all(c.kwargs.get('replay') is True for c in classify.call_args_list))
+
+    def test_native_pass_validation_hold_never_allocates_or_launches(self):
+        (self.directory/'stdout.log').write_text('STAR_ASSOCIATION_SMOKE PASS\n')
+        before = e2.hash_files(self.directory.iterdir())
+        with mock.patch.object(runner,'authenticate',return_value=({},self.entry,None,None)), \
+                mock.patch.object(runner,'replace_interrupted') as replacement, \
+                mock.patch.object(e2,'launch') as launch, self.assertRaisesRegex(ValueError,'held'):
+            runner.execute(self.root,self.state,self.runtime)
+        launch.assert_not_called(); replacement.assert_not_called()
+        self.assertEqual(before,e2.hash_files(self.directory.iterdir()))
+
+    def test_true_numerical_failure_is_not_a_restart_request(self):
+        e2.exclusive_json(self.directory/'incomplete.json',dict(error='numerical mismatch'))
+        with mock.patch.object(runner,'authenticate',return_value=({},self.entry,None,None)), \
+                mock.patch.object(runner,'replace_interrupted') as replacement, \
+                mock.patch.object(e2,'launch') as launch, self.assertRaisesRegex(ValueError,'held'):
+            runner.execute(self.root,self.state,self.runtime)
+        launch.assert_not_called(); replacement.assert_not_called()
+
+    def test_partial_attempt_is_preserved_and_replacement_needs_new_approval(self):
+        (self.directory/'partial').write_text('original partial evidence')
+        before = e2.hash_files(self.directory.iterdir())
+        fresh = dict(self.job,attempt=str(self.root/'fresh'),approval='new GPU-disabled preparation')
+        bounds = dict(completed_MD_steps_lower_bound=12300,
+                      authorized_MD_steps_upper_bound=8000000,exact_partial_MD_steps_known=False)
+        with mock.patch.object(runner,'classify',return_value='interrupted'), \
+                mock.patch.object(extension,'prepare',return_value={}) as prepare, \
+                mock.patch.object(runner,'prepare_approval',return_value=fresh), \
+                mock.patch.object(extension,'partial_step_bounds',return_value=bounds), \
+                mock.patch.object(e2,'launch') as launch, \
+                self.assertRaisesRegex(ValueError,'separate GPU approval required'):
+            runner.replace_interrupted(self.root,self.runtime,self.state,0,self.job,self.entry)
+        launch.assert_not_called(); prepare.assert_called_once()
+        self.assertEqual(before,e2.hash_files(self.directory.iterdir()))
+        runtime = e2.campaign.load_json(self.runtime)
+        self.assertEqual(runtime['jobs'][0]['retired_attempts'][0]['completed_MD_steps_lower_bound'],12300)
+        self.assertEqual(runtime['jobs'][0]['retired_attempts'][0]['job'],self.job)
+        self.assertEqual(runtime['completed_extension_cap'],120000000)
+        self.assertFalse(runtime['GPU_execution_authorized'])
+
+    def test_cap_or_family_changes_are_rejected(self):
+        for key,value in [('completed_extension_cap',120000001),('GPU_execution_authorized',True)]:
+            with self.assertRaises(ValueError): runner.validate_state(dict(self.state,**{key:value}))
+        changed = copy.deepcopy(self.state)
+        changed['jobs'][1] = copy.deepcopy(changed['jobs'][0])
+        with self.assertRaises(ValueError): runner.validate_state(changed)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
