@@ -333,6 +333,18 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage D1.3 adds the **Phase A-only** frozen execution manifest, gated runner,
+independent authentication and paired benchmark analyzer. See
+[E1_STAGE_D13_PHASE_A_PREPARATION.md](E1_STAGE_D13_PHASE_A_PREPARATION.md) for
+build identities, preflight, tests and the separate authorization requirements.
+The default below is read-only; no Phase A benchmark has been executed:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 python3 examples/slip-springs/e1_d13_phase_a_runner.py
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 timeout 120s python3 examples/slip-springs/tests/test_e1_d13_phase_a.py -v
+```
+
+
 E1 Stage D1.2 proposes separate benchmark, T10 and conditional T100 phases with
 independent .1 backbone/.5 full-E1 observation cadences. The accepted interface
 already supports them; no simulator change is needed. See
@@ -345,9 +357,9 @@ PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 timeout 120s python3 examples/s
 PYTHONDONTWRITEBYTECODE=1 python3 examples/slip-springs/e1_d12_plan.py --check examples/slip-springs/e1_d12_proposed_config --sha256 2da957a5ee44956c395004bd20c23bee8e809b6d312ceee814e3f6934b2a5bbe
 ```
 
-No D1.2 phase is executable or authorized. A separately reviewed phase adapter,
-analysis changes and explicit budgets are required; preserve the frozen D1.1
-runner/configuration rather than repurposing its execution path.
+No D1.2 phase is authorized. D1.3 supplies the Phase A adapter for independent
+review; explicit budgets and execution approval remain required. B/C execution
+is unsupported. Preserve the frozen D1.1 runner/configuration.
 
 
 E1 Stage D1.1 provides a frozen **proposed** 8-cell/32-replica equilibrium pilot,

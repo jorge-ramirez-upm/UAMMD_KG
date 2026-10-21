@@ -31,8 +31,12 @@ and full-E1 schedules are already independent, so dynamics/observer code stays
 unchanged. Phase A benchmarking, Phase B T10 exploration and conditional Phase C
 T100+ preservation require distinct reviewed manifests and resource approval.
 All new authorization fields remain false/null. No scientific simulations ran;
-D1.1 frozen files/hashes remain unchanged. A D1.2 runner/analysis adapter is an
-explicit prerequisite before execution.
+D1.1 frozen files/hashes remain unchanged. D1.3 now supplies the Phase A-only execution/authentication/benchmark-analysis
+adapter with bounded technical checks and live read-only preflight; see
+[E1_STAGE_D13_PHASE_A_PREPARATION.md](E1_STAGE_D13_PHASE_A_PREPARATION.md).
+Independent adapter acceptance, all resource budgets and explicit Phase A
+execution approval remain required. No benchmark was run; B/C execution is
+unsupported and no scientific acceptance is established.
 
 The current numerical reference choices are `kBT=1`, `zeta=1`, `b0=1`, `kb=30`, double precision for scientific validation, and typically `seed=433201` for timestep studies. Interior `kappa` is nonnegative and endpoint entries are zero. The baseline timestep in Stage 4A.4 was `2.5e-5`; `5e-4` and `1e-3` were comparison candidates, not silently promoted production values.
 
