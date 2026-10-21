@@ -333,6 +333,11 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+For user-run Phase B execution, analysis and the exact files to return, follow
+[the manual host guide](E1_STAGE_D14_PHASE_B_OPERATOR_GUIDE.md). Its separate
+handoff helper does not run anything without an explicit subcommand. It was
+prepared without executing new tests, preflights or scientific trajectories.
+
 E1 Stage D1.4 prepares the **Phase B-only** eight-replica T10 runner and
 independent time-resolved equilibrium-drift analysis. See
 [E1_STAGE_D14_PHASE_B_PREPARATION.md](E1_STAGE_D14_PHASE_B_PREPARATION.md) for
