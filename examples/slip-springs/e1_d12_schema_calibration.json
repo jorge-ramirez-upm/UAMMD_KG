@@ -1,0 +1,305 @@
+{
+  "files": {
+    "bond_statistics.csv": {
+      "data_bytes": 14231,
+      "data_rows": 128,
+      "file_bytes": 14452,
+      "header": [
+        "chain",
+        "bond",
+        "frames",
+        "mean_r",
+        "mean_r2",
+        "bin0",
+        "bin1",
+        "bin2",
+        "bin3",
+        "bin4",
+        "bin5",
+        "bin6",
+        "bin7",
+        "bin8",
+        "bin9",
+        "bin10",
+        "bin11",
+        "bin12",
+        "bin13",
+        "bin14",
+        "bin15",
+        "bin16",
+        "bin17",
+        "bin18",
+        "bin19",
+        "bin20",
+        "bin21",
+        "bin22",
+        "bin23",
+        "bin24",
+        "bin25",
+        "bin26",
+        "bin27",
+        "bin28",
+        "bin29",
+        "bin30",
+        "bin31",
+        "bin32"
+      ],
+      "max_row_bytes": 113,
+      "sha256": "1c2486831cfdd5b5dc77bc1edb4186af7efc8c62866a1374048647611d5525a2"
+    },
+    "equilibrium_attachments.csv": {
+      "data_bytes": 2638,
+      "data_rows": 30,
+      "file_bytes": 2689,
+      "header": [
+        "step",
+        "time",
+        "spring",
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az",
+        "previous",
+        "next"
+      ],
+      "max_row_bytes": 98,
+      "sha256": "2720294145022a201c88f81afd211a769338114c0a7d27940625bd582d683b46"
+    },
+    "equilibrium_backbone.csv": {
+      "data_bytes": 2361,
+      "data_rows": 12,
+      "file_bytes": 2447,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "mean_r",
+        "mean_r2",
+        "re2",
+        "rg2",
+        "min_length",
+        "tangent1",
+        "tangent2",
+        "tangent3",
+        "tangent4"
+      ],
+      "max_row_bytes": 203,
+      "sha256": "2791297a4b368343ef358d515e0c3cd1c3eac689eaf17a886e92a34f428a9572"
+    },
+    "equilibrium_chains.csv": {
+      "data_bytes": 1296,
+      "data_rows": 20,
+      "file_bytes": 1342,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "z",
+        "ex_sum",
+        "ey_sum",
+        "ez_sum",
+        "e2_sum"
+      ],
+      "max_row_bytes": 108,
+      "sha256": "76608eae826985dfbdbb3b6a8f7275e53b751cdaaa0d6ad627b3108189d3ccba"
+    },
+    "equilibrium_connectors.csv": {
+      "data_bytes": 3086,
+      "data_rows": 30,
+      "file_bytes": 3126,
+      "header": [
+        "step",
+        "time",
+        "spring",
+        "chain",
+        "bead",
+        "ex",
+        "ey",
+        "ez",
+        "e2"
+      ],
+      "max_row_bytes": 114,
+      "sha256": "0e9c4f74dd6f2e0781549304384211341acb0771b9eea0bf89eebf9edabc40b4"
+    },
+    "equilibrium_events.csv": {
+      "data_bytes": 300,
+      "data_rows": 5,
+      "file_bytes": 483,
+      "header": [
+        "step",
+        "time",
+        "previous_step",
+        "interval_time",
+        "batches",
+        "attempts",
+        "accepted",
+        "boundary",
+        "occupied",
+        "metropolis",
+        "renewal_proposed",
+        "renewal_accepted",
+        "renewal_occupied",
+        "renewal_same_chain",
+        "renewal_cross_chain"
+      ],
+      "max_row_bytes": 74,
+      "sha256": "bac4d073451662e510e18b8457c69266045b7ff586e9631ce4e13b30d8e07591"
+    },
+    "equilibrium_positions.csv": {
+      "data_bytes": 53180,
+      "data_rows": 660,
+      "file_bytes": 53207,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "bead",
+        "x",
+        "y",
+        "z"
+      ],
+      "max_row_bytes": 96,
+      "sha256": "1462b0d9240f807e5bfc278e49dbd565ab31ad4d8348c4dd50af3040b567c27f"
+    },
+    "equilibrium_sites.csv": {
+      "data_bytes": 16798,
+      "data_rows": 660,
+      "file_bytes": 16826,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "bead",
+        "spring"
+      ],
+      "max_row_bytes": 33,
+      "sha256": "ec729ec1885bdfff3613023439950c75c0ecb32846076ce32fef8b5beb1c993e"
+    },
+    "equilibrium_tangents.csv": {
+      "data_bytes": 1231,
+      "data_rows": 20,
+      "file_bytes": 1266,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "tangent8",
+        "tangent16"
+      ],
+      "max_row_bytes": 70,
+      "sha256": "73a96ebce795f5d4bd377d4ee05761633af8d2623b036561a74ceb98aaca554d"
+    },
+    "final.csv": {
+      "data_bytes": 8317,
+      "data_rows": 132,
+      "file_bytes": 8334,
+      "header": [
+        "chain",
+        "bead",
+        "x",
+        "y",
+        "z"
+      ],
+      "max_row_bytes": 68,
+      "sha256": "e609b94035f66f8f869caa1900d81d3396cbe5c8c0c46032339a75914e6b477c"
+    },
+    "fixed_slip_springs.csv": {
+      "data_bytes": 381,
+      "data_rows": 6,
+      "file_bytes": 401,
+      "header": [
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az"
+      ],
+      "max_row_bytes": 66,
+      "sha256": "f157ecc33532beced7d1fdad04140cb490d960c429a76df1e60e478823f9a6ae"
+    },
+    "initial.csv": {
+      "data_bytes": 8108,
+      "data_rows": 132,
+      "file_bytes": 8125,
+      "header": [
+        "chain",
+        "bead",
+        "x",
+        "y",
+        "z"
+      ],
+      "max_row_bytes": 66,
+      "sha256": "312fa3a7ab84d7f9e516ab72c7d178f8d811b4dd4e54b1ef377c7d266f172a97"
+    },
+    "initial_bonds.csv": {
+      "data_bytes": 3061,
+      "data_rows": 128,
+      "file_bytes": 3079,
+      "header": [
+        "chain",
+        "bond",
+        "length"
+      ],
+      "max_row_bytes": 25,
+      "sha256": "f762cd54286727dc0147d0a48cf4f603fcbb7bd23e7c4d940c089c580c157b45"
+    },
+    "samples.csv": {
+      "data_bytes": 3552,
+      "data_rows": 16,
+      "file_bytes": 3657,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "mean_r",
+        "mean_r2",
+        "re2",
+        "rg2",
+        "cm_msd",
+        "monomer_msd",
+        "min_length",
+        "tangent1",
+        "tangent2",
+        "tangent3",
+        "tangent4"
+      ],
+      "max_row_bytes": 246,
+      "sha256": "8ba6b949c3f07107882f7ea3a860488ff5feb0faaed79bf67d7ec0fa0d181173"
+    },
+    "slip_springs_final.csv": {
+      "data_bytes": 393,
+      "data_rows": 6,
+      "file_bytes": 420,
+      "header": [
+        "spring",
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az"
+      ],
+      "max_row_bytes": 68,
+      "sha256": "f1dfa5168ec517459d00e54d840cd879454716ff9eb7d4f63565cb0a3f2ddf79"
+    },
+    "slip_springs_initial.csv": {
+      "data_bytes": 393,
+      "data_rows": 6,
+      "file_bytes": 420,
+      "header": [
+        "spring",
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az"
+      ],
+      "max_row_bytes": 68,
+      "sha256": "62bf6e3fad0a7a4fecf5b3f54a46339a63debf39a812b3a367978f2e5e79e965"
+    }
+  },
+  "fixture": "N32,kappa10,M4,Z6,dt0.00025,12steps,seed914203,double; 5 observer/snapshot frames; sample4",
+  "purpose": "serialization calibration only; existing bounded D1.0 technical evidence, not a scientific ensemble",
+  "source_start_sha": "0dea651b58171a72206774bcebb2f4c74960069b",
+  "version": 1
+}

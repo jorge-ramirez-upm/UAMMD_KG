@@ -1,0 +1,2320 @@
+{
+  "T_candidate": "10",
+  "aggregate": {
+    "bead_updates": 1182720000,
+    "expected_hopping_attempts": 4096000,
+    "json_receipts_logs_allowance_bytes": 16777216,
+    "nominal_csv_bytes": 63281008,
+    "processes": 8,
+    "replica_bd_steps": 560000,
+    "runtime_seconds": null,
+    "shared_build_provenance_allowance_bytes": 67108864,
+    "wide_csv_bytes": 70055040
+  },
+  "approved_limits": {
+    "aggregate_output_bytes": null,
+    "aggregate_seconds": null,
+    "max_host_rss_bytes": null,
+    "min_available_host_bytes": null,
+    "min_free_disk_bytes": null,
+    "min_free_gpu_bytes": null,
+    "per_run_output_bytes": null,
+    "per_run_seconds": null
+  },
+  "common": {
+    "A2": 5,
+    "M": 64,
+    "b0": 1,
+    "end_renewal": true,
+    "kBT": 1,
+    "kb": 30,
+    "precision": "double",
+    "scalar_output": "full",
+    "stress": "off",
+    "zeta": 1
+  },
+  "execution_authorized": false,
+  "frozen_execution_T": null,
+  "frozen_execution_replicas": null,
+  "not_an_executable_manifest": true,
+  "phase": "B",
+  "replicas_candidate": 2,
+  "required_prior_reviews": [
+    "A"
+  ],
+  "runs_proposed_for_review": [
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 1,
+      "dt": "0.0001",
+      "id": "B-c1-r1-sparse",
+      "kappa": 0,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 1,
+      "rho": "8/33",
+      "sample": 1000,
+      "schedule": "dt0.0001.full.steps",
+      "seed": 721400101,
+      "snapshots": "dt0.0001.snapshots.steps",
+      "steps": 100000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 1,
+      "dt": "0.0001",
+      "id": "B-c1-r2-sparse",
+      "kappa": 0,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 2,
+      "rho": "8/33",
+      "sample": 1000,
+      "schedule": "dt0.0001.full.steps",
+      "seed": 721400102,
+      "snapshots": "dt0.0001.snapshots.steps",
+      "steps": 100000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 2,
+      "dt": "0.00025",
+      "id": "B-c2-r1-sparse",
+      "kappa": 0,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 1,
+      "rho": "8/33",
+      "sample": 400,
+      "schedule": "dt0.00025.full.steps",
+      "seed": 721400201,
+      "snapshots": "dt0.00025.snapshots.steps",
+      "steps": 40000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 2,
+      "dt": "0.00025",
+      "id": "B-c2-r2-sparse",
+      "kappa": 0,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 2,
+      "rho": "8/33",
+      "sample": 400,
+      "schedule": "dt0.00025.full.steps",
+      "seed": 721400202,
+      "snapshots": "dt0.00025.snapshots.steps",
+      "steps": 40000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 3,
+      "dt": "0.0001",
+      "id": "B-c3-r1-sparse",
+      "kappa": 10,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 1,
+      "rho": "8/33",
+      "sample": 1000,
+      "schedule": "dt0.0001.full.steps",
+      "seed": 721400301,
+      "snapshots": "dt0.0001.snapshots.steps",
+      "steps": 100000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 3,
+      "dt": "0.0001",
+      "id": "B-c3-r2-sparse",
+      "kappa": 10,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 2,
+      "rho": "8/33",
+      "sample": 1000,
+      "schedule": "dt0.0001.full.steps",
+      "seed": 721400302,
+      "snapshots": "dt0.0001.snapshots.steps",
+      "steps": 100000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 4,
+      "dt": "0.00025",
+      "id": "B-c4-r1-sparse",
+      "kappa": 10,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 1,
+      "rho": "8/33",
+      "sample": 400,
+      "schedule": "dt0.00025.full.steps",
+      "seed": 721400401,
+      "snapshots": "dt0.00025.snapshots.steps",
+      "steps": 40000
+    },
+    {
+      "M": 64,
+      "N": 32,
+      "Ne": 4,
+      "T": "10",
+      "Z": 512,
+      "cell": 4,
+      "dt": "0.00025",
+      "id": "B-c4-r2-sparse",
+      "kappa": 10,
+      "nu_hop": 100,
+      "profile": "sparse",
+      "replica": 2,
+      "rho": "8/33",
+      "sample": 400,
+      "schedule": "dt0.00025.full.steps",
+      "seed": 721400402,
+      "snapshots": "dt0.00025.snapshots.steps",
+      "steps": 40000
+    }
+  ],
+  "schedule_by_dt": {
+    "0.0001": {
+      "diagnostic_only_steps": [
+        1
+      ],
+      "full_steps": [
+        0,
+        1,
+        5,
+        25,
+        100,
+        500,
+        5000,
+        10000,
+        15000,
+        20000,
+        25000,
+        30000,
+        35000,
+        40000,
+        45000,
+        50000,
+        55000,
+        60000,
+        65000,
+        70000,
+        75000,
+        80000,
+        85000,
+        90000,
+        95000,
+        100000
+      ],
+      "legacy_stride": 1000,
+      "scalar_steps": [
+        0,
+        1000,
+        2000,
+        3000,
+        4000,
+        5000,
+        6000,
+        7000,
+        8000,
+        9000,
+        10000,
+        11000,
+        12000,
+        13000,
+        14000,
+        15000,
+        16000,
+        17000,
+        18000,
+        19000,
+        20000,
+        21000,
+        22000,
+        23000,
+        24000,
+        25000,
+        26000,
+        27000,
+        28000,
+        29000,
+        30000,
+        31000,
+        32000,
+        33000,
+        34000,
+        35000,
+        36000,
+        37000,
+        38000,
+        39000,
+        40000,
+        41000,
+        42000,
+        43000,
+        44000,
+        45000,
+        46000,
+        47000,
+        48000,
+        49000,
+        50000,
+        51000,
+        52000,
+        53000,
+        54000,
+        55000,
+        56000,
+        57000,
+        58000,
+        59000,
+        60000,
+        61000,
+        62000,
+        63000,
+        64000,
+        65000,
+        66000,
+        67000,
+        68000,
+        69000,
+        70000,
+        71000,
+        72000,
+        73000,
+        74000,
+        75000,
+        76000,
+        77000,
+        78000,
+        79000,
+        80000,
+        81000,
+        82000,
+        83000,
+        84000,
+        85000,
+        86000,
+        87000,
+        88000,
+        89000,
+        90000,
+        91000,
+        92000,
+        93000,
+        94000,
+        95000,
+        96000,
+        97000,
+        98000,
+        99000,
+        100000
+      ],
+      "shared_full_steps": [
+        0,
+        5,
+        25,
+        100,
+        500,
+        5000,
+        10000,
+        15000,
+        20000,
+        25000,
+        30000,
+        35000,
+        40000,
+        45000,
+        50000,
+        55000,
+        60000,
+        65000,
+        70000,
+        75000,
+        80000,
+        85000,
+        90000,
+        95000,
+        100000
+      ],
+      "snapshot_steps": [
+        0,
+        1,
+        100,
+        100000
+      ]
+    },
+    "0.00025": {
+      "diagnostic_only_steps": [
+        1
+      ],
+      "full_steps": [
+        0,
+        1,
+        2,
+        10,
+        40,
+        200,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000,
+        22000,
+        24000,
+        26000,
+        28000,
+        30000,
+        32000,
+        34000,
+        36000,
+        38000,
+        40000
+      ],
+      "legacy_stride": 400,
+      "scalar_steps": [
+        0,
+        400,
+        800,
+        1200,
+        1600,
+        2000,
+        2400,
+        2800,
+        3200,
+        3600,
+        4000,
+        4400,
+        4800,
+        5200,
+        5600,
+        6000,
+        6400,
+        6800,
+        7200,
+        7600,
+        8000,
+        8400,
+        8800,
+        9200,
+        9600,
+        10000,
+        10400,
+        10800,
+        11200,
+        11600,
+        12000,
+        12400,
+        12800,
+        13200,
+        13600,
+        14000,
+        14400,
+        14800,
+        15200,
+        15600,
+        16000,
+        16400,
+        16800,
+        17200,
+        17600,
+        18000,
+        18400,
+        18800,
+        19200,
+        19600,
+        20000,
+        20400,
+        20800,
+        21200,
+        21600,
+        22000,
+        22400,
+        22800,
+        23200,
+        23600,
+        24000,
+        24400,
+        24800,
+        25200,
+        25600,
+        26000,
+        26400,
+        26800,
+        27200,
+        27600,
+        28000,
+        28400,
+        28800,
+        29200,
+        29600,
+        30000,
+        30400,
+        30800,
+        31200,
+        31600,
+        32000,
+        32400,
+        32800,
+        33200,
+        33600,
+        34000,
+        34400,
+        34800,
+        35200,
+        35600,
+        36000,
+        36400,
+        36800,
+        37200,
+        37600,
+        38000,
+        38400,
+        38800,
+        39200,
+        39600,
+        40000
+      ],
+      "shared_full_steps": [
+        0,
+        2,
+        10,
+        40,
+        200,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000,
+        12000,
+        14000,
+        16000,
+        18000,
+        20000,
+        22000,
+        24000,
+        26000,
+        28000,
+        30000,
+        32000,
+        34000,
+        36000,
+        38000,
+        40000
+      ],
+      "snapshot_steps": [
+        0,
+        1,
+        40,
+        40000
+      ]
+    }
+  },
+  "schema": "e1-d12-proposal-v1",
+  "storage_by_run": [
+    {
+      "id": "B-c1-r1-sparse",
+      "nominal": {
+        "csv_bytes": 7954568,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 231475,
+            "columns": 10,
+            "row_bytes": 113,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73686,
+            "columns": 12,
+            "row_bytes": 230,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 204718,
+            "columns": 8,
+            "row_bytes": 123,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1690664,
+            "columns": 9,
+            "row_bytes": 127,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3979,
+            "columns": 15,
+            "row_bytes": 146,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 853275,
+            "columns": 7,
+            "row_bytes": 101,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2141596,
+            "columns": 5,
+            "row_bytes": 39,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 126499,
+            "columns": 5,
+            "row_bytes": 76,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1771241,
+            "columns": 14,
+            "row_bytes": 274,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1084750,
+          "backbone": 2409937,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 4040957
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8801322,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 256051,
+            "columns": 10,
+            "row_bytes": 125,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 83286,
+            "columns": 12,
+            "row_bytes": 260,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 229678,
+            "columns": 8,
+            "row_bytes": 138,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1890344,
+            "columns": 9,
+            "row_bytes": 142,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7853,
+            "columns": 15,
+            "row_bytes": 295,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 954651,
+            "columns": 7,
+            "row_bytes": 113,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2306332,
+            "columns": 5,
+            "row_bytes": 42,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 141475,
+            "columns": 5,
+            "row_bytes": 85,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 2003945,
+            "columns": 14,
+            "row_bytes": 310,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1210702,
+          "backbone": 2685649,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4434207
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c1-r2-sparse",
+      "nominal": {
+        "csv_bytes": 7954568,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 231475,
+            "columns": 10,
+            "row_bytes": 113,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73686,
+            "columns": 12,
+            "row_bytes": 230,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 204718,
+            "columns": 8,
+            "row_bytes": 123,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1690664,
+            "columns": 9,
+            "row_bytes": 127,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3979,
+            "columns": 15,
+            "row_bytes": 146,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 853275,
+            "columns": 7,
+            "row_bytes": 101,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2141596,
+            "columns": 5,
+            "row_bytes": 39,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 126499,
+            "columns": 5,
+            "row_bytes": 76,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1771241,
+            "columns": 14,
+            "row_bytes": 274,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1084750,
+          "backbone": 2409937,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 4040957
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8801322,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 256051,
+            "columns": 10,
+            "row_bytes": 125,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 83286,
+            "columns": 12,
+            "row_bytes": 260,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 229678,
+            "columns": 8,
+            "row_bytes": 138,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1890344,
+            "columns": 9,
+            "row_bytes": 142,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7853,
+            "columns": 15,
+            "row_bytes": 295,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 954651,
+            "columns": 7,
+            "row_bytes": 113,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2306332,
+            "columns": 5,
+            "row_bytes": 42,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 141475,
+            "columns": 5,
+            "row_bytes": 85,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 2003945,
+            "columns": 14,
+            "row_bytes": 310,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1210702,
+          "backbone": 2685649,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4434207
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c2-r1-sparse",
+      "nominal": {
+        "csv_bytes": 7865684,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 229427,
+            "columns": 10,
+            "row_bytes": 112,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73366,
+            "columns": 12,
+            "row_bytes": 229,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 203054,
+            "columns": 8,
+            "row_bytes": 122,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1677352,
+            "columns": 9,
+            "row_bytes": 126,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3927,
+            "columns": 15,
+            "row_bytes": 144,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 844827,
+            "columns": 7,
+            "row_bytes": 100,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2086684,
+            "columns": 5,
+            "row_bytes": 38,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 124835,
+            "columns": 5,
+            "row_bytes": 75,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1764777,
+            "columns": 14,
+            "row_bytes": 273,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1074254,
+          "backbone": 2401489,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 3971017
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8712438,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 254003,
+            "columns": 10,
+            "row_bytes": 124,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 82966,
+            "columns": 12,
+            "row_bytes": 259,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 228014,
+            "columns": 8,
+            "row_bytes": 137,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1877032,
+            "columns": 9,
+            "row_bytes": 141,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7801,
+            "columns": 15,
+            "row_bytes": 293,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 946203,
+            "columns": 7,
+            "row_bytes": 112,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2251420,
+            "columns": 5,
+            "row_bytes": 41,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 139811,
+            "columns": 5,
+            "row_bytes": 84,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1997481,
+            "columns": 14,
+            "row_bytes": 309,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1200206,
+          "backbone": 2677201,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4364267
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c2-r2-sparse",
+      "nominal": {
+        "csv_bytes": 7865684,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 229427,
+            "columns": 10,
+            "row_bytes": 112,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73366,
+            "columns": 12,
+            "row_bytes": 229,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 203054,
+            "columns": 8,
+            "row_bytes": 122,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1677352,
+            "columns": 9,
+            "row_bytes": 126,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3927,
+            "columns": 15,
+            "row_bytes": 144,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 844827,
+            "columns": 7,
+            "row_bytes": 100,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2086684,
+            "columns": 5,
+            "row_bytes": 38,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 124835,
+            "columns": 5,
+            "row_bytes": 75,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1764777,
+            "columns": 14,
+            "row_bytes": 273,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1074254,
+          "backbone": 2401489,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 3971017
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8712438,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 254003,
+            "columns": 10,
+            "row_bytes": 124,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 82966,
+            "columns": 12,
+            "row_bytes": 259,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 228014,
+            "columns": 8,
+            "row_bytes": 137,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1877032,
+            "columns": 9,
+            "row_bytes": 141,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7801,
+            "columns": 15,
+            "row_bytes": 293,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 946203,
+            "columns": 7,
+            "row_bytes": 112,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2251420,
+            "columns": 5,
+            "row_bytes": 41,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 139811,
+            "columns": 5,
+            "row_bytes": 84,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1997481,
+            "columns": 14,
+            "row_bytes": 309,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1200206,
+          "backbone": 2677201,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4364267
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c3-r1-sparse",
+      "nominal": {
+        "csv_bytes": 7954568,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 231475,
+            "columns": 10,
+            "row_bytes": 113,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73686,
+            "columns": 12,
+            "row_bytes": 230,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 204718,
+            "columns": 8,
+            "row_bytes": 123,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1690664,
+            "columns": 9,
+            "row_bytes": 127,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3979,
+            "columns": 15,
+            "row_bytes": 146,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 853275,
+            "columns": 7,
+            "row_bytes": 101,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2141596,
+            "columns": 5,
+            "row_bytes": 39,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 126499,
+            "columns": 5,
+            "row_bytes": 76,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1771241,
+            "columns": 14,
+            "row_bytes": 274,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1084750,
+          "backbone": 2409937,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 4040957
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8801322,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 256051,
+            "columns": 10,
+            "row_bytes": 125,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 83286,
+            "columns": 12,
+            "row_bytes": 260,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 229678,
+            "columns": 8,
+            "row_bytes": 138,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1890344,
+            "columns": 9,
+            "row_bytes": 142,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7853,
+            "columns": 15,
+            "row_bytes": 295,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 954651,
+            "columns": 7,
+            "row_bytes": 113,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2306332,
+            "columns": 5,
+            "row_bytes": 42,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 141475,
+            "columns": 5,
+            "row_bytes": 85,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 2003945,
+            "columns": 14,
+            "row_bytes": 310,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1210702,
+          "backbone": 2685649,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4434207
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c3-r2-sparse",
+      "nominal": {
+        "csv_bytes": 7954568,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 231475,
+            "columns": 10,
+            "row_bytes": 113,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73686,
+            "columns": 12,
+            "row_bytes": 230,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 204718,
+            "columns": 8,
+            "row_bytes": 123,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1690664,
+            "columns": 9,
+            "row_bytes": 127,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3979,
+            "columns": 15,
+            "row_bytes": 146,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 853275,
+            "columns": 7,
+            "row_bytes": 101,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2141596,
+            "columns": 5,
+            "row_bytes": 39,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 126499,
+            "columns": 5,
+            "row_bytes": 76,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1771241,
+            "columns": 14,
+            "row_bytes": 274,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1084750,
+          "backbone": 2409937,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 4040957
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8801322,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 256051,
+            "columns": 10,
+            "row_bytes": 125,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 83286,
+            "columns": 12,
+            "row_bytes": 260,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 229678,
+            "columns": 8,
+            "row_bytes": 138,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1890344,
+            "columns": 9,
+            "row_bytes": 142,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7853,
+            "columns": 15,
+            "row_bytes": 295,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 954651,
+            "columns": 7,
+            "row_bytes": 113,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2306332,
+            "columns": 5,
+            "row_bytes": 42,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 141475,
+            "columns": 5,
+            "row_bytes": 85,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 2003945,
+            "columns": 14,
+            "row_bytes": 310,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1210702,
+          "backbone": 2685649,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4434207
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c4-r1-sparse",
+      "nominal": {
+        "csv_bytes": 7865684,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 229427,
+            "columns": 10,
+            "row_bytes": 112,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73366,
+            "columns": 12,
+            "row_bytes": 229,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 203054,
+            "columns": 8,
+            "row_bytes": 122,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1677352,
+            "columns": 9,
+            "row_bytes": 126,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3927,
+            "columns": 15,
+            "row_bytes": 144,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 844827,
+            "columns": 7,
+            "row_bytes": 100,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2086684,
+            "columns": 5,
+            "row_bytes": 38,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 124835,
+            "columns": 5,
+            "row_bytes": 75,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1764777,
+            "columns": 14,
+            "row_bytes": 273,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1074254,
+          "backbone": 2401489,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 3971017
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8712438,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 254003,
+            "columns": 10,
+            "row_bytes": 124,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 82966,
+            "columns": 12,
+            "row_bytes": 259,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 228014,
+            "columns": 8,
+            "row_bytes": 137,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1877032,
+            "columns": 9,
+            "row_bytes": 141,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7801,
+            "columns": 15,
+            "row_bytes": 293,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 946203,
+            "columns": 7,
+            "row_bytes": 112,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2251420,
+            "columns": 5,
+            "row_bytes": 41,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 139811,
+            "columns": 5,
+            "row_bytes": 84,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1997481,
+            "columns": 14,
+            "row_bytes": 309,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1200206,
+          "backbone": 2677201,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4364267
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    },
+    {
+      "id": "B-c4-r2-sparse",
+      "nominal": {
+        "csv_bytes": 7865684,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 381149,
+            "columns": 38,
+            "row_bytes": 186,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 229427,
+            "columns": 10,
+            "row_bytes": 112,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 73366,
+            "columns": 12,
+            "row_bytes": 229,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 203054,
+            "columns": 8,
+            "row_bytes": 122,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1677352,
+            "columns": 9,
+            "row_bytes": 126,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 3927,
+            "columns": 15,
+            "row_bytes": 144,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 844827,
+            "columns": 7,
+            "row_bytes": 100,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2086684,
+            "columns": 5,
+            "row_bytes": 38,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 124835,
+            "columns": 5,
+            "row_bytes": 75,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 36884,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 152081,
+            "columns": 5,
+            "row_bytes": 72,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 57362,
+            "columns": 3,
+            "row_bytes": 28,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1764777,
+            "columns": 14,
+            "row_bytes": 273,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 38939,
+            "columns": 6,
+            "row_bytes": 76,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1074254,
+          "backbone": 2401489,
+          "legacy_endpoint": 418924,
+          "spring_site_connector": 3971017
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      },
+      "wide": {
+        "csv_bytes": 8712438,
+        "files": {
+          "bond_statistics.csv": {
+            "bytes": 393437,
+            "columns": 38,
+            "row_bytes": 192,
+            "rows": 2048
+          },
+          "equilibrium_attachments.csv": {
+            "bytes": 254003,
+            "columns": 10,
+            "row_bytes": 124,
+            "rows": 2048
+          },
+          "equilibrium_backbone.csv": {
+            "bytes": 82966,
+            "columns": 12,
+            "row_bytes": 259,
+            "rows": 320
+          },
+          "equilibrium_chains.csv": {
+            "bytes": 228014,
+            "columns": 8,
+            "row_bytes": 137,
+            "rows": 1664
+          },
+          "equilibrium_connectors.csv": {
+            "bytes": 1877032,
+            "columns": 9,
+            "row_bytes": 141,
+            "rows": 13312
+          },
+          "equilibrium_events.csv": {
+            "bytes": 7801,
+            "columns": 15,
+            "row_bytes": 293,
+            "rows": 26
+          },
+          "equilibrium_positions.csv": {
+            "bytes": 946203,
+            "columns": 7,
+            "row_bytes": 112,
+            "rows": 8448
+          },
+          "equilibrium_sites.csv": {
+            "bytes": 2251420,
+            "columns": 5,
+            "row_bytes": 41,
+            "rows": 54912
+          },
+          "equilibrium_tangents.csv": {
+            "bytes": 139811,
+            "columns": 5,
+            "row_bytes": 84,
+            "rows": 1664
+          },
+          "final.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "fixed_slip_springs.csv": {
+            "bytes": 41492,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 512
+          },
+          "initial.csv": {
+            "bytes": 171089,
+            "columns": 5,
+            "row_bytes": 81,
+            "rows": 2112
+          },
+          "initial_bonds.csv": {
+            "bytes": 63506,
+            "columns": 3,
+            "row_bytes": 31,
+            "rows": 2048
+          },
+          "samples.csv": {
+            "bytes": 1997481,
+            "columns": 14,
+            "row_bytes": 309,
+            "rows": 6464
+          },
+          "slip_springs_final.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          },
+          "slip_springs_initial.csv": {
+            "bytes": 43547,
+            "columns": 6,
+            "row_bytes": 85,
+            "rows": 512
+          }
+        },
+        "groups": {
+          "audit_snapshots": 1200206,
+          "backbone": 2677201,
+          "legacy_endpoint": 470764,
+          "spring_site_connector": 4364267
+        },
+        "note": "Planning estimate, not a quota; binary/build/dependency evidence is campaign-wide.",
+        "per_run_json_receipts_logs_allowance_bytes": 2097152
+      }
+    }
+  ]
+}

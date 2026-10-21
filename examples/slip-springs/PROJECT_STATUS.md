@@ -25,6 +25,15 @@ SHA256 authentication and exploratory replica analysis; see
 approval template is false with null resource budgets. Scientific accuracy,
 feasibility and production timestep acceptance remain unresolved.
 
+D1.2 prepares a separate long-time/sparse-observation proposal; see
+[E1_STAGE_D1_LONG_TIME_PILOT.md](E1_STAGE_D1_LONG_TIME_PILOT.md). Existing scalar
+and full-E1 schedules are already independent, so dynamics/observer code stays
+unchanged. Phase A benchmarking, Phase B T10 exploration and conditional Phase C
+T100+ preservation require distinct reviewed manifests and resource approval.
+All new authorization fields remain false/null. No scientific simulations ran;
+D1.1 frozen files/hashes remain unchanged. A D1.2 runner/analysis adapter is an
+explicit prerequisite before execution.
+
 The current numerical reference choices are `kBT=1`, `zeta=1`, `b0=1`, `kb=30`, double precision for scientific validation, and typically `seed=433201` for timestep studies. Interior `kappa` is nonnegative and endpoint entries are zero. The baseline timestep in Stage 4A.4 was `2.5e-5`; `5e-4` and `1e-3` were comparison candidates, not silently promoted production values.
 
 The recorded CPU stress benchmark reached 1.938 million chain observations per second (946.2 complete frames/s) in its selected largest-bank median. A separate archived GPU measurement reported 1.943 ns/bead/step integration-only and 2.384 ns/bead/step overall for its tested N=8 configuration. These are measurements of named hosts and configurations, not portable performance guarantees; GPU stress, transfer, CPU-worker, output, and wall scopes overlap and must not be added.

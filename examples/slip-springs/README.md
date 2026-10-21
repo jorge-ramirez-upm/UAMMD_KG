@@ -333,6 +333,23 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+E1 Stage D1.2 proposes separate benchmark, T10 and conditional T100 phases with
+independent .1 backbone/.5 full-E1 observation cadences. The accepted interface
+already supports them; no simulator change is needed. See
+[E1_STAGE_D1_LONG_TIME_PILOT.md](E1_STAGE_D1_LONG_TIME_PILOT.md) for exact matrices,
+step schedules, storage projections and bounded verification commands.
+The new proposal generator only prepares/authenticates files:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 timeout 120s python3 examples/slip-springs/tests/test_e1_d12_plan.py -v
+PYTHONDONTWRITEBYTECODE=1 python3 examples/slip-springs/e1_d12_plan.py --check examples/slip-springs/e1_d12_proposed_config --sha256 2da957a5ee44956c395004bd20c23bee8e809b6d312ceee814e3f6934b2a5bbe
+```
+
+No D1.2 phase is executable or authorized. A separately reviewed phase adapter,
+analysis changes and explicit budgets are required; preserve the frozen D1.1
+runner/configuration rather than repurposing its execution path.
+
+
 E1 Stage D1.1 provides a frozen **proposed** 8-cell/32-replica equilibrium pilot,
 a fresh-build/provenance tool, a default read-only runner preflight, and separate
 fail-closed authentication/exploratory analysis. See
