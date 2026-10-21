@@ -1,0 +1,206 @@
+"""Tables and standalone plots from authenticated, segment-separated CPU replay."""
+import argparse
+import csv
+import json
+import math
+from pathlib import Path
+import runpy
+import sys
+import tarfile
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--analysis', type=Path, required=True)
+parser.add_argument('--output', type=Path, required=True)
+args = parser.parse_args()
+out = args.output
+prior = Path('examples/KG_Assoc/reviews/e2_ea_transfer_24m_joint_20261018')
+helper = runpy.run_path(str(prior / 'ANALYSIS_DRIVER.txt'))
+e2 = helper['e2']
+e2.check_hashes(e2.campaign.load_json(prior / 'INTEGRITY.sha256'))
+records = []
+
+
+def table(name, rows):
+    assert rows
+    with (out / name).open('x', newline='') as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+for path in sorted(args.analysis.glob('*_SUMMARY.log')):
+    h = e2.campaign.load_json(path)
+    label = h['label']
+    record = dict(h=h, rows=e2.campaign.load_json(args.analysis / (label+'_TIMESERIES.log')),
+        windows=e2.campaign.load_json(args.analysis / (label+'_WINDOWS.log')),
+        renewal=e2.campaign.load_json(args.analysis / (label+'_RENEWAL.log')),
+        identity=e2.campaign.load_json(args.analysis / (label+'_ORIGINAL_IDENTITY.log')))
+    with tarfile.open(prior / 'replay' / (label+'.tar.gz')) as archive:
+        record['preparation'] = {suffix: json.load(archive.extractfile(label+'_'+suffix+'.log'))
+                                 for suffix in ('SUMMARY', 'TIMESERIES', 'WINDOWS', 'RENEWAL')}
+    old = record['preparation']['SUMMARY']
+    for key in ('bonds', 'intra', 'inter', 'L1', 'L2', 'mean_degree'):
+        assert old['final'][key] == h['initial'][key], (label, key)
+    assert old['chemistry_seed'] == h['entry']['chemistry_seed']
+    records.append(record)
+assert len(records) == 6
+
+endpoints = []
+kinetics = []
+phases = []
+windows = []
+renewal = []
+residence = []
+correlations = []
+metrics = ['bonds', 'intra', 'inter', 'bound_fraction', 'L1', 'L2', 'mean_degree',
+           'largest_cluster_fraction', 'isolated_stars', 'satellite_stars',
+           'mean_rg2', 'mean_center_terminal_r2']
+for r in records:
+    h = r['h']; entry = h['entry']; label = h['label']
+    prefix = entry['output_prefix']
+    endpoints.append(dict(system=entry['system']['system_id'], replica=entry['replica'],
+        start_step=h['start_step'], end_step=h['end_step'], receipt_kind=h['receipt_kind'],
+        restart=prefix+'.restart.lammpsdat', restart_sha256=e2.campaign.sha256(Path(prefix+'.restart.lammpsdat')),
+        sidecar=prefix+'.assoc_restart', sidecar_sha256=e2.campaign.sha256(Path(prefix+'.assoc_restart')),
+        receipt=h['receipt'], receipt_sha256=h['receipt_sha256'],
+        plan_sha256=h['job']['plan_sha256'], chemistry_seed=entry['chemistry_seed'],
+        md_seed=entry['md_seed'], effective_md_seed=entry['effective_md_seed']))
+    for phase, rows in [('preparation', r['preparation']['TIMESERIES']), ('extension', r['rows'])]:
+        widths = r['preparation']['WINDOWS']['sensitivity'] if phase == 'preparation' else r['windows']
+        for width, groups in widths.items():
+            for w in groups:
+                for metric in metrics:
+                    v = w['metrics'][metric]
+                    windows.append(dict(label=label, segment=phase, width=int(width),
+                        start=w['start_step_exclusive'], end=w['end_step_inclusive'], observable=metric,
+                        mean=v['mean'], sem=v['sem_estimate'], IAT_time=v['tau_time'],
+                        ESS=v['effective_samples_estimate'], resolution_warning=v['resolution_warning']))
+        if phase == 'preparation':
+            groups = r['preparation']['WINDOWS']['windows']
+            for w in groups:
+                for metric in metrics:
+                    v = w['metrics'][metric]
+                    windows.append(dict(label=label, segment=phase, width=500000,
+                        start=w['start_step_exclusive'], end=w['end_step_inclusive'], observable=metric,
+                        mean=v['mean'], sem=v['sem_estimate'], IAT_time=v['tau_time'],
+                        ESS=v['effective_samples_estimate'], resolution_warning=v['resolution_warning']))
+        # Dynamical origins are restricted to this segment, including the final-quarter estimate.
+        for selection in ('full', 'last_quarter'):
+            selected = rows[1:] if selection == 'full' else [x for x in rows if
+                x['step'] > rows[0]['step'] + .75*(rows[-1]['step']-rows[0]['step'])]
+            for metric in metrics:
+                values = [x[metric] for x in selected]
+                times = [x['time'] for x in selected]
+                tau, ess = helper['fast_iat'](values, times)
+                constant = len(set(values)) == 1
+                block_sems = []
+                for blocks in (5, 10, 20):
+                    chunks = np.array_split(values, blocks)
+                    block_sems.append(float(np.std([np.mean(x) for x in chunks], ddof=1)/math.sqrt(blocks)))
+                correlations.append(dict(label=label, segment=phase, selection=selection,
+                    observable=metric, mean=float(np.mean(values)),
+                    IAT_time=None if constant else tau*(times[1]-times[0]),
+                    ESS=None if constant else ess, constant_not_mixing_evidence=constant,
+                    sem5=block_sems[0], sem10=block_sems[1], sem20=block_sems[2]))
+        for left in range(rows[0]['step'], rows[-1]['step'], 4000000):
+            subset = [x for x in rows if left < x['step'] <= left+4000000]
+            phases.append(dict(label=label, segment=phase, start=left, end=left+4000000,
+                **{key: float(np.mean([x[key] for x in subset])) for key in metrics}))
+    ex = h['exact_integer_step_exposure']; dt = entry['physics']['dt']
+    kinetics.append(dict(label=label, **h['counts'], **ex,
+        formation_per_free_sticker_time=h['counts']['creations']/(ex['free_sticker_steps']*dt),
+        breaking_per_active_bond_time=h['counts']['breaks']/(ex['bond_steps']*dt),
+        **h['network_exposure']))
+    identity = r['identity']; last = identity['sampled'][-1]
+    renewal.append(dict(label=label, origin=8000000, end=h['end_step'],
+        **{k: v for k,v in identity.items() if k not in ('sampled', 'boundary_policy', 'giant_tie_policy')},
+        current_initial_bond_overlap=last['current_initial_bond_overlap'],
+        current_initial_neighbor_overlap=last['current_initial_neighbor_overlap'],
+        reacted_stars=last['reacted_stars'], neighbor_gain_stars=last['neighbor_gain_stars'],
+        neighbor_loss_stars=last['neighbor_loss_stars']))
+    for star in r['renewal']['stars']:
+        residence.append(dict(label=label, segment='extension', star=star['star'],
+            isolated_steps=star['residence_steps']['isolated'], satellite_steps=star['residence_steps']['satellite'],
+            initial_category=star['initial_category'], final_category=star['final_category'],
+            isolation_nonzero_gap_returns=star['nonzero_gap_returns']['isolated'],
+            satellite_nonzero_gap_returns=star['nonzero_gap_returns']['satellite'],
+            neighbor_ids_gained=json.dumps(star['gained_neighbor_ids']),
+            neighbor_ids_lost=json.dumps(star['lost_neighbor_ids'])))
+table('ENDPOINTS.csv', endpoints)
+table('KINETICS.csv', kinetics)
+table('FOUR_MILLION_PHASES.csv', phases)
+table('WINDOWS.csv', windows)
+table('RENEWAL.csv', renewal)
+table('RESIDENCE.csv', residence)
+table('CORRELATIONS.csv', correlations)
+paired = []
+for comparison in ('final_4M', 'shared_36M_40M'):
+    for metric in metrics:
+        differences = []
+        for rep in (1, 2, 3):
+            means = []
+            for ea in (8, 10):
+                r = next(r for r in records if r['h']['label'] == f'EA{ea:02d}_R{rep:03d}')
+                end = r['h']['end_step'] if comparison == 'final_4M' else 40000000
+                values = [x[metric] for x in r['rows'] if end-4000000 < x['step'] <= end]
+                means.append(float(np.mean(values)))
+            differences.append(means[1]-means[0])
+        stats = helper['segment'].review.analysis.dynamics.replica_statistics(differences)
+        paired.append(dict(comparison=comparison, observable=metric,
+                          paired_differences=json.dumps(differences), **stats))
+table('PAIRED_CONTRASTS.csv', paired)
+
+plots = out / 'plots'
+plots.mkdir(exist_ok=True)
+colors = ['#0072B2', '#D55E00', '#009E73']
+for name, keys in [('structure', metrics[:10]), ('conformation', metrics[10:])]:
+    fig, axes = plt.subplots(len(keys), 2, figsize=(13, 2.1*len(keys)), squeeze=False)
+    for column, ea in enumerate((8, 10)):
+        for r in records:
+            h = r['h']
+            if h['entry']['physics']['Ea'] != ea: continue
+            for axis, key in zip(axes[:, column], keys):
+                for part in (r['preparation']['TIMESERIES'], r['rows']):
+                    axis.plot([x['step']/1e6 for x in part], [x[key] for x in part],
+                              color=colors[h['entry']['replica']-1], lw=.55, alpha=.8)
+                axis.axvline(24, color='black', ls='--', lw=.6)
+                axis.set_ylabel(key); axis.grid(alpha=.2)
+        axes[0, column].set_title(f'Ea={ea}; blue/orange/green = parent r001/r002/r003')
+        axes[-1, column].set_xlabel('Absolute MD step / 1M; dashed = fresh-GJ segment boundary')
+    fig.tight_layout(); fig.savefig(plots/(name+'.png'), dpi=140); plt.close(fig)
+fig, axes = plt.subplots(3, 2, figsize=(13, 9))
+for column, ea in enumerate((8, 10)):
+    for r in records:
+        h = r['h']; rep = h['entry']['replica']
+        if h['entry']['physics']['Ea'] != ea: continue
+        samples = r['identity']['sampled']
+        for axis, key in zip(axes[:, column], ['surviving_initial_neighbor_edges',
+                  'current_initial_neighbor_overlap', 'neighbor_loss_stars']):
+            axis.plot([x['step']/1e6 for x in samples], [x[key] for x in samples],
+                      color=colors[rep-1], label=f'r{rep:03d}')
+            axis.set_ylabel(key); axis.axvline(24, color='black', ls='--', lw=.6); axis.grid(alpha=.2)
+    axes[0, column].set_title(f'Ea={ea}; structural identity ledger from 8M, no lifetime/IAT stitching')
+    axes[0, column].legend(); axes[-1, column].set_xlabel('Absolute MD step / 1M')
+fig.tight_layout(); fig.savefig(plots/'original_identity_renewal.png', dpi=140); plt.close(fig)
+fig, axes = plt.subplots(3, 2, figsize=(14, 11))
+for r in records:
+    h = r['h']; rep = h['entry']['replica']; ea = h['entry']['physics']['Ea']
+    axis = axes[rep-1, (8,10).index(ea)]
+    for renewal_part in (r['preparation']['RENEWAL'], r['renewal']):
+        episodes = [e for e in renewal_part['episodes'] if e['category']=='isolated' and e['duration_steps']>0]
+        for e in episodes:
+            axis.plot([e['start_step']/1e6, e['end_step']/1e6], [e['star']]*2, lw=1, color=colors[rep-1])
+    axis.axvline(24, color='black', ls='--', lw=.6)
+    axis.set_title(f'Ea={ea} r{rep:03d}; separate censored residence segments')
+    axis.set_xlabel('Absolute MD step / 1M'); axis.set_ylabel('Isolated star ID')
+fig.tight_layout(); fig.savefig(plots/'isolated_star_histories.png', dpi=140); plt.close(fig)
+e2.exclusive_json(out/'RESULTS.log', dict(starting_sha='31c3d0660876fc020f1f15f5c38b5a4918945e29',
+    assessment_GPU_steps=0, extension_MD_steps=sum(h['end_step']-h['start_step'] for h in [r['h'] for r in records]),
+    candidate_comparisons=sum(r['h']['validation']['oracle_sweeps'] for r in records),
+    accepted_events=sum(sum(r['h']['counts'][k] for k in ('creations','breaks')) for r in records),
+    statistical_preparation_units=3, histories=[r['h'] for r in records]))
+print('TABLES_AND_PLOTS_WRITTEN')
