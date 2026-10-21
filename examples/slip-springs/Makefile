@@ -91,7 +91,7 @@ check-workers:
 # Separate Stage 4A.2 targets; historical all/check/Rouse rules are unchanged.
 .PHONY: semiflexible check-semiflexible
 semiflexible: $(GPU_BUILD)/semiflexible
-$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/fixed_slip_springs.h $(PROJECT_DIR)/slip_hopping.h $(PROJECT_DIR)/slip_hopping.cuh $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
+$(GPU_BUILD)/semiflexible: $(PROJECT_DIR)/semiflexible.cu $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh $(PROJECT_DIR)/fixed_slip_springs.h $(PROJECT_DIR)/slip_hopping.h $(PROJECT_DIR)/slip_hopping.cuh $(PROJECT_DIR)/slip_renewal.cuh $(PROJECT_DIR)/semiflexible_scalar_output.h $(PROJECT_DIR)/semiflexible_stress.cuh $(PROJECT_DIR)/semiflexible_stress_stream.h $(PROJECT_DIR)/tests/chain_major_correlator.h $(PROJECT_DIR)/cpu_workers.h $(PROJECT_DIR)/stream_correlator.h $(KG_DIR)/correlator.cpp
 	mkdir -p $(GPU_BUILD)
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) -DSLIP_SPRINGS_DIR='"$(PROJECT_DIR)"' -MMD -MP -MF $@.d $< $(KG_DIR)/correlator.cpp -Xcompiler -pthread -o $@ $(LDLIBS)
 check-semiflexible: semiflexible
@@ -148,3 +148,12 @@ $(GPU_BUILD)/slip_hopping_gpu: $(PROJECT_DIR)/tests/slip_hopping_gpu.cu $(PROJEC
 	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) $< -o $@ $(LDLIBS)
 check-slip-hopping: check-slip-hopping-cpu semiflexible $(GPU_BUILD)/slip_hopping_gpu
 	timeout 180s python3 $(PROJECT_DIR)/tests/test_slip_hopping_gpu.py $(GPU_BUILD)/slip_hopping_gpu $(GPU_BUILD)/semiflexible
+
+.PHONY: check-slip-renewal-cpu check-slip-renewal
+check-slip-renewal-cpu:
+	timeout 120s python3 $(PROJECT_DIR)/tests/test_slip_renewal_reference.py
+$(GPU_BUILD)/slip_renewal_gpu: $(PROJECT_DIR)/tests/slip_renewal_gpu.cu $(PROJECT_DIR)/slip_renewal.cuh $(PROJECT_DIR)/slip_hopping.cuh $(PROJECT_DIR)/slip_hopping.h $(PROJECT_DIR)/semiflexible.cuh $(PROJECT_DIR)/semiflexible_slipspring.cuh
+	mkdir -p $(GPU_BUILD)
+	$(NVCC) -ccbin=$(CXX) $(CPPFLAGS) $(INCLUDES) $(NVCCFLAGS) $(ARCH_FLAGS) $(PRECISION_FLAGS) $< -o $@ $(LDLIBS)
+check-slip-renewal: check-slip-renewal-cpu semiflexible $(GPU_BUILD)/slip_renewal_gpu
+	timeout 180s python3 $(PROJECT_DIR)/tests/test_slip_renewal_gpu.py $(GPU_BUILD)/slip_renewal_gpu $(GPU_BUILD)/semiflexible

@@ -1,8 +1,10 @@
 # Equilibrium Model E1 — canonical anchored slip-springs
 Status: **scientific design frozen (2026-10-20); Stage A fixed attachments implemented and audited (2026-10-21)**.
-Stage A is accepted; Stage B interior hopping is implemented and bounded-tested. See
-[the Stage A audit](E1_STAGE_A_AUDIT.md) and [Stage B report](E1_STAGE_B_REPORT.md).
-Renewal remains unimplemented; full E1 dynamical ergodicity is not established.
+Stages A/B are accepted. Stage C end renewal is implemented and has passed
+bounded jump-process detailed-balance and equilibrium checks; see
+[the Stage A audit](E1_STAGE_A_AUDIT.md), [Stage B report](E1_STAGE_B_REPORT.md) and
+[Stage C report](E1_STAGE_C_REPORT.md). General full-E1 dynamical ergodicity,
+Brownian timestep accuracy and terminal rheology are not established.
 Scope: `examples/slip-springs/` only. This document specifies the equilibrium measure and ideal continuous-time transition kernels. It does **not** authorize production simulation, timestep acceptance, or a rheological estimator.
 
 ## 1. Scientific objective and boundary

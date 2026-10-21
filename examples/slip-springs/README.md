@@ -18,7 +18,8 @@ Stage 2B matrix, N32 terminal 504/504 checks, accepted parallel CPU processing,
 million-step memory 728/728 checks, and N100 terminal 686/686 checks. The
 [N100 results](STAGE2B_N100_TERMINAL_RESULTS.md) include a permanent text-artifact
 archive and hashes. E1 Stage A adds development-only fixed-attachment springs;
-see [the independent audit](E1_STAGE_A_AUDIT.md). Slip-spring dynamics is not scientifically validated.
+see [the independent audit](E1_STAGE_A_AUDIT.md). Stages B/C jump kernels have bounded
+equilibrium verification; terminal dynamics and rheology remain unvalidated.
 User-executed Linux-host results show byte-identical correlations across tested
 worker counts, 728/728 analytical 5-SE checks in the million-step memory run,
 and 6.28x single-precision overall speedup at 16 workers. On the RTX 3060 Ti /
@@ -332,42 +333,51 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
-E1 Stage B adds fixed-anchor nearest-neighbor Metropolis hopping with
-`--hop-rate NU` (inverse simulation time, default 0). See the
-[Stage B report](E1_STAGE_B_REPORT.md) for splitting, invariants, event limits,
-detailed balance, test results and fixed-population/order-sector limitations.
-Every BD step is followed by one sequential Poisson hopping batch at the new
-coordinates. NU=0 preserves accepted Stage A data; Z=0 preserves the bare
-backbone. Active springs continue to require `--stress-mode off`.
+E1 Stage C adds end escape and canonical renewal with `--end-renewal 1`.
+The default `--end-renewal 0` preserves accepted Stage B behavior. Hopping uses
+`--hop-rate NU` (inverse simulation time, default 0). Every Brownian step is
+followed by one sequential Poisson jump batch at the new coordinates. Outward
+proposals renew onto a uniformly selected chain/end only if that end is vacant
+in the pre-event state; the same stable spring receives a fresh conditional
+Gaussian anchor. There is no extra renewal Metropolis factor. Interior hops
+keep anchors fixed. See [Stage C evidence and limitations](E1_STAGE_C_REPORT.md).
+
+Z=0 recovers the bare backbone; NU=0 recovers Stage A; renewal off recovers
+Stage B. These limits retain accepted output bytes. Active springs require
+`--stress-mode off`. No constraint release, deformation or rheology is added.
 
 Tested CUDA 13 commands (choose the host's architecture), from the repository root:
 
 ```sh
-B_BUILD="$PWD/examples/slip-springs/build/e1-stage-b"
-make -C examples/slip-springs check-slip-hopping-cpu
-make -C examples/slip-springs check-slip-hopping PRECISION=single CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$B_BUILD/single"
-make -C examples/slip-springs check-slip-hopping PRECISION=double CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$B_BUILD/double"
-B_RUNS=$(mktemp -d /tmp/e1-stage-b.XXXXXX)
-"$B_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt .0001 --steps 100 --sample 10 --seed 4317 --slip-count 32 --slip-ms2 5 --hop-rate 100 --stress-mode off --output "$B_RUNS/short"
+C_BUILD="$PWD/examples/slip-springs/build/e1-stage-c"
+make -C examples/slip-springs check-slip-renewal-cpu
+make -C examples/slip-springs check-slip-renewal PRECISION=single CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$C_BUILD/single"
+make -C examples/slip-springs check-slip-renewal PRECISION=double CUDA_HOME=/usr/local/cuda CUDA_ARCH=sm_86 GPU_BUILD="$C_BUILD/double"
+C_RUNS=$(mktemp -d /tmp/e1-stage-c.XXXXXX)
+"$C_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt .0001 --steps 100 --sample 10 --seed 4317 --slip-count 32 --slip-ms2 5 --hop-rate 100 --end-renewal 1 --stress-mode off --output "$C_RUNS/short"
 ```
 
-This short example ran in both precisions. A moderately long **unexecuted
+The short example ran in both precisions. A moderately long **unexecuted
 host-only** example retains N8,C64,dt0.0001,seed4317 and uses:
 
 ```sh
-"$B_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt .0001 --steps 10000 --sample 100 --seed 4317 --slip-count 32 --slip-ms2 5 --hop-rate 100 --stress-mode off --output "$B_RUNS/moderate"
+"$C_BUILD/double/semiflexible" --springs 8 --chains 64 --kappa 2 --dt .0001 --steps 10000 --sample 100 --seed 4317 --slip-count 32 --slip-ms2 5 --hop-rate 100 --end-renewal 1 --stress-mode off --output "$C_RUNS/moderate"
 ```
 
 These are development examples, not calibrated rates or accepted timesteps.
-`slip_springs_initial.csv` and `slip_springs_final.csv` retain stable IDs and
-fixed anchors with current attachments; `hopping_metadata.json` reports rates,
-event/rejection counts, memory and splitting/RNG conventions. The legacy
-`fixed_slip_springs.csv` is an initial snapshot. Unsupported means above 10000,
-excessive drawn counts above 100000 and numerical/invariant failures abort;
-no attempts are clipped. The global serial GPU event loop is a documented
-scaling limit. Stage C, end escape/renewal, slip-spring stress and terminal
-rheological validation are absent. CUDA 11.5's documented compiler limitation
-and frozen historical source-hash authentication rules remain unchanged.
+`slip_springs_initial.csv` and `slip_springs_final.csv` contain stable spring IDs,
+current chain/bead assignments and anchors. `fixed_slip_springs.csv` remains an
+initial snapshot. Active Stage C writes `hopping_metadata.json` version 2 with
+renewal counters and its independent RNG domain. Its `accepted` counter counts
+interior hops; `outward_proposals` counts all renewal proposals, and
+`renewal_accepted` counts successful transfers. The report defines all counters
+and memory accounting. Disabled Stage C preserves version 1 metadata exactly.
+Unsupported Poisson means above 10000, drawn counts above 100000 and numerical
+or invariant failures abort without clipping attempts. The serial GPU processor
+and destination-chain scan remain scaling limits. CUDA 11.5's documented
+compiler limitation and frozen historical source-hash authentication rules
+remain unchanged. Stage B tests remain available as `check-slip-hopping` and
+`check-slip-hopping-cpu`.
 
 
 E1 Stage A optionally adds fixed harmonic springs with `--slip-count Z` and

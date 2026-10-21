@@ -2,6 +2,7 @@
 #include "semiflexible_slipspring.cuh"
 #include "fixed_slip_springs.h"
 #include "slip_hopping.cuh"
+#include "slip_renewal.cuh"
 #include "semiflexible_stress.cuh"
 #include "semiflexible_scalar_output.h"
 #include <thrust/device_vector.h>
@@ -27,7 +28,7 @@ std::string jsonNumber(double x) { if(!std::isfinite(x)) return "null"; std::ost
 struct Options {
   int n=8,chains=64; Counter steps=1000,sample=100,seed=42001;
   double dt=0.0001,b0=1,kb=30,kappa=2,kbt=1,zeta=1;
-  Counter slipCount=0; double slipMs2=0,hopRate=0;
+  Counter slipCount=0; double slipMs2=0,hopRate=0; bool endRenewal=false;
   fs::path output,parameters,initial; bool forceOnly=false;
   stress3b::Settings stress;
   std::string scalarOutput="full";
@@ -48,7 +49,7 @@ Options parse(int argc,char** argv) {
     if(key=="--help") {
       std::cout<<"semiflexible --output NEW_DIR [--springs N --chains C --dt H --steps S --sample STRIDE --seed K]\n"
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
-        "[--slip-count Z --slip-ms2 A2 --hop-rate NU (default 0; fixed anchors; stress must be off)]\n"
+        "[--slip-count Z --slip-ms2 A2 --hop-rate NU --end-renewal 0|1 (default 0; stress must be off)]\n"
         "[--stress-mode off|diagnostic|stream|every-step --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
         "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
         "parameters: N, then N (b0 kb) pairs, then N+1 bead-indexed kappa values; --springs must match.\n"
@@ -77,6 +78,7 @@ Options parse(int argc,char** argv) {
     else if(key=="--slip-count") o.slipCount=integer(v);
     else if(key=="--slip-ms2") o.slipMs2=number(v);
     else if(key=="--hop-rate") o.hopRate=number(v);
+    else if(key=="--end-renewal") {auto value=integer(v);if(value>1)throw std::runtime_error("end-renewal must be 0 or 1");o.endRenewal=value;}
     else if(key=="--steps") o.steps=integer(v);
     else if(key=="--sample") o.sample=integer(v);
     else if(key=="--seed") o.seed=integer(v);
@@ -226,10 +228,12 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   auto initStart=Clock::now();
   int m=o.n+1,count=m*o.chains; size_t bytes=count*sizeof(real4);
   const bool mobile=o.slipCount&&o.hopRate>0;
+  const bool canonical=mobile&&o.endRenewal;
+  const double renewalSigma=canonical?std::sqrt(o.slipMs2)/std::sqrt(3.):0;
   const double hopMean=slip_hopping::poissonMean(o.slipCount,o.hopRate,o.dt);
   // Explicit bounded allocations, independent of number of steps/frames.
   size_t estimate=bytes*8+size_t(count)*1024+(o.slipCount?size_t(count)*(2*sizeof(real4)+sizeof(int)):0)
-    +(mobile?2*(size_t(o.slipCount)*sizeof(slip_hopping::Spring)+size_t(count)*sizeof(int))+sizeof(slip_hopping::Statistics):0);
+    +(mobile?2*(size_t(o.slipCount)*sizeof(slip_hopping::Spring)+size_t(count)*sizeof(int))+sizeof(slip_hopping::Statistics):0)+(canonical?sizeof(slip_renewal::Statistics):0);
   if(estimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
   // Independent CPU RNG domain, never consuming backbone initialization or Philox counters.
@@ -264,6 +268,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   thrust::device_vector<slip_hopping::Spring> hops(hostHops);
   thrust::device_vector<int> occupancy(hostOccupancy);
   thrust::device_vector<slip_hopping::Statistics> hopStats(mobile?1:0);
+  thrust::device_vector<slip_renewal::Statistics> renewalStats(canonical?1:0);
   thrust::device_vector<real4> springs(springHosts);
   thrust::device_vector<real4> r(host),next(count),forces(count);
   thrust::device_vector<real2> bonds(p.bonds);
@@ -292,7 +297,8 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
        <<",\"chain\":"<<(key/8)/m<<",\"bead\":"<<(key/8)%m<<",\"reason\":"<<key%8<<",\"stage\":\""<<(hopping?"hopping":(proposed?"proposal":"force"))<<"\",\"precision_bits\":"<<8*sizeof(real)<<",\"kbt\":"<<o.kbt<<",\"zeta\":"<<o.zeta<<",\"seed\":"<<o.seed<<",\"dt\":"<<o.dt
        <<",\"slip_count\":"<<o.slipCount<<",\"slip_ms2\":"<<(o.slipCount?jsonNumber(o.slipMs2):"null")
        <<",\"slip_effective_stiffness\":"<<(o.slipCount?jsonNumber(double(springK)):"null")
-       <<(mobile?",\"hop_rate\":"+jsonNumber(o.hopRate)+",\"hop_poisson_mean\":"+jsonNumber(hopMean):"")<<"}\n";
+       <<(mobile?",\"hop_rate\":"+jsonNumber(o.hopRate)+",\"hop_poisson_mean\":"+jsonNumber(hopMean):"")
+       <<(canonical?",\"end_renewal\":true":"")<<"}\n";
       throw std::runtime_error("GPU diagnostic failure at step "+std::to_string(step)+", bead "+std::to_string(key/8)+", reason "+std::to_string(key%8));
     }
   };
@@ -389,7 +395,8 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       check(cudaGetLastError(),"update launch");d=Clock::now();diagnose(step,true);diagnosticTime+=seconds(d);
       std::swap(current,following);
       if(mobile) {
-        slip_hopping::hopping<<<1,1>>>(current,ptr(hops),ptr(occupancy),ptr(springs),m,count,int(o.slipCount),springK,o.kbt,hopMean,o.seed,step,ptr(hopStats),ptr(error));
+        if(canonical)slip_renewal::hopping<<<1,1>>>(current,ptr(hops),ptr(occupancy),ptr(springs),m,count,int(o.slipCount),springK,o.kbt,hopMean,renewalSigma,o.seed,step,ptr(hopStats),ptr(renewalStats),ptr(error));
+        else slip_hopping::hopping<<<1,1>>>(current,ptr(hops),ptr(occupancy),ptr(springs),m,count,int(o.slipCount),springK,o.kbt,hopMean,o.seed,step,ptr(hopStats),ptr(error));
         slip_hopping::checkState<<<(count+255)/256,256>>>(ptr(hops),ptr(occupancy),ptr(springs),m,count,int(o.slipCount),ptr(error));
         check(cudaGetLastError(),"hopping launch");d=Clock::now();diagnose(step+1,false,true);diagnosticTime+=seconds(d);
       }
@@ -409,13 +416,23 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
     slip_hopping::Statistics stat;
     check(cudaMemcpy(&stat,ptr(hopStats),sizeof(stat),cudaMemcpyDeviceToHost),"hopping statistics");
     auto f=outputFile(out/"hopping_metadata.json");
-    f<<"{\"version\":1,\"rate\":"<<o.hopRate<<",\"poisson_mean\":"<<hopMean
+    f<<"{\"version\":"<<(canonical?2:1)<<",\"rate\":"<<o.hopRate<<",\"poisson_mean\":"<<hopMean
      <<",\"interval_bd_steps\":1,\"splitting\":\"BD then hopping at new coordinates\",\"rng_subsequence_base\":2305843009213693952"
      <<",\"max_mean\":"<<slip_hopping::maxMean<<",\"max_events_per_batch\":"<<slip_hopping::maxEvents
      <<",\"batches\":"<<stat.batches<<",\"attempts\":"<<stat.attempts<<",\"accepted\":"<<stat.accepted
-     <<",\"boundary_rejected\":"<<stat.boundary<<",\"occupied_rejected\":"<<stat.occupied<<",\"metropolis_rejected\":"<<stat.metropolis
+     <<",\""<<(canonical?"outward_proposals":"boundary_rejected")<<"\":"<<stat.boundary<<",\"occupied_rejected\":"<<stat.occupied<<",\"metropolis_rejected\":"<<stat.metropolis
      <<",\"device_bytes\":"<<hops.capacity()*sizeof(slip_hopping::Spring)+occupancy.capacity()*sizeof(int)+hopStats.capacity()*sizeof(slip_hopping::Statistics)
-     <<",\"timer_scope\":\"main integration CUDA events include hopping and invariant checks plus diagnostic D2H; no recurrent state readback\"}\n";
+     <<",\"timer_scope\":\"main integration CUDA events include hopping and invariant checks plus diagnostic D2H; no recurrent state readback\"";
+    if(canonical) {
+      slip_renewal::Statistics renewal;
+      check(cudaMemcpy(&renewal,ptr(renewalStats),sizeof(renewal),cudaMemcpyDeviceToHost),"renewal statistics");
+      f<<",\"end_renewal\":true,\"renewal_rng_subsequence_base\":"<<slip_renewal::rngBase
+       <<",\"renewal_component_variance\":"<<o.slipMs2/3
+       <<",\"renewal_proposed\":"<<renewal.proposed<<",\"renewal_accepted\":"<<renewal.accepted
+       <<",\"renewal_occupied_rejected\":"<<renewal.occupied<<",\"renewal_same_chain\":"<<renewal.sameChain
+       <<",\"renewal_cross_chain\":"<<renewal.crossChain<<",\"renewal_device_bytes\":"<<renewalStats.capacity()*sizeof(renewal);
+    }
+    f<<"}\n";
     f.close();
   }
   check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"final positions");positionsFile(out/"final.csv",host,m);
@@ -423,7 +440,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   if(observations)for(size_t i=0;i<bn;++i){stats<<i/o.n<<','<<i%o.n<<','<<observations<<','<<sums[i]/observations<<','<<squares[i]/observations;for(int b=0;b<33;++b)stats<<','<<hist[i*33+b];stats<<'\n';}
   stats.close();samples.close();ib.close();if(compactScalar)compactScalar->write(o.n);double finalTime=seconds(finalStart);
   int device;cudaDeviceProp prop{};check(cudaGetDevice(&device),"device");check(cudaGetDeviceProperties(&prop,device),"properties");
-  size_t deviceBytes=hops.capacity()*sizeof(slip_hopping::Spring)+occupancy.capacity()*sizeof(int)+hopStats.capacity()*sizeof(slip_hopping::Statistics)+3*bytes+springs.capacity()*sizeof(real4)+p.bonds.size()*sizeof(real2)+(angles.capacity()*sizeof(real))+sizeof(int);
+  size_t deviceBytes=renewalStats.capacity()*sizeof(slip_renewal::Statistics)+hops.capacity()*sizeof(slip_hopping::Spring)+occupancy.capacity()*sizeof(int)+hopStats.capacity()*sizeof(slip_hopping::Statistics)+3*bytes+springs.capacity()*sizeof(real4)+p.bonds.size()*sizeof(real2)+(angles.capacity()*sizeof(real))+sizeof(int);
   double denominator=double(count)*(o.forceOnly?0:o.steps);auto rate=[&](double x){if(denominator>0)return std::to_string(x/denominator*1e9);return std::string("null");};
   auto meta=outputFile(out/"metadata.json");
   meta<<"{\n\"model\":\"finite-rest-length-Kratky-Porod\",\"timer_version\":"<<(stressObserver?2:1)<<",\"precision_bits\":"<<8*sizeof(real)
@@ -435,7 +452,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       <<",\"slip_effective_stiffness\":"<<(o.slipCount?jsonNumber(double(springK)):"null")
       <<",\"slip_device_bytes\":"<<springs.capacity()*sizeof(real4)<<",\"slip_launches\":"<<slipLaunches
       <<",\"slip_initialization_rng_domain\":"<<(o.slipCount?"340247":"null")
-      <<",\"slip_mode\":\""<<(mobile?"metropolis-hopping-development":(o.slipCount?"fixed-attachment-development":"disabled"))<<"\""
+      <<",\"slip_mode\":\""<<(canonical?"canonical-renewal-development":(mobile?"metropolis-hopping-development":(o.slipCount?"fixed-attachment-development":"disabled")))<<"\""
       <<",\"stretch_launches\":"<<stretchLaunches<<",\"bending_launches\":"<<bendLaunches<<",\"update_launches\":"<<updateLaunches
       <<",\"device_bytes\":"<<deviceBytes<<",\"cpu_workspace_budget_estimate_bytes\":"<<estimate
       <<",\"initialization_method\":\""<<(o.initial.empty()?"CPU-direct-equilibrium":"supplied-coordinates")<<"\",\"initialization_seconds\":"<<initializationTime<<",\"integration_seconds\":"<<updateTime<<",\"production_wall_seconds\":"<<productionTime

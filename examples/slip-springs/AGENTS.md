@@ -428,3 +428,17 @@ unsupported means/counts without clipping. Active slip-springs require stress
 off. Do not change frozen historical source identities or scientific thresholds.
 No Stage C, escape, renewal, constraint release, deformation, slip-spring stress,
 long campaign, full-E1 ergodicity or terminal rheology acceptance is authorized.
+
+
+## E1 Stage C authorization and boundary
+
+The user's current Stage C task accepts Stages A/B and authorizes canonical
+end escape/renewal and bounded verification. This supersedes the preceding
+historical Stage B prohibition only within this scope. See E1_STAGE_C_REPORT.md.
+Keep end renewal explicitly opt-in, pre-renewal occupancy checks (including the
+source), stable identities, conditional Gaussian replacement anchors, and no
+extra renewal Metropolis factor. Global population is fixed; per-chain counts
+may fluctuate. Preserve accepted disabled paths, backbone kernels, RNG domains,
+stress prohibition, source-hash safeguards and serial event scheduling. No
+independent constraint release, deformation, stress/rheology observables, long
+campaign or terminal/timestep/ergodicity acceptance is authorized.
