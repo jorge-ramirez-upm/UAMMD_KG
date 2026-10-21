@@ -1,0 +1,67 @@
+"""CPU compatibility with explicit recovery policy; preserve superseded historical tests."""
+import os
+from pathlib import Path
+import sys
+import unittest
+from unittest import mock
+sys.path.insert(0, 'examples/KG_Assoc/campaign')
+os.environ['KG_ASSOC_TRANSFER_HOST_EXE'] = str(Path('examples/KG_Assoc/kg_assoc_100m/builds/'
+    'ea_extensions_48m_88m_20261021_v1/kg_assoc_stars').resolve())
+import kg_assoc_e2 as e2
+import test_e2_transfer
+import test_e2_extensions
+import test_e2_readback_call_path
+import test_e2_extension_readback_hold as historical
+
+SUPERSEDED = {
+    'test_finished_recovery_still_requires_authenticated_original_evidence',
+    'test_missing_original_evidence_rejects_recovery_without_incomplete_receipt',
+}
+
+
+class ExplicitRecoveryPolicyTests(unittest.TestCase):
+    setUp = historical.ExtensionReadbackHoldTests.setUp
+    started = historical.ExtensionReadbackHoldTests.started
+    snapshot = historical.ExtensionReadbackHoldTests.snapshot
+
+    def assert_explicit_recovery_required(self, error=None):
+        self.started()
+        (self.directory/'stdout.log').write_text('STAR_ASSOCIATION_SMOKE PASS\n')
+        before = self.snapshot()
+        with mock.patch.object(e2.validation, 'validate', side_effect=error,
+                               return_value=([], [], {'fixture':'valid'})) as validate, \
+                mock.patch.object(e2, 'launch') as launch, \
+                self.assertRaisesRegex(ValueError, 'requires explicit --recover-ea8-r001'):
+            historical.runner.classify(self.job, recover=True)
+        launch.assert_not_called()
+        validate.assert_not_called()
+        self.assertEqual(before, self.snapshot())
+        self.assertFalse((self.directory/'complete.json').exists())
+
+    def test_native_pass_with_missing_evidence_requires_explicit_recovery(self):
+        self.assert_explicit_recovery_required(FileNotFoundError('missing initial readback'))
+
+    def test_native_pass_cannot_use_generic_recovery_even_with_validator_available(self):
+        self.assert_explicit_recovery_required()
+
+
+def cases(suite):
+    for item in suite:
+        if isinstance(item, unittest.TestSuite):
+            yield from cases(item)
+        else:
+            yield item
+
+
+if __name__ == '__main__':
+    suite = unittest.TestSuite()
+    for module in (test_e2_transfer, test_e2_extensions, test_e2_readback_call_path, historical):
+        for test in cases(unittest.defaultTestLoader.loadTestsFromModule(module)):
+            if module is historical and test._testMethodName in SUPERSEDED:
+                print('Historical generic-recovery expectation preserved, replaced by explicit-policy test:',
+                      test.id(), flush=True)
+            else:
+                suite.addTest(test)
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(ExplicitRecoveryPolicyTests))
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    raise SystemExit(not result.wasSuccessful())

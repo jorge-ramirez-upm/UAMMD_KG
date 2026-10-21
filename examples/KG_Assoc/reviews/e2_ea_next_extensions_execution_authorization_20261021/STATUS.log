@@ -1,0 +1,9 @@
+F04_N010_RP080_EE08_EA08 r001 prepared 40000000 -> 48000000
+F04_N010_RP080_EE08_EA08 r002 prepared 40000000 -> 48000000
+F04_N010_RP080_EE08_EA08 r003 prepared 40000000 -> 48000000
+F04_N010_RP080_EE08_EA10 r001 prepared 56000000 -> 88000000
+F04_N010_RP080_EE08_EA10 r002 prepared 56000000 -> 88000000
+F04_N010_RP080_EE08_EA10 r003 prepared 56000000 -> 88000000
+PASS: six exact execution approvals; 120M completed-trajectory cap;
+3626 historical + 689 preparation bindings, 13 acceptances unchanged; zero assistant MD steps.
+HEAD b108bbdf43de54e88277168540048fb836781f52

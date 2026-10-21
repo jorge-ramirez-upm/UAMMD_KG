@@ -1,0 +1,1137 @@
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_5bbc7dc8bb964bf0a52309a1b98ed87e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_5bbc7dc8bb964bf0a52309a1b98ed87e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_5bbc7dc8bb964bf0a52309a1b98ed87e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_07b84a56d392468a8880a5fa85d42de6/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_07b84a56d392468a8880a5fa85d42de6/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_07b84a56d392468a8880a5fa85d42de6/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_f49c24167b7a4de2979bcc424e3651a5/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_f49c24167b7a4de2979bcc424e3651a5/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_f49c24167b7a4de2979bcc424e3651a5/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_11097f781c884ad49a066d78b4540d2e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_11097f781c884ad49a066d78b4540d2e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_11097f781c884ad49a066d78b4540d2e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_301a38e8c53e4553ad086729cebc0060/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_301a38e8c53e4553ad086729cebc0060/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_301a38e8c53e4553ad086729cebc0060/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e349e5fc95094f219e072d933de192e0/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e349e5fc95094f219e072d933de192e0/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e349e5fc95094f219e072d933de192e0/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e24d8a6ca2dd4bffa7e29c3aeeceb576/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e24d8a6ca2dd4bffa7e29c3aeeceb576/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e24d8a6ca2dd4bffa7e29c3aeeceb576/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_f075a7bb57a1402c82c444f7335d4c9d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_f075a7bb57a1402c82c444f7335d4c9d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_f075a7bb57a1402c82c444f7335d4c9d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_50db5060f24f42c0a68e56c75fe0180b/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_50db5060f24f42c0a68e56c75fe0180b/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_50db5060f24f42c0a68e56c75fe0180b/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_d09a213025aa49dfbfc04ef81a3dd47d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_d09a213025aa49dfbfc04ef81a3dd47d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_d09a213025aa49dfbfc04ef81a3dd47d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/smoke_3d9c9dd29c7f4b4a97357507cb488f0e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/smoke_3d9c9dd29c7f4b4a97357507cb488f0e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/smoke_3d9c9dd29c7f4b4a97357507cb488f0e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_single_r001_gpu_diagnostic_20261016_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_a000c17eaef84e03940fb7b6dbff67c8/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_a000c17eaef84e03940fb7b6dbff67c8/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_a000c17eaef84e03940fb7b6dbff67c8/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_9c2762312ce94a108495c3089169651d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_9c2762312ce94a108495c3089169651d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_9c2762312ce94a108495c3089169651d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_0b9480adbe464c2e9105cac7f8495aad/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_0b9480adbe464c2e9105cac7f8495aad/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_0b9480adbe464c2e9105cac7f8495aad/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/E2G1_smoke_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/E2G1_smoke_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/E2G1_smoke_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/E2G1_smoke_v3/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/E2G1_smoke_v3/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/E2G1_smoke_v3/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/smoke_04d2dd67604742099b54fa0c2cc7aecf/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/smoke_04d2dd67604742099b54fa0c2cc7aecf/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/smoke_04d2dd67604742099b54fa0c2cc7aecf/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_ac9bb177eb80451d95b5c7100e0f3940/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_ac9bb177eb80451d95b5c7100e0f3940/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_ac9bb177eb80451d95b5c7100e0f3940/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_e006397d6c7e48b78bd5098dce4fbc2d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_e006397d6c7e48b78bd5098dce4fbc2d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_e006397d6c7e48b78bd5098dce4fbc2d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/smoke_9e222d98fa194735a3a99c0c224347d5/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/smoke_9e222d98fa194735a3a99c0c224347d5/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/smoke_9e222d98fa194735a3a99c0c224347d5/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_6e53052af62442b1a8e322f686767c66/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_6e53052af62442b1a8e322f686767c66/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_6e53052af62442b1a8e322f686767c66/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_144a160006824eef835786ac24eb9b11/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_144a160006824eef835786ac24eb9b11/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_144a160006824eef835786ac24eb9b11/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_b2736802376c404098fc3d8c779f4147/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_b2736802376c404098fc3d8c779f4147/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_b2736802376c404098fc3d8c779f4147/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_0ea2b833829442a2952f8a2239913cfa/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_0ea2b833829442a2952f8a2239913cfa/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_0ea2b833829442a2952f8a2239913cfa/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_acceptance_reader_binds_derived_lineage_without_registering (test_e2_transfer.TransferTests)
+An in-memory schema fixture only; no acceptance file or physical trajectory. ... /home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpjynes5m7/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_reader_fixture/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpjynes5m7/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_reader_fixture/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpjynes5m7/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_reader_fixture/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_all_twelve_streams_and_exact_inherited_states (test_e2_transfer.TransferTests) ... ok
+test_claimed_campaign_reservations_remain_ineligible (test_e2_transfer.TransferTests) ... /home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_5bbc7dc8bb964bf0a52309a1b98ed87e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_5bbc7dc8bb964bf0a52309a1b98ed87e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_5bbc7dc8bb964bf0a52309a1b98ed87e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_07b84a56d392468a8880a5fa85d42de6/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_07b84a56d392468a8880a5fa85d42de6/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_07b84a56d392468a8880a5fa85d42de6/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_16a4b0c048e6484bb73910a53c5e84ce/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_f49c24167b7a4de2979bcc424e3651a5/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_f49c24167b7a4de2979bcc424e3651a5/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/smoke_f49c24167b7a4de2979bcc424e3651a5/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_11097f781c884ad49a066d78b4540d2e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_11097f781c884ad49a066d78b4540d2e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_11097f781c884ad49a066d78b4540d2e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_301a38e8c53e4553ad086729cebc0060/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_301a38e8c53e4553ad086729cebc0060/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/smoke_301a38e8c53e4553ad086729cebc0060/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e349e5fc95094f219e072d933de192e0/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e349e5fc95094f219e072d933de192e0/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e349e5fc95094f219e072d933de192e0/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e24d8a6ca2dd4bffa7e29c3aeeceb576/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e24d8a6ca2dd4bffa7e29c3aeeceb576/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/smoke_e24d8a6ca2dd4bffa7e29c3aeeceb576/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_f075a7bb57a1402c82c444f7335d4c9d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_f075a7bb57a1402c82c444f7335d4c9d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_f075a7bb57a1402c82c444f7335d4c9d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_50db5060f24f42c0a68e56c75fe0180b/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_50db5060f24f42c0a68e56c75fe0180b/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_50db5060f24f42c0a68e56c75fe0180b/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_d09a213025aa49dfbfc04ef81a3dd47d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_d09a213025aa49dfbfc04ef81a3dd47d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/smoke_d09a213025aa49dfbfc04ef81a3dd47d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_remaining_smoke_20261017_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_gpu_smoke_20261016_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/smoke_3d9c9dd29c7f4b4a97357507cb488f0e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/smoke_3d9c9dd29c7f4b4a97357507cb488f0e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/smoke_3d9c9dd29c7f4b4a97357507cb488f0e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_e15c794ca1064187b0f11b79d778e055/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_gpu_smoke_20261016_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_remaining_smoke_20261017_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_remaining_smoke_20261017_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA04_single_r001_gpu_diagnostic_20261016_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_a000c17eaef84e03940fb7b6dbff67c8/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_a000c17eaef84e03940fb7b6dbff67c8/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_a000c17eaef84e03940fb7b6dbff67c8/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_9c2762312ce94a108495c3089169651d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_9c2762312ce94a108495c3089169651d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_9c2762312ce94a108495c3089169651d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_0b9480adbe464c2e9105cac7f8495aad/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_0b9480adbe464c2e9105cac7f8495aad/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/smoke_0b9480adbe464c2e9105cac7f8495aad/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/E2G1_smoke_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/E2G1_smoke_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/E2G1_smoke_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/E2G1_smoke_v3/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/E2G1_smoke_v3/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/E2G1_smoke_v3/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/smoke_04d2dd67604742099b54fa0c2cc7aecf/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/smoke_04d2dd67604742099b54fa0c2cc7aecf/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/smoke_04d2dd67604742099b54fa0c2cc7aecf/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_ac9bb177eb80451d95b5c7100e0f3940/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_ac9bb177eb80451d95b5c7100e0f3940/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_ac9bb177eb80451d95b5c7100e0f3940/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_e006397d6c7e48b78bd5098dce4fbc2d/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_e006397d6c7e48b78bd5098dce4fbc2d/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/smoke_e006397d6c7e48b78bd5098dce4fbc2d/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/smoke_5e30d11ac4ce4409a3374fdf9aeac52e/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/smoke_9e222d98fa194735a3a99c0c224347d5/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/smoke_9e222d98fa194735a3a99c0c224347d5/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/smoke_9e222d98fa194735a3a99c0c224347d5/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_6e53052af62442b1a8e322f686767c66/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_6e53052af62442b1a8e322f686767c66/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_6e53052af62442b1a8e322f686767c66/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_144a160006824eef835786ac24eb9b11/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_144a160006824eef835786ac24eb9b11/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/smoke_144a160006824eef835786ac24eb9b11/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_b2736802376c404098fc3d8c779f4147/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_b2736802376c404098fc3d8c779f4147/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_b2736802376c404098fc3d8c779f4147/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_0ea2b833829442a2952f8a2239913cfa/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_0ea2b833829442a2952f8a2239913cfa/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/smoke_0ea2b833829442a2952f8a2239913cfa/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_complete_validator_accepts_synthetic_branch_and_rejects_offsets (test_e2_transfer.TransferTests) ... /home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmp3cb6zz8t/synthetic_static_fixture/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_native_corrupt_sidecar_reciprocity_and_counters_rejected (test_e2_transfer.TransferTests) ... ok
+test_native_initial_state_fidelity_all_targets_and_controls (test_e2_transfer.TransferTests) ... ok
+test_native_ordinary_restart_compatibility_and_nonoverwrite (test_e2_transfer.TransferTests) ... ok
+test_native_rejects_wrong_physics_seeds_and_flags_before_gpu (test_e2_transfer.TransferTests) ... ok
+test_prepare_check_tamper_duplicate_and_approval_gates (test_e2_transfer.TransferTests) ... /home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_reference_hash_corruption_rejected (test_e2_transfer.TransferTests) ... ok
+test_rejects_substituted_lineage_pairs_physics_and_seeds (test_e2_transfer.TransferTests) ... /home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/validate_c1_restart_bank.py:27: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/state.assoc_restart' mode='r' encoding='utf-8'>
+  lines = [line.strip() for line in open(path, encoding='utf-8') if line.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_seed_collisions_in_plans_and_effective_reservations (test_e2_transfer.TransferTests) ... ok
+test_unsupported_targets_paths_durations_and_reuse (test_e2_transfer.TransferTests) ... ok
+test_versioned_reservations_leave_prior_stream_bindings_immutable (test_e2_transfer.TransferTests) ... ok
+test_exact_transition_and_frozen_physics (test_e2_extensions.CompatibilityTests) ... ok
+test_linux_process_birth_identity_and_reuse (test_e2_extensions.CompatibilityTests) ... ok
+test_parent_death_supervision_with_short_CPU_child (test_e2_extensions.CompatibilityTests) ... ok
+test_check_and_status_are_read_only_and_never_launch (test_e2_extensions.ExecuteLifecycleTests) ... ok
+test_genuine_failure_stops_all_future_starts (test_e2_extensions.ExecuteLifecycleTests) ... RUN F04_N010_RP080_EE08_EA08 r001 24M -> 40000000 logs: /tmp/tmptgm38n4r/manual/attempt_0/r001
+ok
+test_same_command_preserves_partial_reservation_and_restarts_only_that_slot (test_e2_extensions.ExecuteLifecycleTests) ... RUN F04_N010_RP080_EE08_EA08 r001 24M -> 40000000 logs: /tmp/tmpk5zezwce/manual/attempt_0/r001
+RUN F04_N010_RP080_EE08_EA08 r002 24M -> 40000000 logs: /tmp/tmpk5zezwce/manual/attempt_1/r002
+Stopped safely. Outputs/reservations preserved. Reissue --execute when ready.
+SKIP independently validated F04_N010_RP080_EE08_EA08 1
+RUN F04_N010_RP080_EE08_EA08 r002 24M -> 40000000 logs: /tmp/tmpk5zezwce/manual/attempt_6/r002
+RUN F04_N010_RP080_EE08_EA08 r003 24M -> 40000000 logs: /tmp/tmpk5zezwce/manual/attempt_2/r003
+RUN F04_N010_RP080_EE08_EA10 r001 24M -> 56000000 logs: /tmp/tmpk5zezwce/manual/attempt_3/r001
+RUN F04_N010_RP080_EE08_EA10 r002 24M -> 56000000 logs: /tmp/tmpk5zezwce/manual/attempt_4/r002
+RUN F04_N010_RP080_EE08_EA10 r003 24M -> 56000000 logs: /tmp/tmpk5zezwce/manual/attempt_5/r003
+ALL SIX EXTENSIONS NUMERICALLY VALIDATED. Ea8/Ea10 scientific acceptance is still held.
+SKIP independently validated F04_N010_RP080_EE08_EA08 1
+SKIP independently validated F04_N010_RP080_EE08_EA08 2
+SKIP independently validated F04_N010_RP080_EE08_EA08 3
+SKIP independently validated F04_N010_RP080_EE08_EA10 1
+SKIP independently validated F04_N010_RP080_EE08_EA10 2
+SKIP independently validated F04_N010_RP080_EE08_EA10 3
+ALL SIX EXTENSIONS NUMERICALLY VALIDATED. Ea8/Ea10 scientific acceptance is still held.
+ok
+test_command_keeps_chemistry_and_uses_diagnostic_executable (test_e2_extensions.ExtensionScopeTests) ... ok
+test_exact_two_scopes_and_no_implicit_replicas (test_e2_extensions.ExtensionScopeTests) ... ok
+test_first_failure_preserved_and_remaining_unstarted (test_e2_extensions.ExtensionScopeTests) ... ok
+test_preparation_approval_cannot_launch_GPU (test_e2_extensions.ExtensionScopeTests) ... ok
+test_selected_execution_preserves_unselected_and_used_attempts (test_e2_extensions.ExtensionScopeTests) ... ok
+test_tampered_approvals_never_launch (test_e2_extensions.ExtensionScopeTests) ... ok
+test_wrong_target_steps_start_and_end_fail_closed (test_e2_extensions.ExtensionScopeTests) ... ok
+test_physical_loader_and_integration_tail_are_byte_identical (test_e2_extensions.FrozenPhysicalSourceTests) ... ok
+test_active_native_process_prevents_duplicate_execution (test_e2_extensions.LifecycleTests) ... ok
+test_atomic_receipt_never_overwrites (test_e2_extensions.LifecycleTests) ... ok
+test_completed_receipt_is_independently_replayed_without_MD (test_e2_extensions.LifecycleTests) ... ok
+test_finished_MD_receipt_cannot_be_promoted_by_generic_execution (test_e2_extensions.LifecycleTests) ... ok
+test_numerical_failure_overrides_a_completion_receipt (test_e2_extensions.LifecycleTests) ... ok
+test_partial_work_bounds_do_not_claim_an_exact_step_count (test_e2_extensions.LifecycleTests) ... ok
+test_prepared_partial_and_failure_classification (test_e2_extensions.LifecycleTests) ... ok
+test_recovery_record_is_distinct_and_replayed (test_e2_extensions.LifecycleTests) ... ok
+test_state_cannot_expand_scope_or_remove_caps (test_e2_extensions.LifecycleTests) ... ok
+test_untrusted_partial_is_not_an_automatic_retry (test_e2_extensions.LifecycleTests) ... ok
+test_fresh_reservations_and_original_allocator_exclude_unused_streams (test_e2_extensions.MDReservationTests) ... ok
+skipped 'pre-execution fixtures no longer apply after user-run MD'
+test_exact_map_rejects_missing_extra_physics_and_nonancestor_sources (test_e2_extensions.SourceAuthorizationTests) ... ok
+test_corrected_optimized_binary_probe_and_tampering (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_new_state_is_separate_and_original_failed_campaign_is_unchanged (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_optimized_exact_production_block_invokes_readback_and_stops_before_MD (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_ordinary_and_reseeded_physical_source_is_unchanged_except_validation_dispatch (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_unknown_or_old_native_build_is_rejected (test_e2_readback_call_path.ReadbackCallPathTests) ... ok
+test_all_six_actual_plans_share_the_rejected_build (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_check_prepare_execute_block_before_mutation_or_GPU (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_direct_launcher_cannot_start_affected_extension (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_exact_native_PASS_missing_readback_exception_preserves_attempt (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_finished_recovery_still_requires_authenticated_original_evidence (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ERROR
+test_missing_native_identity_is_rejected (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+test_missing_original_evidence_rejects_recovery_without_incomplete_receipt (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ERROR
+test_strict_readback_checker_rejects_absence (test_e2_extension_readback_hold.ExtensionReadbackHoldTests) ... ok
+
+======================================================================
+ERROR: test_finished_recovery_still_requires_authenticated_original_evidence (test_e2_extension_readback_hold.ExtensionReadbackHoldTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py", line 76, in test_finished_recovery_still_requires_authenticated_original_evidence
+    self.assertEqual(runner.classify(self.job, recover=True), 'complete')
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/run_ea_extensions.py", line 251, in classify
+    e2.require(False, 'post-native recovery requires explicit --recover-ea8-r001')
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_c1_e2_pilot.py", line 39, in require
+    raise ValueError(message)
+ValueError: post-native recovery requires explicit --recover-ea8-r001
+
+======================================================================
+ERROR: test_missing_original_evidence_rejects_recovery_without_incomplete_receipt (test_e2_extension_readback_hold.ExtensionReadbackHoldTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/test_e2_extension_readback_hold.py", line 49, in test_missing_original_evidence_rejects_recovery_without_incomplete_receipt
+    runner.classify(self.job, recover=True)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/run_ea_extensions.py", line 251, in classify
+    e2.require(False, 'post-native recovery requires explicit --recover-ea8-r001')
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_c1_e2_pilot.py", line 39, in require
+    raise ValueError(message)
+ValueError: post-native recovery requires explicit --recover-ea8-r001
+
+----------------------------------------------------------------------
+Ran 53 tests in 88.000s
+
+FAILED (errors=2, skipped=1)
