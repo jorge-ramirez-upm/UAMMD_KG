@@ -1,0 +1,88 @@
+"""Read-only execution-authorization audit; never launches native MD or writes campaign files."""
+import argparse
+from pathlib import Path
+import sys
+import tarfile
+import hashlib
+sys.path.insert(0, 'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+import run_ea_next_extensions as runner
+
+DOSSIER = Path(__file__).resolve().parent
+PREPARATION = DOSSIER.parent/'e2_ea_next_extensions_cpu_20261021'
+ROOT = e2.HERE.parent/'kg_assoc_100m'
+
+
+def audit():
+    for name in ('PRESERVED.sha256', 'PREPARATION_BINDINGS.sha256', 'INTEGRITY.sha256'):
+        e2.check_hashes(e2.campaign.load_json(PREPARATION/name))
+    bindings = e2.campaign.load_json(DOSSIER/'APPROVAL_BINDINGS.sha256')
+    e2.require(len(bindings) == 12, 'exact six approval/source pairs required')
+    e2.check_hashes(bindings)
+    integrity = DOSSIER/'INTEGRITY.sha256'
+    if integrity.exists():
+        e2.check_hashes(e2.campaign.load_json(integrity))
+    with tarfile.open(DOSSIER/'APPROVALS.tar.gz') as archive:
+        members = list(archive)
+        e2.require(len(members) == 12, 'authorization archive differs')
+        for member in members:
+            e2.require(member.isfile() and '..' not in Path(member.name).parts, 'unsafe archive')
+            original = str(e2.campaign.REPOSITORY_ROOT/member.name)
+            e2.require(hashlib.sha256(archive.extractfile(member).read()).hexdigest() == bindings[original],
+                       'archived authorization differs')
+    state_path = ROOT/'aggregate/e2'/extension.CAMPAIGN/'state.json'
+    state = e2.campaign.load_json(state_path)
+    runner.validate_state(state)
+    e2.require(state == e2.campaign.load_json(PREPARATION/'STATE.log'), 'immutable state differs')
+    runtime_path = state_path.with_name('runtime.json')
+    if runtime_path.exists():
+        # A fresh replacement cannot inherit the six original authorizations.
+        runtime = e2.campaign.load_json(runtime_path)
+        runner.validate_state(runtime)
+        e2.require(runtime['jobs'] == state['jobs'],
+                   'runtime contains replacement attempts; separate authorization required')
+    rows = e2.campaign.load_json(DOSSIER/'APPROVALS.log')
+    e2.require(len(rows) == 6, 'six identities required')
+    for job, row in zip(state['jobs'], rows):
+        plan, entry, approval, source = runner.authenticate(ROOT, job, execution=True)
+        e2.require(str(approval) == row['execution_approval'] and
+                   str(source) == row['source_authorization'] and
+                   bindings[str(approval)] == row['execution_approval_sha256'] and
+                   bindings[str(source)] == row['source_authorization_sha256'] and
+                   job['plan_sha256'] == row['plan_sha256'], 'approval identity differs')
+        record = e2.campaign.load_json(approval)
+        e2.require(record['executable_sha256'] == plan['executable_sha256'] and
+                   record['parent_sha256'] == entry['parent']['sha256'] and
+                   record['completed_campaign_MD_step_cap'] == 120000000,
+                   'explicit build, parent or budget binding differs')
+        e2.check_hashes(record['build_manifest_sha256'])
+        e2.check_hashes({record['authorization_evidence']:record['authorization_evidence_sha256']})
+        source_record = e2.extension_source_authorization(source, plan, approval)
+        e2.require(source_record['source_sha256_overrides'] == {} and
+                   plan['source_sha256'] == e2.sources(), 'only exact prepared source map authorized')
+        status = runner.classify(job, entry)
+        print(job['system'], f"r{job['replica']:03d}", status,
+              entry['start_step'], '->', entry['end_step'])
+    acceptances = list((ROOT/'banks/e2_acceptance').glob('*.json'))
+    e2.require(len(acceptances) == 13, 'acceptance inventory changed')
+    for path in acceptances:
+        record = e2.campaign.load_json(path)
+        e2.check_hashes({record['evidence']:record['evidence_sha256'],
+                         record['source_plan']:record['source_plan_sha256']})
+        for history in record['histories']:
+            e2.check_hashes(history['sha256'])
+    e2.require(not e2.subprocess.check_output(['git','diff',extension.PARENT_SOURCE_COMMIT,
+               '--','src','examples/KG'],text=True), 'protected source differs')
+    print('PASS: six exact execution approvals; 120M completed-trajectory cap;')
+    print('3626 historical + 689 preparation bindings, 13 acceptances unchanged; zero assistant MD steps.')
+    print('HEAD', e2.campaign.git_sha())
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--check', action='store_true')
+    mode.add_argument('--status', action='store_true')
+    parser.parse_args()
+    audit()

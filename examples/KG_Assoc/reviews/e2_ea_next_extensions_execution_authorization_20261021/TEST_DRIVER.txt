@@ -1,0 +1,101 @@
+"""CPU-only real authorization tests plus temporary mocked launch/lifecycle regressions."""
+import copy
+from pathlib import Path
+import runpy
+import sys
+import tempfile
+import unittest
+from unittest import mock
+sys.path.insert(0, 'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+import run_ea_next_extensions as runner
+import test_e2_next_extensions as existing
+
+DOSSIER = Path(__file__).resolve().parent
+ROOT = e2.HERE.parent/'kg_assoc_100m'
+STATE = e2.campaign.load_json(ROOT/'aggregate/e2'/extension.CAMPAIGN/'state.json')
+
+
+class AuthorizationTests(unittest.TestCase):
+    def test_all_six_exact_live_authorizations_and_empty_outputs(self):
+        bindings = e2.campaign.load_json(DOSSIER/'APPROVAL_BINDINGS.sha256')
+        for job in STATE['jobs']:
+            plan, entry, approval, source = runner.authenticate(ROOT, job, execution=True)
+            self.assertEqual(e2.campaign.sha256(approval), bindings[str(approval)])
+            self.assertEqual(e2.campaign.sha256(source), bindings[str(source)])
+            self.assertEqual(plan['source_sha256'], e2.sources())
+            self.assertEqual(e2.campaign.load_json(source)['source_sha256_overrides'], {})
+            self.assertFalse(e2.campaign.load_json(job['approval'])['GPU_execution_authorized'])
+            self.assertEqual(list(Path(entry['output_prefix']).parent.iterdir()), [])
+            e2.live_code(plan, {})  # Same exact identity required after native PASS.
+
+    def test_real_approval_negative_scopes_and_hash_binding(self):
+        job = STATE['jobs'][0]
+        attempt = Path(job['attempt'])
+        plan = e2.campaign.load_json(attempt/'plan.json')
+        record = e2.campaign.load_json(attempt/'approval_r001_execution.json')
+        changes = ({'authorized_replicas':[2]}, {'authorized_replicas':[1,2]},
+            {'authorized_system':'F04_N010_RP080_EE08_EA06'},
+            {'maximum_additional_MD_steps':8000001}, {'absolute_end_step':48000001},
+            {'plan_sha256':'changed'}, {'approved':False})
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'approval.json'
+            for change in changes:
+                path.write_text(e2.json.dumps(dict(record, **change)))
+                with self.subTest(change=change), self.assertRaises(ValueError):
+                    e2.scoped_launch_approval(path,attempt,'e2_derived_extension',plan,None,[1])
+            path.write_text(e2.json.dumps(record))
+            source = Path(folder)/'source.json'
+            original = e2.campaign.load_json(attempt/'approval_r001_execution_sources.json')
+            for change in ({'execution_approval_sha256':'changed'}, {'plan_sha256':'changed'},
+                           {'approved':False}, {'source_sha256_overrides':[]}):
+                source.write_text(e2.json.dumps(dict(original, **change)))
+                with self.assertRaises(ValueError):
+                    e2.extension_source_authorization(source,plan,path)
+            # Even an otherwise valid amendment changes the approval hash.
+            source.write_text(e2.json.dumps(original))
+            path.write_text(e2.json.dumps(dict(record, reviewer='tampered')))
+            with self.assertRaises(ValueError):
+                e2.extension_source_authorization(source,plan,path)
+
+    def test_source_missing_extra_physics_and_ancestry_rejected(self):
+        plan = e2.campaign.load_json(Path(STATE['jobs'][0]['attempt'])/'plan.json')
+        original = e2.sources()
+        missing = dict(original); missing.pop(next(iter(missing)))
+        extra = dict(original, **{'/unauthorized.py':'hash'})
+        changed = dict(original)
+        physics = next(p for p in changed if p.endswith('kg_assoc_kinetics.cuh'))
+        changed[physics] = 'changed'
+        for source in (missing,extra,changed):
+            with mock.patch.object(e2,'sources',return_value=source), self.assertRaises(ValueError):
+                e2.live_code(plan,{})
+        with mock.patch.object(e2.subprocess,'run',return_value=mock.Mock(returncode=1)), \
+                self.assertRaises(ValueError):
+            e2.live_code(plan,{})
+
+    def test_preparation_binding_and_missing_execution_records_fail_closed(self):
+        job = STATE['jobs'][0]
+        original = e2.campaign.load_json
+        def changed(path):
+            result = original(path)
+            if str(path).endswith('approval_r001_execution.json'):
+                result = dict(result,preparation_approval_sha256='changed')
+            return result
+        with mock.patch.object(e2.campaign,'load_json',side_effect=changed), self.assertRaises(ValueError):
+            runner.authenticate(ROOT,job,execution=True)
+        absent = copy.deepcopy(job)
+        absent['replica'] = 4
+        with self.assertRaises(ValueError):
+            runner.authenticate(ROOT,absent,execution=True)
+
+
+if __name__ == '__main__':
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(AuthorizationTests)
+    # Includes actual pre/immediate/post source-map propagation, mid-run source-record
+    # tampering, missing readback, reused output, caps, old builds and recovery lineage.
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromModule(existing))
+    lifecycle = runpy.run_path(str(DOSSIER.parent/'e2_ea_next_extensions_cpu_20261021/LIFECYCLE_TESTS.txt'))
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(lifecycle['LifecycleTests']))
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    raise SystemExit(not result.wasSuccessful())

@@ -1,0 +1,77 @@
+"""Publish only the six user-approved records; no native process or simulation launch."""
+from pathlib import Path
+import json
+import sys
+import tarfile
+sys.path.insert(0, 'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_next_extension as extension
+import run_ea_next_extensions as runner
+
+DOSSIER = Path(__file__).resolve().parent
+PREPARATION = DOSSIER.parent/'e2_ea_next_extensions_cpu_20261021'
+ROOT = e2.HERE.parent/'kg_assoc_100m'
+STATE_PATH = ROOT/'aggregate/e2'/extension.CAMPAIGN/'state.json'
+
+
+def records(job):
+    attempt = Path(job['attempt'])
+    return (attempt/f"approval_r{job['replica']:03d}_execution.json",
+            attempt/f"approval_r{job['replica']:03d}_execution_sources.json")
+
+
+def publish():
+    e2.clean_tree()
+    for name in ('PRESERVED.sha256', 'PREPARATION_BINDINGS.sha256', 'INTEGRITY.sha256'):
+        e2.check_hashes(e2.campaign.load_json(PREPARATION/name))
+    state = e2.campaign.load_json(STATE_PATH)
+    runner.validate_state(state)
+    prepared = []
+    for job in state['jobs']:
+        plan, entry, _, _ = runner.authenticate(ROOT, job)
+        e2.require(not any(Path(entry['output_prefix']).parent.iterdir()), 'output directory is used')
+        for path in records(job):
+            e2.require(not path.exists(), 'immutable approval already exists; use read-only preflight')
+        e2.require(plan['source_sha256'] == e2.sources(), 'source map differs; no overrides permitted')
+        prepared.append((job, plan, entry))
+    paths = []
+    rows = []
+    for job, plan, entry in prepared:
+        approval, source = records(job)
+        record = dict(e2.campaign.load_json(job['approval']))
+        record.update(GPU_execution_authorized=True,
+            reviewer='explicit user execution authorization for six prepared 48M/88M histories',
+            approved_at=e2.timestamp(), preparation_approval_sha256=job['approval_sha256'],
+            campaign=extension.CAMPAIGN, completed_campaign_MD_step_cap=120000000,
+            interruption_overhead='record separately; replacements require separate execution approval',
+            executable_sha256=plan['executable_sha256'],
+            build_manifest_sha256=e2.hash_files([ROOT/'builds'/extension.BUILD/'manifest.json']),
+            parent_sha256=entry['parent']['sha256'],
+            authorization_evidence=str(DOSSIER/'AUTHORIZATION.md'),
+            authorization_evidence_sha256=e2.campaign.sha256(DOSSIER/'AUTHORIZATION.md'))
+        e2.exclusive_json(approval, record)
+        e2.exclusive_json(source, dict(schema_version=1, approved=True,
+            purpose='e2_extension_source_authorization', plan_sha256=job['plan_sha256'],
+            execution_approval_sha256=e2.campaign.sha256(approval),
+            reviewer=record['reviewer'], approved_at=record['approved_at'],
+            source_sha256_overrides={},
+            source_identity_policy='exact prepared map; no overrides; descendant Git commits only'))
+        paths.extend((approval, source))
+        rows.append(dict(system=job['system'], replica=job['replica'], attempt=job['attempt'],
+            plan_sha256=job['plan_sha256'], preparation_approval_sha256=job['approval_sha256'],
+            execution_approval=str(approval), execution_approval_sha256=e2.campaign.sha256(approval),
+            source_authorization=str(source), source_authorization_sha256=e2.campaign.sha256(source),
+            start_step=job['start_step'], end_step=job['end_step'],
+            maximum_additional_MD_steps=job['end_step']-job['start_step'],
+            md_seed=entry['md_seed'], effective_md_seed=entry['effective_md_seed'],
+            chemistry_seed=entry['chemistry_seed']))
+    e2.exclusive_json(DOSSIER/'APPROVAL_BINDINGS.sha256', e2.hash_files(paths))
+    e2.exclusive_json(DOSSIER/'APPROVALS.log', rows)
+    with tarfile.open(DOSSIER/'APPROVALS.tar.gz', 'x:gz') as archive:
+        for path in paths:
+            archive.add(path, arcname=str(path.relative_to(e2.campaign.REPOSITORY_ROOT)))
+    print('PUBLISHED six execution approvals and six source authorizations; zero MD steps')
+
+
+if __name__ == '__main__':
+    publish()
