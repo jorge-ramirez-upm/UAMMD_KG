@@ -1,0 +1,638 @@
+{
+  "files": {
+    "bond_statistics.csv": {
+      "data_bytes": 458814,
+      "data_rows": 4096,
+      "header": [
+        "chain",
+        "bond",
+        "frames",
+        "mean_r",
+        "mean_r2",
+        "bin0",
+        "bin1",
+        "bin2",
+        "bin3",
+        "bin4",
+        "bin5",
+        "bin6",
+        "bin7",
+        "bin8",
+        "bin9",
+        "bin10",
+        "bin11",
+        "bin12",
+        "bin13",
+        "bin14",
+        "bin15",
+        "bin16",
+        "bin17",
+        "bin18",
+        "bin19",
+        "bin20",
+        "bin21",
+        "bin22",
+        "bin23",
+        "bin24",
+        "bin25",
+        "bin26",
+        "bin27",
+        "bin28",
+        "bin29",
+        "bin30",
+        "bin31",
+        "bin32"
+      ],
+      "max_row_bytes": 114,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 229470,
+          "file": {
+            "bytes": 229691,
+            "sha256": "141e329afec92257a5a78af6971c988cf7491f41f219a05e30e7d07989e9dca0"
+          },
+          "header_bytes": 221,
+          "rows": 2048
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 229344,
+          "file": {
+            "bytes": 229565,
+            "sha256": "afd6c5770b07691bf7630223dd927577b96c4a46bbbd423ae8d5e8fa03d0247d"
+          },
+          "header_bytes": 221,
+          "rows": 2048
+        }
+      }
+    },
+    "equilibrium_attachments.csv": {
+      "data_bytes": 349488,
+      "data_rows": 4096,
+      "header": [
+        "step",
+        "time",
+        "spring",
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az",
+        "previous",
+        "next"
+      ],
+      "max_row_bytes": 105,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 170795,
+          "file": {
+            "bytes": 170846,
+            "sha256": "33c4e2f854b15860e6c5f0e5f57aee62b95d01d3fee2cc000e4b8795fb3d6f83"
+          },
+          "header_bytes": 51,
+          "rows": 2048
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 178693,
+          "file": {
+            "bytes": 178744,
+            "sha256": "40caacc0bc859446c0185953c27c3a81e57121a5f9a1e3f5f3342e3d83757d26"
+          },
+          "header_bytes": 51,
+          "rows": 2048
+        }
+      }
+    },
+    "equilibrium_backbone.csv": {
+      "data_bytes": 150702,
+      "data_rows": 768,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "mean_r",
+        "mean_r2",
+        "re2",
+        "rg2",
+        "min_length",
+        "tangent1",
+        "tangent2",
+        "tangent3",
+        "tangent4"
+      ],
+      "max_row_bytes": 205,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 74844,
+          "file": {
+            "bytes": 74930,
+            "sha256": "cd22b066a5d036ffd0dac78e9bdd27859663f4ed73320536b79dd144ea5e078f"
+          },
+          "header_bytes": 86,
+          "rows": 384
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 75858,
+          "file": {
+            "bytes": 75944,
+            "sha256": "c89bfd60653a2bd461493dad406e0c0ea7541b432a16a2bdfc414c9ea487e338"
+          },
+          "header_bytes": 86,
+          "rows": 384
+        }
+      }
+    },
+    "equilibrium_chains.csv": {
+      "data_bytes": 89060,
+      "data_rows": 896,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "z",
+        "ex_sum",
+        "ey_sum",
+        "ez_sum",
+        "e2_sum"
+      ],
+      "max_row_bytes": 113,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 44113,
+          "file": {
+            "bytes": 44159,
+            "sha256": "f90b090f87eb4900cf92eab05e1c7778b23784357c3c0c536607fbc1bf483b70"
+          },
+          "header_bytes": 46,
+          "rows": 448
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 44947,
+          "file": {
+            "bytes": 44993,
+            "sha256": "14dfc25ff31fac764b36835ca1efa91ca0f58ce51e7e1246422028ee1468629a"
+          },
+          "header_bytes": 46,
+          "rows": 448
+        }
+      }
+    },
+    "equilibrium_connectors.csv": {
+      "data_bytes": 750977,
+      "data_rows": 7168,
+      "header": [
+        "step",
+        "time",
+        "spring",
+        "chain",
+        "bead",
+        "ex",
+        "ey",
+        "ez",
+        "e2"
+      ],
+      "max_row_bytes": 123,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 371693,
+          "file": {
+            "bytes": 371733,
+            "sha256": "42eaab20e060ecd91f8003a685007e3385e5b13394301e416e034dfc3599e658"
+          },
+          "header_bytes": 40,
+          "rows": 3584
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 379284,
+          "file": {
+            "bytes": 379324,
+            "sha256": "19dd1b3725e1485cec8143f28b50258f33c3be5ad408a01b04d488436c78f560"
+          },
+          "header_bytes": 40,
+          "rows": 3584
+        }
+      }
+    },
+    "equilibrium_events.csv": {
+      "data_bytes": 905,
+      "data_rows": 14,
+      "header": [
+        "step",
+        "time",
+        "previous_step",
+        "interval_time",
+        "batches",
+        "attempts",
+        "accepted",
+        "boundary",
+        "occupied",
+        "metropolis",
+        "renewal_proposed",
+        "renewal_accepted",
+        "renewal_occupied",
+        "renewal_same_chain",
+        "renewal_cross_chain"
+      ],
+      "max_row_bytes": 89,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 440,
+          "file": {
+            "bytes": 623,
+            "sha256": "6fb8728a3e0ee948a4da151ca4e83665dd9738d5017f9c71e4b29aafd7ddb5c2"
+          },
+          "header_bytes": 183,
+          "rows": 7
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 465,
+          "file": {
+            "bytes": 648,
+            "sha256": "e70541da3e9513456b550e5e66983359abd3e9cc96096a75c75e7334b0057771"
+          },
+          "header_bytes": 183,
+          "rows": 7
+        }
+      }
+    },
+    "equilibrium_positions.csv": {
+      "data_bytes": 1247911,
+      "data_rows": 16896,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "bead",
+        "x",
+        "y",
+        "z"
+      ],
+      "max_row_bytes": 100,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 607429,
+          "file": {
+            "bytes": 607456,
+            "sha256": "798cc966a3aedea08c62ad7965a3c05116c20018f761afc7b344e170e1651b6a"
+          },
+          "header_bytes": 27,
+          "rows": 8448
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 640482,
+          "file": {
+            "bytes": 640509,
+            "sha256": "6569f3a0c1e2d0385811a23708403494afce81fe60b081eddafd578c19fb743a"
+          },
+          "header_bytes": 27,
+          "rows": 8448
+        }
+      }
+    },
+    "equilibrium_sites.csv": {
+      "data_bytes": 741808,
+      "data_rows": 29568,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "bead",
+        "spring"
+      ],
+      "max_row_bytes": 35,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 355064,
+          "file": {
+            "bytes": 355092,
+            "sha256": "b99b8d6dba42ff491393be253694f48c9b5589635f9aa24469350effd4043a14"
+          },
+          "header_bytes": 28,
+          "rows": 14784
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 386744,
+          "file": {
+            "bytes": 386772,
+            "sha256": "d0127fbb34178d2c907b646b176a02ad33150a53ee1dfb7bb66767c4b6cd536d"
+          },
+          "header_bytes": 28,
+          "rows": 14784
+        }
+      }
+    },
+    "equilibrium_tangents.csv": {
+      "data_bytes": 53436,
+      "data_rows": 896,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "tangent8",
+        "tangent16"
+      ],
+      "max_row_bytes": 71,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 26235,
+          "file": {
+            "bytes": 26270,
+            "sha256": "84dc888a0735b30cb6971c816df816fd8861c717f27439d5ad917b52fcfcb4a0"
+          },
+          "header_bytes": 35,
+          "rows": 448
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 27201,
+          "file": {
+            "bytes": 27236,
+            "sha256": "585404beb792f4d593a29730bcd77adc1cee86c167940a1229a695e24dbde8c6"
+          },
+          "header_bytes": 35,
+          "rows": 448
+        }
+      }
+    },
+    "final.csv": {
+      "data_bytes": 271888,
+      "data_rows": 4224,
+      "header": [
+        "chain",
+        "bead",
+        "x",
+        "y",
+        "z"
+      ],
+      "max_row_bytes": 71,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 135745,
+          "file": {
+            "bytes": 135762,
+            "sha256": "7a8e10e32f4f1276324b37c74337a2fff779d2a3f04372a796b2c681fac7ee82"
+          },
+          "header_bytes": 17,
+          "rows": 2112
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 136143,
+          "file": {
+            "bytes": 136160,
+            "sha256": "13139f2f85656507eca200abd9b980ee552b75154f8bb10b077f137210fae74b"
+          },
+          "header_bytes": 17,
+          "rows": 2112
+        }
+      }
+    },
+    "fixed_slip_springs.csv": {
+      "data_bytes": 65829,
+      "data_rows": 1024,
+      "header": [
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az"
+      ],
+      "max_row_bytes": 69,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 32891,
+          "file": {
+            "bytes": 32911,
+            "sha256": "cf6a10d38a8b59fa3624511b9a32a8ffe83fb697744b22b5809e2de9fd032026"
+          },
+          "header_bytes": 20,
+          "rows": 512
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 32938,
+          "file": {
+            "bytes": 32958,
+            "sha256": "1921acd0fc95d29c8932a27163601301786f05f5e28bc6617bb4446af414482f"
+          },
+          "header_bytes": 20,
+          "rows": 512
+        }
+      }
+    },
+    "initial.csv": {
+      "data_bytes": 264750,
+      "data_rows": 4224,
+      "header": [
+        "chain",
+        "bead",
+        "x",
+        "y",
+        "z"
+      ],
+      "max_row_bytes": 69,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 132186,
+          "file": {
+            "bytes": 132203,
+            "sha256": "f91c4e9f954bb7500808614f0842b8bc17f1083906d72a6fdac882f342a8ccd8"
+          },
+          "header_bytes": 17,
+          "rows": 2112
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 132564,
+          "file": {
+            "bytes": 132581,
+            "sha256": "c847b3f86cf97df085b332b501e4600794476df7c02e55b7a19665718cc06f89"
+          },
+          "header_bytes": 17,
+          "rows": 2112
+        }
+      }
+    },
+    "initial_bonds.csv": {
+      "data_bytes": 101509,
+      "data_rows": 4096,
+      "header": [
+        "chain",
+        "bond",
+        "length"
+      ],
+      "max_row_bytes": 26,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 50763,
+          "file": {
+            "bytes": 50781,
+            "sha256": "e2e6a6ff78786be3f1b434d70ea794b6ccc72da35f5a2264084495444d5aa525"
+          },
+          "header_bytes": 18,
+          "rows": 2048
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 50746,
+          "file": {
+            "bytes": 50764,
+            "sha256": "da7614a39a433f37df83d52ed466396e5f1d4ce942fab4e296ca7c100274b596"
+          },
+          "header_bytes": 18,
+          "rows": 2048
+        }
+      }
+    },
+    "samples.csv": {
+      "data_bytes": 86123,
+      "data_rows": 384,
+      "header": [
+        "step",
+        "time",
+        "chain",
+        "mean_r",
+        "mean_r2",
+        "re2",
+        "rg2",
+        "cm_msd",
+        "monomer_msd",
+        "min_length",
+        "tangent1",
+        "tangent2",
+        "tangent3",
+        "tangent4"
+      ],
+      "max_row_bytes": 246,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 43147,
+          "file": {
+            "bytes": 43252,
+            "sha256": "dde77bbed180d152ffd8428f1f05ed37c63d034beede0370bec22f933eac486c"
+          },
+          "header_bytes": 105,
+          "rows": 192
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 42976,
+          "file": {
+            "bytes": 43081,
+            "sha256": "908a4593b15ef0c0123b7e8f00561e4d66e65aae9b742f5fceabac81db7d2574"
+          },
+          "header_bytes": 105,
+          "rows": 192
+        }
+      }
+    },
+    "slip_springs_final.csv": {
+      "data_bytes": 69715,
+      "data_rows": 1024,
+      "header": [
+        "spring",
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az"
+      ],
+      "max_row_bytes": 73,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 34823,
+          "file": {
+            "bytes": 34850,
+            "sha256": "14ca14aa982b367628061c42f22af0e78b7f5fa1c38b33a3fdca20c2850b9205"
+          },
+          "header_bytes": 27,
+          "rows": 512
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 34892,
+          "file": {
+            "bytes": 34919,
+            "sha256": "b06eb1d6402cf3543f057ecc609b9d1f043669983278f49a08d2c6b60decaa68"
+          },
+          "header_bytes": 27,
+          "rows": 512
+        }
+      }
+    },
+    "slip_springs_initial.csv": {
+      "data_bytes": 69705,
+      "data_rows": 1024,
+      "header": [
+        "spring",
+        "chain",
+        "bead",
+        "ax",
+        "ay",
+        "az"
+      ],
+      "max_row_bytes": 73,
+      "observations": {
+        "A-c3-r1-sparse": {
+          "data_bytes": 34829,
+          "file": {
+            "bytes": 34856,
+            "sha256": "06d760431af4f44f2354dd2dccc33a852855ff34415409799ff3881c34a9854a"
+          },
+          "header_bytes": 27,
+          "rows": 512
+        },
+        "A-c4-r1-sparse": {
+          "data_bytes": 34876,
+          "file": {
+            "bytes": 34903,
+            "sha256": "e21d2b31a826150aa62d37a150dc4fb68d4324cc95bb9f2f6bd64deb3c8b3683"
+          },
+          "header_bytes": 27,
+          "rows": 512
+        }
+      }
+    }
+  },
+  "phase_b_status": "No completed Phase B campaign supplied or located; its frozen manifest uses the identical accepted schemas. D1.2 technical calibration supplies column names, not a new scientific result.",
+  "receipts": {
+    "A-c3-r1-sparse": {
+      "bytes": 5721,
+      "path": "/tmp/e1-d13-phase-a-authorized-20261021-v1/campaign/runs/A-c3-r1-sparse/execution.json",
+      "sha256": "636ba7b1559a08886b159304982ffe8fe96767246ecf3502433accd183d63c70"
+    },
+    "A-c4-r1-sparse": {
+      "bytes": 5726,
+      "path": "/tmp/e1-d13-phase-a-authorized-20261021-v1/campaign/runs/A-c4-r1-sparse/execution.json",
+      "sha256": "ea1e347f481199ecb9dde3be86ab562640ba1e8dc93768dd4aa9da99c8dd387c"
+    }
+  },
+  "reference_index_sha256": "eceb4c31caeddcbdf7863a80604a2f52096cdb7e3dcb0951a5308102c0c06fcc",
+  "schema": "e1-d15-observed-serialization-v1",
+  "schema_calibration_sha256": "41610c6cfe04156fbe2bf9e477ed51a9f270263278b8494e24e856a272ded042",
+  "source": "authenticated existing N32/kappa10/M64 Phase A CSV; no new data",
+  "timing_measurements": {
+    "0.0001": {
+      "M": 64,
+      "N": 32,
+      "T": 0.25,
+      "child_wall_seconds": 0.5154916889732704,
+      "integration_seconds": 0.27063577648252346,
+      "kappa": 10,
+      "max_host_rss_bytes": 106184704,
+      "metadata_file": {
+        "bytes": 1623,
+        "sha256": "f086ea88816cd33214c19396b10c0f4b3362ee284f98e170744ea65bb963bd67"
+      },
+      "production_seconds": 0.302015702,
+      "reference_run": "A-c3-r1-sparse"
+    },
+    "0.00025": {
+      "M": 64,
+      "N": 32,
+      "T": 0.25,
+      "child_wall_seconds": 0.36535288591403514,
+      "integration_seconds": 0.13754998394846926,
+      "kappa": 10,
+      "max_host_rss_bytes": 106020864,
+      "metadata_file": {
+        "bytes": 1672,
+        "sha256": "f31202bc201bdbddab33faf246623413e6e3206753e1567467e0aa44641eb2bf"
+      },
+      "production_seconds": 0.16377767,
+      "reference_run": "A-c4-r1-sparse"
+    }
+  }
+}

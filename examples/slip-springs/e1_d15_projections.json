@@ -1,0 +1,2787 @@
+{
+  "kind": "preparation arithmetic, no new performance/science measurements",
+  "larger_systems": {
+    "1024": {
+      "T100_16_run_empirical_csv_bytes": 2800416512,
+      "T100_16_run_wide_csv_bytes": 7371400640,
+      "T100_empirical_csv_bytes_per_run": 175026032,
+      "T100_wide_csv_bytes_per_run": 460712540,
+      "bead_updates_T100_coarse": 13516800000,
+      "bead_updates_T100_fine": 33792000000,
+      "beads": 33792,
+      "device_array_bytes_stiff": 4854628,
+      "diagnostic_readback_bytes_T100_coarse": 4800000,
+      "diagnostic_readback_bytes_T100_fine": 12000000,
+      "expected_attempts_per_T100_run": 81920000,
+      "force_update_grid_blocks_at_256_threads": 132,
+      "full_E1_additional_readback_bytes_T100": 90149696,
+      "legacy_workspace_estimate_bytes": 46608472,
+      "observer_vector_bytes": 638976,
+      "poisson_mean_coarse": 204.8,
+      "poisson_mean_fine": 81.92,
+      "proxy_warning": "NOT measurements or runtime bounds; stiff Phase A only, different cadence; no kernel cost decomposition or throughput scaling established",
+      "regular_and_full_position_readback_bytes_T100": 222756864,
+      "slip_springs": 8192,
+      "unverified_proxy_seconds_T100_coarse_if_all_cost_linear_in_M": 1048.177088,
+      "unverified_proxy_seconds_T100_fine_if_all_cost_linear_in_M": 1932.9004928
+    },
+    "2048": {
+      "T100_16_run_empirical_csv_bytes": 5600759936,
+      "T100_16_run_wide_csv_bytes": 14742496704,
+      "T100_empirical_csv_bytes_per_run": 350047496,
+      "T100_wide_csv_bytes_per_run": 921406044,
+      "bead_updates_T100_coarse": 27033600000,
+      "bead_updates_T100_fine": 67584000000,
+      "beads": 67584,
+      "device_array_bytes_stiff": 9708388,
+      "diagnostic_readback_bytes_T100_coarse": 4800000,
+      "diagnostic_readback_bytes_T100_fine": 12000000,
+      "expected_attempts_per_T100_run": 163840000,
+      "force_update_grid_blocks_at_256_threads": 264,
+      "full_E1_additional_readback_bytes_T100": 180294464,
+      "legacy_workspace_estimate_bytes": 93216856,
+      "observer_vector_bytes": 1277952,
+      "poisson_mean_coarse": 409.6,
+      "poisson_mean_fine": 163.84,
+      "proxy_warning": "NOT measurements or runtime bounds; stiff Phase A only, different cadence; no kernel cost decomposition or throughput scaling established",
+      "regular_and_full_position_readback_bytes_T100": 445513728,
+      "slip_springs": 16384,
+      "unverified_proxy_seconds_T100_coarse_if_all_cost_linear_in_M": 2096.354176,
+      "unverified_proxy_seconds_T100_fine_if_all_cost_linear_in_M": 3865.8009856
+    },
+    "256": {
+      "T100_16_run_empirical_csv_bytes": 700158944,
+      "T100_16_run_wide_csv_bytes": 1843078592,
+      "T100_empirical_csv_bytes_per_run": 43759934,
+      "T100_wide_csv_bytes_per_run": 115192412,
+      "bead_updates_T100_coarse": 3379200000,
+      "bead_updates_T100_fine": 8448000000,
+      "beads": 8448,
+      "device_array_bytes_stiff": 1214308,
+      "diagnostic_readback_bytes_T100_coarse": 4800000,
+      "diagnostic_readback_bytes_T100_fine": 12000000,
+      "expected_attempts_per_T100_run": 20480000,
+      "force_update_grid_blocks_at_256_threads": 33,
+      "full_E1_additional_readback_bytes_T100": 22541120,
+      "legacy_workspace_estimate_bytes": 11652184,
+      "observer_vector_bytes": 159744,
+      "poisson_mean_coarse": 51.2,
+      "poisson_mean_fine": 20.48,
+      "proxy_warning": "NOT measurements or runtime bounds; stiff Phase A only, different cadence; no kernel cost decomposition or throughput scaling established",
+      "regular_and_full_position_readback_bytes_T100": 55689216,
+      "slip_springs": 2048,
+      "unverified_proxy_seconds_T100_coarse_if_all_cost_linear_in_M": 262.044272,
+      "unverified_proxy_seconds_T100_fine_if_all_cost_linear_in_M": 483.2251232
+    },
+    "512": {
+      "T100_16_run_empirical_csv_bytes": 1400244800,
+      "T100_16_run_wide_csv_bytes": 3685852608,
+      "T100_empirical_csv_bytes_per_run": 87515300,
+      "T100_wide_csv_bytes_per_run": 230365788,
+      "bead_updates_T100_coarse": 6758400000,
+      "bead_updates_T100_fine": 16896000000,
+      "beads": 16896,
+      "device_array_bytes_stiff": 2427748,
+      "diagnostic_readback_bytes_T100_coarse": 4800000,
+      "diagnostic_readback_bytes_T100_fine": 12000000,
+      "expected_attempts_per_T100_run": 40960000,
+      "force_update_grid_blocks_at_256_threads": 66,
+      "full_E1_additional_readback_bytes_T100": 45077312,
+      "legacy_workspace_estimate_bytes": 23304280,
+      "observer_vector_bytes": 319488,
+      "poisson_mean_coarse": 102.4,
+      "poisson_mean_fine": 40.96,
+      "proxy_warning": "NOT measurements or runtime bounds; stiff Phase A only, different cadence; no kernel cost decomposition or throughput scaling established",
+      "regular_and_full_position_readback_bytes_T100": 111378432,
+      "slip_springs": 4096,
+      "unverified_proxy_seconds_T100_coarse_if_all_cost_linear_in_M": 524.088544,
+      "unverified_proxy_seconds_T100_fine_if_all_cost_linear_in_M": 966.4502464
+    }
+  },
+  "measured_phase_a": {
+    "0.0001": {
+      "M": 64,
+      "N": 32,
+      "T": 0.25,
+      "child_wall_seconds": 0.5154916889732704,
+      "integration_seconds": 0.27063577648252346,
+      "kappa": 10,
+      "max_host_rss_bytes": 106184704,
+      "metadata_file": {
+        "bytes": 1623,
+        "sha256": "f086ea88816cd33214c19396b10c0f4b3362ee284f98e170744ea65bb963bd67"
+      },
+      "production_seconds": 0.302015702,
+      "reference_run": "A-c3-r1-sparse"
+    },
+    "0.00025": {
+      "M": 64,
+      "N": 32,
+      "T": 0.25,
+      "child_wall_seconds": 0.36535288591403514,
+      "integration_seconds": 0.13754998394846926,
+      "kappa": 10,
+      "max_host_rss_bytes": 106020864,
+      "metadata_file": {
+        "bytes": 1672,
+        "sha256": "f31202bc201bdbddab33faf246623413e6e3206753e1567467e0aa44641eb2bf"
+      },
+      "production_seconds": 0.16377767,
+      "reference_run": "A-c4-r1-sparse"
+    }
+  },
+  "phase_b_campaign_measurements": null,
+  "phases": {
+    "benchmark": {
+      "bd_steps": 2800,
+      "bead_updates": 23654400,
+      "expected_attempts": 81920,
+      "processes": 4,
+      "runtime_seconds": null,
+      "state_by_run": {
+        "D15-benchmark-c1-r1": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-benchmark-c2-r1": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-benchmark-c3-r1": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-benchmark-c4-r1": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        }
+      },
+      "storage_by_run": {
+        "D15-benchmark-c1-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9437182,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 114936,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 512,
+              "width_envelope_bytes": 175209
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27833481
+        },
+        "D15-benchmark-c2-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9437182,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 114936,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 512,
+              "width_envelope_bytes": 175209
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27833481
+        },
+        "D15-benchmark-c3-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9437182,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 114936,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 512,
+              "width_envelope_bytes": 175209
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27833481
+        },
+        "D15-benchmark-c4-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9437182,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 114936,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 512,
+              "width_envelope_bytes": 175209
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27833481
+        }
+      }
+    },
+    "exploratory": {
+      "bd_steps": 11200000,
+      "bead_updates": 94617600000,
+      "expected_attempts": 327680000,
+      "processes": 16,
+      "runtime_seconds": null,
+      "state_by_run": {
+        "D15-exploratory-c1-r1": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c1-r2": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c1-r3": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c1-r4": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c2-r1": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c2-r2": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c2-r3": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c2-r4": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c3-r1": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c3-r2": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c3-r3": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c3-r4": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c4-r1": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c4-r2": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c4-r3": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-exploratory-c4-r4": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        }
+      },
+      "storage_by_run": {
+        "D15-exploratory-c1-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c1-r2": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c1-r3": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c1-r4": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c2-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c2-r2": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c2-r3": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c2-r4": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c3-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c3-r2": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c3-r3": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c3-r4": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c4-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c4-r2": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c4-r3": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        },
+        "D15-exploratory-c4-r4": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 43759934,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 1425006,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 14336,
+              "width_envelope_bytes": 2695214
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 12015672,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 114688,
+              "width_envelope_bytes": 23969832
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 3803,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 56,
+              "width_envelope_bytes": 18271
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 11868956,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 473088,
+              "width_envelope_bytes": 51566620
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 855011,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 14336,
+              "width_envelope_bytes": 1677347
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 11540587,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 51456,
+              "width_envelope_bytes": 17598057
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 115192412
+        }
+      }
+    },
+    "pilot": {
+      "bd_steps": 28000,
+      "bead_updates": 236544000,
+      "expected_attempts": 819200,
+      "processes": 4,
+      "runtime_seconds": null,
+      "state_by_run": {
+        "D15-pilot-c1-r1": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-pilot-c2-r1": {
+          "device_array_bytes": 1214044,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-pilot-c3-r1": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        },
+        "D15-pilot-c4-r1": {
+          "device_array_bytes": 1214308,
+          "legacy_workspace_estimate_bytes": 11652184,
+          "observer_vector_bytes": 159744
+        }
+      },
+      "storage_by_run": {
+        "D15-pilot-c1-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9494597,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 172351,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 768,
+              "width_envelope_bytes": 262761
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27921033
+        },
+        "D15-pilot-c2-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9494597,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 172351,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 768,
+              "width_envelope_bytes": 262761
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27921033
+        },
+        "D15-pilot-c3-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9494597,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 172351,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 768,
+              "width_envelope_bytes": 262761
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27921033
+        },
+        "D15-pilot-c4-r1": {
+          "classification": "projection, not a measurement or approved quota; no compression assumed",
+          "empirical_csv_bytes": 9494597,
+          "files": {
+            "bond_statistics.csv": {
+              "empirical_bytes": 917849,
+              "observed_mean_row_bytes": 112.01513671875,
+              "rows": 8192,
+              "width_envelope_bytes": 6602973
+            },
+            "equilibrium_attachments.csv": {
+              "empirical_bytes": 699027,
+              "observed_mean_row_bytes": 85.32421875,
+              "rows": 8192,
+              "width_envelope_bytes": 1851443
+            },
+            "equilibrium_backbone.csv": {
+              "empirical_bytes": 251256,
+              "observed_mean_row_bytes": 196.2265625,
+              "rows": 1280,
+              "width_envelope_bytes": 373846
+            },
+            "equilibrium_chains.csv": {
+              "empirical_bytes": 178166,
+              "observed_mean_row_bytes": 99.39732142857143,
+              "rows": 1792,
+              "width_envelope_bytes": 336942
+            },
+            "equilibrium_connectors.csv": {
+              "empirical_bytes": 1501994,
+              "observed_mean_row_bytes": 104.76799665178571,
+              "rows": 14336,
+              "width_envelope_bytes": 2996264
+            },
+            "equilibrium_events.csv": {
+              "empirical_bytes": 636,
+              "observed_mean_row_bytes": 64.64285714285714,
+              "rows": 7,
+              "width_envelope_bytes": 2444
+            },
+            "equilibrium_positions.csv": {
+              "empirical_bytes": 2495849,
+              "observed_mean_row_bytes": 73.85836884469697,
+              "rows": 33792,
+              "width_envelope_bytes": 5508123
+            },
+            "equilibrium_sites.csv": {
+              "empirical_bytes": 1483644,
+              "observed_mean_row_bytes": 25.088203463203463,
+              "rows": 59136,
+              "width_envelope_bytes": 6445852
+            },
+            "equilibrium_tangents.csv": {
+              "empirical_bytes": 106907,
+              "observed_mean_row_bytes": 59.638392857142854,
+              "rows": 1792,
+              "width_envelope_bytes": 209699
+            },
+            "final.csv": {
+              "empirical_bytes": 543793,
+              "observed_mean_row_bytes": 64.36742424242425,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "fixed_slip_springs.csv": {
+              "empirical_bytes": 131678,
+              "observed_mean_row_bytes": 64.2861328125,
+              "rows": 2048,
+              "width_envelope_bytes": 239636
+            },
+            "initial.csv": {
+              "empirical_bytes": 529517,
+              "observed_mean_row_bytes": 62.67755681818182,
+              "rows": 8448,
+              "width_envelope_bytes": 988433
+            },
+            "initial_bonds.csv": {
+              "empirical_bytes": 203036,
+              "observed_mean_row_bytes": 24.782470703125,
+              "rows": 8192,
+              "width_envelope_bytes": 548882
+            },
+            "samples.csv": {
+              "empirical_bytes": 172351,
+              "observed_mean_row_bytes": 224.27864583333334,
+              "rows": 768,
+              "width_envelope_bytes": 262761
+            },
+            "slip_springs_final.csv": {
+              "empirical_bytes": 139457,
+              "observed_mean_row_bytes": 68.0810546875,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            },
+            "slip_springs_initial.csv": {
+              "empirical_bytes": 139437,
+              "observed_mean_row_bytes": 68.0712890625,
+              "rows": 2048,
+              "width_envelope_bytes": 282651
+            }
+          },
+          "json_logs_receipts_allowance_bytes": 2097152,
+          "wide_csv_bytes": 27921033
+        }
+      }
+    }
+  },
+  "starting_sha": "7a889b060132a6d248a88128009fc9f595ef2b88",
+  "version": 1
+}

@@ -1,0 +1,22 @@
+{
+  "approval_reference": null,
+  "benchmark_review": null,
+  "build_receipt_sha256": null,
+  "environment_sha256": null,
+  "execution_authorized": false,
+  "gpu_uuid": null,
+  "limits": {
+    "aggregate_output_bytes": null,
+    "aggregate_seconds": null,
+    "max_host_rss_bytes": null,
+    "min_available_host_bytes": null,
+    "min_free_disk_bytes": null,
+    "min_free_gpu_bytes": null,
+    "per_run_output_bytes": null,
+    "per_run_seconds": null
+  },
+  "manifest_sha256": "c4ffe6758b3c913c7b4ed2a9894d603e3f8f01fc3496448dc83e4ca269bdb0b5",
+  "output_root": null,
+  "readiness_review": null,
+  "version": 1
+}

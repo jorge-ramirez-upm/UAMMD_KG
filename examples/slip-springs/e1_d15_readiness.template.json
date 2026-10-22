@@ -1,0 +1,8 @@
+{
+  "schema": "e1-d15-readiness-review-v1",
+  "review_reference": null,
+  "manifest_sha256": null,
+  "build_receipt_sha256": null,
+  "all_local_preparation_checks_reviewed": false,
+  "artifacts": {}
+}

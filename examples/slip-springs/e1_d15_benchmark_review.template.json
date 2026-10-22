@@ -1,0 +1,10 @@
+{
+  "schema": "e1-d15-benchmark-review-v1",
+  "review_reference": null,
+  "approved_pilot_manifest_sha256": null,
+  "resource_and_observation_suitability_reviewed": false,
+  "benchmark_root": null,
+  "manifest_sha256": null,
+  "approval_sha256": null,
+  "completion_sha256": null
+}

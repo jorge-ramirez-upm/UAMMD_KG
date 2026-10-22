@@ -1067,3 +1067,20 @@ and optimization to Stage 3, then semiflexibility and slip-spring dynamics to
 Stage 4. No next stage is authorized. See
 [NEXT_STAGE_ASSESSMENT.md](NEXT_STAGE_ASSESSMENT.md) for the unresolved model,
 kinetic, statistical and GPU design decisions; no slip-spring model is validated.
+
+## E1 D1.5 larger-system preparation (22 October 2026)
+
+This handoff changes preparation only. No scientific simulation, benchmark,
+build or test was run in Codex, and no execution is authorized. The accepted
+E1 simulator, equilibrium initializer, observer, dynamics, D0 criteria and prior
+campaign evidence remain unchanged. See
+[E1_STAGE_D15_LARGER_SYSTEM_PREPARATION_V1.md](E1_STAGE_D15_LARGER_SYSTEM_PREPARATION_V1.md)
+for source-based M256/512/1024/2048 work/memory/storage projections and statistical
+design. The [manual operator guide](E1_STAGE_D15_OPERATOR_GUIDE_V1.md) supplies
+unexecuted local checks/build commands and separately gated benchmark/pilot steps.
+
+First proposal: four N32/M256/Z2048/T.1 benchmark runs, kappa0/10 and
+dt.0001/.00025. T1 requires subsequent independent benchmark review; the T100,
+four-replica design is non-executable. `e1_d15_host.py` has no automatic approval
+writer or implicit launch. All committed approvals remain false/null. The new
+scripts themselves require local validation and independent readiness review.
