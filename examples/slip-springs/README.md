@@ -1115,3 +1115,15 @@ The completed D1.5 cohorts supply performance evidence only. No D1.6 test,
 reference draw, build, preflight, analysis or trajectory was executed; no T100
 runner or true approval was added. Frozen campaigns and D0 tolerances remain
 unchanged. M512/M1024 and all long-time experiments remain planning alternatives.
+
+## E1 D1.6A independent equilibrium references
+
+The separate CPU reference workflow implements finite-rest-length analytical
+flexible-chain moments and bounded exact-equilibrium reference sampling at
+kappa0/10. Use the [D1.6A local handoff](E1_STAGE_D16A_LOCAL_EXECUTION_HANDOFF.md)
+for readiness, independent approval, calculation and compact return packets.
+[Implementation and limitations](E1_STAGE_D16A_IMPLEMENTATION_REPORT.md) document
+the frozen three-phase PCG64 protocol, uncertainty family and resource controls.
+Readiness starts no equilibrium draws. This implementation was not executed
+or tested in Codex; local results need review before reference acceptance.
+The accepted simulator/sampler, D0 limits and historical campaigns are unchanged.
