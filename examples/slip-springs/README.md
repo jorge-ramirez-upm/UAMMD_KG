@@ -1103,3 +1103,15 @@ archives. Benchmark commands retain their prior interface; prior evidence is unc
 The pilot resource ceilings are prefilled from the explicit user approval;
 no helper creates a true execution approval. This preparation ran no tests,
 builds, preflights, simulations or analyses. T100 and M>256 remain unapproved.
+
+## E1 D1.6 long-time scientific design
+
+The [D1.6 design](E1_STAGE_D16_SCIENTIFIC_DESIGN_V1.md) evaluates M256/R4/T100
+as an exploratory preservation study, with hierarchical uncertainty, cadence
+limits and separate confirmatory power planning. Companion documents derive
+[nonlinear-chain reference moments](E1_STAGE_D16_REFERENCE_MOMENTS_V1.md) and
+give [recorded D1.5 costs and proposed budgets](E1_STAGE_D16_RESOURCE_PLAN_V1.md).
+The completed D1.5 cohorts supply performance evidence only. No D1.6 test,
+reference draw, build, preflight, analysis or trajectory was executed; no T100
+runner or true approval was added. Frozen campaigns and D0 tolerances remain
+unchanged. M512/M1024 and all long-time experiments remain planning alternatives.
