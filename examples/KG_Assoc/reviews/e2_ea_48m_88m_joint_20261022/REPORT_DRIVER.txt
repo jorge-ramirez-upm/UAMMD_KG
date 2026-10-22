@@ -1,0 +1,60 @@
+"""Generate per-replica scientific diagnostics from the segment-separated replay."""
+import csv
+import json
+from pathlib import Path
+import sys
+
+work = Path(sys.argv[1])
+output = Path(sys.argv[2])
+summary = Path(sys.argv[3])
+phases = list(csv.DictReader((summary/'FOUR_MILLION_PHASES.csv').open()))
+lines = ['# Per-replica diagnostics', '',
+    'All counts and dynamical estimates retain separate preparation and both extension segments. '
+    'Residence intervals are censored at every fresh-GJ boundary; original-edge tracking is a structural identity '
+    'ledger, not a segment-crossing lifetime estimate.', '']
+for path in sorted(work.glob('*_SUMMARY.log')):
+    h = json.loads(path.read_text()); label = h['label']
+    renewal = json.loads((work/(label+'_RENEWAL.log')).read_text())
+    identity = json.loads((work/(label+'_ORIGINAL_IDENTITY.log')).read_text())
+    windows = json.loads((work/(label+'_WINDOWS.log')).read_text())
+    lines += ['## '+label, '',
+        f"Native/replayed step interval: {h['start_step']} to {h['end_step']}; receipt: "
+        f"`{h['receipt_kind']}`. Extension accepted C/B and distinct G/L: "
+        f"{h['counts']['creations']}/{h['counts']['breaks']} and "
+        f"{h['counts']['neighbor_gains']}/{h['counts']['neighbor_losses']}.", '',
+        '| Segment | Absolute interval / 1M | Bonds | Intra | L1 | L2 | Degree | Giant fraction | Rg² | Center-terminal r² |',
+        '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|']
+    for row in phases:
+        if row['label'] != label: continue
+        values = [row['segment'], f"{int(row['start'])/1e6:g}--{int(row['end'])/1e6:g}"]
+        values += [f"{float(row[key]):.5f}" for key in ('bonds','intra','L1','L2','mean_degree',
+                    'largest_cluster_fraction','mean_rg2','mean_center_terminal_r2')]
+        lines.append('| '+' | '.join(values)+' |')
+    lines += ['', 'Final exact graph:', '', '```json', json.dumps(h['final_graph'], sort_keys=True),
+        '```', '', f"Final L1/L2: {h['final']['L1']:g}/{h['final']['L2']:g}; "
+        f"bound fraction {h['final']['bound_fraction']:.5f}.", '',
+        f"Original 8M bonds never broken: {identity['surviving_initial_bonds']}/{identity['initial_bonds']}; "
+        f"distinct edges never lost: {identity['surviving_initial_edges']}/{identity['initial_edges']}. "
+        f"Current original-edge overlap (includes returns): "
+        f"{identity['sampled'][-1]['current_initial_neighbor_overlap']}.", '',
+        '| Final 4M metric | Mean | IAT physical time | ESS | 5/10/20-block SEM |',
+        '|---|---:|---:|---:|---|']
+    for key in ('bonds','intra','L1','L2','mean_degree','mean_rg2','mean_center_terminal_r2'):
+        value = windows['4000000'][-1]['metrics'][key]
+        lines.append(f"| {key} | {value['mean']:.5f} | {value['tau_time']} | "
+                     f"{value['effective_samples_estimate']} | {value['blocking_sem_sensitivity']} |")
+    lines += ['', 'The IAT/ESS are descriptive within-window estimates; they presume local '
+              'stationarity and cannot resolve a drift by themselves. No universal ESS cutoff is used.', '']
+    for category in ('isolated','satellite'):
+        episodes = [e for e in renewal['episodes'] if e['category']==category and e['duration_steps']>0]
+        maximum = max(episodes, key=lambda e:e['duration_steps']) if episodes else None
+        visits = sum(s['visits'][category]>0 for s in renewal['stars'])
+        returns = sum(s['nonzero_gap_returns'][category]>0 for s in renewal['stars'])
+        lines += [f"Extension {category}: {visits} visited identities, {returns} identities with "
+                  f"nonzero-gap returns. Longest segment-censored observed episode: `{maximum}`.", '']
+    lines += ['Exact event-integrated exposure:', '', '```json',
+              json.dumps(h['exact_integer_step_exposure'], sort_keys=True),
+              json.dumps(h['network_exposure'], sort_keys=True), '```', '']
+with output.open('x') as stream:
+    stream.write('\n'.join(lines)+'\n')
+print('PER_REPLICA_REPORT_WRITTEN')
