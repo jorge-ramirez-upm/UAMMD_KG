@@ -1084,3 +1084,11 @@ dt.0001/.00025. T1 requires subsequent independent benchmark review; the T100,
 four-replica design is non-executable. `e1_d15_host.py` has no automatic approval
 writer or implicit launch. All committed approvals remain false/null. The new
 scripts themselves require local validation and independent readiness review.
+
+For the current local workflow, use the
+[self-contained D1.5 handoff](E1_STAGE_D15_LOCAL_EXECUTION_HANDOFF.md): Stage A
+collects tests/build/read-only preflight evidence and a compact return archive;
+Stage B delegates only the separately approved four-cell T=.1 benchmark;
+Stage C authenticates and packages results. The additive `e1_d15_local.py`
+utility never creates authorization. Its commands are supplied for user-host
+execution and were not executed in Codex. T1 and T100 remain unapproved.
