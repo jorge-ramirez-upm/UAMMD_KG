@@ -1,0 +1,81 @@
+"""CPU-only estimator, conservation, partition and real-data regression tests."""
+import json
+import os
+from pathlib import Path
+import runpy
+import unittest
+import numpy as np
+
+folder = Path(__file__).resolve().parent
+old = runpy.run_path(str(folder.parent / 'e2_ea_transfer_24m_joint_20261018/ANALYSIS_DRIVER.txt'))
+direct = old['segment'].review.analysis.stationarity.iat
+assert direct is not old['fast_iat']
+work = Path(os.environ.get('KG_ASSOC_REVIEW_ANALYSIS','/tmp/ea_48_88_review/analysis'))
+
+
+class AnalysisTests(unittest.TestCase):
+    def test_synthetic_direct_fft(self):
+        old['compiler_free_tests']()
+
+    def test_no_windows_cross_restart(self):
+        for start, end in ((8000000,24000000),(24000000,40000000),
+                           (24000000,56000000),(40000000,48000000),(56000000,88000000)):
+            for width in (500000, 1000000, 2000000, 4000000, 8000000):
+                boundaries = list(range(start, end, width))
+                self.assertEqual(boundaries[-1]+width, end)
+                self.assertTrue(all(left >= start for left in boundaries))
+
+    def test_sticker_and_neighbor_conservation(self):
+        paths = sorted(work.glob('*_SUMMARY.log'))
+        self.assertEqual(len(paths), 6)
+        for path in paths:
+            h = json.loads(path.read_text())
+            exposure = h['exact_integer_step_exposure']
+            self.assertEqual(2*exposure['bond_steps']+exposure['free_sticker_steps'],
+                             4000*(h['end_step']-h['start_step']))
+            self.assertEqual(h['initial']['bonds']+h['counts']['creations']-h['counts']['breaks'],
+                             h['final']['bonds'])
+            self.assertEqual(h['network_exposure']['neighbor_losses'], h['counts']['neighbor_losses'])
+
+    def test_exact_recovered_parent_not_reclassified_as_ordinary_completion(self):
+        h = json.loads((work/'EA08_R001_SUMMARY.log').read_text())
+        self.assertEqual(h['receipt_kind'],'validated')
+        plan = old['e2'].campaign.load_json(h['entry']['lineage']['parent_plan'])
+        parent = plan['histories'][0]
+        directory = Path(parent['output_prefix']).parent
+        recovery = directory/'validation_recovery.json'
+        self.assertEqual(old['e2'].campaign.sha256(recovery),
+                         '91a4fa743735a515353d592213d0ee67cf9e2208ca31dc29cfda4b002aaa5091')
+        self.assertEqual(old['e2'].campaign.sha256(directory/'incomplete.json'),
+                         '14772d19744e253097b4376195210f9591eb6c85df0a012b0ad25f60c46b017c')
+
+    def test_endpoint_and_structural_ledger_agree(self):
+        for path in work.glob('*_SUMMARY.log'):
+            h = json.loads(path.read_text())
+            identity = json.loads((work/(h['label']+'_ORIGINAL_IDENTITY.log')).read_text())
+            self.assertEqual(identity['sampled'][-1]['step'],h['end_step'])
+            self.assertEqual(identity['sampled'][-1]['isolated_ids'],h['final_graph']['isolated_stars'])
+            windows = json.loads((work/(h['label']+'_WINDOWS.log')).read_text())
+            for width,groups in windows.items():
+                self.assertEqual(len(groups)*int(width),h['end_step']-h['start_step'])
+                self.assertEqual(groups[0]['start_step_exclusive'],h['start_step'])
+                self.assertEqual(groups[-1]['end_step_inclusive'],h['end_step'])
+            renewal = json.loads((work/(h['label']+'_RENEWAL.log')).read_text())
+            for episode in renewal['episodes']:
+                self.assertGreaterEqual(episode['start_step'],h['start_step'])
+                self.assertLessEqual(episode['end_step'],h['end_step'])
+
+
+for ea in (8, 10):
+    for replica in (1, 2, 3):
+        def actual(self, ea=ea, replica=replica):
+            rows = json.loads((work/f'EA{ea:02d}_R{replica:03d}_TIMESERIES.log').read_text())[-200:]
+            for key in ('intra', 'L1', 'L2', 'mean_degree'):
+                values = [row[key] for row in rows]
+                times = [row['time'] for row in rows]
+                self.assertTrue(np.allclose(direct(values, times), old['fast_iat'](values, times),
+                                            rtol=1e-11, atol=1e-11))
+        setattr(AnalysisTests, f'test_direct_fft_Ea{ea}_r{replica}', actual)
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

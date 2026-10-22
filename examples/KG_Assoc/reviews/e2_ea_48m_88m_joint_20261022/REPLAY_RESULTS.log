@@ -1,0 +1,6 @@
+PASS EA08_R001 {'creations': 3176, 'breaks': 3167, 'neighbor_gains': 2874, 'neighbor_losses': 2855} 80000
+PASS EA08_R002 {'creations': 3107, 'breaks': 3104, 'neighbor_gains': 2804, 'neighbor_losses': 2788} 80000
+PASS EA08_R003 {'creations': 3150, 'breaks': 3135, 'neighbor_gains': 2878, 'neighbor_losses': 2863} 80000
+PASS EA10_R001 {'creations': 1692, 'breaks': 1660, 'neighbor_gains': 1527, 'neighbor_losses': 1507} 320000
+PASS EA10_R002 {'creations': 1732, 'breaks': 1749, 'neighbor_gains': 1565, 'neighbor_losses': 1584} 320000
+PASS EA10_R003 {'creations': 1689, 'breaks': 1684, 'neighbor_gains': 1529, 'neighbor_losses': 1522} 320000

@@ -56,5 +56,5 @@ for path in sorted(work.glob('*_SUMMARY.log')):
               json.dumps(h['exact_integer_step_exposure'], sort_keys=True),
               json.dumps(h['network_exposure'], sort_keys=True), '```', '']
 with output.open('x') as stream:
-    stream.write('\n'.join(lines)+'\n')
+    stream.write('\n'.join(lines).rstrip()+'\n')
 print('PER_REPLICA_REPORT_WRITTEN')

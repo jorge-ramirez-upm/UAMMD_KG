@@ -1,0 +1,2 @@
+PASS 5 FFT/direct IAT fixtures; exact event residence/returns; distinct-edge exposure
+PASS segment-local partitions at all five scales

@@ -1,4 +1,4 @@
-"""CPU-only, one-segment-at-a-time replay. Never invokes a native executable."""
+"""CPU-only, one-segment-at-a-time replay. No GPU or MD; build authentication may invoke the CPU-only dispatcher probe."""
 import argparse
 from collections import Counter
 import csv
@@ -110,7 +110,7 @@ def analyze(index, output):
     for suffix, value in [('SUMMARY', record), ('WINDOWS', windows),
                           ('TIMESERIES', rows), ('RENEWAL', renewal)]:
         e2.exclusive_json(output / (label + '_' + suffix + '.log'), value)
-    # Independent structural identity tracking over both segments; only an event/topology ledger,
+    # Independent structural identity tracking over all three segments; only an event/topology ledger,
     # never a segment-crossing lifetime or correlation estimate.
     prior_plan = e2.campaign.load_json(entry['lineage']['parent_plan'])
     prior = prior_plan['histories'][entry['replica'] - 1]
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         for start, end in ((40000000,48000000),(56000000,88000000)):
             for width in (500000, 1000000, 2000000, 4000000, 8000000):
                 bounds = list(range(start, end, width))
-                assert bounds[0] == 24000000 and bounds[-1] + width == end
+                assert bounds[0] == start and bounds[-1] + width == end
         print('PASS segment-local partitions at all five scales')
     else:
         assert args.history is not None and args.output is not None

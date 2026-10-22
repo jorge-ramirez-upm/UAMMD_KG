@@ -1,0 +1,32 @@
+"""Coarse structural histories; lines are descriptive, never dynamical origins across restarts."""
+import csv
+from pathlib import Path
+import sys
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+folder = Path(sys.argv[1])
+rows = list(csv.DictReader((folder/'WINDOWS.csv').open()))
+fig, axes = plt.subplots(4,2,figsize=(14,13),squeeze=False)
+for column, ea in enumerate((8,10)):
+    for replica, color in zip((1,2,3),('#0072B2','#D55E00','#009E73')):
+        label = f'EA{ea:02d}_R{replica:03d}'
+        for axis, key in zip(axes[:,column],('intra','L1','L2','mean_rg2')):
+            for segment in ('preparation','previous_extension','extension'):
+                for width, alpha, style in ((1000000,.23,'-'),(4000000,1,'o-')):
+                    selected = sorted((r for r in rows if r['label']==label and r['segment']==segment
+                                       and int(r['width'])==width and r['observable']==key),
+                                      key=lambda r:int(r['start']))
+                    axis.plot([(int(r['start'])+int(r['end']))/2e6 for r in selected],
+                              [float(r['mean']) for r in selected],style,color=color,alpha=alpha,
+                              lw=1.2,ms=3,label=f'r{replica:03d}' if segment=='preparation' and width==4000000 else None)
+            axis.axvline(24,color='black',ls='--',lw=.7)
+            axis.axvline(40 if ea==8 else 56,color='black',ls='--',lw=.7)
+            axis.set_ylabel(key);axis.grid(alpha=.2)
+    axes[0,column].set_title(f'Ea={ea}; bold 4M means; faint 1M means')
+    axes[0,column].legend()
+    axes[-1,column].set_xlabel('Absolute MD step / 1M; dashed = fresh-GJ boundary')
+fig.tight_layout()
+fig.savefig(folder/'plots/coarse_structural_histories.png',dpi=150)
+plt.close(fig)

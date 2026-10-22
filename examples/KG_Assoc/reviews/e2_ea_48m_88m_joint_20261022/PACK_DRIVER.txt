@@ -1,0 +1,65 @@
+"""Pack new analysis and exact provenance copies; never alter original campaign evidence."""
+import argparse
+import json
+from pathlib import Path
+import shutil
+import sys
+import tarfile
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--work', type=Path, required=True)
+parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--baseline', type=Path, required=True)
+args = parser.parse_args()
+sys.path.insert(0, 'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+out = args.output
+for path in (args.work/'summary').iterdir():
+    if path.is_file():
+        assert not (out/path.name).exists()
+        shutil.copyfile(path, out/path.name)
+shutil.copytree(args.work/'summary/plots', out/'plots')
+shutil.copyfile(args.baseline, out/'PRESERVED.sha256')
+shutil.copyfile(args.work/'cpu_regression/E2_REGRESSION.log', out/'E2_REGRESSION.log')
+archive_dir = out/'replay'
+archive_dir.mkdir()
+hashes = {}
+for summary in sorted((args.work/'analysis').glob('*_SUMMARY.log')):
+    h = e2.campaign.load_json(summary)
+    label = h['label']
+    files = sorted((args.work/'analysis').glob(label+'_*.log'))
+    hashes.update({path.name:e2.campaign.sha256(path) for path in files})
+    with tarfile.open(archive_dir/(label+'.tar.gz'), 'x:gz') as archive:
+        for path in files:
+            archive.add(path, arcname=path.name)
+e2.exclusive_json(out/'ANALYSIS.sha256', hashes)
+provenance_paths = set()
+result = e2.campaign.load_json(out/'RESULTS.log')
+for h in result['histories']:
+    j = h['job']; entry = h['entry']; directory = Path(entry['output_prefix']).parent
+    provenance_paths.add(Path(j['attempt'])/'plan.json')
+    provenance_paths.add(Path(entry['command'][0]).parent/'manifest.json')
+    provenance_paths.add(Path(entry['lineage']['seed_reservations']))
+    for key in ('approval','preparation_source_authorization'):
+        provenance_paths.add(Path(j[key]))
+    attempt = Path(j['attempt'])
+    provenance_paths.add(attempt/f"approval_r{entry['replica']:03d}_execution.json")
+    provenance_paths.add(attempt/f"approval_r{entry['replica']:03d}_execution_sources.json")
+    provenance_paths.add(Path(entry['lineage']['parent_receipt']))
+    provenance_paths.add(Path(entry['lineage']['parent_plan']))
+    if entry['physics']['Ea'] == 8 and entry['replica'] == 1:
+        provenance_paths.add(Path(entry['lineage']['parent_receipt']).with_name('incomplete.json'))
+    for name in ('started.json','complete.json','validation_recovery.json','incomplete.json',
+                 'environment.json','process.json','stdout.log','stderr.log'):
+        if (directory/name).exists():
+            provenance_paths.add(directory/name)
+state = Path('examples/KG_Assoc/kg_assoc_100m/aggregate/e2/manual_ea_extensions_48m_88m_v1/state.json')
+provenance_paths.add(state.resolve())
+mapping = {}
+with tarfile.open(out/'PROVENANCE.tar.gz','x:gz') as archive:
+    for path in sorted(provenance_paths):
+        name = str(path.resolve().relative_to(Path.cwd()))
+        archive.add(path, arcname=name)
+        mapping[str(path)] = e2.campaign.sha256(path)
+e2.exclusive_json(out/'PROVENANCE.sha256', mapping)
+print('PACKED',len(hashes),'analysis files;',len(mapping),'immutable provenance files')

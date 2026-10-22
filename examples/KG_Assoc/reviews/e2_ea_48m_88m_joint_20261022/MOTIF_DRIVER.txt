@@ -1,0 +1,122 @@
+"""Independent triangle-identity replay within each new MD segment; no native execution."""
+import argparse
+from collections import Counter, defaultdict
+import csv
+import json
+from pathlib import Path
+import sys
+import unittest
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+
+
+class Triangles:
+    def __init__(self, pairs, mapping):
+        self.mapping = mapping
+        self.edges = Counter(tuple(sorted((mapping[a],mapping[b])))
+                             for a,b in pairs if mapping[a] != mapping[b])
+        self.neighbors = defaultdict(set)
+        for a,b in self.edges:
+            self.neighbors[a].add(b)
+            self.neighbors[b].add(a)
+        self.active = {tuple(sorted((a,b,c))) for a,b in self.edges
+                       for c in self.neighbors[a]&self.neighbors[b]}
+        self.initial = self.active.copy()
+        self.surviving = self.active.copy()
+        self.seen = self.active.copy()
+        self.transitions = []
+
+    def apply(self, step, kind, pair):
+        a,b = sorted(self.mapping[x] for x in pair)
+        if a == b:
+            return
+        edge = (a,b)
+        before = self.edges[edge]
+        assert kind in ('C','B') and (kind == 'C' or before > 0)
+        if (kind == 'C' and before == 0) or (kind == 'B' and before == 1):
+            changed = {tuple(sorted((a,b,c))) for c in self.neighbors[a]&self.neighbors[b]}
+            if kind == 'C':
+                assert not changed&self.active
+                self.transitions.append((step,len(changed),0,len(changed&self.seen)))
+                self.active.update(changed)
+                self.seen.update(changed)
+                self.neighbors[a].add(b)
+                self.neighbors[b].add(a)
+            else:
+                assert changed <= self.active
+                self.transitions.append((step,0,len(changed),0))
+                self.active.difference_update(changed)
+                self.surviving.difference_update(changed)
+                self.neighbors[a].remove(b)
+                self.neighbors[b].remove(a)
+        self.edges[edge] += 1 if kind == 'C' else -1
+
+
+class MotifTests(unittest.TestCase):
+    def test_triangle_parallel_bond_intra_and_return(self):
+        graph = Triangles([(1,2),(2,3)],{1:1,2:2,3:3,4:1})
+        graph.apply(1,'C',(1,3))
+        self.assertEqual(graph.active,{(1,2,3)})
+        graph.apply(2,'C',(4,3))
+        graph.apply(3,'B',(1,3))
+        self.assertEqual(graph.active,{(1,2,3)})
+        graph.apply(4,'B',(4,3))
+        self.assertFalse(graph.active)
+        graph.apply(5,'C',(1,3))
+        self.assertEqual(graph.transitions[-1],(5,1,0,1))
+        before = list(graph.transitions)
+        graph.apply(6,'C',(1,4))
+        self.assertEqual(graph.transitions,before)
+
+    def test_initial_survival_is_not_return_overlap(self):
+        graph = Triangles([(1,2),(2,3),(1,3)],{1:1,2:2,3:3})
+        graph.apply(1,'B',(1,3))
+        graph.apply(2,'C',(1,3))
+        self.assertFalse(graph.surviving)
+        self.assertEqual(graph.active&graph.initial,{(1,2,3)})
+
+
+def analyze(work, output):
+    table = []
+    records = []
+    for path in sorted(work.glob('*_SUMMARY.log')):
+        h = json.loads(path.read_text())
+        system, initial = e2.validation.read_parent(h['entry'])
+        _, events = e2.validation.analysis.dynamics.read_events(h['entry']['output_prefix']+'.events',system)
+        graph = Triangles(initial['pairs'],system['atom_to_star'])
+        rows = json.loads((work/(h['label']+'_TIMESERIES.log')).read_text())
+        index = 0
+        for row in rows:
+            while index < len(events) and events[index][0] <= row['step']:
+                graph.apply(*events[index])
+                index += 1
+            assert len(graph.active) == row['L2'], (h['label'],row['step'])
+        assert index == len(events)
+        for left in range(h['start_step'],h['end_step'],4000000):
+            changes = [t for t in graph.transitions if left < t[0] <= left+4000000]
+            table.append(dict(label=h['label'],start=left,end=left+4000000,
+                triangle_gains=sum(t[1] for t in changes),triangle_losses=sum(t[2] for t in changes),
+                returning_triangle_gains=sum(t[3] for t in changes)))
+        records.append(dict(label=h['label'],origin=h['start_step'],end=h['end_step'],
+            initial_triangles=sorted(graph.initial),final_triangles=sorted(graph.active),
+            continuously_surviving_initial_triangles=sorted(graph.surviving),
+            final_initial_overlap=sorted(graph.active&graph.initial),
+            unique_triangles_seen=len(graph.seen),sampled_L2_checks=len(rows)))
+    assert len(records) == 6
+    with (output/'TRIANGLE_TURNOVER.csv').open('x',newline='') as stream:
+        writer = csv.DictWriter(stream,fieldnames=table[0],lineterminator="\n");writer.writeheader();writer.writerows(table)
+    e2.exclusive_json(output/'TRIANGLE_IDENTITIES.log',records)
+    print('PASS six segment-local triangle replays; every diagnostic L2 agrees')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--analysis',type=Path)
+    parser.add_argument('--output',type=Path)
+    parser.add_argument('--self-test',action='store_true')
+    args = parser.parse_args()
+    if args.self_test:
+        result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(MotifTests))
+        raise SystemExit(not result.wasSuccessful())
+    assert args.analysis and args.output
+    analyze(args.analysis,args.output)

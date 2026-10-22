@@ -22,13 +22,14 @@ helper = runpy.run_path(str(prior / 'ANALYSIS_DRIVER.txt'))
 helper['segment'].review.analysis.stationarity.iat = helper['fast_iat']
 e2 = helper['e2']
 e2.check_hashes(e2.campaign.load_json(prior / 'INTEGRITY.sha256'))
+e2.check_hashes(e2.campaign.load_json(prior.parent/'e2_ea_extensions_joint_20261021/INTEGRITY.sha256'))
 records = []
 
 
 def table(name, rows):
     assert rows
     with (out / name).open('x', newline='') as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 

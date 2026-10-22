@@ -1,0 +1,17 @@
+test_direct_fft_Ea10_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea10_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea10_r3 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea8_r1 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea8_r2 (__main__.AnalysisTests) ... ok
+test_direct_fft_Ea8_r3 (__main__.AnalysisTests) ... ok
+test_endpoint_and_structural_ledger_agree (__main__.AnalysisTests) ... ok
+test_exact_recovered_parent_not_reclassified_as_ordinary_completion (__main__.AnalysisTests) ... ok
+test_no_windows_cross_restart (__main__.AnalysisTests) ... ok
+test_sticker_and_neighbor_conservation (__main__.AnalysisTests) ... ok
+test_synthetic_direct_fft (__main__.AnalysisTests) ... PASS 5 FFT/direct IAT fixtures; exact event residence/returns; distinct-edge exposure
+ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.939s
+
+OK

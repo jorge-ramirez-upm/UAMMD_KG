@@ -1,0 +1,23 @@
+{
+  "scope": "scientific recommendation only; no registration or execution authority",
+  "Ea8": {
+    "outcome": "A",
+    "end_step": 48000000,
+    "purpose": "production_initial_state",
+    "replicas": [
+      1,
+      2,
+      3
+    ]
+  },
+  "Ea10": {
+    "outcome": "B",
+    "end_step": 88000000,
+    "reason": "unresolved late r003 triangle/conformation redistribution",
+    "replicas": [
+      1,
+      2,
+      3
+    ]
+  }
+}
