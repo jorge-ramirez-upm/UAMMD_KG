@@ -1091,4 +1091,15 @@ collects tests/build/read-only preflight evidence and a compact return archive;
 Stage B delegates only the separately approved four-cell T=.1 benchmark;
 Stage C authenticates and packages results. The additive `e1_d15_local.py`
 utility never creates authorization. Its commands are supplied for user-host
-execution and were not executed in Codex. T1 and T100 remain unapproved.
+execution and were not executed in Codex. That benchmark-only handoff preceded
+the pilot decision below.
+
+The subsequent user decision approves only the frozen four-cell **M256/T1**
+pilot after review of the completed T.1 benchmark, subject to fresh readiness
+and independent pilot-specific approval. Use the
+[T=1 pilot local handoff](E1_STAGE_D15_PILOT_LOCAL_EXECUTION_HANDOFF.md) for
+`pilot-readiness`, gated `pilot`, and `summarize` commands and compact return
+archives. Benchmark commands retain their prior interface; prior evidence is unchanged.
+The pilot resource ceilings are prefilled from the explicit user approval;
+no helper creates a true execution approval. This preparation ran no tests,
+builds, preflights, simulations or analyses. T100 and M>256 remain unapproved.
