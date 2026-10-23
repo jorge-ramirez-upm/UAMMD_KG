@@ -1,0 +1,253 @@
+"""Immutable-journal adapter; native execution is reachable only through scoped approvals."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+
+sys.path.insert(0, 'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_registry as registry
+
+campaign = e2.campaign
+require = e2.require
+OUTPUTS = ('.thermo.tsv', '.events', '.stress_correlator', '.com_trajectory', '.topology',
+           '.beads.bin', '.final.lammpsdat', '.final_associations', '.complete.json')
+
+
+def immutable(path, value):
+    if path.exists():
+        require(campaign.load_json(path) == value, 'immutable journal differs: ' + str(path))
+    else:
+        e2.exclusive_json(path, value)
+
+
+def authenticated_sources(authority):
+    e2.clean_tree()
+    source = Path(authority['source_authorization'])
+    e2.check_hashes({str(source): authority['source_authorization_sha256']})
+    record = campaign.load_json(source)
+    expected = record['source_sha256']
+    current = dict(e2.sources())
+    extra = record['adapter_sha256']
+    require(not (set(current) & set(extra)), 'adapter source overlaps native source map')
+    current.update(e2.hash_files(Path(name) for name in extra))
+    require(current == expected, 'authorized source map differs')
+    subprocess.run(['git', 'merge-base', '--is-ancestor', record['git_sha'], 'HEAD'], check=True)
+    require(record['plan_sha256'] == authority['plan_sha256'] and
+            record['approval_sha256'] == authority['approval_sha256'], 'source authority binding differs')
+    return current
+
+
+def history_digest(history):
+    core = {k: v for k, v in history.items()
+            if k not in ('approval', 'approval_sha256', 'history_sha256')}
+    return hashlib.sha256(json.dumps(core, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def authenticate(history, authority):
+    """Same identity function at immediate prelaunch, post-native validation and recovery."""
+    require(authority['purpose'] in ('bounded_production_compatibility', 'production_GPU_execution'),
+            'unrecognized execution purpose')
+    require(history['history_sha256'] == history_digest(history), 'history content changed')
+    approval = Path(history['approval'])
+    require(authority['approval_sha256'].get(str(approval)) == history['approval_sha256'],
+            'approval absent from immutable authority')
+    e2.check_hashes({str(approval): history['approval_sha256']})
+    value = campaign.load_json(approval)
+    require(value == dict(schema_version=1, purpose=authority['purpose'], approved=True,
+            GPU_execution_authorized=True, plan_sha256=authority['plan_sha256'],
+            history_sha256=history['history_sha256'], system=history['system'],
+            replica=history['replica'], start_step=history['start_step'], end_step=history['end_step'],
+            maximum_additional_MD_steps=history['steps'], executable_sha256=history['executable_sha256']),
+            'exact execution approval differs')
+    require(history['steps'] == (100000 if authority['purpose'] ==
+            'bounded_production_compatibility' else 100000000), 'approved length differs')
+    require(history['end_step'] == history['start_step'] + history['steps'], 'endpoint differs')
+    e2.check_hashes(history['parent_sha256'])
+    e2.check_hashes(history['run_sha256'])
+    e2.check_hashes(history['executable_sha256'])
+    require(history['executable_sha256'] ==
+            {history['command'][0]: campaign.sha256(Path(history['command'][0]))},
+            'command executable differs')
+    require(history['command'][history['command'].index('--output') + 1] == history['output_prefix'] and
+            history['command'][history['command'].index('--seed') + 1] == str(history['md_seed']),
+            'command output/seed differs')
+    if authority['purpose'] == 'production_GPU_execution':
+        active_path = Path(authority['active_registry'])
+        e2.check_hashes({str(active_path): authority['active_registry_sha256']})
+        active = registry.resolve(Path(authority['dataset_root']), active_path,
+                                  e2.system_by_id(history['system']), history['replica'])
+        for key in ('prefix', 'acceptance_sha256', 'snapshot_sha256', 'chemistry_sha256', 'accepted_step'):
+            require(active[key] == history['accepted_parent'][key], 'activated accepted parent differs')
+    return authenticated_sources(authority)
+
+
+def identity(history, authority):
+    return dict(plan_sha256=authority['plan_sha256'], history_sha256=history['history_sha256'],
+                system=history['system'], replica=history['replica'], steps=history['steps'],
+                start_step=history['start_step'], end_step=history['end_step'],
+                command=history['command'], approval_sha256=history['approval_sha256'],
+                source_authorization_sha256=authority['source_authorization_sha256'])
+
+
+def output_paths(history):
+    directory = Path(history['output_prefix']).parent
+    return [Path(history['output_prefix'] + suffix) for suffix in OUTPUTS] + [
+        directory / 'stdout.log', directory / 'stderr.log']
+
+
+def native_evidence(history, authority):
+    directory = Path(history['output_prefix']).parent
+    started = campaign.load_json(directory / 'started.json')
+    require(started['identity'] == identity(history, authority), 'started identity differs')
+    require(started['source_sha256'] == authenticated_sources(authority), 'started sources differ')
+    finished = campaign.load_json(directory / 'native_finished.json')
+    require(finished['identity'] == identity(history, authority) and finished['exit_code'] == 0 and
+            finished['started_sha256'] == campaign.sha256(directory / 'started.json'),
+            'native completion journal differs')
+    e2.check_hashes(finished['sha256'])
+    require(set(finished['sha256']) == {str(directory / 'stdout.log'), str(directory / 'stderr.log'),
+            history['output_prefix'] + '.complete.json'}, 'native evidence missing')
+    footer = (directory / 'stdout.log').read_text()
+    require('STAR_ASSOCIATION_SMOKE PASS' in footer and
+            f"S1 total_timesteps {history['steps']}" in footer, 'native PASS footer absent')
+    complete = campaign.load_json(Path(history['output_prefix'] + '.complete.json'))
+    require(complete['production_steps'] == history['steps'] and
+            complete['initial_absolute_step'] == history['start_step'] and
+            complete['final_absolute_step'] == history['end_step'], 'native duration differs')
+    return e2.hash_files([directory / 'started.json', directory / 'native_finished.json'])
+
+
+def numerical_validation(history):
+    # Use the established validator at an isolated dataset root for compatibility tests.
+    require(all(path.is_file() for path in output_paths(history)), 'required native output missing')
+    result = campaign.verify_run(Path(history['dataset_root']), e2.system_by_id(history['system']),
+                                 history['replica'], expected_steps=history['steps'])
+    sys.path.insert(0, str(e2.HERE.parent / 'analysis'))
+    import analyze_p42_rheology_pilot as rheology
+    metadata, rows = rheology.read_stress_correlator(history['output_prefix'] + '.stress_correlator')
+    require(metadata['stress_samples'] == history['steps'] and
+            metadata['support_mode'] == 'exact_n_pairs', 'stress sampling differs')
+    expected = [(j * .01, history['steps'] - j) for j in range(16)]
+    for level in range(1, 39):
+        count = history['steps'] // (2 ** level)
+        expected.extend((j * 2 ** level * .01, count - j) for j in range(8, 16) if count > j)
+    require(len(rows) == len(expected) and all(abs(row['time'] - lag) < 1e-8 and
+            row['n_pairs'] == count for row, (lag, count) in zip(rows, expected)),
+            'actual multi-tau lag/count grid differs')
+    return dict(endpoint=result, stress_samples=metadata['stress_samples'], lag_bins=len(rows),
+                six_channel_normalization='existing_P4_reader_pass')
+
+
+def status(history, authority):
+    authenticate(history, authority)
+    directory = Path(history['output_prefix']).parent
+    binding = directory / 'validated_binding.json'
+    if binding.exists():
+        bound = campaign.load_json(binding)
+        name = bound['receipt']
+        require(name in ('validated.json', 'recovery.json'), 'invalid validation receipt name')
+        receipt_path = directory / name
+        require(campaign.sha256(receipt_path) == bound['sha256'], 'validation receipt changed')
+        receipt = campaign.load_json(receipt_path)
+        require(receipt['identity'] == identity(history, authority) and
+                receipt['status'] == 'independently_validated' and
+                receipt['numerical']['endpoint']['status'] == 'valid' and
+                receipt['numerical']['stress_samples'] == history['steps'], 'validation receipt differs')
+        require(set(receipt['output_sha256']) == {str(p) for p in output_paths(history)},
+                'validated output set differs')
+        e2.check_hashes(receipt['output_sha256'])
+        require(receipt['native_sha256'] == native_evidence(history, authority), 'native journal changed')
+        failure = directory / 'failure.json'
+        require(receipt['failure_sha256'] == (e2.hash_files([failure]) if failure.exists() else {}),
+                'original failure changed')
+        return 'recovered_complete' if name == 'recovery.json' else 'validated_complete'
+    if (directory / 'native_finished.json').exists():
+        return 'native_finished_pending_validation_hold'
+    if (directory / 'started.json').exists() or (directory / 'failure.json').exists():
+        return 'interrupted_or_failed_hold'
+    if any(path.exists() for path in output_paths(history)):
+        return 'unowned_output_hold'
+    return 'prepared'
+
+
+def validate(history, authority, recovery=False):
+    authenticate(history, authority)
+    directory = Path(history['output_prefix']).parent
+    current = status(history, authority)
+    if current in ('validated_complete', 'recovered_complete'):
+        return current
+    failure = directory / 'failure.json'
+    if failure.exists():
+        require(recovery, 'original administrative failure requires explicit --recover')
+        require(campaign.load_json(failure)['kind'] in
+                ('post_native_administrative_exception', 'interrupted_after_native'),
+                'numerical/provenance/native failure cannot be administratively recovered')
+    native = native_evidence(history, authority)
+    result = numerical_validation(history)
+    receipt = dict(identity=identity(history, authority), status='independently_validated',
+                   numerical=result, native_sha256=native, output_sha256=e2.hash_files(output_paths(history)),
+                   failure_sha256=e2.hash_files([failure]) if failure.exists() else {},
+                   GPU_steps_executed_by_validator=0)
+    name = 'recovery.json' if recovery else 'validated.json'
+    immutable(directory / name, receipt)
+    immutable(directory / 'validated_binding.json', dict(receipt=name,
+              sha256=campaign.sha256(directory / name)))
+    return status(history, authority)
+
+
+def execute(history, authority):
+    """User-run only. No retry of partial, failed or native-complete work."""
+    e2.clean_tree()
+    authenticate(history, authority)
+    current = status(history, authority)
+    if current in ('validated_complete', 'recovered_complete'):
+        return current
+    require(current == 'prepared', current + '; preserve evidence, do not rerun MD')
+    directory = Path(history['output_prefix']).parent
+    pristine = {'run.json'}
+    if authority['purpose'] == 'production_GPU_execution':
+        pristine.add('preparation_approval.json')
+    require({p.name for p in directory.iterdir()} == pristine, 'output directory not pristine')
+    stage = 'prelaunch'
+    process = None
+    try:
+        immutable(directory / 'started.json', dict(identity=identity(history, authority),
+                  source_sha256=authenticate(history, authority)))
+        stage = 'native'
+        with (directory / 'stdout.log').open('x') as stdout, (directory / 'stderr.log').open('x') as stderr:
+            process = subprocess.Popen(history['command'], stdout=stdout, stderr=stderr,
+                                       cwd=campaign.REPOSITORY_ROOT, start_new_session=True)
+            code = process.wait()
+        require(code == 0, 'native process failed with exit code ' + str(code))
+        paths = [directory / 'stdout.log', directory / 'stderr.log',
+                 Path(history['output_prefix'] + '.complete.json')]
+        require(all(p.is_file() for p in paths), 'native completion evidence absent')
+        immutable(directory / 'native_finished.json', dict(identity=identity(history, authority),
+                  exit_code=code, started_sha256=campaign.sha256(directory / 'started.json'),
+                  sha256=e2.hash_files(paths)))
+        stage = 'post_source'
+        authenticate(history, authority)
+        stage = 'post_validation'
+        return validate(history, authority)
+    except BaseException as error:
+        if process is not None and process.poll() is None:
+            os.killpg(process.pid, signal.SIGTERM)
+            try:
+                process.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.wait()
+        kind = 'native_or_prelaunch_failure'
+        if stage == 'post_source':
+            kind = 'provenance_failure'
+        elif stage == 'post_validation':
+            kind = 'numerical_validation_failure' if isinstance(error, ValueError) else 'post_native_administrative_exception'
+        if isinstance(error, KeyboardInterrupt) and (directory / 'native_finished.json').exists():
+            kind = 'interrupted_after_native'
+        immutable(directory / 'failure.json', dict(identity=identity(history, authority),
+                  kind=kind, error_type=type(error).__name__, message=str(error)))
+        raise

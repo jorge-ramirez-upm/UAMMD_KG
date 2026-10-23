@@ -1,0 +1,263 @@
+"""Deterministic CPU fixtures only in temporary directories; no GPU or native process."""
+import copy
+import json
+from pathlib import Path
+import runpy
+import tempfile
+import unittest
+from unittest import mock
+
+D = Path(__file__).resolve().parent
+A = runpy.run_path(str(D / 'ADAPTER.txt'))
+g = A['execute'].__globals__
+e2 = A['e2']
+c = A['campaign']
+
+
+class AdapterTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.addCleanup(self.temp.cleanup)
+        self.addCleanup(mock.patch.stopall)
+        mock.patch.object(e2, 'clean_tree').start()
+        mock.patch.object(e2, 'sources', return_value={}).start()
+        mock.patch.object(A['subprocess'], 'run').start()
+        self.directory = self.root / 'dataset/systems/F04_N010_RP080_EE08_EA04/production/r001'
+        self.directory.mkdir(parents=True)
+        (self.directory / 'run.json').write_text('{}')
+        parent = self.root / 'accepted-parent'
+        parent.write_text('authenticated original parent fixture')
+        executable = self.root / 'smoke'
+        executable.write_text('never executed')
+        source_code = self.root / 'adapter.txt'
+        source_code.write_text('fixture source')
+        approval = self.root / 'approval.json'
+        self.h = dict(system='F04_N010_RP080_EE08_EA04', replica=1, steps=100000,
+            start_step=8000000, end_step=8100000, md_seed=21000000,
+            output_prefix=str(self.directory / 'run'), dataset_root=str(self.root / 'dataset'),
+            command=[str(executable), '--output', str(self.directory / 'run'), '--seed', '21000000'],
+            parent_sha256=e2.hash_files([parent]), run_sha256=e2.hash_files([self.directory / 'run.json']),
+            executable_sha256=e2.hash_files([executable]), approval=str(approval))
+        self.h['history_sha256'] = A['history_digest'](self.h)
+        value = dict(schema_version=1, purpose='bounded_production_compatibility', approved=True,
+                     GPU_execution_authorized=True, plan_sha256='fixture-plan',
+                     history_sha256=self.h['history_sha256'], system=self.h['system'], replica=1,
+                     start_step=8000000, end_step=8100000, maximum_additional_MD_steps=100000,
+                     executable_sha256=self.h['executable_sha256'])
+        e2.exclusive_json(approval, value)
+        self.h['approval_sha256'] = c.sha256(approval)
+        source = self.root / 'source_authorization.json'
+        e2.exclusive_json(source, dict(git_sha='fixture-git', plan_sha256='fixture-plan',
+            approval_sha256=e2.hash_files([approval]), adapter_sha256=e2.hash_files([source_code]),
+            source_sha256=e2.hash_files([source_code])))
+        self.authority = dict(purpose='bounded_production_compatibility', plan_sha256='fixture-plan',
+            approval_sha256=e2.hash_files([approval]), source_authorization=str(source),
+            source_authorization_sha256=c.sha256(source))
+
+    def numerical_result(self):
+        return dict(endpoint=dict(status='valid'), stress_samples=self.h['steps'], lag_bins=115)
+
+    def install_native(self, code=0, corrupt_parent=False):
+        test = self
+        class Process:
+            pid = 123456
+            def __init__(self, command, stdout, stderr, **kwargs):
+                test.assertEqual(command, test.h['command'])
+                stdout.write(f'STAR_ASSOCIATION_SMOKE PASS\nS1 total_timesteps {test.h["steps"]}\n')
+                stdout.flush()
+            def wait(self, **kwargs):
+                for suffix in A['OUTPUTS']:
+                    Path(test.h['output_prefix'] + suffix).write_text('unit fixture')
+                Path(test.h['output_prefix'] + '.complete.json').write_text(json.dumps(dict(
+                    production_steps=test.h['steps'], initial_absolute_step=test.h['start_step'], final_absolute_step=test.h['end_step'])))
+                if corrupt_parent:
+                    Path(next(iter(test.h['parent_sha256']))).write_text('changed parent')
+                return code
+            def poll(self):
+                return code
+        return mock.patch.object(A['subprocess'], 'Popen', Process)
+
+    def test_exact_authorization_and_immutable_run_file(self):
+        before = (self.directory / 'run.json').read_bytes()
+        A['authenticate'](self.h, self.authority)
+        self.assertEqual(A['status'](self.h, self.authority), 'prepared')
+        self.assertEqual((self.directory / 'run.json').read_bytes(), before)
+
+    def test_tampered_history_seed_output_executable_steps_and_replica_reject(self):
+        for key, value in [('md_seed', 3), ('steps', 100000000), ('replica', 2),
+                           ('output_prefix', '/wrong/run'), ('command', ['other'])]:
+            h = copy.deepcopy(self.h)
+            h[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                A['authenticate'](h, self.authority)
+
+    def test_altered_approval_and_source_authority_reject(self):
+        for name in (self.h['approval'], self.authority['source_authorization']):
+            path = Path(name)
+            before = path.read_bytes()
+            path.write_text('{}')
+            with self.assertRaises(ValueError):
+                A['authenticate'](self.h, self.authority)
+            path.write_bytes(before)
+
+    def test_source_changes_additions_missing_files_and_ancestry_reject(self):
+        with mock.patch.object(e2, 'sources', return_value={'unapproved.cu': 'new'}), self.assertRaises(ValueError):
+            A['authenticate'](self.h, self.authority)
+        path = self.root / 'adapter.txt'
+        before = path.read_bytes()
+        path.write_text('changed')
+        with self.assertRaises(ValueError):
+            A['authenticate'](self.h, self.authority)
+        path.unlink()
+        with self.assertRaises(FileNotFoundError):
+            A['authenticate'](self.h, self.authority)
+        path.write_bytes(before)
+        with mock.patch.object(A['subprocess'], 'run', side_effect=A['subprocess'].CalledProcessError(1, 'git')):
+            with self.assertRaises(A['subprocess'].CalledProcessError):
+                A['authenticate'](self.h, self.authority)
+
+    def test_parent_or_executable_tamper_rejects_before_launch(self):
+        for key in ('parent_sha256', 'executable_sha256', 'run_sha256'):
+            path = Path(next(iter(self.h[key])))
+            before = path.read_bytes()
+            path.write_text('changed')
+            with mock.patch.object(A['subprocess'], 'Popen') as process, self.assertRaises(ValueError):
+                A['execute'](self.h, self.authority)
+            process.assert_not_called()
+            path.write_bytes(before)
+
+    def test_no_output_reuse_or_interruption_retry(self):
+        for name in ('stdout.log', 'started.json', 'failure.json', 'unexpected-file'):
+            path = self.directory / name
+            path.write_text('{}')
+            with mock.patch.object(A['subprocess'], 'Popen') as process, self.assertRaises(ValueError):
+                A['execute'](self.h, self.authority)
+            process.assert_not_called()
+            self.assertEqual(path.read_text(), '{}')
+            path.unlink()
+
+    def test_native_pass_is_distinct_from_validation_and_completed_skip(self):
+        before = (self.directory / 'run.json').read_bytes()
+        with self.install_native(), mock.patch.dict(g, numerical_validation=lambda h: self.numerical_result()):
+            self.assertEqual(A['execute'](self.h, self.authority), 'validated_complete')
+        with mock.patch.object(A['subprocess'], 'Popen') as process:
+            self.assertEqual(A['execute'](self.h, self.authority), 'validated_complete')
+            process.assert_not_called()
+        self.assertEqual((self.directory / 'run.json').read_bytes(), before)
+        Path(self.h['output_prefix'] + '.events').write_text('corrupt')
+        with self.assertRaises(ValueError):
+            A['status'](self.h, self.authority)
+
+    def test_explicit_admin_recovery_is_idempotent_and_preserves_failure(self):
+        with self.install_native(), mock.patch.dict(g, numerical_validation=mock.Mock(side_effect=OSError('administrative fixture'))):
+            with self.assertRaises(OSError):
+                A['execute'](self.h, self.authority)
+        original = e2.hash_files(self.directory.iterdir())
+        with mock.patch.object(A['subprocess'], 'Popen') as process:
+            with self.assertRaises(ValueError):
+                A['execute'](self.h, self.authority)
+            process.assert_not_called()
+        with mock.patch.dict(g, numerical_validation=lambda h: self.numerical_result()):
+            self.assertEqual(A['validate'](self.h, self.authority, recovery=True), 'recovered_complete')
+            sealed = (self.directory / 'validated_binding.json').read_bytes()
+            self.assertEqual(A['validate'](self.h, self.authority, recovery=True), 'recovered_complete')
+            self.assertEqual((self.directory / 'validated_binding.json').read_bytes(), sealed)
+        e2.check_hashes(original)
+
+    def test_numerical_failure_stops_and_cannot_be_reclassified(self):
+        with self.install_native(), mock.patch.dict(g, numerical_validation=mock.Mock(side_effect=ValueError('numerical fixture'))):
+            with self.assertRaises(ValueError):
+                A['execute'](self.h, self.authority)
+        self.assertEqual(c.load_json(self.directory / 'failure.json')['kind'], 'numerical_validation_failure')
+        with self.assertRaisesRegex(ValueError, 'cannot be administratively recovered'):
+            A['validate'](self.h, self.authority, recovery=True)
+
+    def test_native_failure_and_post_native_provenance_failure_hold(self):
+        with self.install_native(code=1), self.assertRaises(ValueError):
+            A['execute'](self.h, self.authority)
+        self.assertFalse((self.directory / 'native_finished.json').exists())
+        with self.assertRaises((ValueError, FileNotFoundError)):
+            A['validate'](self.h, self.authority, recovery=True)
+
+    def test_post_native_sources_reauthenticated(self):
+        with self.install_native(corrupt_parent=True), self.assertRaises(ValueError):
+            A['execute'](self.h, self.authority)
+        self.assertEqual(c.load_json(self.directory / 'failure.json')['kind'], 'provenance_failure')
+        self.assertFalse((self.directory / 'validated_binding.json').exists())
+
+    def production_fixture(self):
+        self.h['steps'] = 100000000
+        self.h['end_step'] = self.h['start_step'] + self.h['steps']
+        self.h['accepted_parent'] = dict(prefix='/fixture/parent', acceptance_sha256='fixture',
+            snapshot_sha256='fixture', chemistry_sha256='fixture', accepted_step=8000000)
+        self.h['history_sha256'] = A['history_digest'](self.h)
+        path = Path(self.h['approval'])
+        value = c.load_json(path)
+        value.update(purpose='production_GPU_execution', history_sha256=self.h['history_sha256'],
+                     maximum_additional_MD_steps=self.h['steps'], end_step=self.h['end_step'])
+        path.write_text(json.dumps(value))
+        self.h['approval_sha256'] = c.sha256(path)
+        source = Path(self.authority['source_authorization'])
+        value = c.load_json(source)
+        value['approval_sha256'] = e2.hash_files([path])
+        source.write_text(json.dumps(value))
+        active = self.root / 'dormant.json'
+        e2.exclusive_json(active, dict(schema_version=1, stage='E2_prepared_registry'))
+        self.authority.update(purpose='production_GPU_execution', dataset_root=str(self.root),
+            approval_sha256=e2.hash_files([path]), source_authorization_sha256=c.sha256(source),
+            active_registry=str(active), active_registry_sha256=c.sha256(active))
+        (self.directory / 'preparation_approval.json').write_text('immutable production preparation fixture')
+
+    def test_dormant_registry_rejects_ordinary_production(self):
+        self.production_fixture()
+        with mock.patch.object(A['subprocess'], 'Popen') as process:
+            with self.assertRaisesRegex(ValueError, 'bad active'):
+                A['execute'](self.h, self.authority)
+            process.assert_not_called()
+
+    def test_future_100m_adapter_preserves_both_preparation_files(self):
+        self.production_fixture()
+        before = e2.hash_files(self.directory.iterdir())
+        with mock.patch.object(A['registry'], 'resolve', return_value=self.h['accepted_parent']), \
+                self.install_native(), mock.patch.dict(g, numerical_validation=lambda h: self.numerical_result()):
+            self.assertEqual(A['execute'](self.h, self.authority), 'validated_complete')
+            self.assertEqual(A['execute'](self.h, self.authority), 'validated_complete')
+        e2.check_hashes(before)
+
+    def test_fake_completion_and_missing_native_evidence_rejected(self):
+        with self.assertRaises(FileNotFoundError):
+            A['validate'](self.h, self.authority, recovery=True)
+        (self.directory / 'validated_binding.json').write_text('{"receipt":"forged.json","sha256":"bad"}')
+        with self.assertRaises(ValueError):
+            A['status'](self.h, self.authority)
+
+    def test_stress_actual_lag_count_normalization_contract(self):
+        h = self.h
+        for path in A['output_paths'](h):
+            path.write_text('fixture')
+        Path(h['output_prefix'] + '.thermo.tsv').write_text('# T=1\n')
+        path = Path(h['output_prefix'] + '.stress_correlator')
+        rows = [(j * .01, h['steps'] - j) for j in range(16)]
+        for level in range(1, 39):
+            rows.extend((j * 2**level * .01, h['steps']//2**level-j)
+                        for j in range(8, 16) if h['steps']//2**level > j)
+        text = f'# stress_samples={h["steps"]} step0_sampled=no stress_interval_steps=1 dt=0.01\n'
+        text += '# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n'
+        text += ''.join(f'{lag} 1 1 1 1 1 1 0.7 {count}\n' for lag, count in rows)
+        path.write_text(text)
+        with mock.patch.object(c, 'verify_run', return_value=dict(status='valid')):
+            self.assertEqual(A['numerical_validation'](h)['lag_bins'], len(rows))
+            path.write_text(text.replace('0.7', '0.8'))
+            with self.assertRaises(ValueError):
+                A['numerical_validation'](h)
+            path.write_text(text.replace('99999\n', '99998\n'))
+            with self.assertRaises(ValueError):
+                A['numerical_validation'](h)
+        path.unlink()
+        with self.assertRaises(ValueError):
+            A['numerical_validation'](h)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

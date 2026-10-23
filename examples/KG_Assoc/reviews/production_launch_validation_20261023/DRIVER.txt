@@ -1,0 +1,144 @@
+"""User-run bounded GPU compatibility driver. Import/check/status never launch native code."""
+import argparse
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+
+D = Path(__file__).resolve().parent
+P = runpy.run_path(str(D.parent / 'production_100m_preparation_20261023/PREPARE.txt'))
+A = runpy.run_path(str(D / 'ADAPTER.txt'))
+e2 = P['e2']
+c = P['campaign']
+require = e2.require
+ID = 'assoc15_production_100k_compatibility_20261023_v1'
+ROOT = P['ROOT']
+FOLDER = ROOT / 'banks/production_gpu_validation' / ID
+DATASET = ROOT / 'validation_outputs' / ID
+RESERVATION = ROOT / 'banks/production_validation_seed_reservations' / (ID + '.json')
+PLAN = FOLDER / 'plan.json'
+INDEX = D / 'VALIDATION_BINDINGS.log'
+
+
+def load_authority(index):
+    # Authority is published in Git; an arbitrary local JSON cannot authorize execution.
+    relative = index.resolve().relative_to(c.REPOSITORY_ROOT)
+    subprocess.run(['git', 'ls-files', '--error-unmatch', str(relative)],
+                   check=True, capture_output=True)
+    require(subprocess.check_output(['git', 'show', 'HEAD:' + str(relative)]) == index.read_bytes(),
+            'authority publication differs from HEAD')
+    bindings = c.load_json(index)
+    e2.check_hashes(bindings['sha256'])
+    authority = c.load_json(Path(bindings['authority']))
+    require(str(Path(bindings['authority'])) in bindings['sha256'], 'unbound authority')
+    require(authority['frozen_production_plan_sha256'] == c.sha256(P['PLAN']), 'wrong frozen campaign')
+    require(authority['dataset_root'] == str(ROOT), 'wrong source dataset')
+    P['check']()
+    plan = c.load_json(Path(authority['plan']))
+    require(c.sha256(Path(authority['plan'])) == authority['plan_sha256'], 'plan changed')
+    rows = plan['histories']
+    for row in rows:
+        row['approval_sha256'] = authority['approval_sha256'][row['approval']]
+    if authority['purpose'] == 'bounded_production_compatibility':
+        require(authority['campaign'] == ID and len(rows) == 15 and
+                sum(h['steps'] for h in rows) == 1500000 and
+                {h['system'] for h in rows} == {h['system_id'] for h in c.load_json(P['PLAN'])['histories']},
+                'bounded compatibility scope changed')
+        require(all(h['replica'] == (3 if h['system'].endswith('EA10') else 1) and
+                    h['dataset_root'] == str(DATASET) and h['steps'] == 100000 for h in rows),
+                'compatibility parent/steps/output root differs')
+        frozen = c.load_json(P['PLAN'])['histories']
+        chemical, requested, effective, _ = P['transfer'].streams_in_use(ROOT, ignore_attempt=FOLDER)
+        for path in (ROOT / 'banks/production_seed_reservations').glob('*.json'):
+            for row in c.load_json(path)['streams']:
+                chemical.add(row['chemistry_seed'])
+                requested.add(row['md_seed'])
+                effective.add(row['effective_md_seed'])
+        for path in (ROOT / 'banks/production_validation_seed_reservations').glob('*.json'):
+            if path == RESERVATION:
+                continue
+            for row in c.load_json(path)['streams']:
+                chemical.add(row['chemistry_seed'])
+                requested.add(row['md_seed'])
+                effective.add(row['effective_md_seed'])
+        reserved = c.load_json(RESERVATION)['streams']
+        require(len(reserved) == 15, 'validation reservation count differs')
+        for h, stream in zip(rows, reserved):
+            original = next(x for x in frozen if x['system_id'] == h['system'] and x['replica'] == h['replica'])
+            command = list(original['command'])
+            command[0] = str(ROOT / 'builds/production_100m_preserved_20261023_v1/kg_assoc_campaign_production_smoke')
+            command[command.index('--output') + 1] = h['output_prefix']
+            command[command.index('--seed') + 1] = str(h['md_seed'])
+            require(h['command'] == command and h['parent_sha256'] == original['parent']['sha256'] and
+                    h['accepted_parent'] == original['active_e2'] and h['start_step'] == original['start_step'],
+                    'exact accepted parent or smoke command differs')
+            require(stream == {k: h[k] for k in ('system', 'replica', 'md_seed', 'chemistry_seed', 'effective_md_seed')},
+                    'reserved validation stream differs')
+            require(h['md_seed'] == h['chemistry_seed'] and
+                    h['effective_md_seed'] == e2.validation.effective_md_seed(h['md_seed']) and
+                    h['md_seed'] not in chemical | requested and h['effective_md_seed'] not in effective,
+                    'validation stream collision')
+        require(plan['capabilities'] == dict(host_parent_authentication=True,
+                native_endpoint_validation=True, six_channel_stress=True, initial_GPU_readback=False,
+                runtime_independent_candidate_oracle=False), 'unsupported GPU evidence claim')
+    else:
+        require(authority['purpose'] == 'production_GPU_execution' and
+                authority.get('user_approved_production_activation') is True and len(rows) == 45,
+                'separate production activation/authorization required')
+        frozen = c.load_json(P['PLAN'])['histories']
+        require({(h['system'], h['replica']) for h in rows} ==
+                {(h['system_id'], h['replica']) for h in frozen}, 'exact 45 histories required')
+        for h in rows:
+            original = next(x for x in frozen if x['system_id'] == h['system'] and x['replica'] == h['replica'])
+            require(h['command'] == original['command'] and h['steps'] == 100000000 and
+                    h['output_prefix'] == original['output_prefix'] and h['md_seed'] == original['md_seed'],
+                    'frozen production command/seed/output/length changed')
+    require(len({h['output_prefix'] for h in rows}) == len(rows), 'duplicate output path')
+    require(len({h['md_seed'] for h in rows}) == len(rows), 'duplicate validation stream')
+    for h in rows:
+        expected = Path(h['dataset_root']) / 'systems' / h['system'] / 'production' / f"r{h['replica']:03d}" / 'run'
+        require(h['output_prefix'] == str(expected), 'validator output path differs')
+        A['authenticate'](h, authority)
+    return authority, rows
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument('--check', action='store_true')
+    action.add_argument('--status', action='store_true')
+    action.add_argument('--execute', action='store_true')
+    action.add_argument('--recover', metavar='SYSTEM')
+    parser.add_argument('--replica', type=int, choices=(1, 2, 3))
+    parser.add_argument('--production-authority', type=Path)
+    args = parser.parse_args()
+    index = args.production_authority or INDEX
+    authority, rows = load_authority(index)
+    if args.production_authority:
+        require(authority['purpose'] == 'production_GPU_execution', 'wrong production authority purpose')
+    else:
+        require(authority['purpose'] == 'bounded_production_compatibility', 'wrong compatibility authority purpose')
+    if args.check:
+        print('PASS', authority['purpose'], len(rows), 'exact approved histories; no native launch')
+    elif args.status:
+        for h in rows:
+            print(h['system'], f"r{h['replica']:03d}", A['status'](h, authority))
+    else:
+        with P['run_e2'].workflow_lock(ROOT):
+            if args.recover:
+                require(args.replica is not None, 'explicit recovery replica required')
+                selected = [h for h in rows if h['system'] == args.recover and h['replica'] == args.replica]
+                require(len(selected) == 1, 'unapproved recovery identity')
+                print(A['validate'](selected[0], authority, recovery=True))
+            else:
+                for h in rows:
+                    print('CHECK', h['system'], f"r{h['replica']:03d}", flush=True)
+                    print(A['execute'](h, authority), flush=True)
+                print('ALL APPROVED HISTORIES INDEPENDENTLY NUMERICALLY VALIDATED.')
+                if authority['purpose'] == 'bounded_production_compatibility':
+                    print('COMPATIBILITY HOLD: production initial GPU readback and runtime independent '
+                          'candidate oracle are unavailable in this executable; no production activation.')
+
+
+if __name__ == '__main__':
+    main()

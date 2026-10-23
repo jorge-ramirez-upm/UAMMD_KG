@@ -1,0 +1,119 @@
+"""One-time CPU publisher of isolated 100k approvals; no native execution."""
+import copy
+import json
+from pathlib import Path
+import runpy
+import subprocess
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D / 'DRIVER.txt'))
+P = G['P']
+A = G['A']
+e2 = G['e2']
+c = G['c']
+ROOT = G['ROOT']
+FOLDER = G['FOLDER']
+DATASET = G['DATASET']
+ID = G['ID']
+PLAN = G['PLAN']
+RESERVATION = G['RESERVATION']
+
+
+def publish():
+    e2.clean_tree()
+    frozen = P['check']()
+    e2.require(not any(p.exists() for p in (FOLDER, DATASET, RESERVATION, G['INDEX'])),
+               'new immutable validation identity required; preserve existing preparation')
+    with P['run_e2'].workflow_lock(ROOT):
+        chemical, requested, effective, _ = P['transfer'].streams_in_use(ROOT)
+        chemical.update(h['chemistry_seed'] for h in frozen['histories'])
+        requested.update(h['md_seed'] for h in frozen['histories'])
+        effective.update(h['effective_md_seed'] for h in frozen['histories'])
+        for path in (ROOT / 'banks/production_validation_seed_reservations').glob('*.json'):
+            for row in c.load_json(path)['streams']:
+                chemical.add(row['chemistry_seed'])
+                requested.add(row['md_seed'])
+                effective.add(row['effective_md_seed'])
+        selected = [h for h in frozen['histories'] if h['replica'] ==
+                    (3 if h['system_id'].endswith('EA10') else 1)]
+        e2.require(len(selected) == 15, 'all fifteen distinct conditions required')
+        histories = []
+        streams = []
+        seed = 21000000
+        smoke = ROOT / 'builds/production_100m_preserved_20261023_v1/kg_assoc_campaign_production_smoke'
+        for parent in selected:
+            while seed in chemical | requested | effective or e2.validation.effective_md_seed(seed) in effective:
+                seed += 1
+            stream = dict(system=parent['system_id'], replica=parent['replica'], md_seed=seed,
+                          chemistry_seed=seed, effective_md_seed=e2.validation.effective_md_seed(seed))
+            streams.append(stream)
+            chemical.add(seed)
+            requested.add(seed)
+            effective.add(stream['effective_md_seed'])
+            seed += 1
+            directory = DATASET / 'systems' / stream['system'] / 'production' / f"r{stream['replica']:03d}"
+            prefix = directory / 'run'
+            command = copy.deepcopy(parent['command'])
+            command[0] = str(smoke)
+            command[command.index('--output') + 1] = str(prefix)
+            command[command.index('--seed') + 1] = str(stream['md_seed'])
+            # This run.json belongs to the isolated validation dataset, never production.
+            stub = dict(schema_version=1, system_id=stream['system'], replica=stream['replica'],
+                        parent_e2=parent['parent']['prefix'], parent_e1=None, md_seed=stream['md_seed'],
+                        chemistry_seed=stream['chemistry_seed'], campaign=ID, status='prepared_validation',
+                        command=command, production_execution_authorized=False)
+            e2.exclusive_json(directory / 'run.json', stub)
+            history = dict(system=stream['system'], replica=stream['replica'],
+                           steps=100000, start_step=parent['start_step'], end_step=parent['start_step'] + 100000,
+                           dataset_root=str(DATASET), output_prefix=str(prefix), command=command,
+                           md_seed=stream['md_seed'], chemistry_seed=stream['chemistry_seed'],
+                           effective_md_seed=stream['effective_md_seed'],
+                           inherited_chemistry_seed=parent['inherited_chemistry_seed'],
+                           inherited_creations=parent['inherited_creations'], inherited_breaks=parent['inherited_breaks'],
+                           parent_sha256=parent['parent']['sha256'], accepted_parent=parent['active_e2'],
+                           run_sha256=e2.hash_files([directory / 'run.json']),
+                           executable_sha256=e2.hash_files([smoke]),
+                           approval=str(FOLDER / f"approval_{stream['system']}_r{stream['replica']:03d}.json"))
+            history['history_sha256'] = A['history_digest'](history)
+            histories.append(history)
+        e2.exclusive_json(RESERVATION, dict(schema_version=1, campaign=ID,
+                          purpose='bounded_production_compatibility_only', streams=streams,
+                          production_execution_authorized=False))
+        e2.exclusive_json(PLAN, dict(schema_version=1, campaign=ID,
+                          purpose='bounded_production_compatibility', git_sha=c.git_sha(),
+                          frozen_production_plan_sha256=c.sha256(P['PLAN']),
+                          maximum_completed_MD_steps=1500000, steps_each=100000, histories=histories,
+                          capabilities=dict(host_parent_authentication=True, native_endpoint_validation=True,
+                              six_channel_stress=True, initial_GPU_readback=False,
+                              runtime_independent_candidate_oracle=False),
+                          unresolved_gate='no device-initialization/oracle certification from this production executable'))
+        approvals = []
+        for h in histories:
+            path = Path(h['approval'])
+            e2.exclusive_json(path, dict(schema_version=1, purpose='bounded_production_compatibility',
+                approved=True, GPU_execution_authorized=True, plan_sha256=c.sha256(PLAN),
+                history_sha256=h['history_sha256'], system=h['system'], replica=h['replica'],
+                start_step=h['start_step'], end_step=h['end_step'], maximum_additional_MD_steps=100000,
+                executable_sha256=h['executable_sha256']))
+            approvals.append(path)
+        extra = e2.hash_files([P['D'] / 'PREPARE.txt', P['D'] / 'TEST_PREPARATION.txt'] +
+                              [D / name for name in ('ADAPTER.txt', 'DRIVER.txt', 'PREPARE.txt', 'TEST_ADAPTER.txt')])
+        source = FOLDER / 'source_authorization.json'
+        e2.exclusive_json(source, dict(purpose='bounded_production_compatibility_sources_only',
+            git_sha=c.git_sha(), plan_sha256=c.sha256(PLAN), approval_sha256=e2.hash_files(approvals),
+            adapter_sha256=extra, source_sha256=dict(e2.sources(), **extra),
+            source_overrides={}, production_execution_authorized=False))
+        authority = FOLDER / 'authority.json'
+        e2.exclusive_json(authority, dict(schema_version=1, purpose='bounded_production_compatibility',
+            campaign=ID, dataset_root=str(ROOT), plan=str(PLAN), plan_sha256=c.sha256(PLAN),
+            frozen_production_plan_sha256=c.sha256(P['PLAN']), approval_sha256=e2.hash_files(approvals),
+            source_authorization=str(source), source_authorization_sha256=c.sha256(source),
+            production_execution_authorized=False))
+        paths = [PLAN, RESERVATION, source, authority] + approvals
+        paths += [Path(h['output_prefix']).parent / 'run.json' for h in histories]
+        e2.exclusive_json(G['INDEX'], dict(authority=str(authority), sha256=e2.hash_files(paths)))
+        print('PREPARED', ID, '15 x 100000 maximum MD steps; production dormant')
+
+
+if __name__ == '__main__':
+    publish()
