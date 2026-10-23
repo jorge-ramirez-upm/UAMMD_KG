@@ -1,0 +1,121 @@
+"""CPU administrative/compatibility tests; numerical-completion fixtures live only in /tmp."""
+import copy
+import csv
+import json
+from pathlib import Path
+import runpy
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest import mock
+P=runpy.run_path(str(Path(__file__).with_name('PREPARE.txt')))
+# run_path functions retain their own globals; patch that shared namespace directly.
+g=P['prepare'].__globals__
+e2=P['e2'];c=P['campaign'];registry=P['registry']
+class Tests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
+        self.patch=mock.patch.dict(g,ROOT=self.root,PLAN=self.root/'plan.json',FOLDER=self.root/'campaign',
+            REGISTRY=self.root/'banks/inactive.json',RESERVATION=self.root/'banks/reserved.json')
+        self.patch.start()
+    def tearDown(self):self.patch.stop();self.temp.cleanup()
+    def plan(self):
+        rows=[]
+        for system in c.campaign_systems():
+            if not system['associating']:continue
+            for rep in (1,2,3):
+                seed=10000000+len(rows);prefix='/authenticated/parent'
+                h=dict(system_id=system['system_id'],replica=rep,start_step=8000000,end_step=108000000,
+                    md_seed=seed,chemistry_seed=seed,effective_md_seed=e2.validation.effective_md_seed(seed),
+                    parent=dict(prefix=prefix),active_e2=dict(parent_Ea=system['Ea']),
+                    output_prefix=str(self.root/'systems'/system['system_id']/'production'/f'r{rep:03d}'/'run'),
+                    cadence_steps=system['cadence_steps'],production_continuation=False)
+                h['command']=c.production_command(self.root,system,dict(replica=rep,md_seed=seed,parent_e2=prefix,active_e2=h['active_e2']))
+                rows.append(h)
+        return dict(campaign=P['ID'],stage='production_preparation',GPU_execution_authorized=False,
+            registry_activated=False,steps=P['STEPS'],maximum_completed_MD_steps=45*P['STEPS'],histories=rows)
+    def test_exact_45_fixed_100m_scope(self):P['assert_scope'](self.plan())
+    def test_unauthorized_lengths_replicas_outputs_and_seeds_reject(self):
+        for change in ('length','missing','duplicate_output','duplicate_seed','authorize','cadence','command'):
+            p=self.plan()
+            if change=='length':p['steps']=200000000
+            if change=='missing':p['histories'].pop()
+            if change=='duplicate_output':p['histories'][0]['output_prefix']=p['histories'][1]['output_prefix']
+            if change=='duplicate_seed':p['histories'][0]['md_seed']=p['histories'][1]['md_seed']
+            if change=='authorize':p['GPU_execution_authorized']=True
+            if change=='cadence':p['histories'][0]['cadence_steps']={}
+            if change=='command':p['histories'][0]['command']+=['--steps','200000000']
+            with self.subTest(change=change),self.assertRaises(ValueError):P['assert_scope'](p)
+    def test_fresh_requested_chemical_and_effective_streams(self):
+        blocked=e2.validation.effective_md_seed(10000001)
+        rows=P['choose_streams']([('test',1),('test',2)],{10000000},set(),{blocked})
+        self.assertNotIn(rows[0]['md_seed'],(10000000,10000001))
+        self.assertEqual(len({r['effective_md_seed'] for r in rows}),2)
+    def test_reused_campaign_fails_before_any_write(self):
+        g['FOLDER'].mkdir();sentinel=g['FOLDER']/'preserve';sentinel.write_text('old evidence')
+        with mock.patch.object(e2,'clean_tree'),self.assertRaises(ValueError):P['prepare']()
+        self.assertEqual(sentinel.read_text(),'old evidence');self.assertFalse(g['RESERVATION'].exists())
+    def test_dormant_registry_cannot_activate_or_launch(self):
+        g['REGISTRY'].parent.mkdir();g['REGISTRY'].write_text(json.dumps(dict(schema_version=1,stage='E2_prepared_registry')))
+        system=e2.system_by_id('F04_N010_RP080_EE08_EA10')
+        with self.assertRaisesRegex(ValueError,'bad active'):registry.resolve(self.root,g['REGISTRY'],system,1)
+        directory=self.root/'systems'/system['system_id']/'production/r001';directory.mkdir(parents=True)
+        (directory/'run.json').write_text(json.dumps(dict(status='prepared',active_e2=dict(registry=str(g['REGISTRY'])))))
+        args=SimpleNamespace(dataset_root=str(self.root),execute=True,system=[system['system_id']],group=None,replicas='1')
+        with mock.patch.object(c.subprocess,'Popen',side_effect=AssertionError('GPU launch forbidden')),self.assertRaises(ValueError):
+            c.command_launch_production(args)
+    def test_pinned_review_outputs_only_and_changed_physics_reject(self):
+        sources=e2.sources();filtered=e2.scientific_source_hashes(sources)
+        key=next(p for p in sources if p.endswith('rheology_existing_method_20261023/replay/five_32m.summary.json'))
+        self.assertNotIn(key,filtered)
+        self.assertIn(key,e2.scientific_source_hashes(dict(sources,**{key:'tampered'})))
+        extra='/unapproved/review.json';self.assertIn(extra,e2.scientific_source_hashes({extra:'new'}))
+        physical=next(p for p in sources if p.endswith('kg_assoc_kinetics.cuh'))
+        self.assertNotEqual(filtered,e2.scientific_source_hashes(dict(sources,**{physical:'tampered'})))
+        self.assertNotEqual(filtered,e2.scientific_source_hashes({p:v for p,v in sources.items() if p!=physical}))
+    def history(self):
+        h=self.plan()['histories'][0];directory=Path(h['output_prefix']).parent;directory.mkdir(parents=True)
+        g['PLAN'].write_text('{}');return h,directory
+    def test_partial_and_native_pass_are_never_independent_completions(self):
+        h,d=self.history();self.assertEqual(P['output_status'](h),'prepared_no_execution_authority')
+        (d/'stdout.log').write_text('partial');self.assertEqual(P['output_status'](h),'partial_or_failed_hold')
+        Path(h['output_prefix']+'.complete.json').write_text('{}')
+        self.assertEqual(P['output_status'](h),'native_complete_pending_independent_validation')
+        with self.assertRaises(ValueError):P['validate_completed'](h)
+        self.assertFalse((d/'independent_validation_binding.json').exists())
+    def completed_fixture(self,failed):
+        h,d=self.history()
+        for suffix in P['OUTPUTS']:Path(h['output_prefix']+suffix).write_text('unit fixture')
+        Path(h['output_prefix']+'.complete.json').write_text(json.dumps(dict(production_steps=P['STEPS'],initial_absolute_step=h['start_step'],final_absolute_step=h['end_step'])))
+        (d/'stdout.log').write_text(f'STAR_ASSOCIATION_SMOKE PASS\nS1 total_timesteps {P["STEPS"]}\n');(d/'stderr.log').write_text('')
+        if failed:(d/'incomplete.json').write_text('{"reason":"unit administrative fixture"}')
+        Path(h['output_prefix']+'.thermo.tsv').write_text('# T=1\n')
+        ref=P['D'].parent/'rheology_existing_method_20261023/replay/LAG_GRID.csv'
+        rows=[r for r in csv.DictReader(ref.open()) if int(r['samples'])==P['STEPS']]
+        with Path(h['output_prefix']+'.stress_correlator').open('w') as f:
+            f.write(f'# stress_samples={P["STEPS"]} step0_sampled=no stress_interval_steps=1 dt=0.01\n')
+            f.write('# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n')
+            for r in rows:f.write(r['time']+' 0 0 0 0 0 0 0 '+r['n_pairs']+'\n')
+        return h,d
+    def recovery_case(self,failed):
+        h,d=self.completed_fixture(failed);before=e2.hash_files(d.iterdir())
+        with mock.patch.dict(g,execution_evidence=lambda history:{}),mock.patch.object(c,'verify_run',return_value=dict(status='valid',fixture=True)):
+            expected='recovered_complete' if failed else 'validated_complete'
+            self.assertEqual(P['validate_completed'](h),expected)
+            binding=(d/'independent_validation_binding.json').read_bytes()
+            self.assertEqual(P['validate_completed'](h),expected)
+            self.assertEqual((d/'independent_validation_binding.json').read_bytes(),binding)
+            e2.check_hashes(before)
+            Path(h['output_prefix']+'.events').write_text('corrupt')
+            with self.assertRaises(ValueError):P['output_status'](h)
+    def test_authenticated_recovery_is_distinct_idempotent_and_preserves_failure(self):self.recovery_case(True)
+    def test_completed_validation_skip_is_idempotent(self):self.recovery_case(False)
+    def test_missing_and_corrupt_stress_evidence_rejects_recovery(self):
+        h,d=self.completed_fixture(True);path=Path(h['output_prefix']+'.stress_correlator');path.write_text('corrupt')
+        with mock.patch.dict(g,execution_evidence=lambda history:{}),mock.patch.object(c,'verify_run',return_value=dict(status='valid')), \
+                self.assertRaises(ValueError):P['validate_completed'](h)
+        self.assertFalse((d/'independent_validation_binding.json').exists())
+    def test_forged_validation_binding_rejected(self):
+        h,d=self.history();(d/'independent_validation_binding.json').write_text(json.dumps(dict(receipt_sha256={str(d/'missing.json'):'forged'})))
+        with self.assertRaises((ValueError,FileNotFoundError)):P['output_status'](h)
+if __name__=='__main__':unittest.main(verbosity=2)

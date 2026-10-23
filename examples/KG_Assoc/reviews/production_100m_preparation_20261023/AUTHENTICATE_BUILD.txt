@@ -1,0 +1,53 @@
+"""Authenticate existing optimized production bytes and all current native dependencies; no GPU."""
+import hashlib
+import json
+from pathlib import Path
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+D=Path(__file__).resolve().parent
+base=e2.HERE.parent;root=base/'kg_assoc_100m'
+original=root/'builds/run_e2_build_333808c2e2b747b88eb4ae1f54653535'
+record=e2.campaign.load_json(original/'manifest.json')
+e2.check_hashes(record['build_log_sha256'])
+log=(original/'stdout.log').read_text()
+targets=('kg_assoc_campaign_production','kg_assoc_campaign_production_smoke')
+commands=subprocess.check_output(['make','-n','-B',*targets],cwd=base,text=True).splitlines()
+assert len(commands)==2 and all(line in log for line in commands),'optimized commands changed'
+subprocess.run(['git','merge-base','--is-ancestor',record['git_sha'],'HEAD'],check=True)
+native=shlex.split(commands[0]);index=native.index('-o');del native[index:index+2]
+native.remove('../KG/correlator.cpp');native.remove('-lz')
+with tempfile.TemporaryDirectory() as temp:
+    dep=Path(temp)/'production.d'
+    subprocess.run(native+['-M','-o',str(dep)],cwd=base,check=True,timeout=580,capture_output=True)
+    dependencies=shlex.split(dep.read_text().replace('\\\n',' ').split(':',1)[1])
+    native_hashes={}
+    for name in dependencies+['../KG/correlator.cpp']:
+        path=(base/name).resolve()
+        if not path.is_relative_to(e2.campaign.REPOSITORY_ROOT):continue
+        relative=str(path.relative_to(e2.campaign.REPOSITORY_ROOT))
+        historical=subprocess.check_output(['git','show',record['git_sha']+':'+relative])
+        digest=hashlib.sha256(path.read_bytes()).hexdigest()
+        assert digest==hashlib.sha256(historical).hexdigest(),path
+        if str(path) in record['source_sha256']:assert record['source_sha256'][str(path)]==digest
+        native_hashes[str(path)]=digest
+copy=root/'builds/production_100m_preserved_20261023_v1'
+assert not copy.exists(),'immutable build copy already exists'
+copy.mkdir()
+for name in targets:
+    path=base/name
+    assert e2.campaign.sha256(path)==record['executable_sha256'][str(path)]
+    shutil.copy2(path,copy/name)
+profile=dict(schema_version=1,status='authenticated_preserved_optimized_build',historical_git_sha=record['git_sha'],
+    original_manifest=e2.hash_files([original/'manifest.json']),build_log_sha256=record['build_log_sha256'],
+    compile_commands=commands,dependency_probe=native+['-M'],native_dependencies_sha256=native_hashes,
+    executable_sha256=e2.hash_files([base/name for name in targets]),preserved_executable_sha256=e2.hash_files(copy/name for name in targets),
+    compiler=record['compiler'],nvcc=record['nvcc'],fresh_compilation_performed=False,GPU_execution_performed=False,
+    compatibility='all transitive repository-native dependencies and optimized commands unchanged; Makefile changes are unrelated targets')
+e2.exclusive_json(copy/'manifest.json',profile)
+e2.exclusive_json(D/'BUILD_AUTHENTICATION.log',profile)
+print('PASS authenticated',len(native_hashes),'native dependencies and two optimized binaries; preserved copy',copy)

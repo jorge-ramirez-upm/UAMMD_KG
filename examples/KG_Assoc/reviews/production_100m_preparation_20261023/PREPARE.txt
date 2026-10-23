@@ -1,0 +1,328 @@
+"""CPU-only, preparation-only 45-history 100M campaign. No simulation launch action."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+import kg_assoc_e2_registry as registry
+import kg_assoc_e2_transfer as transfer
+import run_e2
+campaign=e2.campaign
+require=e2.require
+D=Path(__file__).resolve().parent
+ROOT=e2.HERE.parent/'kg_assoc_100m'
+ID='assoc15_uninterrupted100m_20261023_v1'
+STEPS=100000000
+FOLDER=ROOT/'production_preparations'/ID
+REGISTRY=ROOT/'banks/e2_prepared_registry'/(ID+'.json')
+RESERVATION=ROOT/'banks/production_seed_reservations'/(ID+'.json')
+PLAN=FOLDER/'plan.json'
+OUTPUTS=('.thermo.tsv','.events','.stress_correlator','.com_trajectory','.topology',
+         '.beads.bin','.final.lammpsdat','.final_associations','.complete.json')
+
+
+def sources():
+    return dict(e2.sources(),**e2.hash_files([D/'PREPARE.txt',D/'TEST_PREPARATION.txt']))
+
+
+def used_streams():
+    chemical,requested,effective,_=transfer.streams_in_use(ROOT)
+    # Reserve the legacy campaign's entire fixed seed namespace as well.
+    requested.update(700000+100*i+r for i,_ in enumerate(campaign.campaign_systems()) for r in (1,2,3))
+    for path in (ROOT/'banks/production_seed_reservations').glob('*.json'):
+        if path==RESERVATION:continue
+        for row in campaign.load_json(path)['streams']:
+            chemical.add(row['chemistry_seed']);requested.add(row['md_seed']);effective.add(row['effective_md_seed'])
+    for path in (ROOT/'systems').glob('*/production/r*/run.json'):
+        row=campaign.load_json(path)
+        if row.get('preparation_campaign')==ID:continue
+        chemical.add(row['chemistry_seed']);requested.add(row['md_seed'])
+    effective.update(e2.validation.effective_md_seed(seed) for seed in requested)
+    return chemical,requested,effective
+
+
+def choose_streams(identities,chemical,requested,effective):
+    streams=[];seed=10000000
+    for sid,replica in identities:
+        while (seed in chemical|requested|effective or
+               e2.validation.effective_md_seed(seed) in effective):seed+=1
+        value=e2.validation.effective_md_seed(seed)
+        streams.append(dict(system=sid,replica=replica,chemistry_seed=seed,md_seed=seed,effective_md_seed=value))
+        chemical.add(seed);requested.add(seed);effective.add(value);seed+=1
+    return streams
+
+
+def build_check(build):
+    require(build['status']=='authenticated_preserved_optimized_build','build status differs')
+    for key in ('original_manifest','build_log_sha256','native_dependencies_sha256',
+                'executable_sha256','preserved_executable_sha256'):e2.check_hashes(build[key])
+    subprocess.run(['git','merge-base','--is-ancestor',build['historical_git_sha'],'HEAD'],check=True)
+    require(build['compile_commands'][0].endswith('-o kg_assoc_campaign_production -lz') and
+            '-O3' in build['compile_commands'][0] and
+            'KG_ASSOC_CAMPAIGN_STEPS' not in build['compile_commands'][0],
+            '100M optimized production command differs')
+
+
+def active_reference(path,record,history):
+    prefix=history['prefix']
+    return dict(prefix=prefix,parent_Ea=history['physics']['Ea'],registry=str(REGISTRY),
+        registry_sha256=campaign.sha256(REGISTRY),acceptance=str(path),acceptance_sha256=campaign.sha256(path),
+        snapshot_sha256=history['sha256'][prefix+'.restart.lammpsdat'],
+        chemistry_sha256=history['sha256'][prefix+'.assoc_restart'],accepted_step=history['end_step'],
+        qualification=record['qualification'])
+
+
+def assert_scope(plan):
+    expected={(s['system_id'],r) for s in campaign.campaign_systems() if s['associating'] for r in (1,2,3)}
+    actual=[(h['system_id'],h['replica']) for h in plan['histories']]
+    require(len(expected)==45 and len(actual)==45 and set(actual)==expected,'exact 15-system triplets required')
+    require(plan['campaign']==ID and plan['stage']=='production_preparation' and
+            plan['GPU_execution_authorized'] is False and plan['registry_activated'] is False and
+            plan['steps']==STEPS and plan['maximum_completed_MD_steps']==45*STEPS,
+            'preparation scope or cap differs')
+    require(len({h['output_prefix'] for h in plan['histories']})==45,'duplicate output paths')
+    require(len({h['md_seed'] for h in plan['histories']})==45 and
+            len({h['effective_md_seed'] for h in plan['histories']})==45,'seed collision')
+    for h in plan['histories']:
+        sid=h['system_id'];replica=h['replica'];system=e2.system_by_id(sid)
+        run_root=ROOT/'systems'/sid/'production'/f'r{replica:03d}'
+        require(h['output_prefix']==str(run_root/'run') and h['end_step']==h['start_step']+STEPS and
+                h['md_seed']==h['chemistry_seed'] and h['effective_md_seed']==e2.validation.effective_md_seed(h['md_seed']),
+                'output, steps or RNG identity differs')
+        stub=dict(replica=replica,md_seed=h['md_seed'],parent_e2=h['parent']['prefix'],active_e2=h['active_e2'])
+        require(h['command']==campaign.production_command(ROOT,system,stub),'native command differs')
+        require(h['cadence_steps']==system['cadence_steps'] and h['production_continuation'] is False,
+                'frozen cadence or continuity differs')
+
+
+def prepare():
+    e2.clean_tree()
+    require(not PLAN.exists() and not FOLDER.exists() and not REGISTRY.exists() and not RESERVATION.exists(),
+            'new immutable campaign identity required; existing preparation is preserved')
+    paths=sorted((ROOT/'banks/e2_acceptance').glob('*.json'));require(len(paths)==15,'15 acceptances required')
+    records=[]
+    for path in paths:
+        record=campaign.load_json(path);sid,=record['permitted_systems']
+        system=e2.system_by_id(sid);registry.exclusive_validate(record,[system])
+        for replica in (1,2,3):
+            target=ROOT/'systems'/sid/'production'/f'r{replica:03d}'
+            require(not target.exists(),'output directory already exists: '+str(target))
+        records.append((path,record))
+    identities=[(record['permitted_systems'][0],r) for _,record in records for r in (1,2,3)]
+    require(len(set(identities))==45,'duplicate/absent accepted systems')
+    build=campaign.load_json(D/'BUILD_AUTHENTICATION.log');build_check(build)
+    with run_e2.workflow_lock(ROOT):
+        lock=ROOT/'banks/.e2.prepare.lock'
+        with lock.open('x'):pass
+        try:
+            streams=choose_streams(identities,*used_streams())
+            e2.exclusive_json(RESERVATION,dict(schema_version=1,campaign=ID,purpose='uninterrupted100M_production',
+                GPU_execution_authorized=False,streams=streams))
+            dormant=dict(schema_version=1,stage='E2_prepared_registry',campaign=ID,activated=False,
+                GPU_execution_authorized=False,systems={record['permitted_systems'][0]:
+                    dict(acceptance=str(path),sha256=campaign.sha256(path),histories=record['histories'],
+                         qualification=record['qualification']) for path,record in records})
+            e2.exclusive_json(REGISTRY,dormant)
+            histories=[];checks=[]
+            for (path,record),batch in zip(records,[streams[i:i+3] for i in range(0,45,3)]):
+                sid=record['permitted_systems'][0];system=e2.system_by_id(sid)
+                for history,stream in zip(record['histories'],batch):
+                    replica=history['replica'];reference=active_reference(path,record,history)
+                    stub=dict(replica=replica,md_seed=stream['md_seed'],parent_e2=history['prefix'],active_e2=reference)
+                    command=campaign.production_command(ROOT,system,stub)
+                    result=subprocess.run(command+['--validate-initial-state'],check=True,capture_output=True,text=True,timeout=30)
+                    require('PRODUCTION_INITIAL_STATE PASS' in result.stdout,'host-only initialization failed')
+                    checks.append(dict(system=sid,replica=replica,stdout=result.stdout,stderr=result.stderr,GPU_steps=0))
+                    geometry=campaign.validate_geometry(Path(history['prefix']+'.restart.lammpsdat'),campaign.expected_geometry(system))
+                    metadata,_=e2.validation.analysis.restart.read_metadata(history['prefix']+'.assoc_restart')
+                    histories.append(dict(system_id=sid,replica=replica,attempt_id=f'{ID}_{sid}_r{replica:03d}',
+                        start_step=history['end_step'],end_step=history['end_step']+STEPS,**{k:stream[k] for k in ('md_seed','chemistry_seed','effective_md_seed')},
+                        parent=dict(prefix=history['prefix'],sha256=history['sha256']),active_e2=reference,
+                        inherited_creations=int(metadata['creations']),inherited_breaks=int(metadata['breaks']),
+                        inherited_chemistry_seed=history['chemistry_seed'],output_prefix=command[command.index('--output')+1],
+                        command=command,cadence_steps=system['cadence_steps'],production_continuation=False,geometry=geometry))
+            plan=dict(schema_version=1,stage='production_preparation',campaign=ID,steps=STEPS,
+                maximum_completed_MD_steps=45*STEPS,GPU_execution_authorized=False,registry_activated=False,
+                git_sha=campaign.git_sha(),source_sha256=sources(),build=build,
+                registry_sha256=e2.hash_files([REGISTRY]),reservation_sha256=e2.hash_files([RESERVATION]),
+                evidence_sha256=e2.hash_files([D/'DECISION.md',D/'BUILD_AUTHENTICATION.log',D/'AUTHENTICATE_BUILD.txt',
+                    D.parent/'rheology_existing_method_20261023/replay/LAG_GRID.csv']),histories=histories)
+            assert_scope(plan);e2.exclusive_json(PLAN,plan)
+            for h in histories:
+                directory=Path(h['output_prefix']).parent
+                stub=dict(schema_version=1,system_id=h['system_id'],replica=h['replica'],status='prepared',
+                    preparation_campaign=ID,production_preparation_only=True,completed_production_steps=0,
+                    parent_e2=h['parent']['prefix'],parent_e1=None,active_e2=h['active_e2'],
+                    md_seed=h['md_seed'],chemistry_seed=h['chemistry_seed'],effective_md_seed=h['effective_md_seed'],
+                    attempt=1,attempt_id=h['attempt_id'],command=h['command'],exit_code=None,validation={},files={},
+                    git_sha=plan['git_sha'],production_continuation=False,geometry=h['geometry'],output_cadence_steps=h['cadence_steps'])
+                e2.exclusive_json(directory/'run.json',stub)
+                e2.exclusive_json(directory/'preparation_approval.json',dict(schema_version=1,purpose='production_preparation_only',
+                    approved=True,GPU_execution_authorized=False,registry_activated=False,plan_sha256=campaign.sha256(PLAN),
+                    system=h['system_id'],replica=h['replica'],maximum_additional_MD_steps=STEPS,
+                    parent_sha256=h['parent']['sha256'],build_sha256=e2.hash_files([D/'BUILD_AUTHENTICATION.log']),
+                    source_sha256=plan['source_sha256'],run_sha256=e2.hash_files([directory/'run.json'])))
+            e2.exclusive_json(FOLDER/'HOST_PREFLIGHT.json',checks)
+            bindings = [PLAN, REGISTRY, RESERVATION, FOLDER/'HOST_PREFLIGHT.json']
+            for h in histories:
+                directory = Path(h['output_prefix']).parent
+                bindings.extend([directory/'run.json', directory/'preparation_approval.json'])
+            e2.exclusive_json(FOLDER/'prepared.json', dict(
+                campaign=ID, stage='immutable_preparation_receipt', sha256=e2.hash_files(bindings)))
+            e2.exclusive_json(D/'PREPARATION_IDENTITY.log', dict(
+                campaign=ID, receipt_sha256=e2.hash_files([FOLDER/'prepared.json'])))
+            print('PREPARED',PLAN,'SHA256',campaign.sha256(PLAN))
+        finally:
+            lock.unlink()
+
+
+def check():
+    identity=campaign.load_json(D/'PREPARATION_IDENTITY.log')
+    require(identity['campaign']==ID, 'preparation identity differs')
+    require(set(identity['receipt_sha256'])=={str(FOLDER/'prepared.json')}, 'receipt path differs')
+    e2.check_hashes(identity['receipt_sha256'])
+    receipt=campaign.load_json(FOLDER/'prepared.json')
+    require(receipt['campaign']==ID and receipt['stage']=='immutable_preparation_receipt',
+            'preparation receipt differs')
+    e2.check_hashes(receipt['sha256'])
+    plan=campaign.load_json(PLAN);assert_scope(plan)
+    require(plan['source_sha256']==sources(),'prepared sources changed')
+    subprocess.run(['git','merge-base','--is-ancestor',plan['git_sha'],'HEAD'],check=True)
+    for key in ('registry_sha256','reservation_sha256','evidence_sha256'):e2.check_hashes(plan[key])
+    build_check(plan['build']);dormant=campaign.load_json(REGISTRY)
+    require(dormant['stage']=='E2_prepared_registry' and dormant['activated'] is False and
+            dormant['GPU_execution_authorized'] is False,'dormant registry scope changed')
+    reserved=campaign.load_json(RESERVATION)['streams']
+    chemical,requested,effective=used_streams()
+    for h,row in zip(plan['histories'],reserved):
+        require(row==dict(system=h['system_id'],**{k:h[k] for k in ('replica','chemistry_seed','md_seed','effective_md_seed')}),
+                'reservation differs')
+        require(h['md_seed'] not in chemical|requested and h['effective_md_seed'] not in effective,'stream collided')
+        e2.check_hashes(h['parent']['sha256'])
+        reference=dormant['systems'][h['system_id']]
+        require(reference['sha256']==h['active_e2']['acceptance_sha256'],'acceptance binding changed')
+        e2.check_hashes({reference['acceptance']:reference['sha256']})
+        directory=Path(h['output_prefix']).parent;approval=campaign.load_json(directory/'preparation_approval.json')
+        require(approval['GPU_execution_authorized'] is False and approval['plan_sha256']==campaign.sha256(PLAN) and
+                approval['system']==h['system_id'] and approval['replica']==h['replica'] and
+                approval['maximum_additional_MD_steps']==STEPS and approval['source_sha256']==plan['source_sha256'],
+                'preparation approval differs')
+        e2.check_hashes(approval['run_sha256'])
+    expected_bindings={str(p) for p in (PLAN, REGISTRY, RESERVATION, FOLDER/'HOST_PREFLIGHT.json')}
+    for h in plan['histories']:
+        directory=Path(h['output_prefix']).parent
+        expected_bindings.update(str(directory/name) for name in ('run.json','preparation_approval.json'))
+    require(set(receipt['sha256'])==expected_bindings, 'missing or extra preparation bindings')
+    require(len(reserved)==45,'reservation count differs')
+    return plan
+
+
+def output_status(history):
+    directory=Path(history['output_prefix']).parent
+    binding=directory/'independent_validation_binding.json'
+    if binding.exists():
+        record=campaign.load_json(binding);e2.check_hashes(record['receipt_sha256'])
+        receipt=campaign.load_json(Path(next(iter(record['receipt_sha256']))))
+        require(record['plan_sha256']==campaign.sha256(PLAN) and receipt['plan_sha256']==campaign.sha256(PLAN) and
+                receipt['status']=='independently_validated' and receipt['system']==history['system_id'] and
+                receipt['replica']==history['replica'] and receipt['additional_steps']==STEPS and
+                receipt['start_step']==history['start_step'] and receipt['end_step']==history['end_step'] and
+                receipt['validation']['status']=='valid','validation receipt differs')
+        require(set(receipt['output_sha256'])=={history['output_prefix']+suffix for suffix in OUTPUTS} |
+                {str(directory/'stdout.log'),str(directory/'stderr.log')},'validation outputs absent')
+        require(receipt['execution_sha256']==execution_evidence(history) |
+                (e2.hash_files([directory/'incomplete.json']) if receipt['recovered_administrative_failure'] else {}),
+                'execution evidence differs')
+        e2.check_hashes(receipt['output_sha256']);e2.check_hashes(receipt['execution_sha256'])
+        return 'recovered_complete' if receipt['recovered_administrative_failure'] else 'validated_complete'
+    completion=Path(history['output_prefix']+'.complete.json')
+    if completion.exists():return 'native_complete_pending_independent_validation'
+    if any(Path(history['output_prefix']+suffix).exists() for suffix in OUTPUTS) or any((directory/n).exists() for n in ('started.json','incomplete.json','stdout.log','stderr.log')):
+        return 'partial_or_failed_hold'
+    return 'prepared_no_execution_authority'
+
+
+def execution_evidence(history):
+    directory=Path(history['output_prefix']).parent
+    approval=directory/'execution_authorization.json'
+    started=directory/'started.json'
+    require(approval.is_file() and started.is_file(),'no authenticated native execution; no recovery permitted')
+    authority=campaign.load_json(approval);launch=campaign.load_json(started)
+    require(authority.get('purpose')=='production_GPU_execution' and authority.get('approved') is True and
+            authority.get('GPU_execution_authorized') is True and
+            authority.get('plan_sha256')==campaign.sha256(PLAN) and
+            authority.get('system')==history['system_id'] and authority.get('replica')==history['replica'] and
+            authority.get('maximum_additional_MD_steps')==STEPS and
+            authority.get('prepared_registry_sha256')==campaign.sha256(REGISTRY),
+            'execution authority differs')
+    require(launch.get('command')==history['command'] and launch.get('plan_sha256')==campaign.sha256(PLAN) and
+            launch.get('approval_sha256')==campaign.sha256(approval) and
+            launch.get('source_sha256')==sources(),'started receipt differs')
+    e2.check_hashes(launch['executable_sha256'])
+    require(launch['executable_sha256']=={history['command'][0]:campaign.sha256(Path(history['command'][0]))},
+            'started executable differs')
+    active_path=Path(authority['active_registry'])
+    e2.check_hashes({str(active_path):authority['active_registry_sha256']})
+    active=registry.resolve(ROOT,active_path,e2.system_by_id(history['system_id']),history['replica'])
+    for key in ('prefix','parent_Ea','acceptance','acceptance_sha256','snapshot_sha256','chemistry_sha256','accepted_step','qualification'):
+        require(active[key]==history['active_e2'][key],'activated parent differs')
+    return e2.hash_files([approval,started,active_path])
+
+
+def validate_completed(history):
+    """CPU validation recovery only; no ability to launch or resume native execution."""
+    directory=Path(history['output_prefix']).parent
+    evidence=execution_evidence(history)
+    footer=(directory/'stdout.log').read_text()
+    require('STAR_ASSOCIATION_SMOKE PASS' in footer and f'S1 total_timesteps {STEPS}' in footer,
+            'native successful completion absent')
+    completion=campaign.load_json(Path(history['output_prefix']+'.complete.json'))
+    require(completion['production_steps']==STEPS and completion['initial_absolute_step']==history['start_step'] and
+            completion['final_absolute_step']==history['end_step'],'native duration differs')
+    validation=campaign.verify_run(ROOT,e2.system_by_id(history['system_id']),history['replica'])
+    sys.path.insert(0,str(e2.HERE.parent/'analysis'))
+    import analyze_p42_rheology_pilot as rheology
+    metadata,rows=rheology.read_stress_correlator(history['output_prefix']+'.stress_correlator')
+    require(metadata['stress_samples']==STEPS and metadata['support_mode']=='exact_n_pairs','stress provenance differs')
+    import csv
+    expected=[r for r in csv.DictReader((D.parent/'rheology_existing_method_20261023/replay/LAG_GRID.csv').open())
+              if int(r['samples'])==STEPS]
+    require(len(rows)==len(expected) and all(abs(row['time']-float(ref['time']))<1e-8 and
+            row['n_pairs']==int(ref['n_pairs']) for row,ref in zip(rows,expected)),'stress lag/count contract differs')
+    paths=[Path(history['output_prefix']+suffix) for suffix in OUTPUTS]
+    paths += [directory/'stdout.log',directory/'stderr.log']
+    failed=directory/'incomplete.json'
+    if failed.exists():evidence.update(e2.hash_files([failed]))
+    value=dict(schema_version=1,status='independently_validated',plan_sha256=campaign.sha256(PLAN),
+        system=history['system_id'],replica=history['replica'],additional_steps=STEPS,
+        start_step=history['start_step'],end_step=history['end_step'],validation=validation,
+        output_sha256=e2.hash_files(paths),execution_sha256=evidence,
+        recovered_administrative_failure=failed.exists(),GPU_steps_executed_by_validator=0)
+    receipt=directory/('validation_recovery.json' if failed.exists() else 'independent_validation.json')
+    if receipt.exists():require(campaign.load_json(receipt)==value,'immutable validation receipt differs')
+    else:e2.exclusive_json(receipt,value)
+    binding=directory/'independent_validation_binding.json'
+    value=dict(schema_version=1,plan_sha256=campaign.sha256(PLAN),receipt_sha256=e2.hash_files([receipt]))
+    if binding.exists():require(campaign.load_json(binding)==value,'immutable validation binding differs')
+    else:e2.exclusive_json(binding,value)
+    return output_status(history)
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action',choices=('prepare','check','status','validate-completed'))
+    parser.add_argument('--system');parser.add_argument('--replica',type=int,choices=(1,2,3))
+    args=parser.parse_args()
+    if args.action=='prepare':prepare()
+    else:
+        plan=check()
+        if args.action=='validate-completed':
+            require(args.system is not None and args.replica is not None,'one explicit completed history required')
+            history=next(h for h in plan['histories'] if h['system_id']==args.system and h['replica']==args.replica)
+            print(validate_completed(history))
+        elif args.action=='status':
+            for history in plan['histories']:print(history['system_id'],f"r{history['replica']:03d}",output_status(history))
+        else:print('PASS 45 immutable 100M preparations; dormant registry; GPU execution unauthorized')

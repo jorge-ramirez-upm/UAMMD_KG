@@ -1,0 +1,26 @@
+diff --git a/examples/KG_Assoc/campaign/kg_assoc_e2.py b/examples/KG_Assoc/campaign/kg_assoc_e2.py
+index 437de5b..3861adc 100644
+--- a/examples/KG_Assoc/campaign/kg_assoc_e2.py
++++ b/examples/KG_Assoc/campaign/kg_assoc_e2.py
+@@ -167,7 +167,20 @@ def scientific_source_hashes(hashes):
+                          path.parts[-4:-1] == ('examples', 'KG_Assoc', 'campaign'))
+         return campaign_file and (path.name in ignored or path.name.startswith('test_'))
+ 
+-    return {name: value for name, value in hashes.items() if not administrative(name)}
++    # These immutable analysis outputs were added at b7c7357, not compiled or executed.
++    review = HERE.parent / 'reviews/rheology_existing_method_20261023/replay'
++    evidence = {
++        str(review / 'two_32m.summary.json'):
++            'c0a02bcbb4bddec5089b8231d2d15c40562b572a3f2724656b30a4b99e8f30e1',
++        str(review / 'two_32m.viscosity_summary.json'):
++            '77eb7e3f9d2ca190a53841c41c99d66afb8638b19f78284faa3b916b0e7dfbd0',
++        str(review / 'five_32m.viscosity_summary.json'):
++            '096dade8b7a7655f4f30f7ca3ab8cdf4a7f0f69328e17c73d84efe9bef571353',
++        str(review / 'five_32m.summary.json'):
++            '2818b480520704da0d63be6c40c19a9487becf7eea39a5297d0ccb032fa7c413',
++    }
++    return {name: value for name, value in hashes.items()
++            if not administrative(name) and evidence.get(name) != value}
+ 
+ 
+ def check_build(path):

@@ -1,0 +1,16 @@
+test_authenticated_recovery_is_distinct_idempotent_and_preserves_failure (__main__.Tests) ... ok
+test_completed_validation_skip_is_idempotent (__main__.Tests) ... ok
+test_dormant_registry_cannot_activate_or_launch (__main__.Tests) ... ok
+test_exact_45_fixed_100m_scope (__main__.Tests) ... ok
+test_forged_validation_binding_rejected (__main__.Tests) ... ok
+test_fresh_requested_chemical_and_effective_streams (__main__.Tests) ... ok
+test_missing_and_corrupt_stress_evidence_rejects_recovery (__main__.Tests) ... ok
+test_partial_and_native_pass_are_never_independent_completions (__main__.Tests) ... ok
+test_pinned_review_outputs_only_and_changed_physics_reject (__main__.Tests) ... ok
+test_reused_campaign_fails_before_any_write (__main__.Tests) ... ok
+test_unauthorized_lengths_replicas_outputs_and_seeds_reject (__main__.Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.260s
+
+OK
