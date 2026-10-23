@@ -1,0 +1,113 @@
+{
+  "campaign": "assoc15_production_100k_compatibility_20261023_v1",
+  "production_execution_authorized": false,
+  "purpose": "bounded_production_compatibility_only",
+  "schema_version": 1,
+  "streams": [
+    {
+      "chemistry_seed": 21000000,
+      "effective_md_seed": 29714504,
+      "md_seed": 21000000,
+      "replica": 1,
+      "system": "F03_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000001,
+      "effective_md_seed": 21338186,
+      "md_seed": 21000001,
+      "replica": 1,
+      "system": "F04_N010_RP020_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000002,
+      "effective_md_seed": 12912716,
+      "md_seed": 21000002,
+      "replica": 1,
+      "system": "F04_N010_RP040_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000003,
+      "effective_md_seed": 4536398,
+      "md_seed": 21000003,
+      "replica": 1,
+      "system": "F04_N010_RP060_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000004,
+      "effective_md_seed": 4291078207,
+      "md_seed": 21000004,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE04_EA04"
+    },
+    {
+      "chemistry_seed": 21000005,
+      "effective_md_seed": 4282701889,
+      "md_seed": 21000005,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE06_EA04"
+    },
+    {
+      "chemistry_seed": 21000006,
+      "effective_md_seed": 4274276419,
+      "md_seed": 21000006,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000007,
+      "effective_md_seed": 4265900101,
+      "md_seed": 21000007,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE08_EA06"
+    },
+    {
+      "chemistry_seed": 21000008,
+      "effective_md_seed": 4257671257,
+      "md_seed": 21000008,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE08_EA08"
+    },
+    {
+      "chemistry_seed": 21000009,
+      "effective_md_seed": 4249294935,
+      "md_seed": 21000009,
+      "replica": 3,
+      "system": "F04_N010_RP080_EE08_EA10"
+    },
+    {
+      "chemistry_seed": 21000010,
+      "effective_md_seed": 4240869469,
+      "md_seed": 21000010,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE10_EA04"
+    },
+    {
+      "chemistry_seed": 21000011,
+      "effective_md_seed": 4232493147,
+      "md_seed": 21000011,
+      "replica": 1,
+      "system": "F04_N010_RP080_EE12_EA04"
+    },
+    {
+      "chemistry_seed": 21000012,
+      "effective_md_seed": 4224067665,
+      "md_seed": 21000012,
+      "replica": 1,
+      "system": "F04_N020_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000013,
+      "effective_md_seed": 4215691343,
+      "md_seed": 21000013,
+      "replica": 1,
+      "system": "F04_N040_RP080_EE08_EA04"
+    },
+    {
+      "chemistry_seed": 21000014,
+      "effective_md_seed": 4207265877,
+      "md_seed": 21000014,
+      "replica": 1,
+      "system": "F06_N010_RP080_EE08_EA04"
+    }
+  ]
+}

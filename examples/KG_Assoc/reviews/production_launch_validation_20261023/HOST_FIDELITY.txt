@@ -1,0 +1,42 @@
+"""Host-only accepted-parent representation audit; not device-readback evidence."""
+import hashlib
+import json
+import math
+from pathlib import Path
+import runpy
+import struct
+import sys
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D / 'DRIVER.txt'))
+c = G['c']
+e = G['e2']
+sys.path.insert(0, str(e.HERE))
+import kg_assoc_e2_readback as readback
+plan = c.load_json(G['PLAN'])
+rows = []
+for h in plan['histories']:
+    prefix = h['accepted_parent']['prefix']
+    e.check_hashes(h['parent_sha256'])
+    parent = c.parse_lammps_data(prefix + '.restart.lammpsdat')
+    pairs = c.validate_assoc_initial_state(prefix + '.assoc_restart', e.system_by_id(h['system']))
+    e.require(set(parent['atoms']) == set(parent['positions']) == set(parent['velocities']),
+              'missing coordinate/velocity/identity')
+    partners = {particle: -1 for particle in parent['atoms']}
+    for first, second in pairs:
+        e.require(first != second and parent['atoms'][first][1] == parent['atoms'][second][1] == 2,
+                  'invalid sticker association')
+        partners[first] = second - 1
+        partners[second] = first - 1
+    digest = hashlib.sha256()
+    for particle in sorted(parent['atoms']):
+        position = readback.represented_position(parent['positions'][particle], parent['bounds'])
+        velocity = [struct.unpack('<f', struct.pack('<f', v))[0] for v in parent['velocities'][particle]]
+        e.require(all(math.isfinite(v) for v in position + velocity), 'nonfinite parent representation')
+        molecule, kind = parent['atoms'][particle]
+        digest.update(struct.pack('<4i6f', particle - 1, molecule, kind, partners[particle], *position, *velocity))
+    rows.append(dict(system=h['system'], replica=h['replica'], particles=len(parent['atoms']),
+                     active_associations=len(pairs), represented_state_sha256=digest.hexdigest(),
+                     components='ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities',
+                     initial_GPU_readback_executed=False))
+print(json.dumps(rows, indent=2))

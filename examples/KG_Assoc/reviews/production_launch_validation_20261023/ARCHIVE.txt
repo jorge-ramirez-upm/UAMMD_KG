@@ -1,0 +1,71 @@
+"""Archive new authorization evidence only; no GPU launch or existing-record modification."""
+import csv
+import json
+from pathlib import Path
+import runpy
+import shlex
+import tarfile
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D / 'DRIVER.txt'))
+c = G['c']
+e = G['e2']
+index = c.load_json(G['INDEX'])
+e.check_hashes(index['sha256'])
+authority = c.load_json(Path(index['authority']))
+plan = c.load_json(G['PLAN'])
+rows = []
+for h in plan['histories']:
+    a = h['accepted_parent']
+    rows.append(dict(system=h['system'], replica=h['replica'], start_step=h['start_step'],
+        end_step=h['end_step'], steps=h['steps'], md_seed=h['md_seed'], chemistry_seed=h['chemistry_seed'],
+        effective_md_seed=h['effective_md_seed'], inherited_chemistry_seed=h['inherited_chemistry_seed'],
+        inherited_creations=h['inherited_creations'], inherited_breaks=h['inherited_breaks'],
+        parent_prefix=a['prefix'], parent_restart_sha256=a['snapshot_sha256'],
+        parent_sidecar_sha256=a['chemistry_sha256'], acceptance=a['acceptance'], acceptance_sha256=a['acceptance_sha256'],
+        output_prefix=h['output_prefix'], approval=h['approval'], approval_sha256=authority['approval_sha256'][h['approval']],
+        source_authorization=authority['source_authorization'], source_authorization_sha256=authority['source_authorization_sha256'],
+        executable=h['command'][0], executable_sha256=h['executable_sha256'][h['command'][0]],
+        native_argv=shlex.join(h['command']), production_authorized=False))
+with (D / 'VALIDATION_HISTORIES.csv').open('x') as stream:
+    writer = csv.DictWriter(stream, fieldnames=rows[0], lineterminator='\n')
+    writer.writeheader()
+    writer.writerows(rows)
+paths = [Path(p) for p in index['sha256']] + [G['INDEX']]
+with tarfile.open(D / 'AUTHORIZATION_METADATA.tar.gz', 'x:gz') as archive:
+    for path in paths:
+        archive.add(path, arcname=str(path.relative_to(c.REPOSITORY_ROOT)), recursive=False)
+for target, path in [('VALIDATION_PLAN.log', G['PLAN']), ('RESERVATION.log', G['RESERVATION']),
+                     ('AUTHORITY.log', Path(index['authority']))] + [
+                     (f'SOURCE_AUTHORIZATION_v{i}.log', G['FOLDER'] / name) for i, name in (
+                         (1, 'source_authorization.json'), (2, 'source_authorization_v2.json'),
+                         (3, 'source_authorization_v3.json'))]:
+    with (D / target).open('xb') as stream:
+        stream.write(path.read_bytes())
+metadata = dict(campaign=G['ID'], purpose=authority['purpose'], histories=15,
+    maximum_steps_each=100000, maximum_aggregate_steps=1500000, production_execution_authorized=False,
+    authority=e.hash_files([Path(index['authority'])]), publication=e.hash_files([G['INDEX']]),
+    adapter=e.hash_files([D / 'ADAPTER.txt', D / 'DRIVER.txt']),
+    plan=e.hash_files([G['PLAN']]), reservation=e.hash_files([G['RESERVATION']]),
+    source_authorization=e.hash_files([Path(authority['source_authorization'])]),
+    approvals=authority['approval_sha256'], native_executable=rows[0]['executable_sha256'],
+    preparation_git_sha=plan['git_sha'], latest_source_git_sha=c.load_json(Path(authority['source_authorization']))['git_sha'],
+    protected_bindings=len(c.load_json(D / 'PRESERVED.sha256')), GPU_steps_executed=0)
+(D / 'IDENTITIES.log').write_text(json.dumps(metadata, indent=2, sort_keys=True) + '\n')
+previous = D.parent / 'production_100m_preparation_20261023/BUDGET.csv'
+budget = []
+for row in csv.DictReader(previous.open()):
+    system = e.system_by_id(row['system'])
+    atoms = int(row['atoms'])
+    bonds = system['number_of_stars'] * system['f'] * system['N']
+    binary_bytes = 84 + atoms * 12 + bonds * 8 + 20 + atoms * 12
+    budget.append(dict(system=row['system'], steps=100000,
+        historical_linear_GPU_seconds=float(row['historical_linear_GPU_hours']) * 3600 / 3 / 1000,
+        binary_bead_bytes=binary_bytes, thermo_rows=100, COM_topology_frames=10, bead_frames=1, raw_stress_bytes=0))
+with (D / 'BUDGET.csv').open('x') as stream:
+    writer = csv.DictWriter(stream, fieldnames=budget[0], lineterminator='\n')
+    writer.writeheader()
+    writer.writerows(budget)
+print(json.dumps(dict(histories=len(rows), protected_bindings=metadata['protected_bindings'],
+    approximate_GPU_seconds=sum(r['historical_linear_GPU_seconds'] for r in budget),
+    binary_bead_bytes=sum(r['binary_bead_bytes'] for r in budget), **metadata['adapter']), indent=2))

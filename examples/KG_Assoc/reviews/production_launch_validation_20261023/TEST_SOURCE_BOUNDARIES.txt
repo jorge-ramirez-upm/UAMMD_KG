@@ -1,0 +1,56 @@
+"""Focused CPU source-boundary tests using temporary, explicitly synthetic authorities."""
+import json
+from pathlib import Path
+import runpy
+import unittest
+from unittest import mock
+
+T = runpy.run_path(str(Path(__file__).with_name('TEST_ADAPTER.txt')))
+A = T['A']
+e = T['e2']
+c = T['c']
+
+
+class SourceTests(unittest.TestCase):
+    setUp = T['AdapterTests'].setUp
+
+    def authorize_native_fixture(self):
+        source = Path(self.authority['source_authorization'])
+        value = c.load_json(source)
+        value['source_sha256']['/fixture/physics.cuh'] = 'original-physics'
+        source.write_text(json.dumps(value))
+        self.authority['source_authorization_sha256'] = c.sha256(source)
+
+    def test_exact_native_map_and_changed_physics_reject(self):
+        self.authorize_native_fixture()
+        with mock.patch.object(e, 'sources', return_value={'/fixture/physics.cuh': 'original-physics'}):
+            A['authenticate'](self.h, self.authority)
+        with mock.patch.object(e, 'sources', return_value={'/fixture/physics.cuh': 'changed-physics'}):
+            with self.assertRaisesRegex(ValueError, 'source map differs'):
+                A['authenticate'](self.h, self.authority)
+
+    def test_missing_native_source_reject(self):
+        self.authorize_native_fixture()
+        with mock.patch.object(e, 'sources', return_value={}):
+            with self.assertRaisesRegex(ValueError, 'source map differs'):
+                A['authenticate'](self.h, self.authority)
+
+    def test_extra_native_source_reject(self):
+        self.authorize_native_fixture()
+        with mock.patch.object(e, 'sources', return_value={
+                '/fixture/physics.cuh': 'original-physics', '/fixture/new.cu': 'extra'}):
+            with self.assertRaisesRegex(ValueError, 'source map differs'):
+                A['authenticate'](self.h, self.authority)
+
+    def test_arbitrary_local_authority_cannot_publish_execution(self):
+        driver = runpy.run_path(str(Path(__file__).with_name('DRIVER.txt')))
+        untrusted = self.root / 'not-a-published-authority.log'
+        untrusted.write_text('{}')
+        with mock.patch.object(A['subprocess'], 'Popen') as process:
+            with self.assertRaises(ValueError):
+                driver['load_authority'](untrusted)
+            process.assert_not_called()
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

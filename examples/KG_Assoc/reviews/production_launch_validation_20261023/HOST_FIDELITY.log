@@ -1,0 +1,137 @@
+[
+  {
+    "system": "F03_N010_RP080_EE08_EA04",
+    "replica": 1,
+    "particles": 32938,
+    "active_associations": 1350,
+    "represented_state_sha256": "13faaf7d14eaf2073ad2f112e90c2ba683921657fa1353993e647abab8df7523",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP020_EE08_EA04",
+    "replica": 1,
+    "particles": 174250,
+    "active_associations": 1596,
+    "represented_state_sha256": "c7ea76de6a0f6f2842744f4b95545d201a78d9b8da9955b434f56627628ca615",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP040_EE08_EA04",
+    "replica": 1,
+    "particles": 87125,
+    "active_associations": 1711,
+    "represented_state_sha256": "2f8a8fc422daa8c8e57246365b2ce3393cd0e4ac4cf8fef9b5a07bd45e05f978",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP060_EE08_EA04",
+    "replica": 1,
+    "particles": 58083,
+    "active_associations": 1770,
+    "represented_state_sha256": "467a3638708ae8acf97473cc4a67f08805705b45bcbea4f419678759199a137a",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE04_EA04",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 913,
+    "represented_state_sha256": "ab6619347d84012b0a7af276a6cc558fc34507a4018d2a78ae088dd43bb19a95",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE06_EA04",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 1484,
+    "represented_state_sha256": "de580c456a3906590d01c0ebc2c7fcee1854404a493da13ebf7c5f3925297dec",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE08_EA04",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 1783,
+    "represented_state_sha256": "e612998ddc670d592cfac4ba617f75b18660cc7cc429a473db218cb7684f6b42",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE08_EA06",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 1805,
+    "represented_state_sha256": "b3c2c79dd84c6c44b0649633189a4cc9599774deb91c8862526544254ab0f2a1",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE08_EA08",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 1802,
+    "represented_state_sha256": "f2d36c8c4a9cbd3744a38c7f2aa00d31fde206d820f060b5abad476c9e452dcd",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE08_EA10",
+    "replica": 3,
+    "particles": 43563,
+    "active_associations": 1804,
+    "represented_state_sha256": "72ca56029c0a68dde9619461f2128e9aedfe991335dd1b4d54e3fb8d06f5f5d4",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE10_EA04",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 1926,
+    "represented_state_sha256": "f42464e1c7fcfc19ff6f5df6d7a72933abe7ee26db51127421d67c7790f46fca",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N010_RP080_EE12_EA04",
+    "replica": 1,
+    "particles": 43563,
+    "active_associations": 1971,
+    "represented_state_sha256": "a6f50ae9ce676227905775595f74c9b08cd0bf777a07cfa9c86567e1abb22058",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N020_RP080_EE08_EA04",
+    "replica": 1,
+    "particles": 86063,
+    "active_associations": 1694,
+    "represented_state_sha256": "c47a15c3c608348ec854bb0d597b6671d055ec4a7cb4614a5fdf0ebdd5c05107",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F04_N040_RP080_EE08_EA04",
+    "replica": 1,
+    "particles": 171063,
+    "active_associations": 1605,
+    "represented_state_sha256": "2101c9e1f79427e1fb81d14bbabfc7ae8c8d1c568f7aebb71833a944abc079c1",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  },
+  {
+    "system": "F06_N010_RP080_EE08_EA04",
+    "replica": 1,
+    "particles": 64813,
+    "active_associations": 2670,
+    "represented_state_sha256": "2abc0fd6e12e049972dda2120ccf4afb19aac4c24e546ac08c56db02531bc4df",
+    "components": "ID,molecule,type,partner; 3 float32 represented xyz; 3 float32 velocities",
+    "initial_GPU_readback_executed": false
+  }
+]

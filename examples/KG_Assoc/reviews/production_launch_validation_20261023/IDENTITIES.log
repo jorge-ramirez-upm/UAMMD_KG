@@ -1,0 +1,49 @@
+{
+  "GPU_steps_executed": 0,
+  "adapter": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_launch_validation_20261023/ADAPTER.txt": "b4995b93bd9d9f3f890d360f8f0af7504f2e29bdc091e964fb243f03e5341dd8",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_launch_validation_20261023/DRIVER.txt": "172f05dd463e3748586d00d402e9c456081275ca5df8b962932703b487880f51"
+  },
+  "approvals": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F03_N010_RP080_EE08_EA04_r001.json": "2b48e87ca8e2e21967b7c7b42dbcff39a87d60156c816de5be7d655ab5bbd66a",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP020_EE08_EA04_r001.json": "32e136306c93fc3470e6ed729003af226be2cc2cda3831cbc5ccd2f0c2a225ac",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP040_EE08_EA04_r001.json": "2391e6f618295e657a817d05dfeeebe4576d26518598694d30c43f1f1422213c",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP060_EE08_EA04_r001.json": "659e34d5a66b26d409e9fcebc291e4f20546d79475d7f7bfc97162a5822d18f8",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE04_EA04_r001.json": "269234b590a8ee32af78809db58e82408b01dd7941814b7dd4cc81bbeffba945",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE06_EA04_r001.json": "99cc85c23991f4be672bf2f91c405eb40265ec17eda63a862682a1bbee1439fe",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE08_EA04_r001.json": "c9e2ba8a469063491d4a6754d1cd1c7e5156d4445da99ef525494ce9a7dffd77",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE08_EA06_r001.json": "ea965d610fb0ad5f692f4d72543ea0dd0da8b7ea0e6c791b9928973b67f6fa4c",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE08_EA08_r001.json": "c9284a74fc6cd251735a47d9ddcbcbb0e1e64e2ca114f34224a82f689482161e",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE08_EA10_r003.json": "b6ee75dd9bae34ebfcbff9560c87af98fec99200f4b58a363dcb45d5ffeecb1b",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE10_EA04_r001.json": "9b2788963aa5c1dc7101dbb35eb66739aa2c2e3f07ea6f605f98dfeb68ff68cd",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N010_RP080_EE12_EA04_r001.json": "d7a3d3eb9cf3b746b936ba6161d51023eb725297be4b5ded89b3a6427d29e810",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N020_RP080_EE08_EA04_r001.json": "b104f0b86bba1f2124214b15c37c119f47238db77c10c22c408cf4eb7f7832f8",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F04_N040_RP080_EE08_EA04_r001.json": "6aa44d9ea785f728386803cad98d1693bc89da3022b9edee8f4763ff19dcf07d",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/approval_F06_N010_RP080_EE08_EA04_r001.json": "a8b4a215525cc01a55ebfd85f8186ab0b2c1691bedeae0b47058d762641ad7e9"
+  },
+  "authority": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/authority_v3.json": "49600a91efee280568c304d901af52a97cccf320692674dd45dba7086997e5bb"
+  },
+  "campaign": "assoc15_production_100k_compatibility_20261023_v1",
+  "histories": 15,
+  "latest_source_git_sha": "315c9153cba3006ad34841a5ea88123d9c042e3c",
+  "maximum_aggregate_steps": 1500000,
+  "maximum_steps_each": 100000,
+  "native_executable": "e1a00204f8753b4e513e6817169f40ec4aca0854decf52553550aaf25756d6d7",
+  "plan": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/plan.json": "d31fec4e07ec7a52aaa05f6a217802bab14e122b39513071d55ae341ae54dd34"
+  },
+  "preparation_git_sha": "c1357f6b33c69ed18058d868960678334c4f3c58",
+  "production_execution_authorized": false,
+  "protected_bindings": 5171,
+  "publication": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_launch_validation_20261023/VALIDATION_BINDINGS_v3.log": "57044e529d8f4397b79c041f343f09ec9b5927a7bef705e7bb10f60767e5baca"
+  },
+  "purpose": "bounded_production_compatibility",
+  "reservation": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_validation_seed_reservations/assoc15_production_100k_compatibility_20261023_v1.json": "f6f09a911a7cabf8db4bd320a34c144a7cc3429cc8275506d57fe6adb2acc69f"
+  },
+  "source_authorization": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/source_authorization_v3.json": "279cf4c2bc007865cd492597f322f80bfff80ec556b2e8acae21d7aaea223cf3"
+  }
+}
