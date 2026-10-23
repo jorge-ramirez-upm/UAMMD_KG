@@ -17,7 +17,7 @@ FOLDER = ROOT / 'banks/production_gpu_validation' / ID
 DATASET = ROOT / 'validation_outputs' / ID
 RESERVATION = ROOT / 'banks/production_validation_seed_reservations' / (ID + '.json')
 PLAN = FOLDER / 'plan.json'
-INDEX = D / 'VALIDATION_BINDINGS_v2.log'
+INDEX = D / 'VALIDATION_BINDINGS_v3.log'
 
 
 def load_authority(index):

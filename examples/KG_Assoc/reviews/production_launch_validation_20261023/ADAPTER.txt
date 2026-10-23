@@ -1,6 +1,8 @@
 """Immutable-journal adapter; native execution is reachable only through scoped approvals."""
 import hashlib
 import json
+import math
+import re
 import os
 from pathlib import Path
 import signal
@@ -121,6 +123,65 @@ def native_evidence(history, authority):
     return e2.hash_files([directory / 'started.json', directory / 'native_finished.json'])
 
 
+def chemistry_trace(history):
+    prefix = history['output_prefix']
+    parent_prefix = history['accepted_parent']['prefix']
+    parent = campaign.parse_lammps_data(parent_prefix + '.restart.lammpsdat')
+    creations = breaks = 0
+    counts = []
+    last = history['start_step']
+    for suffix in ('.thermo.tsv', '.events'):
+        header = '\n'.join(line for line in Path(prefix + suffix).read_text().splitlines() if line.startswith('#'))
+        fields = dict(re.findall(r'\b(\w+)=([^\s]+)', header))
+        for key, expected in dict(seed=history['md_seed'], production_seed=history['md_seed'],
+                initial_state_seed=history['inherited_chemistry_seed'], start_step=history['start_step'],
+                total_requested_steps=history['end_step'], Nevery=100).items():
+            require(fields.get(key) == str(expected), 'native metadata differs: ' + key)
+        require(fields.get('input_file') == parent_prefix + '.restart.lammpsdat', 'native parent path differs')
+    with Path(prefix + '.events').open() as stream:
+        for line in stream:
+            if not line.strip() or line.startswith('#'):
+                continue
+            words = line.split()
+            require(len(words) == 7, 'malformed event')
+            step = int(words[0])
+            require(history['start_step'] < step <= history['end_step'] and step >= last and step % 100 == 0
+                    and math.isclose(float(words[1]), step * .01, rel_tol=1e-12), 'event schedule/time differs')
+            last = step
+            for atom, molecule in zip(map(int, words[3:5]), map(int, words[5:7])):
+                require(parent['atoms'].get(atom) == (molecule, 2), 'event particle identity/type differs')
+            require(words[2] in ('C', 'B'), 'unknown reaction event')
+            creations += words[2] == 'C'
+            breaks += words[2] == 'B'
+            counts.append((step, creations, breaks))
+    cursor = 0
+    current = (0, 0)
+    with Path(prefix + '.thermo.tsv').open() as stream:
+        for line in stream:
+            if not line.strip() or line.startswith('#'):
+                continue
+            words = line.split()
+            while cursor < len(counts) and counts[cursor][0] <= int(words[0]):
+                current = counts[cursor][1:]
+                cursor += 1
+            require(tuple(map(int, words[13:15])) == current, 'thermo/event counter trace differs')
+    footer = (Path(prefix).parent / 'stdout.log').read_text()
+    sweeps = history['end_step'] // 100 - history['start_step'] // 100
+    fields = re.search(r'S1 total_timesteps \d+ .*chemistry_sweeps (\d+) .*creations (\d+) breaks (\d+) ', footer)
+    require(fields is not None and tuple(map(int, fields.groups())) ==
+            (sweeps, history['inherited_creations'] + creations, history['inherited_breaks'] + breaks),
+            'native inherited counters/sweeps differ')
+    final = campaign.parse_lammps_data(prefix + '.final.lammpsdat')
+    require(all(final[key] == parent[key] for key in ('atoms', 'bonds', 'bounds')),
+            'permanent identity/type/topology or box differs')
+    require(all(math.isfinite(v) for point in final['positions'].values() for v in point),
+            'nonfinite final coordinates')
+    for first, second in campaign.read_final_pairs(prefix + '.final_associations'):
+        require(e2.validation.analysis.restart.distance(final['positions'][first], final['positions'][second],
+                final['bounds']) < 1.5, 'invalid final association geometry')
+    return dict(creations=creations, breaks=breaks, chemistry_sweeps=sweeps)
+
+
 def numerical_validation(history):
     # Use the established validator at an isolated dataset root for compatibility tests.
     require(all(path.is_file() for path in output_paths(history)), 'required native output missing')
@@ -138,7 +199,8 @@ def numerical_validation(history):
     require(len(rows) == len(expected) and all(abs(row['time'] - lag) < 1e-8 and
             row['n_pairs'] == count for row, (lag, count) in zip(rows, expected)),
             'actual multi-tau lag/count grid differs')
-    return dict(endpoint=result, stress_samples=metadata['stress_samples'], lag_bins=len(rows),
+    return dict(endpoint=result, chemistry_trace=chemistry_trace(history),
+                stress_samples=metadata['stress_samples'], lag_bins=len(rows),
                 six_channel_normalization='existing_P4_reader_pass')
 
 

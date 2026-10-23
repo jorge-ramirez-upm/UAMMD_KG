@@ -247,6 +247,30 @@ class AdapterTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             A['status'](self.h, self.authority)
 
+    def test_counter_schedule_seed_and_endpoint_identity_trace(self):
+        h = dict(self.h, inherited_chemistry_seed=13, inherited_creations=10, inherited_breaks=9,
+                 accepted_parent=dict(prefix='/fixture/parent'))
+        header = f"# input_file=/fixture/parent.restart.lammpsdat seed={h['md_seed']} production_seed={h['md_seed']} initial_state_seed=13 start_step=8000000 total_requested_steps=8100000 Nevery=100\n"
+        events = header + '8000100 80001 C 1 2 1 2\n8000200 80002 B 1 2 1 2\n'
+        Path(h['output_prefix'] + '.events').write_text(events)
+        thermo = header + '8001000 ' + '0 '*12 + '1 1\n'
+        Path(h['output_prefix'] + '.thermo.tsv').write_text(thermo)
+        (self.directory / 'stdout.log').write_text('S1 total_timesteps 100000 wall_seconds 1 chemistry_sweeps 1000 mean_candidate_sticker_pairs 1 creations 11 breaks 10 final_associating_bonds 1\n')
+        data = dict(atoms={1: (1, 2), 2: (2, 2)}, positions={1: (0, 0, 0), 2: (1, 0, 0)},
+                    bonds=[], bounds={a: (0, 10) for a in 'xyz'})
+        with mock.patch.object(c, 'parse_lammps_data', return_value=data), \
+                mock.patch.object(c, 'read_final_pairs', return_value={(1, 2)}):
+            self.assertEqual(A['chemistry_trace'](h), dict(creations=1, breaks=1, chemistry_sweeps=1000))
+            for bad in (events.replace('8000100', '8000101'), events.replace('seed=21000000', 'seed=1'),
+                        events.replace('C 1 2 1 2', 'C 1 2 1 3')):
+                Path(h['output_prefix'] + '.events').write_text(bad)
+                with self.assertRaises(ValueError):
+                    A['chemistry_trace'](h)
+            Path(h['output_prefix'] + '.events').write_text(events)
+            Path(h['output_prefix'] + '.thermo.tsv').write_text(thermo.replace('1 1', '2 1'))
+            with self.assertRaises(ValueError):
+                A['chemistry_trace'](h)
+
     def test_stress_actual_lag_count_normalization_contract(self):
         h = self.h
         for path in A['output_paths'](h):
@@ -261,7 +285,8 @@ class AdapterTests(unittest.TestCase):
         text += '# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n'
         text += ''.join(f'{lag} 1 1 1 1 1 1 0.7 {count}\n' for lag, count in rows)
         path.write_text(text)
-        with mock.patch.object(c, 'verify_run', return_value=dict(status='valid')):
+        with mock.patch.object(c, 'verify_run', return_value=dict(status='valid')), \
+                mock.patch.dict(g, chemistry_trace=lambda h: {}):
             self.assertEqual(A['numerical_validation'](h)['lag_bins'], len(rows))
             path.write_text(text.replace('0.7', '0.8'))
             with self.assertRaises(ValueError):
