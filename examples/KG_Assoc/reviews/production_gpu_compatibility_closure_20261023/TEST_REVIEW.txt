@@ -1,0 +1,59 @@
+"""Focused deterministic CPU tests for the read-only review; synthetic data only in /tmp."""
+from pathlib import Path
+import runpy
+import tempfile
+import unittest
+from unittest import mock
+
+R = runpy.run_path(str(Path(__file__).with_name('REVALIDATE.txt')))
+S = runpy.run_path(str(Path(__file__).with_name('SOURCE_REVIEW.txt')))
+
+
+class Tests(unittest.TestCase):
+    def test_thermo_finite_shape_and_empty_rejection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'thermo.tsv'
+            path.write_text('# fixture\n' + ' '.join(['1'] * 15) + '\n')
+            self.assertEqual(len(R['thermo_rows'](path)), 1)
+            for text in ('', '1 2\n', ' '.join(['nan'] + ['1'] * 14)):
+                path.write_text(text)
+                with self.assertRaises(ValueError):
+                    R['thermo_rows'](path)
+
+    def test_native_or_partial_status_cannot_count_as_validated(self):
+        for status in ('prepared', 'native_finished_pending_validation_hold', 'interrupted_or_failed_hold'):
+            with mock.patch.dict(R['A'], status=lambda h, a: status):
+                # Functions retain their module globals, so patch the actual shared dictionary.
+                with mock.patch.dict(R['inspect'].__globals__['A'], status=lambda h, a: status):
+                    with self.assertRaises(ValueError):
+                        R['inspect']({}, {})
+
+    def test_fresh_validator_must_equal_receipt(self):
+        actual = R['inspect'].__globals__['A']
+        with tempfile.TemporaryDirectory() as directory:
+            with mock.patch.dict(actual, status=lambda h, a: 'validated_complete',
+                                 numerical_validation=lambda h: {'changed': True}), \
+                    mock.patch.object(R['c'], 'load_json', return_value={'numerical': {'original': True}}):
+                with self.assertRaisesRegex(ValueError, 'differs from completion receipt'):
+                    R['inspect']({'output_prefix': str(Path(directory) / 'run')}, {})
+
+    def test_source_block_extraction_retains_nested_body(self):
+        source = 'before\nint f() { if (true) { return 1; } return 0; }\nafter'
+        self.assertEqual(S['block'](source, 'int f()'), source.splitlines()[1])
+        self.assertNotEqual(S['digest'](source), S['digest'](source.replace('return 1', 'return 2')))
+
+    def test_review_subprocess_guard_blocks_every_native_executable(self):
+        with mock.patch.object(R['subprocess'], 'Popen') as process:
+            R['guard_git_only']()
+            try:
+                R['subprocess'].Popen(['git', 'status'])
+                process.assert_called_once()
+                for command in (['kg_assoc_campaign_production'], ['/path/smoke', '--execute'], 'git status'):
+                    with self.assertRaises(ValueError):
+                        R['subprocess'].Popen(command)
+            finally:
+                R['subprocess'].Popen = process
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

@@ -1,0 +1,133 @@
+"""CPU source-equivalence and historical E2 GPU-evidence audit. No executable is run."""
+import argparse
+import csv
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import sys
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D.parent / 'production_launch_validation_20261023/DRIVER.txt'))
+e = G['e2']
+c = G['c']
+base = e.HERE.parent
+
+
+def block(source, marker):
+    start = source.index(marker)
+    opening = source.index('{', start)
+    depth = 1
+    end = opening + 1
+    while depth:
+        if source[end] == '{':
+            depth += 1
+        elif source[end] == '}':
+            depth -= 1
+        end += 1
+    return source[start:end]
+
+
+def digest(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    e.require(not args.output.exists(), 'new source-review output required')
+    profile = c.load_json(D.parent / 'production_100m_preparation_20261023/BUILD_AUTHENTICATION.log')
+    G['P']['build_check'](profile)
+    e2_manifest = G['ROOT'] / 'builds/ea_extensions_48m_88m_20261021_v1/manifest.json'
+    build = c.load_json(e2_manifest)
+    e.check_hashes(build['build_log_sha256'])
+    e.check_hashes(build['executable_sha256'])
+    shared = [base / name for name in ('../KG/kg_runtime.cuh', '../KG/kg_lammps_io.cuh',
+        '../KG/kg_interactors.cuh', 'kg_assoc_star_runtime.cuh', 'kg_assoc_state.cuh',
+        'kg_assoc_kinetics.cuh', 'kg_assoc_interactors.cuh', 'kg_assoc_ea_switch.cuh')]
+    shared += [c.REPOSITORY_ROOT / name for name in ('src/Integrator/VerletNVT.cuh',
+        'src/Integrator/VerletNVT/Basic.cu', 'src/Integrator/VerletNVT/GronbechJensen.cu',
+        'src/ParticleData/ParticleData.cuh', 'src/utils/utils.h')]
+    shared = [p.resolve() for p in shared]
+    hashes = e.hash_files(shared)
+    for name, value in hashes.items():
+        e.require(build['source_sha256'][name] == profile['native_dependencies_sha256'][name] == value,
+                  'shared compiled-source identity differs: ' + name)
+    stars_path = base / 'kg_assoc_stars.cu'
+    production_path = base / 'kg_assoc_production.cu'
+    stars = stars_path.read_text()
+    production = production_path.read_text()
+    read_stars = block(stars, 'RestartMetadata readRestartMetadata(')
+    read_production = block(production, 'RestartMetadata readRestartMetadata(')
+    marker = '    kg_assoc::StickerState state(data.natoms, stickerIds);'
+    partners_stars = stars[stars.index(marker):stars.index('    using NVT', stars.index(marker))]
+    partners_production = production[production.index(marker):production.index('    using NVT', production.index(marker))]
+    e.require(read_stars == read_production and partners_stars == partners_production,
+              'claimed identical metadata/partner construction differs')
+    common_calls = ('kg::readLammpsDataFile(parameters.input)',
+        'kg::makeSimulationBox(data)', 'kg::createParticleDataFromLammps(data, system, simulationBox)',
+        'integratorParameters.initVelocities = false;', 'kg_assoc::findStickerCandidates(\n            particles, state, lengths, parameters.rAssoc)')
+    e.require(all(call in stars and call in production for call in common_calls), 'shared call differs')
+    review = D.parent / 'e2_ea_48m_88m_joint_20261022'
+    e.check_hashes(c.load_json(review / 'INTEGRITY.sha256'))
+    sys.path.insert(0, str(e.HERE))
+    import kg_assoc_e2_readback as readback
+    earlier = []
+    evidence_paths = [e2_manifest, review / 'ASSESSMENT.md', review / 'ENDPOINTS.csv']
+    for row in csv.DictReader((review / 'ENDPOINTS.csv').open()):
+        receipt_path = Path(row['receipt'])
+        e.require(c.sha256(receipt_path) == row['receipt_sha256'], 'historical receipt differs')
+        receipt = c.load_json(receipt_path)
+        e.check_hashes(receipt['output_sha256'])
+        attempt = receipt_path.parent.parent
+        plan = c.load_json(attempt / 'plan.json')
+        e.require(c.sha256(attempt / 'plan.json') == row['plan_sha256'] == receipt['plan_sha256'],
+                  'historical E2 plan differs')
+        entry = plan['histories'][int(row['replica']) - 1]
+        parent = c.parse_lammps_data(entry['parent']['snapshot'])
+        _, pairs = e.validation.analysis.restart.read_metadata(entry['parent']['prefix'] + '.assoc_restart')
+        payload = Path(entry['output_prefix'] + '.initial_device_validation.tsv')
+        actual = readback.check(payload, entry, parent, pairs)
+        e.require(actual == receipt['validation']['initial_device_readback'], 'historical device replay differs')
+        count = 0
+        expected_step = entry['start_step'] + 100
+        candidate_path = Path(entry['output_prefix'] + '.candidate_validation.tsv')
+        with candidate_path.open() as stream:
+            for line in stream:
+                if line.strip() and not line.startswith('#'):
+                    fields = list(map(int, line.split()))
+                    e.require(len(fields) == 3 and fields[0] == expected_step and
+                              fields[1] >= fields[2] >= 0, 'historical oracle cadence/count invalid')
+                    expected_step += 100
+                    count += 1
+        e.require(count == receipt['validation']['oracle_sweeps'] ==
+                  (entry['end_step'] - entry['start_step']) // 100 and
+                  'STAR_ASSOCIATION_SMOKE PASS' in (receipt_path.parent / 'stdout.log').read_text(),
+                  'historical GPU oracle completion differs')
+        earlier.append(dict(system=row['system'], replica=int(row['replica']),
+            initial_readback=actual, oracle_sweeps=count, source_plan_sha256=row['plan_sha256'],
+            payload_sha256=e.hash_files([payload, candidate_path, receipt_path]),
+            evidence_kind='historical_actual_E2_GPU_payload_rechecked_on_CPU'))
+        evidence_paths += [payload, candidate_path, receipt_path, attempt / 'plan.json']
+    args.output.mkdir()
+    e.exclusive_json(args.output / 'SHARED_IMPLEMENTATION.log', dict(
+        shared_native_source_sha256=hashes, E2_build_manifest_sha256=e.hash_files([e2_manifest]),
+        production_build_manifest_sha256=profile['original_manifest'],
+        duplicate_restart_reader_identical=True, duplicate_partner_construction_identical=True,
+        restart_reader_sha256=digest(read_stars), partner_block_sha256=digest(partners_stars),
+        common_call_sites=list(common_calls), production_initial_readback=False,
+        production_independent_runtime_oracle=False, whole_programs_identical=False))
+    e.exclusive_json(args.output / 'EARLIER_E2_EVIDENCE.log', earlier)
+    source_paths = shared + [stars_path, production_path, base / 'kg_assoc_campaign_production.cu',
+        base / 'kg_assoc_candidate_oracle.cuh', base / 'kg_assoc_validation_evidence.cuh',
+        base / 'kg_assoc_readback_dispatch.cuh']
+    e.exclusive_json(args.output / 'SOURCE_INPUTS.sha256', e.hash_files(source_paths + evidence_paths))
+    print('PASS', len(hashes), 'shared native sources; exact duplicated reader/partner blocks;',
+          len(earlier), 'historical GPU readbacks;', sum(r['oracle_sweeps'] for r in earlier),
+          'historical oracle sweeps authenticated; zero GPU execution')
+
+
+if __name__ == '__main__':
+    main()

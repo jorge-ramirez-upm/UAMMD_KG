@@ -1,0 +1,136 @@
+"""Read-only independent production compatibility replay. Only Git subprocesses are permitted."""
+import argparse
+import csv
+import hashlib
+import json
+import math
+from pathlib import Path
+import re
+import runpy
+import subprocess
+
+D = Path(__file__).resolve().parent
+PREVIOUS = D.parent / 'production_launch_validation_20261023'
+G = runpy.run_path(str(PREVIOUS / 'DRIVER.txt'))
+A = G['A']
+e = G['e2']
+c = G['c']
+require = e.require
+
+
+def guard_git_only():
+    original = subprocess.Popen
+    def allowed(command, *args, **kwargs):
+        require(isinstance(command, (list, tuple)) and command[0] == 'git',
+                'review forbids non-Git subprocesses, including native/GPU execution')
+        return original(command, *args, **kwargs)
+    subprocess.Popen = allowed
+
+
+def thermo_rows(path):
+    rows = []
+    with Path(path).open() as stream:
+        for line in stream:
+            if line.strip() and not line.startswith('#'):
+                fields = line.split()
+                require(len(fields) == 15, 'invalid thermo shape')
+                values = [float(x) for x in fields]
+                require(all(math.isfinite(x) for x in values), 'nonfinite thermo')
+                rows.append(values)
+    require(rows, 'empty thermo')
+    return rows
+
+
+def inspect(history, authority):
+    status = A['status'](history, authority)
+    require(status == 'validated_complete', 'ordinary validated completion required')
+    directory = Path(history['output_prefix']).parent
+    receipt = c.load_json(directory / 'validated.json')
+    result = A['numerical_validation'](history)
+    require(result == receipt['numerical'], 'fresh independent validator differs from completion receipt')
+    prefix = history['output_prefix']
+    state = thermo_rows(prefix + '.thermo.tsv')
+    import sys
+    sys.path.insert(0, str(c.ANALYSIS_DIR))
+    import analyze_p42_rheology_pilot as rheology
+    metadata, stress = rheology.read_stress_correlator(prefix + '.stress_correlator')
+    residuals = [abs(row['G'] - ((row['Gxy'] + row['Gxz'] + row['Gyz']) / 5 +
+                    (row['GNxy'] + row['GNxz'] + row['GNyz']) / 30)) for row in stress]
+    final = c.parse_lammps_data(prefix + '.final.lammpsdat')
+    require(set(final['velocities']) == set(final['atoms']) and
+            all(math.isfinite(v) for values in final['velocities'].values() for v in values),
+            'missing/nonfinite archival final velocities')
+    initial_pairs = c.read_initial_active_pairs(history['accepted_parent']['prefix'] + '.assoc_restart')
+    native_log = (directory / 'stdout.log').read_text()
+    timing = re.search(r'S1 total_timesteps \d+ wall_seconds (\S+)', native_log)
+    require(timing is not None, 'native timing evidence absent')
+    counts = result['chemistry_trace']
+    summary = dict(system=history['system'], replica=history['replica'],
+        start_step=history['start_step'], end_step=history['end_step'], steps=history['steps'],
+        status=status, independent_revalidation='PASS', md_seed=history['md_seed'],
+        effective_md_seed=history['effective_md_seed'], chemistry_seed=history['chemistry_seed'],
+        creations=counts['creations'], breaks=counts['breaks'], chemistry_sweeps=counts['chemistry_sweeps'],
+        initial_bonds=len(initial_pairs), final_bonds=int(state[-1][9]), final_intra=int(state[-1][10]),
+        final_inter=int(state[-1][11]), thermo_rows=len(state),
+        temperature_min=min(row[2] for row in state), temperature_max=max(row[2] for row in state),
+        temperature_mean=sum(row[2] for row in state) / len(state),
+        energy_min=min(row[3] for row in state), energy_max=max(row[3] for row in state),
+        stress_samples=metadata['stress_samples'], lag_bins=len(stress), G0=stress[0]['G'],
+        G_reconstruction_max_abs_residual=max(residuals), last_lag=stress[-1]['time'],
+        last_n_pairs=stress[-1]['n_pairs'], final_particles=len(final['atoms']),
+        final_velocities=len(final['velocities']), wall_seconds=float(timing[1]),
+        restart_sha256=history['accepted_parent']['snapshot_sha256'],
+        sidecar_sha256=history['accepted_parent']['chemistry_sha256'],
+        final_snapshot_sha256=c.sha256(Path(prefix + '.final.lammpsdat')),
+        final_associations_sha256=c.sha256(Path(prefix + '.final_associations')),
+        completion_receipt_sha256=c.sha256(directory / 'validated.json'),
+        native_completion_sha256=c.sha256(Path(prefix + '.complete.json')),
+        executable_sha256=history['executable_sha256'][history['command'][0]])
+    return summary, dict(identity=receipt['identity'], numerical=result,
+        original_receipt_sha256=e.hash_files([directory / 'validated.json', directory / 'validated_binding.json']),
+        replayed_output_sha256=e.hash_files(A['output_paths'](history)),
+        native_journals_sha256=A['native_evidence'](history, authority),
+        native_execution_during_review=False), stress
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), 'new review output directory required')
+    guard_git_only()
+    authority, histories = G['load_authority'](G['INDEX'])
+    results = []
+    replays = []
+    curves = []
+    for history in histories:
+        summary, replay, rows = inspect(history, authority)
+        results.append(summary)
+        replays.append(replay)
+        curves.extend(dict(system=history['system'], replica=history['replica'], **row) for row in rows)
+        print('PASS', history['system'], 'r%03d' % history['replica'],
+              summary['creations'], summary['breaks'], flush=True)
+    args.output.mkdir()
+    for name, rows in [('PER_SYSTEM.csv', results), ('STRESS_CHANNELS.csv', curves)]:
+        with (args.output / name).open('x') as stream:
+            writer = csv.DictWriter(stream, fieldnames=rows[0], lineterminator='\n')
+            writer.writeheader()
+            writer.writerows(rows)
+    for item in replays:
+        identity = item['identity']
+        path = args.output / (identity['system'] + '_r%03d.log' % identity['replica'])
+        e.exclusive_json(path, item)
+    e.exclusive_json(args.output / 'SUMMARY.log', dict(histories=len(results),
+        total_existing_MD_steps=sum(r['steps'] for r in results),
+        existing_stress_samples=sum(r['stress_samples'] for r in results),
+        existing_chemistry_sweeps=sum(r['chemistry_sweeps'] for r in results),
+        creations=sum(r['creations'] for r in results), breaks=sum(r['breaks'] for r in results),
+        maximum_G_residual=max(r['G_reconstruction_max_abs_residual'] for r in results),
+        total_native_wall_seconds=sum(r['wall_seconds'] for r in results),
+        source_authorization_sha256=authority['source_authorization_sha256'],
+        original_authority_sha256=e.hash_files([Path(c.load_json(G['INDEX'])['authority'])]),
+        GPU_steps_executed_by_review=0, hold_removed=False, waiver_published=False))
+
+
+if __name__ == '__main__':
+    main()
