@@ -1,0 +1,39 @@
+"""CPU-only immutable source evolution for termination handling; no plans/seeds/approvals change."""
+from pathlib import Path
+import runpy
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D / 'DRIVER.txt'))
+e = G['e2']
+c = G['c']
+e.clean_tree()
+old_index = D / 'VALIDATION_BINDINGS.log'
+old = c.load_json(old_index)
+e.check_hashes(old['sha256'])
+authority = c.load_json(Path(old['authority']))
+source = c.load_json(Path(authority['source_authorization']))
+extra = e.hash_files(Path(p) for p in source['adapter_sha256'])
+current = dict(e.sources(), **extra)
+changed = {p for p in current if source['source_sha256'].get(p) != current[p]}
+allowed = {str(D / name) for name in ('ADAPTER.txt', 'DRIVER.txt', 'TEST_ADAPTER.txt')}
+e.require(changed == allowed and set(current) == set(source['source_sha256']),
+          'only exact termination adapter/entrypoint/test evolution is approved')
+plan = c.load_json(G['PLAN'])
+for h in plan['histories']:
+    directory = Path(h['output_prefix']).parent
+    e.require({p.name for p in directory.iterdir()} == {'run.json'}, 'validation activity already exists')
+source['adapter_sha256'] = extra
+source['source_sha256'] = current
+source['source_overrides'] = {p: current[p] for p in changed}
+source['previous_source_authorization_sha256'] = e.hash_files([Path(authority['source_authorization'])])
+source['reason'] = 'Scoped user-termination handling and explicit publication index; plans, seeds, caps and approvals unchanged'
+source['git_sha'] = c.git_sha()
+new_source = G['FOLDER'] / 'source_authorization_v2.json'
+e.exclusive_json(new_source, source)
+authority['source_authorization'] = str(new_source)
+authority['source_authorization_sha256'] = c.sha256(new_source)
+new_authority = G['FOLDER'] / 'authority_v2.json'
+e.exclusive_json(new_authority, authority)
+bindings = dict(old['sha256'], **e.hash_files([new_source, new_authority, old_index]))
+e.exclusive_json(G['INDEX'], dict(authority=str(new_authority), sha256=bindings))
+print('PUBLISHED exact source v2; original 15 approvals, plan, reservation and output paths unchanged')
