@@ -1,0 +1,58 @@
+"""Archive actual immutable preparation bytes; creates no plans and launches no native code."""
+import csv
+import json
+from pathlib import Path
+import runpy
+import shlex
+import tarfile
+P=runpy.run_path(str(Path(__file__).with_name('PREPARE.txt')))
+D=P['D'];c=P['campaign'];e=P['e2']
+plan=c.load_json(P['PLAN']);receipt=c.load_json(P['FOLDER']/'prepared.json')
+e.check_hashes(receipt['sha256'])
+root=c.REPOSITORY_ROOT
+rows=[]
+commands=['# PLANNED ONLY: GPU execution unauthorized; do not bypass activation/approval gates.']
+for h in plan['histories']:
+    prefix=h['parent']['prefix'];a=h['active_e2'];directory=Path(h['output_prefix']).parent
+    approval=directory/'preparation_approval.json'
+    rows.append(dict(system=h['system_id'],replica=h['replica'],family=f"r{h['replica']:03d}",
+        acceptance=a['acceptance'],acceptance_sha256=a['acceptance_sha256'],
+        parent_restart=prefix+'.restart.lammpsdat',parent_restart_sha256=a['snapshot_sha256'],
+        parent_sidecar=prefix+'.assoc_restart',parent_sidecar_sha256=a['chemistry_sha256'],
+        parent_step=h['start_step'],production_steps=plan['steps'],absolute_end_step=h['end_step'],
+        inherited_chemistry_seed=h['inherited_chemistry_seed'],inherited_creations=h['inherited_creations'],
+        inherited_breaks=h['inherited_breaks'],chemistry_seed=h['chemistry_seed'],md_seed=h['md_seed'],
+        effective_md_seed=h['effective_md_seed'],attempt_id=h['attempt_id'],output_prefix=h['output_prefix'],
+        preparation_approval=str(approval),preparation_approval_sha256=c.sha256(approval),
+        native_command=shlex.join(h['command']),GPU_execution_authorized=False))
+    commands.append('# '+h['attempt_id']+'\n'+shlex.join(h['command']))
+with (D/'HISTORIES.csv').open('x') as f:
+    w=csv.DictWriter(f,fieldnames=rows[0],lineterminator='\n');w.writeheader();w.writerows(rows)
+(D/'COMMANDS_PENDING.txt').write_text('\n\n'.join(commands)+'\n')
+paths=[Path(p) for p in receipt['sha256']]+[P['FOLDER']/'prepared.json']
+for target,source in [('REGISTRY.log',P['REGISTRY']),('PLAN.log',P['PLAN']),
+                      ('SEED_RESERVATION.log',P['RESERVATION']),
+                      ('HOST_PREFLIGHT.log',P['FOLDER']/'HOST_PREFLIGHT.json')]:
+    with (D/target).open('xb') as f:f.write(source.read_bytes())
+with tarfile.open(D/'PREPARED_METADATA.tar.gz','x:gz') as archive:
+    for path in paths:archive.add(path,arcname=str(path.relative_to(root)),recursive=False)
+identity=dict(campaign=plan['campaign'],prepared_at_git_sha=plan['git_sha'],
+    plan_sha256=e.hash_files([P['PLAN']]),registry_sha256=e.hash_files([P['REGISTRY']]),
+    reservation_sha256=e.hash_files([P['RESERVATION']]),prepared_receipt_sha256=e.hash_files([P['FOLDER']/'prepared.json']),
+    histories=45,qualified_systems=15,steps_each=100000000,prospective_total_steps=4500000000,
+    GPU_execution_authorized=False,registry_activated=False,
+    native_executable_sha256=plan['build']['executable_sha256'],
+    archived_metadata_sha256=e.hash_files([D/'PREPARED_METADATA.tar.gz']),
+    historical_bindings_preserved=len(c.load_json(D/'PRESERVED.sha256')))
+(D/'IDENTITIES.log').write_text(json.dumps(identity,indent=2,sort_keys=True)+'\n')
+previous=D.parent/'rheology_production_design_20261023/BUDGET.csv'
+budget=[]
+for row in csv.DictReader(previous.open()):
+    if int(row['steps_each'])!=100000000:continue
+    row.pop('proposed_raw_stress_bytes');row['raw_stress_bytes']=0
+    row['execution_authorized']=False;budget.append(row)
+with (D/'BUDGET.csv').open('x') as f:
+    w=csv.DictWriter(f,fieldnames=budget[0],lineterminator='\n');w.writeheader();w.writerows(budget)
+(D/'BUDGET_INPUTS.sha256').write_text(json.dumps(e.hash_files([previous,D.parent/'rheology_production_design_20261023/BUDGET.txt',
+    D.parent/'rheology_existing_method_20261023/replay/LAG_GRID.csv']),indent=2,sort_keys=True)+'\n')
+print(json.dumps(identity,indent=2))

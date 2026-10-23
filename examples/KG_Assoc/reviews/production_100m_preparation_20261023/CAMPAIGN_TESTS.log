@@ -1,0 +1,14 @@
+test_e1_launcher_uses_validated_dpd_timestep (test_campaign.CampaignTest) ... ok
+test_initialization_writes_eight_geometry_requirements (test_campaign.CampaignTest) ... ok
+test_matrix_has_fifteen_associating_and_eight_controls (test_campaign.CampaignTest) ... ok
+test_production_command_has_no_continuation_options (test_campaign.CampaignTest) ... ok
+test_reference_is_deduplicated_and_in_five_groups (test_campaign.CampaignTest) ... ok
+test_short_e1_validator_rejects_incorrect_effective_gamma (test_campaign.CampaignTest) ... ok
+test_structure_reader_reconstructs_pbc_safe_rg (test_campaign.CampaignTest) ... ok
+test_topology_and_com_frame_readers_require_complete_frames (test_campaign.CampaignTest) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.077s
+
+OK
+/tmp/tmpteipv55i

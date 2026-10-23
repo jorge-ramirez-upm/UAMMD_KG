@@ -1,0 +1,30 @@
+{
+  "GPU_execution_authorized": false,
+  "archived_metadata_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_100m_preparation_20261023/PREPARED_METADATA.tar.gz": "610f1c37b16651750bd3c8a9843f8b4ab726750c2fc3bd70a8edea042e916f24"
+  },
+  "campaign": "assoc15_uninterrupted100m_20261023_v1",
+  "historical_bindings_preserved": 5039,
+  "histories": 45,
+  "native_executable_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production": "5c396533482e08a48bd20fc27e6bb63bec790efecf843ae73cf01a52bf6265e5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production_smoke": "e1a00204f8753b4e513e6817169f40ec4aca0854decf52553550aaf25756d6d7"
+  },
+  "plan_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/production_preparations/assoc15_uninterrupted100m_20261023_v1/plan.json": "b9a6101c14f3fca645463b605adde6daa978f9c5db3a7e2f2aa885b71711ed47"
+  },
+  "prepared_at_git_sha": "926e6aa072f18a2dfabc0fcfd586bab213e23165",
+  "prepared_receipt_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/production_preparations/assoc15_uninterrupted100m_20261023_v1/prepared.json": "85e98a220bcc87b8dde30bfa948f402d2aa1fede12f2ddcc659d9cea228745cd"
+  },
+  "prospective_total_steps": 4500000000,
+  "qualified_systems": 15,
+  "registry_activated": false,
+  "registry_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_prepared_registry/assoc15_uninterrupted100m_20261023_v1.json": "739477c443f01c6cdbe0f4f96e765a66cb64a224531235cf47984ea354b28dfd"
+  },
+  "reservation_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_seed_reservations/assoc15_uninterrupted100m_20261023_v1.json": "29195de05f054a09550865aed95d941109e8ac63c9b6a19f0200feb159b87f57"
+  },
+  "steps_each": 100000000
+}

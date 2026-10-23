@@ -1,0 +1,136 @@
+# PLANNED ONLY: GPU execution unauthorized; do not bypass activation/approval gates.
+
+# assoc15_uninterrupted100m_20261023_v1_F03_N010_RP080_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F03_N010_RP080_EE08_EA04/production/r001/run --seed 10000000 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F03_N010_RP080_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F03_N010_RP080_EE08_EA04/production/r002/run --seed 10000001 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F03_N010_RP080_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F03_N010_RP080_EE08_EA04/production/r003/run --seed 10000002 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP020_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP020_EE08_EA04/production/r001/run --seed 10000003 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP020_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP020_EE08_EA04/production/r002/run --seed 10000004 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP020_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP020_EE08_EA04/production/r003/run --seed 10000005 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP040_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP040_EE08_EA04/production/r001/run --seed 10000006 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP040_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP040_EE08_EA04/production/r002/run --seed 10000007 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP040_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP040_EE08_EA04/production/r003/run --seed 10000008 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP060_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP060_EE08_EA04/production/r001/run --seed 10000009 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP060_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP060_EE08_EA04/production/r002/run --seed 10000010 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP060_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP060_EE08_EA04/production/r003/run --seed 10000011 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE04_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE04_EA04/production/r001/run --seed 10000012 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r001/state --Ea 4 --Ee 4
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE04_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE04_EA04/production/r002/run --seed 10000013 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r002/state --Ea 4 --Ee 4
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE04_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE04_EA04/production/r003/run --seed 10000014 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/r003/state --Ea 4 --Ee 4
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE06_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE06_EA04/production/r001/run --seed 10000015 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r001/state --Ea 4 --Ee 6
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE06_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE06_EA04/production/r002/run --seed 10000016 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r002/state --Ea 4 --Ee 6
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE06_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE06_EA04/production/r003/run --seed 10000017 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/r003/state --Ea 4 --Ee 6
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA04/production/r001/run --seed 10000018 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA04/production/r002/run --seed 10000019 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA04/production/r003/run --seed 10000020 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA06_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA06/production/r001/run --seed 10000021 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r001/state --Ea 6 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA06_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA06/production/r002/run --seed 10000022 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r002/state --Ea 6 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA06_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA06/production/r003/run --seed 10000023 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/r003/state --Ea 6 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA08_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA08/production/r001/run --seed 10000024 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/r001/state --Ea 8 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA08_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA08/production/r002/run --seed 10000025 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/r002/state --Ea 8 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA08_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA08/production/r003/run --seed 10000026 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/r003/state --Ea 8 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA10_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA10/production/r001/run --seed 10000027 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/r001/state --Ea 10 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA10_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA10/production/r002/run --seed 10000028 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/r002/state --Ea 10 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE08_EA10_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE08_EA10/production/r003/run --seed 10000029 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/r003/state --Ea 10 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE10_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE10_EA04/production/r001/run --seed 10000030 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r001/state --Ea 4 --Ee 10
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE10_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE10_EA04/production/r002/run --seed 10000031 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r002/state --Ea 4 --Ee 10
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE10_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE10_EA04/production/r003/run --seed 10000032 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/r003/state --Ea 4 --Ee 10
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE12_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE12_EA04/production/r001/run --seed 10000033 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r001/state --Ea 4 --Ee 12
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE12_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE12_EA04/production/r002/run --seed 10000034 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r002/state --Ea 4 --Ee 12
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N010_RP080_EE12_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N010_RP080_EE12_EA04/production/r003/run --seed 10000035 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/r003/state --Ea 4 --Ee 12
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N020_RP080_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N020_RP080_EE08_EA04/production/r001/run --seed 10000036 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N020_RP080_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N020_RP080_EE08_EA04/production/r002/run --seed 10000037 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N020_RP080_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N020_RP080_EE08_EA04/production/r003/run --seed 10000038 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N040_RP080_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N040_RP080_EE08_EA04/production/r001/run --seed 10000039 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N040_RP080_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N040_RP080_EE08_EA04/production/r002/run --seed 10000040 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F04_N040_RP080_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F04_N040_RP080_EE08_EA04/production/r003/run --seed 10000041 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/r003/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F06_N010_RP080_EE08_EA04_r001
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F06_N010_RP080_EE08_EA04/production/r001/run --seed 10000042 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F06_N010_RP080_EE08_EA04_r002
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F06_N010_RP080_EE08_EA04/production/r002/run --seed 10000043 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r002/state --Ea 4 --Ee 8
+
+# assoc15_uninterrupted100m_20261023_v1_F06_N010_RP080_EE08_EA04_r003
+/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production --output /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/systems/F06_N010_RP080_EE08_EA04/production/r003/run --seed 10000044 --equilibrated-prefix /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r003/state --Ea 4 --Ee 8

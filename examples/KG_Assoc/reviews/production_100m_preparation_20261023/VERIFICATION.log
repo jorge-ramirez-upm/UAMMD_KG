@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "historical_bindings": 5039,
+  "qualified_acceptances": 15,
+  "host_initialization_checks": 45,
+  "dormant_preparations": 45,
+  "GPU_steps": 0,
+  "registry_activated": false,
+  "execution_authorizations": 0,
+  "plan_sha256": "b9a6101c14f3fca645463b605adde6daa978f9c5db3a7e2f2aa885b71711ed47",
+  "registry_sha256": "739477c443f01c6cdbe0f4f96e765a66cb64a224531235cf47984ea354b28dfd"
+}

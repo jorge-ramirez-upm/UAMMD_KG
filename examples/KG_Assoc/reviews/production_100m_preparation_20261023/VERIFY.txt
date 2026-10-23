@@ -1,0 +1,26 @@
+"""Read-only CPU integrity/preparation audit. No native launch or GPU."""
+import json
+from pathlib import Path
+import runpy
+import subprocess
+P=runpy.run_path(str(Path(__file__).with_name('PREPARE.txt')))
+D=P['D'];e=P['e2'];c=P['campaign']
+plan=P['check']()
+protected=c.load_json(D/'PRESERVED.sha256');e.check_hashes(protected)
+if (D/'INTEGRITY.sha256').exists():e.check_hashes(c.load_json(D/'INTEGRITY.sha256'))
+paths=sorted((P['ROOT']/'banks/e2_acceptance').glob('*.json'))
+assert len(paths)==15
+for path in paths:
+    record=c.load_json(path)
+    P['registry'].exclusive_validate(record,[e.system_by_id(record['permitted_systems'][0])])
+statuses=[P['output_status'](h) for h in plan['histories']]
+assert statuses==['prepared_no_execution_authority']*45
+for h in plan['histories']:
+    directory=Path(h['output_prefix']).parent
+    assert {p.name for p in directory.iterdir()}=={'run.json','preparation_approval.json'}
+assert all(not p.startswith(('src/','examples/KG/')) for p in
+    subprocess.check_output(['git','diff','--name-only','b7c73572cf6bc2c1710903a4ac7af2ac9841e1b2'],text=True).splitlines())
+print(json.dumps(dict(status='PASS',historical_bindings=len(protected),qualified_acceptances=len(paths),
+    host_initialization_checks=len(c.load_json(P['FOLDER']/'HOST_PREFLIGHT.json')),
+    dormant_preparations=len(statuses),GPU_steps=0,registry_activated=False,
+    execution_authorizations=0,plan_sha256=c.sha256(P['PLAN']),registry_sha256=c.sha256(P['REGISTRY'])),indent=2))

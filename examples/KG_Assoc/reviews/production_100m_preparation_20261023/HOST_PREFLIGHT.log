@@ -1,0 +1,317 @@
+[
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1350\n",
+    "system": "F03_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1343\n",
+    "system": "F03_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1344\n",
+    "system": "F03_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1596\n",
+    "system": "F04_N010_RP020_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1573\n",
+    "system": "F04_N010_RP020_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1585\n",
+    "system": "F04_N010_RP020_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1711\n",
+    "system": "F04_N010_RP040_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1718\n",
+    "system": "F04_N010_RP040_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1700\n",
+    "system": "F04_N010_RP040_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1770\n",
+    "system": "F04_N010_RP060_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1772\n",
+    "system": "F04_N010_RP060_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1765\n",
+    "system": "F04_N010_RP060_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=4 completed_steps=2000000 active_bonds=913\n",
+    "system": "F04_N010_RP080_EE04_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=4 completed_steps=2000000 active_bonds=934\n",
+    "system": "F04_N010_RP080_EE04_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=4 completed_steps=2000000 active_bonds=917\n",
+    "system": "F04_N010_RP080_EE04_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=6 completed_steps=4000000 active_bonds=1484\n",
+    "system": "F04_N010_RP080_EE06_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=6 completed_steps=4000000 active_bonds=1502\n",
+    "system": "F04_N010_RP080_EE06_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=6 completed_steps=4000000 active_bonds=1463\n",
+    "system": "F04_N010_RP080_EE06_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1783\n",
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1787\n",
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1803\n",
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=6 target_Ea=6 Ee=8 completed_steps=24000000 active_bonds=1805\n",
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=6 target_Ea=6 Ee=8 completed_steps=24000000 active_bonds=1790\n",
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=6 target_Ea=6 Ee=8 completed_steps=24000000 active_bonds=1801\n",
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=8 target_Ea=8 Ee=8 completed_steps=48000000 active_bonds=1802\n",
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=8 target_Ea=8 Ee=8 completed_steps=48000000 active_bonds=1796\n",
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=8 target_Ea=8 Ee=8 completed_steps=48000000 active_bonds=1806\n",
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=10 target_Ea=10 Ee=8 completed_steps=88000000 active_bonds=1807\n",
+    "system": "F04_N010_RP080_EE08_EA10"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=10 target_Ea=10 Ee=8 completed_steps=88000000 active_bonds=1775\n",
+    "system": "F04_N010_RP080_EE08_EA10"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=10 target_Ea=10 Ee=8 completed_steps=88000000 active_bonds=1804\n",
+    "system": "F04_N010_RP080_EE08_EA10"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=10 completed_steps=12000000 active_bonds=1926\n",
+    "system": "F04_N010_RP080_EE10_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=10 completed_steps=12000000 active_bonds=1915\n",
+    "system": "F04_N010_RP080_EE10_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=10 completed_steps=12000000 active_bonds=1926\n",
+    "system": "F04_N010_RP080_EE10_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=12 completed_steps=20000000 active_bonds=1971\n",
+    "system": "F04_N010_RP080_EE12_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=12 completed_steps=20000000 active_bonds=1962\n",
+    "system": "F04_N010_RP080_EE12_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=12 completed_steps=20000000 active_bonds=1976\n",
+    "system": "F04_N010_RP080_EE12_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1694\n",
+    "system": "F04_N020_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1695\n",
+    "system": "F04_N020_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=1694\n",
+    "system": "F04_N020_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1605\n",
+    "system": "F04_N040_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1593\n",
+    "system": "F04_N040_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=8000000 active_bonds=1623\n",
+    "system": "F04_N040_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 1,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=2670\n",
+    "system": "F06_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 2,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=2695\n",
+    "system": "F06_N010_RP080_EE08_EA04"
+  },
+  {
+    "GPU_steps": 0,
+    "replica": 3,
+    "stderr": "",
+    "stdout": "PRODUCTION_INITIAL_STATE PASS parent_Ea=4 target_Ea=4 Ee=8 completed_steps=6000000 active_bonds=2701\n",
+    "system": "F06_N010_RP080_EE08_EA04"
+  }
+]
