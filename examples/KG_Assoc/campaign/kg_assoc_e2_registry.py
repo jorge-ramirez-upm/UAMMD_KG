@@ -95,11 +95,21 @@ def exclusive_validate(record, systems):
             history = source['histories'][entry['replica'] - 1]
             if source.get('lineage_mode'):
                 import kg_assoc_e2_transfer as transfer
-                require(source['lineage_mode'] == transfer.MODE and not source['reference_control'] and
+                require(not source['reference_control'] and
                         record['permitted_systems'] == [source['system']['system_id']] and
                         record['status'] == 'accepted_with_qualification' and
                         entry.get('lineage') == history['lineage'], 'derived acceptance lineage differs')
-                transfer.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
+                if source['lineage_mode'] == transfer.MODE:
+                    transfer.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
+                else:
+                    import kg_assoc_e2_next_extension as extension
+                    require(source['lineage_mode'] == extension.MODE and
+                            source['system']['system_id'] == 'F04_N010_RP080_EE08_EA08' and
+                            source['steps'] == 8000000 and
+                            all(h['start_step'] == 40000000 and h['end_step'] == 48000000
+                                for h in source['histories']),
+                            'only the qualified Ea8 48M reviewed extension may be accepted')
+                    extension.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
             else:
                 require('lineage' not in entry, 'unexpected acceptance lineage')
             require(history['output_prefix'] == entry['prefix'] and

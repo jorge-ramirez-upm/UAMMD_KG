@@ -1,0 +1,61 @@
+"""CPU registration provenance only; no GPU execution authority or changed native sources."""
+import csv
+import hashlib
+from pathlib import Path
+import sys
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+
+DOSSIER = Path(__file__).resolve().parent
+ROOT = e2.HERE.parent/'kg_assoc_100m'
+REVIEW = DOSSIER.parent/'e2_ea_48m_88m_joint_20261022'
+SID = 'F04_N010_RP080_EE08_EA08'
+START = 'c2418f3232def175d326665047618603e52e112c'
+
+
+def authenticate():
+    e2.clean_tree()
+    e2.check_hashes(e2.campaign.load_json(REVIEW/'INTEGRITY.sha256'))
+    e2.check_hashes(e2.campaign.load_json(DOSSIER/'PRESERVED.sha256'))
+    previous = e2.campaign.load_json(DOSSIER/'STARTING_SOURCES.log')
+    authorization = e2.campaign.load_json(DOSSIER/'CPU_SOURCE_AUTHORIZATION.log')
+    expected = dict(previous)
+    for registrar, value in authorization['administrative_source_sha256'].items():
+        assert Path(registrar).name in ('kg_assoc_e2.py','kg_assoc_e2_registry.py')
+        assert authorization['previous_source_sha256'][registrar] == previous[registrar]
+        relative = str(Path(registrar).relative_to(e2.campaign.REPOSITORY_ROOT))
+        historical = e2.subprocess.check_output(['git','show',START+':'+relative])
+        assert hashlib.sha256(historical).hexdigest() == previous[registrar]
+        expected[registrar] = value
+    assert set(authorization['administrative_source_sha256']) == {str(e2.HERE/name)
+        for name in ('kg_assoc_e2.py','kg_assoc_e2_registry.py')}
+    assert authorization['purpose'] == 'CPU_acceptance_registration_only'
+    assert authorization['GPU_execution_authorized'] is False and authorization['starting_sha'] == START
+    assert e2.sources() == expected, 'unapproved source evolution'
+    assert e2.subprocess.run(['git','merge-base','--is-ancestor',START,e2.campaign.git_sha()]).returncode == 0
+    rows = [r for r in csv.DictReader((REVIEW/'ENDPOINTS.csv').open()) if r['system'] == SID]
+    assert [int(r['replica']) for r in rows] == [1,2,3]
+    attempt = Path(rows[0]['restart']).parents[1]
+    plan = e2.check_plan(ROOT,attempt,live=False)
+    assert plan['source_sha256'] == previous
+    assert e2.subprocess.run(['git','merge-base','--is-ancestor',plan['git_sha'],START]).returncode == 0
+    for row, entry in zip(rows,plan['histories']):
+        assert entry['start_step'] == 40000000 and entry['end_step'] == int(row['end_step']) == 48000000
+        assert entry['output_prefix']+'.restart.lammpsdat' == row['restart']
+        e2.check_hashes({row['restart']:row['restart_sha256'],row['sidecar']:row['sidecar_sha256'],
+                         row['receipt']:row['receipt_sha256'],str(attempt/'plan.json'):row['plan_sha256']})
+        for name in ('chemistry_seed','md_seed','effective_md_seed'):
+            assert entry[name] == int(row[name])
+        approval = attempt/f"approval_r{entry['replica']:03d}_execution.json"
+        source = attempt/f"approval_r{entry['replica']:03d}_execution_sources.json"
+        record = e2.scoped_launch_approval(approval,attempt,'e2_derived_extension',plan,None,[entry['replica']])
+        assert record['GPU_execution_authorized'] is True
+        original_source = e2.extension_source_authorization(source,plan,approval)
+        assert original_source['source_sha256_overrides'] == {}
+        receipt = e2.campaign.load_json(row['receipt'])
+        e2.check_hashes(receipt['output_sha256'])
+        started = e2.campaign.load_json(Path(row['receipt']).with_name('started.json'))
+        assert started['command'] == entry['command'] and started['plan_sha256'] == row['plan_sha256']
+        assert started['approval_sha256'] == e2.campaign.sha256(approval)
+        assert started['source_authorization_sha256'] == e2.hash_files([source])
+    return rows,attempt,plan

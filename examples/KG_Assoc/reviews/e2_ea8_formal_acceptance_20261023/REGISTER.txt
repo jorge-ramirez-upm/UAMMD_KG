@@ -1,0 +1,44 @@
+"""Immutable registration of only the explicitly approved exact Ea8 48M triplet."""
+from pathlib import Path
+import runpy
+
+dossier = Path(__file__).resolve().parent
+helper = runpy.run_path(str(dossier/'AUTHENTICATE.txt'))
+e2 = helper['e2']
+import kg_assoc_e2_registry as registry
+rows,attempt,plan = helper['authenticate']()
+for row in rows:
+    checked = e2.campaign.load_json(dossier/f"REVALIDATED_r{int(row['replica']):03d}.log")
+    assert checked['exact_endpoint'] == row
+    assert checked['MD_steps_executed_by_this_check'] == 0
+    assert checked['validation'] == e2.campaign.load_json(row['receipt'])['validation']
+qualification = (
+    'Explicit user-approved qualified production initialization of only these three exact Ea8 48M endpoints. '
+    'Inherited corrected-C1 Ea4 preparation and historical provenance limitations remain: historical reference '
+    'executable bytes are unavailable and legacy source/build provenance is less comprehensive than E2-G1. '
+    'The current extension executable and source/build provenance are authenticated. '
+    'Equilibrium invariance of the finite-step coupled MD/chemistry algorithm is unproven. '
+    'Some slow structural observables have limited effective samples; replica-specific excursions remain, '
+    'including r001 multiplicity, r002 intra-star/shape/coordination returns and r003 peripheral/loop fluctuations. '
+    'Complete structural decorrelation, removal of initialization-bias and exhaustive rare-state sampling '
+    'have not been demonstrated. The three original Ea4 families remain paired preparations. '
+    'Fresh GJ streams preclude bitwise continuation and segment-crossing dynamical origins. '
+    'Ea8 r001 retains its distinct historical 40M failure/recovery and ordinary validated 48M child. '
+    'This permits production_initial_state only; no registry selection, activation or production launch. '
+    'Ea10 remains unaccepted on scientific hold for its unresolved late r003 triangle/conformation mode.')
+output = helper['ROOT']/'banks/e2_acceptance/F04_N010_RP080_EE08_EA08_48M_qualified_20261023_v1.json'
+assert not output.exists(), 'immutable acceptance already exists; authenticate it, never overwrite'
+record = registry.accept(helper['ROOT'],output,attempt,
+    'Explicit user Ea8 qualified-acceptance approval 2026-10-23; registered by Codex',
+    helper['REVIEW']/'ASSESSMENT.md',[helper['SID']],qualification)
+for row, history in zip(rows,record['histories']):
+    assert history['end_step'] == 48000000
+    assert history['prefix']+'.restart.lammpsdat' == row['restart']
+    assert history['sha256'][row['restart']] == row['restart_sha256']
+    assert history['sha256'][row['sidecar']] == row['sidecar_sha256']
+with (dossier/'ACCEPTANCE_RECORD.log').open('xb') as stream:
+    stream.write(output.read_bytes())
+e2.exclusive_json(dossier/'REGISTRATION.log',dict(acceptance=str(output),sha256=e2.campaign.sha256(output),
+    exact_endpoints=rows,prior_acceptances=13,registered_acceptances=14,
+    registry_selected=False,registry_activated=False,Ea10_accepted=False,GPU_steps_executed=0))
+print('REGISTERED',output,e2.campaign.sha256(output))

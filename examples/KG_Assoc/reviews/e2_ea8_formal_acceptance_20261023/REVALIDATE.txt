@@ -1,0 +1,24 @@
+"""One exact Ea8 endpoint's strict independent CPU replay; no GPU or MD."""
+import argparse
+from pathlib import Path
+import runpy
+p = argparse.ArgumentParser(description=__doc__)
+p.add_argument('--replica',type=int,choices=(1,2,3),required=True)
+p.add_argument('--output',type=Path,required=True)
+a = p.parse_args()
+dossier = Path(__file__).resolve().parent
+helper = runpy.run_path(str(dossier/'AUTHENTICATE.txt'))
+e2 = helper['e2']
+rows,attempt,plan = helper['authenticate']()
+row = rows[a.replica-1]
+entry = plan['histories'][a.replica-1]
+_,_,validation = e2.validation.validate(entry,oracle=True)
+receipt = e2.campaign.load_json(row['receipt'])
+assert validation == receipt['validation']
+assert validation['numerical_status'] == 'valid' and validation['oracle_sweeps'] == 80000
+assert validation['initial_device_readback']['status'] == 'valid'
+assert validation['initial_device_readback']['particles'] == 43563
+e2.exclusive_json(a.output/f'REVALIDATED_r{a.replica:03d}.log',dict(exact_endpoint=row,
+    entry=entry,validation=validation,receipt_sha256=row['receipt_sha256'],
+    MD_steps_executed_by_this_check=0))
+print('PASS Ea8',a.replica,'exact 48M pair, lineage, seeds, readback, event/oracle/numerical replay')

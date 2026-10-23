@@ -160,7 +160,7 @@ def build(root, output, out_of_tree=False):
 def scientific_source_hashes(hashes):
     # Administrative entry points/tests do not change simulation or validation semantics.
     ignored = {'run_e2.py', 'kg_assoc_e2.py', 'kg_assoc_e2_recover.py', 'run_ea_extensions.py',
-               'catalog.py', 'catalog_model.py', 'run_ea_preparation.py'}
+               'catalog.py', 'catalog_model.py', 'run_ea_preparation.py', 'kg_assoc_e2_registry.py'}
     def administrative(name):
         path = Path(name)
         campaign_file = (len(path.parts) == 1 or

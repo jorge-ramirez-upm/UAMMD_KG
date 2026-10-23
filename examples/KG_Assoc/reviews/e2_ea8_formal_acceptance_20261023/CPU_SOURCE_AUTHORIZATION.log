@@ -1,0 +1,16 @@
+{
+  "purpose": "CPU_acceptance_registration_only",
+  "GPU_execution_authorized": false,
+  "starting_sha": "c2418f3232def175d326665047618603e52e112c",
+  "previous_source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2.py": "48096c322c9796699d4cd119246ab2f9673ceb4784a4470c797cf5b119ecf4fd",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2_registry.py": "d351e62feb10063b791c4439bce2acbbfccea4a35feed35ff56f41d745595723"
+  },
+  "administrative_source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2.py": "d470f68faec2bbde6abea37535c7509ed0524e5bca5a4f7c8069ea33d86f8ba1",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2_registry.py": "4b63f315570006f1ef2e01e1b2551791fd9f6c563ea5f0287b1608ec74bc65e9"
+  },
+  "permitted_system": "F04_N010_RP080_EE08_EA08",
+  "endpoint": 48000000,
+  "explanation": "Exact Ea8 48M acceptance dispatch and administrative classification of record publisher only; all numerical/physics sources and native executable unchanged; no GPU approval"
+}
