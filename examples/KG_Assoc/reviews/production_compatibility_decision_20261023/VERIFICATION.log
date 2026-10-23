@@ -1,0 +1,17 @@
+{
+  "GPU_MD_steps_executed": 0,
+  "authenticated_compatibility_completions": 15,
+  "certifications": {
+    "production_initial_GPU_state_comparison": "not_performed",
+    "production_runtime_independent_candidate_oracle": "not_performed"
+  },
+  "decision": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_compatibility_decisions/assoc15_compatibility_additional_certification_decision_20261023_v1.json",
+  "decision_sha256": "f7e8a98bcc8a0b94d65a714b4daea394e6c2cb1892d8aa4eb6ec07faf4913516",
+  "mandatory_validation": "unchanged_and_required",
+  "outcome": "accepted_with_additional_certification_limitations",
+  "preserved_bindings": 5523,
+  "production_execution_authorized": false,
+  "qualified_acceptances": 15,
+  "registry_activated": false,
+  "unchanged_production_preparations": 45
+}
