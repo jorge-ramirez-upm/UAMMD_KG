@@ -199,6 +199,10 @@ def validate(history, authority, recovery=False):
     return status(history, authority)
 
 
+def interrupt(signum, frame):
+    raise KeyboardInterrupt('termination signal ' + str(signum))
+
+
 def execute(history, authority):
     """User-run only. No retry of partial, failed or native-complete work."""
     e2.clean_tree()
@@ -214,6 +218,7 @@ def execute(history, authority):
     require({p.name for p in directory.iterdir()} == pristine, 'output directory not pristine')
     stage = 'prelaunch'
     process = None
+    old_term_handler = signal.signal(signal.SIGTERM, interrupt)
     try:
         immutable(directory / 'started.json', dict(identity=identity(history, authority),
                   source_sha256=authenticate(history, authority)))
@@ -251,3 +256,5 @@ def execute(history, authority):
         immutable(directory / 'failure.json', dict(identity=identity(history, authority),
                   kind=kind, error_type=type(error).__name__, message=str(error)))
         raise
+    finally:
+        signal.signal(signal.SIGTERM, old_term_handler)
