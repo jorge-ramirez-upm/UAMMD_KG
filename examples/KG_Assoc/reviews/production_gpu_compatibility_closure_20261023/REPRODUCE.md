@@ -18,7 +18,8 @@ timeout 600 env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/kg_cl
 No command executes a GPU executable or any MD step. REVALIDATE and VERIFY permit
 only Git subprocesses; the other review tools only read existing data, hash files
 or plot saved observables. No invocation of the old driver's --execute/--recover
-entry point is needed. Keep Git clean for the existing strict source gates.
+entry point is needed. Formal records are authenticated by immutable bindings/use/
+triplet/evidence checks, without re-running the registrar's native CPU build probes. Keep Git clean for the existing strict source gates.
 Use fresh output paths: review tools reject reused destinations and do not change
 simulation journals or completion status. CPU jobs are timeout-bounded at600s.
 

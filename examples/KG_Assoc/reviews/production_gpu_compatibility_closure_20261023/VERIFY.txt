@@ -28,7 +28,12 @@ paths = sorted((G['ROOT'] / 'banks/e2_acceptance').glob('*.json'))
 e.require(len(paths) == 15, 'acceptance inventory changed')
 for path in paths:
     record = c.load_json(path)
-    G['P']['registry'].exclusive_validate(record, [e.system_by_id(record['permitted_systems'][0])])
+    # Authenticate issued records; do not re-execute the registrar's native CPU build probes.
+    e.require([entry['replica'] for entry in record['histories']] == [1, 2, 3],
+              'qualified triplet identity changed')
+    G['P']['registry'].permitted(record, e.system_by_id(record['permitted_systems'][0]))
+    e.check_hashes({record['evidence']: record['evidence_sha256'],
+                   record['source_plan']: record['source_plan_sha256']})
 frozen = c.load_json(G['P']['PLAN'])
 e.require(len(frozen['histories']) == 45 and frozen['registry_activated'] is False and
           frozen['GPU_execution_authorized'] is False, 'production scope or authority changed')
