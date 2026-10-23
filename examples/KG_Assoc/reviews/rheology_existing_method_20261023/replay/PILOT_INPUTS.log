@@ -1,0 +1,42 @@
+[
+  {
+    "path": "p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.stress_correlator",
+    "samples": 32000000,
+    "g0": 66.15644746870606,
+    "bins": 183,
+    "last_raw_lag": 293601.28,
+    "last_raw_count": 1
+  },
+  {
+    "path": "p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.stress_correlator",
+    "samples": 32000000,
+    "g0": 66.19710519872365,
+    "bins": 183,
+    "last_raw_lag": 293601.28,
+    "last_raw_count": 1
+  },
+  {
+    "path": "p42_rheology_pilot/run.RqADk7/C1_e2_s12003_t40000.stress_correlator",
+    "samples": 32000000,
+    "g0": 66.22125633733081,
+    "bins": 183,
+    "last_raw_lag": 293601.28,
+    "last_raw_count": 1
+  },
+  {
+    "path": "p42_rheology_pilot/run.RqADk7/C1_e2_s12004_t40000.stress_correlator",
+    "samples": 32000000,
+    "g0": 66.1799548435979,
+    "bins": 183,
+    "last_raw_lag": 293601.28,
+    "last_raw_count": 1
+  },
+  {
+    "path": "p42_rheology_pilot/run.RqADk7/C1_e2_s12005_t40000.stress_correlator",
+    "samples": 32000000,
+    "g0": 66.15740848292077,
+    "bins": 183,
+    "last_raw_lag": 293601.28,
+    "last_raw_count": 1
+  }
+]

@@ -1,0 +1,11 @@
+requested_cutoff,cutoff_time,replica,source,eta
+20000,19660.8,1,p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.stress_correlator,254.93223672016205
+20000,19660.8,2,p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.stress_correlator,123.62071025649196
+25000,23592.96,1,p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.stress_correlator,278.9647524201092
+25000,23592.96,2,p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.stress_correlator,129.9328627210725
+30000,28835.84,1,p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.stress_correlator,305.91879645878896
+30000,28835.84,2,p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.stress_correlator,132.7138959785492
+40000,39321.6,1,p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.stress_correlator,350.07062772248287
+40000,39321.6,2,p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.stress_correlator,149.8678323246177
+50000,47185.92,1,p42_rheology_pilot/run.MBA5fA/C1_e2_s12001_t40000.stress_correlator,395.72476856328603
+50000,47185.92,2,p42_rheology_pilot/run.MBA5fA/C1_e2_s12002_t40000.stress_correlator,174.03825934147028

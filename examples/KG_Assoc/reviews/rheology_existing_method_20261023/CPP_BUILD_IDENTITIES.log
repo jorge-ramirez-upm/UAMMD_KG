@@ -1,0 +1,12 @@
+{
+  "compiler": "/usr/local/gcc-11.2.0/bin/g++",
+  "flags": [
+    "-std=c++14",
+    "-O3"
+  ],
+  "CPU_only": true,
+  "binaries_sha256": {
+    "/tmp/ea10_rheology_cpu_final/kg_assoc_correlator_checkpoint_test": "df95b86ef9eecf10d3d4f3cdf0dfd6416d8b33d157b73f5046435a43e7b2537a",
+    "/tmp/ea10_rheology_cpu_final/kg_correlator6_counts_test": "626ee44ac00e4c6d8a591cc32b56429bf25c4c6575b1dd8ce920bc1669b80d9b"
+  }
+}

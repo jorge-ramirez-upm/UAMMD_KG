@@ -1,0 +1,27 @@
+"""One immutable user-approved scientific-exception registration, no registry publication."""
+from pathlib import Path
+import runpy
+D=Path(__file__).resolve().parent
+h=runpy.run_path(str(D/'AUTHENTICATE.txt'));e2=h['e2']
+import kg_assoc_e2_registry as registry
+rows,attempt,plan=h['authenticate']()
+for row in rows:
+    checked=e2.campaign.load_json(D/f"REVALIDATED_r{int(row['replica']):03d}.log")
+    assert checked['exact_endpoint']==row and checked['MD_steps_executed_by_this_check']==0
+    assert checked['validation']==e2.campaign.load_json(row['receipt'])['validation']
+    assert checked['validation']['oracle_sweeps']==320000
+path=h['ROOT']/'banks/e2_acceptance/F04_N010_RP080_EE08_EA10_88M_qualified_exception_20261023_v1.json'
+assert not path.exists(),'immutable acceptance already exists; verify, never overwrite'
+record=registry.accept(h['ROOT'],path,attempt,
+    'Explicit user-approved Ea10 qualified initialization despite unresolved scientific hold, 2026-10-23',
+    D/'ASSESSMENT.md',[h['SID']],(D/'QUALIFICATION.txt').read_text().strip())
+for row,entry in zip(rows,record['histories']):
+    assert entry['prefix']+'.restart.lammpsdat'==row['restart'] and entry['end_step']==88000000
+    assert entry['sha256'][row['restart']]==row['restart_sha256']
+    assert entry['sha256'][row['sidecar']]==row['sidecar_sha256']
+with (D/'ACCEPTANCE_RECORD.log').open('xb') as f:f.write(path.read_bytes())
+e2.exclusive_json(D/'REGISTRATION.log',dict(acceptance=str(path),sha256=e2.campaign.sha256(path),
+    exact_endpoints=rows,prior_acceptances=14,registered_acceptances=15,
+    registry_selected=False,registry_activated=False,GPU_steps_executed=0,
+    scientific_hold_resolved=False,user_approved_scientific_exception=True))
+print('REGISTERED',path,e2.campaign.sha256(path))

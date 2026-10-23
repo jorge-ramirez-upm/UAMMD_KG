@@ -1,0 +1,27 @@
+"""Plot the reproduced historical five-family pilot, preserving signed tails and replica spread."""
+import csv
+from pathlib import Path
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+D=Path(__file__).resolve().parent
+rows=list(csv.DictReader((D/'replay/five_32m.replicas.csv').open()))
+f,ax=plt.subplots(1,2,figsize=(12,4.5))
+values=[]
+for rep in range(1,6):
+    r=[x for x in rows if int(x['replica'])==rep]
+    t=np.array([float(x['time']) for x in r]);g=np.array([float(x['G']) for x in r]);values.append(g)
+    ax[0].plot(t[1:],g[1:],alpha=.4,lw=.8,label=str(rep))
+v=np.array(values);mean=v.mean(axis=0);half=2.776445*v.std(axis=0,ddof=1)/np.sqrt(5)
+ax[0].plot(t[1:],mean[1:],'k-',label='mean');ax[0].fill_between(t[1:],(mean-half)[1:],(mean+half)[1:],alpha=.16,color='k')
+ax[0].axvline(157286.4,color='grey',ls=':',lw=.8,label='8-pair horizon')
+ax[0].set_xscale('log');ax[0].set_yscale('symlog',linthresh=.002);ax[0].axhline(0,color='grey',lw=.5)
+ax[0].set_xlabel('Lag, reduced time');ax[0].set_ylabel('G(t); shaded replica 95% CI');ax[0].legend(ncol=3,fontsize=8)
+c=list(csv.DictReader((D/'replay/five_32m.viscosity_cutoffs.csv').open()))
+x=[float(r['cutoff_time']) for r in c];y=[float(r['eta_mean']) for r in c]
+err=[float(r['eta_ci_high'])-float(r['eta_mean']) for r in c]
+ax[1].errorbar(x,y,yerr=err,fmt='o-');ax[1].set_xlabel('Actual integration cutoff');ax[1].set_ylabel('Truncated viscosity; replica 95% CI')
+f.suptitle('Historical C1 P4 pilot: noise/cutoff evidence, not corrected-chemistry equilibrium rheology')
+f.tight_layout();f.savefig(D/'PILOT_REVIEW.png',dpi=150)
+print('PASS plotted five historical curves, replica uncertainty and actual cutoffs')

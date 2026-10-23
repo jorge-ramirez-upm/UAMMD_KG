@@ -1,0 +1,14 @@
+[
+  {
+    "git_sha": "8ee9ad6c943036c3cc83bef1f2290c56333f170b",
+    "path": "examples/KG_Assoc/kg_assoc_star_runtime.cuh",
+    "source_sha256": "460ce538ac44bac91cfd75ce6ec1b84dea30853319910f0bb3ec64825a749b8c",
+    "cellIndex": "inline int cellIndex(double coordinate, double length, int cells) {\n  const double cellLength = length / static_cast<double>(cells);\n  int index = static_cast<int>(std::floor((coordinate + 0.5 * length) / cellLength));\n  if (index < 0) {\n    return 0;\n  }\n  if (index >= cells) {\n    return cells - 1;\n  }\n  return index;\n}"
+  },
+  {
+    "git_sha": "6aa6e372a3d8a27ddf9065da82e2f126f2547542",
+    "path": "examples/KG_Assoc/kg_assoc_star_runtime.cuh",
+    "source_sha256": "460ce538ac44bac91cfd75ce6ec1b84dea30853319910f0bb3ec64825a749b8c",
+    "cellIndex": "inline int cellIndex(double coordinate, double length, int cells) {\n  const double cellLength = length / static_cast<double>(cells);\n  int index = static_cast<int>(std::floor((coordinate + 0.5 * length) / cellLength));\n  if (index < 0) {\n    return 0;\n  }\n  if (index >= cells) {\n    return cells - 1;\n  }\n  return index;\n}"
+  }
+]

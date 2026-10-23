@@ -1,0 +1,32 @@
+[
+  {
+    "steps_each": 32000000,
+    "histories": 45,
+    "total_MD_steps": 1440000000,
+    "historical_linear_GPU_hours": 222.72393772524845,
+    "bead_GB": 11.838699264,
+    "proposed_raw_stress_GB": 80.64,
+    "text_events_COM_analysis_overhead": "not included; measure representative rates, add 1.5\u20132x footprint headroom",
+    "scope": "resource scenario only; no approval or simulation plan"
+  },
+  {
+    "steps_each": 64000000,
+    "histories": 45,
+    "total_MD_steps": 2880000000,
+    "historical_linear_GPU_hours": 445.4478754504969,
+    "bead_GB": 23.622092544,
+    "proposed_raw_stress_GB": 161.28,
+    "text_events_COM_analysis_overhead": "not included; measure representative rates, add 1.5\u20132x footprint headroom",
+    "scope": "resource scenario only; no approval or simulation plan"
+  },
+  {
+    "steps_each": 100000000,
+    "histories": 45,
+    "total_MD_steps": 4500000000,
+    "historical_linear_GPU_hours": 696.0123053914015,
+    "bead_GB": 36.878409984,
+    "proposed_raw_stress_GB": 252.0,
+    "text_events_COM_analysis_overhead": "not included; measure representative rates, add 1.5\u20132x footprint headroom",
+    "scope": "resource scenario only; no approval or simulation plan"
+  }
+]

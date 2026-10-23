@@ -1,0 +1,54 @@
+"""Reuse the established P4 analyzer on original records; CPU only, new output directory."""
+import argparse
+import csv
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import statistics
+import subprocess
+p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(exist_ok=False)
+source=Path('examples/KG_Assoc/analysis/analyze_p42_rheology_pilot.py').resolve()
+spec=importlib.util.spec_from_file_location('pilot',source);pilot=importlib.util.module_from_spec(spec);spec.loader.exec_module(pilot)
+paths=[*sorted(Path('p42_rheology_pilot/run.MBA5fA').glob('*.stress_correlator')),
+       *sorted(Path('p42_rheology_pilot/run.RqADk7').glob('*.stress_correlator'))]
+assert len(paths)==5
+inputs=[source];records=[];rows=[]
+for path in paths:
+    metadata,data=pilot.read_stress_correlator(str(path));assert metadata['stress_samples']==32000000
+    assert metadata['support_mode']=='exact_n_pairs'
+    log=path.with_suffix('.log');assert 'STAR_ASSOCIATION_SMOKE PASS' in log.read_text()
+    inputs.extend([path,path.with_suffix('.state'),log,path.parent/'provenance.txt'])
+    rows.append(dict(path=str(path),metadata=metadata,rows=data))
+    records.append(dict(path=str(path),samples=metadata['stress_samples'],g0=data[0]['G'],
+                        bins=len(data),last_raw_lag=data[-1]['time'],last_raw_count=data[-1]['n_pairs']))
+for label,replicas in [('two_32m',rows[:2]),('five_32m',rows)]:
+    windows,report,sensitivity=pilot.support_sensitivity(replicas,.75,5,[8,16,32,64,128])
+    report['g0_mean']=statistics.mean(r['rows'][0]['G'] for r in replicas)
+    pilot.write_outputs(str(a.output/label),replicas,windows,report,sensitivity)
+    r,c,v=pilot.analyze_viscosity(replicas,report,[20000,25000,30000,40000,50000])
+    pilot.write_viscosity_outputs(str(a.output/label),r,c,v)
+    print(label,report['tail_classification'],'G0',report['g0_mean'],'eta',v['eta0_estimate'])
+    if len(replicas)==5:
+        assert report['tail_classification']=='robust_resolved_decay_to_zero'
+        assert abs(v['eta0_estimate']-184.28)<.01
+# Recompute exact multi-tau support from block-averaged counts (no large fake trajectory).
+def grid(n):
+    result=[(j,j,n-j,0) for j in range(min(16,n))]
+    for level in range(1,39):
+        available=n//2**level
+        for j in range(8,16):
+            if available>j:result.append((j*2**level,j,available-j,level))
+    return result
+for record,replica in zip(records,rows):
+    expected=grid(32000000)
+    assert len(expected)==len(replica['rows'])
+    for (steps,j,count,level),row in zip(expected,replica['rows']):
+        assert abs(row['time']-steps*.01)<1e-8 and row['n_pairs']==count
+with (a.output/'LAG_GRID.csv').open('x') as f:
+    w=csv.writer(f,lineterminator='\n');w.writerow(('samples','level','lag_steps','time','n_pairs'))
+    for n in (1000000,8000000,16000000,32000000,64000000,100000000):
+        for steps,j,count,level in grid(n):w.writerow((n,level,steps,steps*.01,count))
+(a.output/'PILOT_INPUTS.log').write_text(json.dumps(records,indent=2)+'\n')
+(a.output/'INPUTS.sha256').write_text(json.dumps({str(path.resolve()):hashlib.sha256(path.read_bytes()).hexdigest() for path in inputs},indent=2,sort_keys=True)+'\n')
+print('PASS original six-channel normalization, five actual lag/count grids, two/five-replica reanalysis')

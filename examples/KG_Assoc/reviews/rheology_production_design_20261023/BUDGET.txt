@@ -1,0 +1,51 @@
+"""Read fifteen formal records; compute prospective resource scenarios without preparing runs."""
+import argparse
+import csv
+import hashlib
+import json
+from pathlib import Path
+import re
+p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(exist_ok=False)
+root=Path('examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance')
+paths=sorted(root.glob('*.json'));assert len(paths)==15
+conditions=[];budgets=[];bindings={}
+for path in paths:
+    record=json.loads(path.read_text());sid,=record['permitted_systems']
+    assert record['status']=='accepted_with_qualification' and record['permitted_use']=='production_initial_state'
+    bindings[str(path.resolve())]=hashlib.sha256(path.read_bytes()).hexdigest()
+    counts=[]
+    for h in record['histories']:
+        restart=Path(h['prefix']+'.restart.lammpsdat');sidecar=Path(h['prefix']+'.assoc_restart')
+        for file in (restart,sidecar):
+            digest=hashlib.sha256(file.read_bytes()).hexdigest();assert h['sha256'][str(file)]==digest
+            bindings[str(file)]=digest
+        text=restart.read_text();atoms=int(re.search(r'^\s*(\d+) atoms\s*$',text,re.M)[1]);bonds=int(re.search(r'^\s*(\d+) bonds\s*$',text,re.M)[1])
+        counts.append((atoms,bonds))
+        conditions.append(dict(system=sid,replica=h['replica'],acceptance=str(path.resolve()),acceptance_sha256=bindings[str(path.resolve())],
+            restart=str(restart),restart_sha256=bindings[str(restart)],sidecar=str(sidecar),sidecar_sha256=bindings[str(sidecar)],
+            initial_step=h['end_step'],atoms=atoms,permanent_bonds=bonds,scientific_exception=sid.endswith('EA10'),
+            permitted_use=record['permitted_use'],execution_authorized=False))
+    assert len(counts)==3 and len(set(counts))==1
+    atoms,bonds=counts[0]
+    for steps in (32000000,64000000,100000000):
+        header=84+atoms*12+bonds*8;frame=20+atoms*12
+        budgets.append(dict(system=sid,histories=3,steps_each=steps,total_steps=steps*3,atoms=atoms,
+            historical_linear_GPU_hours=3*steps/32000000*atoms/43563*11383.05/3600,
+            bead_bytes=3*(header+(steps//100000)*frame),proposed_raw_stress_bytes=3*steps*56,
+            execution_authorized=False))
+assert len({r['system'] for r in conditions})==15 and len(conditions)==45
+for name,rows in [('CONDITIONS.csv',conditions),('BUDGET.csv',budgets)]:
+    with (a.output/name).open('x') as f:
+        w=csv.DictWriter(f,fieldnames=rows[0],lineterminator='\n');w.writeheader();w.writerows(rows)
+summary=[]
+for steps in (32000000,64000000,100000000):
+    rows=[r for r in budgets if r['steps_each']==steps]
+    summary.append(dict(steps_each=steps,histories=45,total_MD_steps=sum(r['total_steps'] for r in rows),
+        historical_linear_GPU_hours=sum(r['historical_linear_GPU_hours'] for r in rows),
+        bead_GB=sum(r['bead_bytes'] for r in rows)/1e9,
+        proposed_raw_stress_GB=sum(r['proposed_raw_stress_bytes'] for r in rows)/1e9,
+        text_events_COM_analysis_overhead='not included; measure representative rates, add 1.5–2x footprint headroom',
+        scope='resource scenario only; no approval or simulation plan'))
+(a.output/'BUDGET_SUMMARY.log').write_text(json.dumps(summary,indent=2)+'\n')
+(a.output/'INPUTS.sha256').write_text(json.dumps(bindings,indent=2,sort_keys=True)+'\n')
+print(json.dumps(summary,indent=2))

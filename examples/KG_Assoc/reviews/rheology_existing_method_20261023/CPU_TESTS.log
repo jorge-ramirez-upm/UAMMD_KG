@@ -1,0 +1,12 @@
+test_actual_five_pilot_modulus_and_support_match (__main__.Tests) ... ok
+test_corrupt_modulus_and_sampling_rejected (__main__.Tests) ... ok
+test_deviatoric_projection_normalization (__main__.Tests) ... ok
+test_isotropic_covariance_reproduces_one_shear_scale (__main__.Tests) ... ok
+test_normal_difference_dependence (__main__.Tests) ... ok
+test_raw_counts_cannot_substitute_for_replica_agreement (__main__.Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.011s
+
+OK
+PASS six CPU tests; two fresh optimized native tests; established analyzer fourteen regimes

@@ -1,0 +1,25 @@
+"""Authenticate inspected sources, archived pilot bytes and derived review; read-only."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tarfile
+D=Path(__file__).resolve().parent
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+for name in ('INTEGRITY.sha256','SOURCE_INPUTS.sha256','replay/INPUTS.sha256'):
+    for path,digest in json.loads((D/name).read_text()).items():assert sha(Path(path).read_bytes())==digest,path
+inputs=json.loads((D/'replay/INPUTS.sha256').read_text())
+with tarfile.open(D/'PILOT_INPUTS.tar.gz') as archive:
+    assert len(archive.getmembers())==len(inputs)
+    for member in archive:
+        assert member.isfile() and not Path(member.name).is_absolute() and '..' not in Path(member.name).parts
+        assert sha(archive.extractfile(member).read())==inputs[str(Path.cwd()/member.name)]
+for row in json.loads((D/'HISTORICAL_CANDIDATE_SOURCE.log').read_text()):
+    raw=subprocess.check_output(['git','show',row['git_sha']+':'+row['path']])
+    assert sha(raw)==row['source_sha256'] and row['cellIndex'] in raw.decode()
+report=json.loads((D/'replay/five_32m.summary.json').read_text())
+eta=json.loads((D/'replay/five_32m.viscosity_summary.json').read_text())
+assert report['tail_classification']=='robust_resolved_decay_to_zero'
+assert abs(eta['eta0_estimate']-184.2836301822523)<1e-10
+print('PASS unchanged six-channel sources, original pilot archive and historical candidate qualification')
+print('PASS reproduced five-replica pilot and approximate eta; no new GPU execution')

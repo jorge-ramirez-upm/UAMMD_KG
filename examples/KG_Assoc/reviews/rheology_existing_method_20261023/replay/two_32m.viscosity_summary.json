@@ -1,0 +1,28 @@
+{
+  "terminal_relaxation_established": true,
+  "terminal_tail_classification": "robust_resolved_decay_to_zero",
+  "integration_method": "trapezoidal rule on sampled nonuniform lag grid",
+  "t0_treatment": "G(0) is the first correlator row; its short-time contribution is the first trapezoid from t=0 to the first positive lag",
+  "confidence_level": 0.95,
+  "student_t_critical_value": 12.706205,
+  "replicas": 2,
+  "candidate_cutoff_targets": [
+    20000,
+    25000,
+    30000,
+    40000,
+    50000
+  ],
+  "selection_rule": "median requested cutoff in the terminal candidate set",
+  "recommended_cutoff": 28835.84,
+  "recommended_cutoff_target": 30000,
+  "eta0_estimate": 219.31634621866908,
+  "eta_sample_std": 122.47435966431864,
+  "eta_sem": 86.60245024011988,
+  "eta_ci_low": -881.0721400345934,
+  "eta_ci_high": 1319.7048324719317,
+  "cutoff_sensitivity_max_absolute_change": 65.56516773370907,
+  "cutoff_sensitivity_rule": "maximum absolute difference from the recommended cutoff mean",
+  "adequate_for_approximate_scientific_use": true,
+  "recommended_next_action": "use the estimate for approximate C1 comparison; report replica and cutoff uncertainties separately"
+}
