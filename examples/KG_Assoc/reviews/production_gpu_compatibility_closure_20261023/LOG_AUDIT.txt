@@ -1,0 +1,35 @@
+"""Inspect actual native device/integrator logs without executing native code."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D.parent / 'production_launch_validation_20261023/DRIVER.txt'))
+e = G['e2']
+c = G['c']
+p = argparse.ArgumentParser(description=__doc__)
+p.add_argument('--output', type=Path, required=True)
+a = p.parse_args()
+e.require(not a.output.exists(), 'new log-audit output required')
+rows = []
+for h in c.load_json(G['PLAN'])['histories']:
+    directory = Path(h['output_prefix']).parent
+    stderr = (directory / 'stderr.log').read_text()
+    stdout = (directory / 'stdout.log').read_text()
+    device = re.search(r'Using device: (.*?) with id:', stderr)
+    e.require(device is not None and 'Compiled in single precision mode' in stderr and
+              '[Integrator] VerletNVT::GronbechJensen created.' in stderr, 'GPU/integrator log differs')
+    for label, expected in [('Temperature', 1), ('Time step', .01), ('Friction', .5)]:
+        found = re.search(r'\[VerletNVT::GronbechJensen\] ' + label + r': ([\d.]+)', stderr)
+        e.require(found is not None and float(found[1]) == expected, 'native integrator parameter differs')
+    e.require('STAR_ASSOCIATION_SMOKE FAIL' not in stdout + stderr and '[ERROR]' not in stderr,
+              'native failure/error message present')
+    rows.append(dict(system=h['system'], replica=h['replica'], device=device[1],
+        precision='single', integrator='GronbechJensen', temperature=1, dt=.01, friction=.5,
+        warning_lines=[line for line in stderr.splitlines() if '[WARNING]' in line],
+        log_sha256=e.hash_files([directory / 'stdout.log', directory / 'stderr.log']),
+        initial_GPU_state_readback=False, production_runtime_oracle=False))
+e.exclusive_json(a.output, rows)
+print('PASS', len(rows), 'actual native GPU/integrator logs; no new GPU execution')

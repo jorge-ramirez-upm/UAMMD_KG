@@ -1,0 +1,100 @@
+{
+  "identity": {
+    "approval_sha256": "a8b4a215525cc01a55ebfd85f8186ab0b2c1691bedeae0b47058d762641ad7e9",
+    "command": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/production_100m_preserved_20261023_v1/kg_assoc_campaign_production_smoke",
+      "--output",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run",
+      "--seed",
+      "21000014",
+      "--equilibrated-prefix",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/r001/state",
+      "--Ea",
+      "4",
+      "--Ee",
+      "8"
+    ],
+    "end_step": 6100000,
+    "history_sha256": "9ecc6ec0d4f5fda6d1cb8efec4613128e2c7b3872fec4cd164987485f456cdd5",
+    "plan_sha256": "d31fec4e07ec7a52aaa05f6a217802bab14e122b39513071d55ae341ae54dd34",
+    "replica": 1,
+    "source_authorization_sha256": "279cf4c2bc007865cd492597f322f80bfff80ec556b2e8acae21d7aaea223cf3",
+    "start_step": 6000000,
+    "steps": 100000,
+    "system": "F06_N010_RP080_EE08_EA04"
+  },
+  "native_execution_during_review": false,
+  "native_journals_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/native_finished.json": "5b5cb5dacb3afc9ebc03a551da2e9177703717de1166f3ce001a0b728dc503e5",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/started.json": "947e644cae5b0f55f659a7f43d382097f5eedce57c9036480cad99578c8ff33f"
+  },
+  "numerical": {
+    "chemistry_trace": {
+      "breaks": 2736,
+      "chemistry_sweeps": 1000,
+      "creations": 2738
+    },
+    "endpoint": {
+      "event_count": 5474,
+      "files": {
+        "run.beads.bin": {
+          "sha256": "f91646e350964ed4896d28f0291b9c4b819d18c98989759f38b15c7676ac0a6b",
+          "size": 2035616
+        },
+        "run.com_trajectory": {
+          "sha256": "96d42f65ba458f4d58babffbd1db20ff1b2eb297c239a1d72722a2d0e9d2d7ff",
+          "size": 766761
+        },
+        "run.complete.json": {
+          "sha256": "9838e8074b90a8637a0f0be0c744406928337abe5a9d812ad77b909f51663b93",
+          "size": 150
+        },
+        "run.events": {
+          "sha256": "8add14b49aca87bcdfa187be01a45428db8e02cf1cccfe0716f1570d5a6ae6e2",
+          "size": 194690
+        },
+        "run.final.lammpsdat": {
+          "sha256": "006160d355b7de2eac2c61bf535ac2865aece99f61aad0756c8ef61e029368bb",
+          "size": 10008251
+        },
+        "run.final_associations": {
+          "sha256": "89bfbc0ce59ce55ba1c36c10cb8d739ca204b2f6287c737dcd606d5e64ac12b1",
+          "size": 52008
+        },
+        "run.stress_correlator": {
+          "sha256": "ea0c574406dbe346cbaac26502fe0541d5e3df7bd5dce394f7553a93086a1251",
+          "size": 18667
+        },
+        "run.thermo.tsv": {
+          "sha256": "d4853f37d30c95455071c4b27cad555106cffc8d0df6f8985e81b2b163bbe229",
+          "size": 18517
+        },
+        "run.topology": {
+          "sha256": "32f0d30c893a1e1a13cd297662cb4738e1939dff178e532a577810780388ac24",
+          "size": 522967
+        }
+      },
+      "status": "valid"
+    },
+    "lag_bins": 116,
+    "six_channel_normalization": "existing_P4_reader_pass",
+    "stress_samples": 100000
+  },
+  "original_receipt_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/validated.json": "794988ca5b1404526d72be924e673cf9a0fad6d603ca2dd5136c912780f55168",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/validated_binding.json": "d75688c116dc6eb70af581d9475ef44fe98b5e101533139eff3649f87480253d"
+  },
+  "replayed_output_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.beads.bin": "f91646e350964ed4896d28f0291b9c4b819d18c98989759f38b15c7676ac0a6b",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.com_trajectory": "96d42f65ba458f4d58babffbd1db20ff1b2eb297c239a1d72722a2d0e9d2d7ff",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.complete.json": "9838e8074b90a8637a0f0be0c744406928337abe5a9d812ad77b909f51663b93",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.events": "8add14b49aca87bcdfa187be01a45428db8e02cf1cccfe0716f1570d5a6ae6e2",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.final.lammpsdat": "006160d355b7de2eac2c61bf535ac2865aece99f61aad0756c8ef61e029368bb",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.final_associations": "89bfbc0ce59ce55ba1c36c10cb8d739ca204b2f6287c737dcd606d5e64ac12b1",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.stress_correlator": "ea0c574406dbe346cbaac26502fe0541d5e3df7bd5dce394f7553a93086a1251",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.thermo.tsv": "d4853f37d30c95455071c4b27cad555106cffc8d0df6f8985e81b2b163bbe229",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/run.topology": "32f0d30c893a1e1a13cd297662cb4738e1939dff178e532a577810780388ac24",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/stderr.log": "b29bcf1388ea50612156773ada8ca7f8bb81d88c8efaabc720c7904b57ae7e14",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/stdout.log": "a6614b86fea1e7c81b2bf91618351b32c875b3681667b6c6537abcbc700c7924"
+  }
+}

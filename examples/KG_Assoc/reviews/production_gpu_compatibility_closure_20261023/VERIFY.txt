@@ -1,0 +1,50 @@
+"""Final read-only compatibility-closure integrity audit; never launches native code."""
+import csv
+import json
+from pathlib import Path
+import runpy
+import subprocess
+
+D = Path(__file__).resolve().parent
+R = runpy.run_path(str(D / 'REVALIDATE.txt'))
+G = R['G']
+e = R['e']
+c = R['c']
+R['guard_git_only']()
+e.check_hashes(c.load_json(D / 'PRESERVED.sha256'))
+e.check_hashes(c.load_json(D / 'COMPLETED_OUTPUTS.sha256'))
+e.check_hashes(c.load_json(D / 'ARCHIVED_INPUTS.sha256'))
+e.check_hashes(c.load_json(D / 'source/SOURCE_INPUTS.sha256'))
+if (D / 'INTEGRITY.sha256').exists():
+    e.check_hashes(c.load_json(D / 'INTEGRITY.sha256'))
+authority, histories = G['load_authority'](G['INDEX'])
+for h in histories:
+    e.require(G['A']['status'](h, authority) == 'validated_complete', 'completion changed')
+    saved = c.load_json(Path(h['output_prefix']).parent / 'validated.json')
+    replay = c.load_json(D / 'replay' / (h['system'] + '_r%03d.log' % h['replica']))
+    e.require(replay['numerical'] == saved['numerical'], 'replay evidence differs')
+    e.check_hashes(replay['replayed_output_sha256'])
+paths = sorted((G['ROOT'] / 'banks/e2_acceptance').glob('*.json'))
+e.require(len(paths) == 15, 'acceptance inventory changed')
+for path in paths:
+    record = c.load_json(path)
+    G['P']['registry'].exclusive_validate(record, [e.system_by_id(record['permitted_systems'][0])])
+frozen = c.load_json(G['P']['PLAN'])
+e.require(len(frozen['histories']) == 45 and frozen['registry_activated'] is False and
+          frozen['GPU_execution_authorized'] is False, 'production scope or authority changed')
+for h in frozen['histories']:
+    e.require({p.name for p in Path(h['output_prefix']).parent.iterdir()} ==
+              {'run.json', 'preparation_approval.json'}, 'production execution artifacts appeared')
+e.require(all(name.startswith('examples/KG_Assoc/reviews/production_gpu_compatibility_closure_20261023/')
+              for name in subprocess.check_output(['git', 'diff', '--name-only',
+              '6a5e5c9732621639a15140087ccf0d25fa5164c7'], text=True).splitlines()),
+          'changes outside closure dossier')
+summary = c.load_json(D / 'replay/SUMMARY.log')
+e.require(summary['histories'] == 15 and summary['total_existing_MD_steps'] == 1500000 and
+          summary['hold_removed'] is False and summary['waiver_published'] is False,
+          'review scope or policy claim changed')
+print(json.dumps(dict(status='PASS', qualified_acceptances=15, preserved_bindings=
+    len(c.load_json(D / 'PRESERVED.sha256')), completed_file_bindings=240,
+    independently_revalidated_histories=15, unchanged_dormant_production_preparations=45,
+    GPU_steps_executed_by_review=0, waiver_published=False, compatibility_hold_removed=False,
+    production_registry_activated=False, production_execution_approvals_created=0), indent=2))

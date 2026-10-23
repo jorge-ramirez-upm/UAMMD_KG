@@ -1,0 +1,10 @@
+test_fresh_validator_must_equal_receipt (__main__.Tests) ... ok
+test_native_or_partial_status_cannot_count_as_validated (__main__.Tests) ... ok
+test_review_subprocess_guard_blocks_every_native_executable (__main__.Tests) ... ok
+test_source_block_extraction_retains_nested_body (__main__.Tests) ... ok
+test_thermo_finite_shape_and_empty_rejection (__main__.Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK

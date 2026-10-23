@@ -1,0 +1,9 @@
+test_arbitrary_local_authority_cannot_publish_execution (__main__.SourceTests) ... ok
+test_exact_native_map_and_changed_physics_reject (__main__.SourceTests) ... ok
+test_extra_native_source_reject (__main__.SourceTests) ... ok
+test_missing_native_source_reject (__main__.SourceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.019s
+
+OK

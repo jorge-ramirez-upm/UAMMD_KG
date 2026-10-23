@@ -1,0 +1,37 @@
+{
+  "E2_build_manifest_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/ea_extensions_48m_88m_20261021_v1/manifest.json": "70adcf286b89ba50fb2d7275b7d2e7d0044c503cef86ab828eaf4d71b990173b"
+  },
+  "common_call_sites": [
+    "kg::readLammpsDataFile(parameters.input)",
+    "kg::makeSimulationBox(data)",
+    "kg::createParticleDataFromLammps(data, system, simulationBox)",
+    "integratorParameters.initVelocities = false;",
+    "kg_assoc::findStickerCandidates(\n            particles, state, lengths, parameters.rAssoc)"
+  ],
+  "duplicate_partner_construction_identical": true,
+  "duplicate_restart_reader_identical": true,
+  "partner_block_sha256": "22dccb7af1750a2c0c5232216c2cc6535f48bab5b989099e21bab10726d3ff80",
+  "production_build_manifest_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/builds/run_e2_build_333808c2e2b747b88eb4ae1f54653535/manifest.json": "fc56550363c653a95cf4d3d8bf196816cf2e589ddde1931a98966ccdc0ef93b3"
+  },
+  "production_independent_runtime_oracle": false,
+  "production_initial_readback": false,
+  "restart_reader_sha256": "e4ffb2f968bc47901d5e8a057c84b1443edaf45cfcb8cf90c8f4d36b3195acb5",
+  "shared_native_source_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG/kg_interactors.cuh": "0a5e2b20d057016cdfeabf66708413f4eecbd4a6778756280735fecb34f158af",
+    "/home/jramirez/UAMMD_KG/examples/KG/kg_lammps_io.cuh": "49a8ac419ad89817af86184c01ce53b817a59e9c082e537f7546da710e0c3837",
+    "/home/jramirez/UAMMD_KG/examples/KG/kg_runtime.cuh": "938a2cafde5c93ad683560be025ff1033a92d4b0dd439d4db35321951d4a7427",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_ea_switch.cuh": "940a043b1ad285821f12f0c87d10dcab7ed853da3adf5a129fc0e86e67013d54",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_interactors.cuh": "53e4a15dc02f7d806b077832a3257455f0a8e6633b12136b592386fa22cd4fd3",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_kinetics.cuh": "ed540c3ed20b8b224a376852b59bea21207869549f80bbba9a4313d17945316f",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_star_runtime.cuh": "6d49d81bab3dc8da7d16a921dce444f9b116f1efb7f798522b79c5aadc9bf084",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_state.cuh": "c75cf4b67a451b38c0499483bc03d9382f47750aeaeebaf76a226fa973a140a4",
+    "/home/jramirez/UAMMD_KG/src/Integrator/VerletNVT.cuh": "dd3feb83cd07b70396711795f5285112e6449418f9db5bb7e87be5bbf2dbb38d",
+    "/home/jramirez/UAMMD_KG/src/Integrator/VerletNVT/Basic.cu": "0a155e5ea78e68b749f793c03eeb5ceb53f64f8743307ada27b4baee4314af0d",
+    "/home/jramirez/UAMMD_KG/src/Integrator/VerletNVT/GronbechJensen.cu": "0be33b178de2e0b3856d1d14e4c254d51f124c220618d0a050995a9fd70f848d",
+    "/home/jramirez/UAMMD_KG/src/ParticleData/ParticleData.cuh": "1b9c3bae20a81577d1e0bd632dc610bf5fabc80d5d03d3c1bdcfbabae4d95b30",
+    "/home/jramirez/UAMMD_KG/src/utils/utils.h": "cf269f80774d05ee0bea6478d4a2670faff383e3adbf9ac2c45dc359ed84f9ec"
+  },
+  "whole_programs_identical": false
+}

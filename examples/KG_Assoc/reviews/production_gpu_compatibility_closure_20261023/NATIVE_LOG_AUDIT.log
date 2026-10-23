@@ -1,0 +1,257 @@
+[
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F03_N010_RP080_EE08_EA04/production/r001/stderr.log": "9f938565f9afb7aeb6b29844622ff9ac2b4d99371b3fea2bc8cb096fa8300d20",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F03_N010_RP080_EE08_EA04/production/r001/stdout.log": "9d1a791ea7213adb86875bff3b4167ba8895c73d855025a2c949e32b54ac0fbd"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F03_N010_RP080_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP020_EE08_EA04/production/r001/stderr.log": "380634f5b06c1ea884443710889ad0bca1c7647a67017c47486eaa295083997e",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP020_EE08_EA04/production/r001/stdout.log": "ca6264384fcc4df8da0609088dd8e044f810d1addd166f1513c48306e53e9ab0"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP020_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP040_EE08_EA04/production/r001/stderr.log": "650d71312d3904c149249e673855d5b1fcfda0eecbb6ac2c55076aad5acf074f",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP040_EE08_EA04/production/r001/stdout.log": "9247fda11912ca7711378ee1136e1b8c553b4889705cdf245040e8f3b8df07bd"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP040_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP060_EE08_EA04/production/r001/stderr.log": "241efbc0b13295b6cbf1c1e942242384626e08d2ad9449c246fb5eb45cecc406",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP060_EE08_EA04/production/r001/stdout.log": "fd6d3bbaf6cfd12bcb0bbbf01ffa6143035e731826ba19b00b8d1e5f7b392a07"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP060_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE04_EA04/production/r001/stderr.log": "cf473a53a4ec5aa539b3682f78e43d1190d27c23ecb0d39aaa716332f29bcc46",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE04_EA04/production/r001/stdout.log": "71fd1eda6402b0d222c1397a264535c849869569e10261ac60dcc478398c975e"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE04_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE06_EA04/production/r001/stderr.log": "cad3068978d15360bfc85f19f323804de76d2ba249cdd7e2b2e8750f3f4d32b5",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE06_EA04/production/r001/stdout.log": "ba3831cd4a0b58f3df73ff2bd6c6beca95ba4bfe55077b28ead4ec4734a150a5"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE06_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA04/production/r001/stderr.log": "5166fd226b72767de9931c9815d46b0ef51492911044d8504cf587749b840e14",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA04/production/r001/stdout.log": "168afa5f5b781926e6b995ebd6acf42243bb4cd7aad16147bb677ca3d6ccd650"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA06/production/r001/stderr.log": "5e43b7b8ff5964b127df1799b2bb8bc65e83c783bd780bcf878a24f04ba5c0a2",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA06/production/r001/stdout.log": "b47278916c5f4b299cb65f20d000b4d02a85548e9553d27596ad83ce9290036d"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA06",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA08/production/r001/stderr.log": "f5def92119c5e5fa2e6f77e055deb8fd50b764397bcb2a0c235ab49cee620fb6",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA08/production/r001/stdout.log": "0bc2e65ca68e583cdb50c330e63a2de66951fda8a19e3dd5b4d182aed76520f3"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA08",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA10/production/r003/stderr.log": "6d4f6550fcd5997a25f376fa9a90c213501931654c7bf97fff089ebd66b2003f",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE08_EA10/production/r003/stdout.log": "5a79f8d005245cb5766890f162c2c4ed2b5fb2930137f258150d232aad391488"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE08_EA10",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE10_EA04/production/r001/stderr.log": "dde3fef16074fab103c5af644628aa88266e01d12d22e0d8d13b3a629eceb888",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE10_EA04/production/r001/stdout.log": "d4318a5ff334b8905a50a7ff547ba7e01b965539e9d9a4025633fc2e8448e788"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE10_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE12_EA04/production/r001/stderr.log": "2206874a9a6ab583e97152bf60d94448b4dbe22ddbb37fd67fd1c4a4b9623ed2",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N010_RP080_EE12_EA04/production/r001/stdout.log": "0758c991e4ac99f5b3c22aa88b7d7cab5768fbcba5b74717ecbfd9a960e9eef5"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE12_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N020_RP080_EE08_EA04/production/r001/stderr.log": "1def668a2c320eaef9580782404f393219dcbdc314348519ef2f7d20b79a3b4a",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N020_RP080_EE08_EA04/production/r001/stdout.log": "a8eec60bce97438c7329ac80a6b55eb670bd863ed67ca48e50e51dd00528fd13"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N020_RP080_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N040_RP080_EE08_EA04/production/r001/stderr.log": "6d217cdc6d525f05f2dccfa5a387607e6a1c5c0ceb07275f54ad43cb7a0d9c9c",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F04_N040_RP080_EE08_EA04/production/r001/stdout.log": "82bdf487dbe810d12e6f9c1283e59223838a65fd7d88882cc13050506b88f1b7"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F04_N040_RP080_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  },
+  {
+    "device": "NVIDIA TITAN Xp",
+    "dt": 0.01,
+    "friction": 0.5,
+    "initial_GPU_state_readback": false,
+    "integrator": "GronbechJensen",
+    "log_sha256": {
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/stderr.log": "b29bcf1388ea50612156773ada8ca7f8bb81d88c8efaabc720c7904b57ae7e14",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/validation_outputs/assoc15_production_100k_compatibility_20261023_v1/systems/F06_N010_RP080_EE08_EA04/production/r001/stdout.log": "a6614b86fea1e7c81b2bf91618351b32c875b3681667b6c6537abcbc700c7924"
+    },
+    "precision": "single",
+    "production_runtime_oracle": false,
+    "replica": 1,
+    "system": "F06_N010_RP080_EE08_EA04",
+    "temperature": 1,
+    "warning_lines": []
+  }
+]

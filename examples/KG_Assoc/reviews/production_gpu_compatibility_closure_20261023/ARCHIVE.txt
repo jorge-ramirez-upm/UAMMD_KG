@@ -1,0 +1,42 @@
+"""Archive exact completed compatibility metadata and small observables, never modify originals."""
+import csv
+import json
+from pathlib import Path
+import runpy
+import tarfile
+
+D = Path(__file__).resolve().parent
+G = runpy.run_path(str(D.parent / 'production_launch_validation_20261023/DRIVER.txt'))
+c = G['c']
+e = G['e2']
+plan = c.load_json(G['PLAN'])
+paths = set()
+outputs = {}
+for h in plan['histories']:
+    directory = Path(h['output_prefix']).parent
+    files = list(directory.iterdir())
+    outputs.update(e.hash_files(files))
+    selected = ['run.json', 'started.json', 'native_finished.json', 'validated.json',
+                'validated_binding.json', 'stdout.log', 'stderr.log', 'run.complete.json',
+                'run.thermo.tsv', 'run.stress_correlator', 'run.events', 'run.final_associations']
+    paths.update(directory / name for name in selected)
+index = c.load_json(G['INDEX'])
+paths.update(Path(name) for name in index['sha256'])
+paths.add(G['INDEX'])
+with tarfile.open(D / 'COMPLETED_EVIDENCE.tar.gz', 'x:gz') as archive:
+    for path in sorted(paths):
+        archive.add(path, arcname=str(path.relative_to(c.REPOSITORY_ROOT)), recursive=False)
+e.exclusive_json(D / 'COMPLETED_OUTPUTS.sha256', outputs)
+e.exclusive_json(D / 'ARCHIVED_INPUTS.sha256', e.hash_files(paths))
+rows = list(csv.DictReader((D / 'replay/PER_SYSTEM.csv').open()))
+with (D / 'PER_SYSTEM.md').open('x') as stream:
+    stream.write('# Per-system independent findings\n\n')
+    stream.write('All rows reproduce the original numerical receipt exactly. Each has100 thermo rows,')
+    stream.write('100k every-step stress samples,116 correct lag/count rows and1000 chemistry sweeps.\n\n')
+    stream.write('| System / replica | Absolute interval | C / B | Bonds initial → final | G(0) | Numerical replay |\n')
+    stream.write('|---|---|---:|---:|---:|---|\n')
+    for row in rows:
+        stream.write(f"| {row['system']} r{int(row['replica']):03d} | {int(row['start_step']):,} → {int(row['end_step']):,} | {row['creations']} / {row['breaks']} | {row['initial_bonds']} → {row['final_bonds']} | {float(row['G0']):.5f} | PASS |\n")
+    stream.write('\nExact parent/seed/executable/final-state/receipt identities and numeric ranges are in replay/PER_SYSTEM.csv.\n')
+    stream.write('Production initial GPU readback and its independent runtime oracle remain **not demonstrated** for every row.\n')
+print('Archived', len(paths), 'exact metadata/observable files;', len(outputs), 'completed-output bindings; no mutation')

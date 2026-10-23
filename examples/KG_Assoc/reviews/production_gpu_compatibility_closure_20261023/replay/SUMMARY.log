@@ -1,0 +1,17 @@
+{
+  "GPU_steps_executed_by_review": 0,
+  "breaks": 46926,
+  "creations": 46901,
+  "existing_chemistry_sweeps": 15000,
+  "existing_stress_samples": 1500000,
+  "histories": 15,
+  "hold_removed": false,
+  "maximum_G_residual": 0.0,
+  "original_authority_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1/authority_v3.json": "49600a91efee280568c304d901af52a97cccf320692674dd45dba7086997e5bb"
+  },
+  "source_authorization_sha256": "279cf4c2bc007865cd492597f322f80bfff80ec556b2e8acae21d7aaea223cf3",
+  "total_existing_MD_steps": 1500000,
+  "total_native_wall_seconds": 669.8404,
+  "waiver_published": false
+}
