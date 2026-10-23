@@ -1,0 +1,74 @@
+"""Archive CPU replay and original metadata; never write into a simulation attempt."""
+import argparse
+import csv
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path
+import shutil
+import tarfile
+
+p=argparse.ArgumentParser();p.add_argument('--work',type=Path,required=True)
+p.add_argument('--summary',type=Path,required=True);p.add_argument('--preserved',type=Path,required=True)
+p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+root=Path.cwd();out=a.output;out.mkdir(parents=True,exist_ok=True)
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+def save(name,value):
+    with (out/name).open('x') as f:json.dump(value,f,indent=2,sort_keys=True);f.write('\n')
+preserved=json.loads(a.preserved.read_text());inputs={};metadata={};raw_hashes={};identities=[]
+(out/'analysis').mkdir(exist_ok=True)
+for path in sorted(a.work.glob('EA10_R*.log')):
+    raw=path.read_bytes();data=json.loads(raw);raw_hashes[path.name]=digest(raw)
+    with (out/'analysis'/(path.name+'.gz')).open('xb') as f:
+        with gzip.GzipFile(filename='',mode='wb',fileobj=f,mtime=0) as z:z.write(raw)
+    for path_string,expected in data['input_sha256'].items():
+        assert path_string not in inputs or inputs[path_string]==expected
+        inputs[path_string]=expected
+    for segment in data['segments']:
+        receipt_path=Path(segment['receipt']);attempt=receipt_path.parent.parent
+        started=json.loads((receipt_path.parent/'started.json').read_text())
+        bound='approval_r%03d'%data['replica']
+        approvals=sorted(attempt.glob(bound+'*.json'))
+        selected=attempt/(bound+('_execution.json' if segment['start']>8000000 else '.json'))
+        assert digest(selected.read_bytes())==started['approval_sha256']
+        plan_hash=segment['plan_sha256']
+        assert started['plan_sha256']==plan_hash
+        for path in approvals:
+            value=json.loads(path.read_text());assert value['plan_sha256']==plan_hash
+            raw=path.read_bytes();assert preserved[str(path)]==digest(raw)
+            metadata[str(path)]=digest(raw)
+            if path.name.endswith('_execution_sources.json'):
+                assert value['execution_approval_sha256']==started['approval_sha256']
+                assert started['source_authorization_sha256'][str(path)]==digest(raw)
+        for path_string,sha in started.get('source_authorization_sha256',{}).items():
+            assert digest(Path(path_string).read_bytes())==sha
+        plan=json.loads((attempt/'plan.json').read_text())
+        identities.append(dict(replica=data['replica'],start=segment['start'],end=segment['end'],
+            plan=str(attempt/'plan.json'),plan_sha256=plan_hash,receipt=str(receipt_path),
+            receipt_sha256=segment['receipt_sha256'],source_git=plan['git_sha'],build_git=plan['build']['git_sha'],
+            executable_sha256=plan['executable_sha256'],build=plan['build'],entry=segment['entry'],
+            oracle_sweeps=(segment['end']-segment['start'])//100,device_readback='authenticated valid receipt'))
+for path_string,sha in inputs.items():
+    path=Path(path_string);assert digest(path.read_bytes())==sha,path
+    if path.suffix=='.json' or path.name=='manifest.json':metadata[path_string]=sha
+# Copy metadata bytes, retaining absolute-name-to-relative-member bindings.
+with tarfile.open(out/'PROVENANCE.tar.gz','x:gz') as tar:
+    for path_string,sha in sorted(metadata.items()):
+        path=Path(path_string);raw=path.read_bytes();assert digest(raw)==sha
+        info=tarfile.TarInfo(str(path.relative_to(root)));info.size=len(raw);info.mtime=0
+        tar.addfile(info,io.BytesIO(raw))
+save('PROVENANCE.sha256',metadata);save('INPUTS.sha256',inputs)
+save('ANALYSIS.sha256',raw_hashes);save('IDENTITIES.log',identities)
+save('PRESERVED.sha256',preserved)
+for path in sorted(a.summary.iterdir()):
+    if path.is_file():shutil.copyfile(path,out/path.name)
+    else:shutil.copytree(path,out/path.name)
+previous=root/'examples/KG_Assoc/reviews/e2_ea_48m_88m_joint_20261022/ENDPOINTS.csv'
+rows=[r for r in csv.DictReader(previous.open()) if r['system'].endswith('EA10')]
+assert len(rows)==3
+with (out/'ENDPOINTS.csv').open('x') as f:
+    writer=csv.DictWriter(f,fieldnames=rows[0],lineterminator='\n');writer.writeheader();writer.writerows(rows)
+shutil.copyfile(root/'examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/ACCEPTANCE_INVENTORY.csv',out/'ACCEPTANCE_INVENTORY.csv')
+print('PASS archived nine segment identities, original approvals, source/build maps, receipts and three replay ledgers')
+print('Protected bindings',len(preserved),'original input files',len(inputs),'metadata files',len(metadata))

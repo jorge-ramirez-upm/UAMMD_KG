@@ -1,0 +1,299 @@
+"""Descriptive statistics and standalone figures; no stationarity tests or causal inference."""
+import argparse
+from collections import Counter, defaultdict
+import csv
+import json
+import itertools
+import math
+from pathlib import Path
+import runpy
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+HERE = Path(__file__).resolve().parent
+core = runpy.run_path(str(HERE/'ANALYZE.txt'))
+km = core['kaplan_meier']
+fast_iat = runpy.run_path(str(HERE.parent/'e2_ea_transfer_24m_joint_20261018/ANALYSIS_DRIVER.txt'))['fast_iat']
+KEYS = core['METRICS']+('triangle_participant_stars','max_triangles_on_star',
+    'participation_top5_share','participation_hhi','mean_local_clustering','transitivity',
+    'eligible_local_clustering','shared_triangle_edge_pairs')
+YKEYS = ('mean_rg2','mean_center_terminal_r2','L1','intra','mean_degree',
+         'mean_local_clustering','triangle_participant_stars','largest_size','isolated_stars','satellite_stars')
+
+
+def pearson(x,y):
+    if len(x)<2 or np.std(x)==0 or np.std(y)==0:return None
+    return float(np.corrcoef(x,y)[0,1])
+
+
+def covariance_parts(x,y,threshold):
+    groups = x>=threshold
+    total = float(np.mean((x-x.mean())*(y-y.mean())))
+    within = 0.0
+    residual_x,residual_y = x.copy(),y.copy()
+    for group in (False,True):
+        mask = groups==group
+        if not mask.any():continue
+        a,b = x[mask],y[mask]
+        within += float(mask.mean()*np.mean((a-a.mean())*(b-b.mean())))
+        residual_x[mask] -= a.mean();residual_y[mask] -= b.mean()
+    return dict(correlation=pearson(x,y),within_correlation=pearson(residual_x,residual_y),
+                total_covariance=total,within_covariance=within,between_covariance=total-within)
+
+
+def table(path,rows):
+    assert rows,path
+    with path.open('x',newline='') as f:
+        writer = csv.DictWriter(f,fieldnames=list(rows[0]),lineterminator='\n')
+        writer.writeheader();writer.writerows(rows)
+
+
+def summarize(work,out):
+    out.mkdir(exist_ok=False)
+    windows,pmf,conditions,correlations,blocks,dynamics = [],[],[],[],[],[]
+    episodes,population_episodes,recurrences,survival,turnover,concentration,absence = [],[],[],[],[],[],[]
+    families = []
+    for path in sorted(work.glob('EA10_R*.log')):
+        source = json.loads(path.read_text());replica = source['replica'];segments = []
+        for segment in source['segments']:
+            start,end = segment['start'],segment['end'];ledger = segment['ledger']
+            identity = dict(replica=replica,segment_start=start,segment_end=end)
+            original = segment.pop('rows')
+            arrays = {key:np.asarray([r[key] for r in original[1:]],dtype=float) for key in ('step','L2')+KEYS}
+            component_sizes = [r['component_sizes'] for r in original[1:]]
+            del original
+            segments.append(dict(arrays=arrays,component_sizes=component_sizes,**segment))
+            for width in (1000000,2000000,4000000,8000000):
+                for left in range(start,end,width):
+                    mask = (arrays['step']>left)&(arrays['step']<=left+width)
+                    x = arrays['L2'][mask]
+                    windows.append(dict(**identity,start=left,end=left+width,width=width,n=len(x),
+                        mean=float(x.mean()),std=float(x.std()),minimum=float(x.min()),maximum=float(x.max()),
+                        median=float(np.median(x)),p10=float(np.quantile(x,.1)),p90=float(np.quantile(x,.9)),
+                        **{f'fraction_ge{q}':float((x>=q).mean()) for q in (35,40,45)},
+                        **{key:float(arrays[key][mask].mean()) for key in YKEYS}))
+                    for value,count in sorted(Counter(x).items()):
+                        pmf.append(dict(**identity,start=left,end=left+width,width=width,L2=value,
+                                        samples=count,fraction=count/len(x)))
+            for key in ('L2',)+YKEYS:
+                values = arrays[key]
+                for block in (1000000,2000000,4000000,8000000):
+                    means = np.asarray([values[i:i+block//1000].mean() for i in range(0,len(values),block//1000)])
+                    blocks.append(dict(**identity,observable=key,block_steps=block,blocks=len(means),
+                        mean=float(means.mean()),block_sem=float(means.std(ddof=1)/math.sqrt(len(means))) if len(means)>1 else None))
+                for selection,mask in [('full',np.ones(len(values),dtype=bool)),
+                                       ('first8M',arrays['step']<=start+8000000),
+                                       ('last8M',arrays['step']>end-8000000)]:
+                    v = values[mask];steps = arrays['step'][mask]
+                    tau,ess = fast_iat(v,steps)
+                    constant = np.std(v)==0
+                    dynamics.append(dict(**identity,observable=key,selection=selection,n=len(v),
+                        IAT_steps=None if constant else tau*1000,ESS=None if constant else ess,
+                        constant=constant,stationarity_assumed_for_IAT=True))
+            for e in ledger['episodes']:
+                episodes.append(dict(**identity,**{k:v for k,v in e.items() if k!='triangle'},triangle=str(e['triangle'])))
+            for e in ledger['population_episodes']:population_episodes.append(dict(**identity,**e))
+            by_triangle = defaultdict(list)
+            for e in ledger['episodes']:by_triangle[tuple(e['triangle'])].append(e)
+            for triangle,visits in by_triangle.items():
+                visits.sort(key=lambda e:e['start'])
+                for i,visit in enumerate(visits):
+                    if visit['right_censored']:continue
+                    returned = i+1<len(visits)
+                    stop = visits[i+1]['start'] if returned else end
+                    absence.append(dict(**identity,triangle=str(list(triangle)),
+                        start=visit['end'],end=stop,gap=stop-visit['end'],
+                        right_censored=not returned))
+            for e in ledger['recurrences']:recurrences.append(dict(**identity,step=e['step'],gap=e['gap'],triangle=str(e['triangle'])))
+            categories = [('motif',ledger['episodes']),('motif_positive',[e for e in ledger['episodes'] if e['duration']>0])]
+            categories += [(f'high{q}',[e for e in ledger['population_episodes'] if e['threshold']==q]) for q in (35,40,45)]
+            km_summaries = {}
+            for name,items in categories:
+                estimate = km(items);km_summaries[name] = {k:v for k,v in estimate.items() if k!='curve'}
+                for row in estimate['curve']:survival.append(dict(**identity,kind=name,**row))
+            segments[-1]['km_summaries'] = km_summaries
+            for label,counts in ledger['concentration'].items():
+                concentration.append(dict(**identity,regime=label,steps=counts['steps'],
+                    fraction=counts['steps']/(end-start),participating_stars=counts['participating_stars'],
+                    **{'top'+key+'_share':value for key,value in counts['top_shares'].items()},
+                    top20=json.dumps(counts['top20'])))
+            for left in range(start,end,4000000):
+                events = [e for e in ledger['events'] if left<e['step']<=left+4000000]
+                turnover.append(dict(**identity,start=left,end=left+4000000,
+                    triangle_gains=sum(len(e['gained']) for e in events),
+                    triangle_losses=sum(len(e['lost']) for e in events),
+                    recurring_triangles_within_segment=sum(e['returning_triangles'] for e in events),
+                    recurring_triangles_since8M=sum(e['returning_triangles_since8M'] for e in events),
+                    triangles_closed_by_returning_segment_edge=sum(len(e['gained']) for e in events if e['returning_closing_edge']),
+                    triangles_closed_by_returning_edge_since8M=sum(len(e['gained']) for e in events if e['closing_edge_seen_since8M'])))
+        families.append(dict(replica=replica,segments=segments,input_sha256=source['input_sha256']))
+    assert len(families)==3
+    comparisons = []
+    for family in families:
+        # Pooling static distributions is descriptive only: no dynamical origins or SEMs are joined.
+        pooled = {k:np.concatenate([s['arrays'][k] for s in family['segments']]) for k in ('step','L2')+KEYS}
+        pooled_components = sum((s['component_sizes'] for s in family['segments']),[])
+        selections = [(s['start'],s['end'],s['arrays'],s['component_sizes']) for s in family['segments']]
+        selections.append((8000000,88000000,pooled,pooled_components))
+        family['pooled'] = pooled
+        for start,end,arrays,components in selections:
+            x = arrays['L2'];identity = dict(replica=family['replica'],start=start,end=end)
+            for threshold in (35,40,45):
+                for high in (False,True):
+                    mask = (x>=threshold)==high
+                    selected_sizes = Counter(size for use,sizes in zip(mask,components) if use for size in sizes)
+                    conditions.append(dict(**identity,threshold=threshold,high=high,n=int(mask.sum()),
+                        fraction=float(mask.mean()),mean_L2=float(x[mask].mean()) if mask.any() else None,
+                        **{key:float(arrays[key][mask].mean()) if mask.any() else None for key in YKEYS},
+                        component_size_counts=json.dumps(dict(selected_sizes),sort_keys=True)))
+                for key in YKEYS:
+                    correlations.append(dict(**identity,threshold=threshold,observable=key,
+                                              **covariance_parts(x,arrays[key],threshold)))
+            if end-start<80000000:
+                for selection,mask in [('full',np.ones(len(x),dtype=bool)),('last8M',arrays['step']>end-8000000)]:
+                    for key in YKEYS[:5]:
+                        a,b = x[mask],arrays[key][mask]
+                        for lag in (-2000000,-1000000,-500000,-100000,0,100000,500000,1000000,2000000):
+                            offset = abs(lag)//1000
+                            aa,bb = (a,b) if lag==0 else (a[:-offset],b[offset:]) if lag>0 else (a[offset:],b[:-offset])
+                            comparisons.append(dict(**identity,selection=selection,observable=key,lag_steps=lag,
+                                                     pairs=len(aa),correlation=pearson(aa,bb)))
+    matched = []
+    for a,b in itertools.combinations(families,2):
+        for threshold in (35,40,45):
+            ax,bx = a['pooled']['L2'],b['pooled']['L2']
+            support = sorted(set(ax[ax>=threshold])&set(bx[bx>=threshold]))
+            if not support:continue
+            # Symmetric common-support weights, equal family weight, matching exactly on integer L2.
+            weights = np.asarray([.5*((ax==v).sum()/(ax>=threshold).sum()+
+                                     (bx==v).sum()/(bx>=threshold).sum()) for v in support]);weights/=weights.sum()
+            for key in YKEYS:
+                am = np.asarray([a['pooled'][key][ax==v].mean() for v in support])
+                bm = np.asarray([b['pooled'][key][bx==v].mean() for v in support])
+                matched.append(dict(family_a=a['replica'],family_b=b['replica'],threshold=threshold,
+                    observable=key,L2_common_support=str(support),
+                    a_matched_mean=float(np.dot(weights,am)),b_matched_mean=float(np.dot(weights,bm)),
+                    b_minus_a=float(np.dot(weights,bm-am))))
+    for name,rows in [('WINDOWS.csv',windows),('WINDOW_PMF.csv',pmf),('CONDITIONALS.csv',conditions),
+        ('CORRELATIONS.csv',correlations),('BLOCK_SENSITIVITY.csv',blocks),('IAT.csv',dynamics),
+        ('TRIANGLE_EPISODES.csv',episodes),('HIGH_REGIME_EPISODES.csv',population_episodes),
+        ('RECURRENCES.csv',recurrences),('ABSENCE_EPISODES.csv',absence),('SURVIVAL.csv',survival),('TURNOVER.csv',turnover),
+        ('PARTICIPATION.csv',concentration),('LAGGED.csv',comparisons),('MATCHED_L2.csv',matched)]:table(out/name,rows)
+    compact = []
+    for family in families:
+        for s in family['segments']:
+            compact.append(dict(replica=family['replica'],start=s['start'],end=s['end'],
+                km=s['km_summaries'],initial_triangles=len(s['ledger']['initial_triangles']),
+                final_triangles=len(s['ledger']['final_triangles']),
+                continuously_surviving=len(s['ledger']['continuously_surviving_initial_triangles']),
+                unique_triangles=s['ledger']['unique_triangle_identities'],
+                triangle_steps=s['ledger']['triangle_steps'],
+                zero_duration_episodes=sum(e['duration']==0 for e in s['ledger']['episodes'])))
+    (out/'LIFETIME_SUMMARY.log').write_text(json.dumps(compact,indent=2)+'\n')
+    plot(families,windows,out)
+    print('PASS tables and plots; nine separate dynamical segments; three preparation families')
+
+
+def plot(families,windows,out):
+    folder = out/'plots';folder.mkdir()
+    colors = ('#0072B2','#D55E00','#009E73')
+    fig,axes = plt.subplots(4,3,figsize=(16,12),squeeze=False)
+    for col,family in enumerate(families):
+        rep = family['replica']
+        for row,key in enumerate(('L2','mean_rg2','L1','mean_degree')):
+            axis = axes[row,col]
+            for s in family['segments']:
+                a=s['arrays'];axis.plot(a['step']/1e6,a[key],color=colors[col],alpha=.16,lw=.5)
+            for width,style in ((1000000,'-'),(4000000,'o-'),(8000000,'s--')):
+                selected = sorted([w for w in windows if w['replica']==rep and w['width']==width],key=lambda w:w['start'])
+                value = 'mean' if key=='L2' else key
+                axis.plot([(w['start']+w['end'])/2e6 for w in selected],[w[value] for w in selected],
+                          style,lw=1,ms=3,label=f'{width//1000000}M')
+            for boundary in (24,56):axis.axvline(boundary,color='black',ls=':',lw=.7)
+            if row==0:
+                for q in (35,40,45):axis.axhline(q,color='grey',lw=.6,ls='--')
+                axis.set_title(f'Original preparation family r{rep:03d}');axis.legend()
+            axis.set_ylabel(key);axis.grid(alpha=.15)
+            if row==3:axis.set_xlabel('Absolute MD step / 1M; dotted = fresh GJ stream')
+    fig.tight_layout();fig.savefig(folder/'structural_history.png',dpi=140);plt.close(fig)
+    fig,axes = plt.subplots(2,3,figsize=(15,8))
+    for col,f in enumerate(families):
+        for s in f['segments']:
+            x=s['arrays']['L2'];name=f"{s['start']//1000000}–{s['end']//1000000}M"
+            axes[0,col].hist(x,bins=np.arange(19.5,51.5),density=True,histtype='step',label=name,lw=1.5)
+            high=[e for e in s['ledger']['population_episodes'] if e['threshold']==40]
+            for e in high:
+                axes[1,col].plot([e['start']/1e6,e['end']/1e6],[s['start']/1e6]*2,lw=4,
+                                  color=colors[col],alpha=.75)
+                if e['right_censored']:axes[1,col].plot(e['end']/1e6,s['start']/1e6,'>',color=colors[col])
+        axes[0,col].set_title(f'r{f["replica"]:03d}');axes[0,col].legend();axes[0,col].set_xlabel('L2')
+        axes[1,col].set_xlabel('Absolute MD step / 1M');axes[1,col].set_ylabel('Segment origin / 1M; L2≥40 dwell')
+    for axis in axes[1,:]:
+        axis.set_xlim(8,88);axis.set_ylim(0,64);axis.set_yticks([8,24,56])
+    fig.tight_layout();fig.savefig(folder/'regime_distributions_residence.png',dpi=150);plt.close(fig)
+    fig,axes = plt.subplots(2,3,figsize=(15,9))
+    for col,f in enumerate(families):
+        a=f['pooled']
+        for row,key in enumerate(('mean_rg2','L1')):
+            axes[row,col].hist2d(a['L2'],a[key],bins=(np.arange(19.5,51.5),40),cmap='Blues')
+            for q in sorted(set(a['L2'])):
+                mask=a['L2']==q
+                axes[row,col].plot(q,np.mean(a[key][mask]),'.',color='#D55E00',ms=4)
+            axes[row,col].set_xlabel('L2; all segments, static occupancy only')
+            axes[row,col].set_ylabel(key);axes[row,col].set_title(f'r{f["replica"]:03d}')
+    fig.tight_layout();fig.savefig(folder/'joint_distributions.png',dpi=150);plt.close(fig)
+    fig,axes = plt.subplots(2,3,figsize=(15,8))
+    for col,f in enumerate(families):
+        for s in f['segments']:
+            label=f"{s['start']//1000000}–{s['end']//1000000}M"
+            for row,items in enumerate((s['ledger']['episodes'],[e for e in s['ledger']['population_episodes'] if e['threshold']==40])):
+                curve=km(items)['curve']
+                if curve:axes[row,col].step([0]+[v['duration']/1e6 for v in curve],
+                    [1]+[v['survival'] for v in curve],where='post',label=label)
+            axes[0,col].set_title(f'r{f["replica"]:03d}');axes[0,col].legend()
+            axes[1,col].set_xlabel('Incident duration / 1M steps; right censoring retained')
+        axes[0,col].set_ylabel('Triangle KM survival; unknown-age initials excluded')
+        axes[1,col].set_ylabel('L2≥40 KM survival; boundaries not stitched')
+    fig.tight_layout();fig.savefig(folder/'incident_survival.png',dpi=150);plt.close(fig)
+    fig,axes=plt.subplots(1,3,figsize=(15,4))
+    for ax,f in zip(axes,families):
+        for s in f['segments']:
+            counts=s['ledger']['concentration']['high40']['star_triangle_steps']
+            values=np.sort(list(counts.values()))[::-1]
+            if values.sum():ax.plot(np.arange(1,len(values)+1),np.cumsum(values)/values.sum(),
+                                   label=f"{s['start']//1000000}–{s['end']//1000000}M")
+        ax.set_title(f'r{f["replica"]:03d}; L2≥40 exposure');ax.set_xlabel('Ranked stars, segment-local')
+        ax.set_ylabel('Cumulative triangle-incidence time fraction');ax.legend()
+    fig.tight_layout();fig.savefig(folder/'participation_concentration.png',dpi=150);plt.close(fig)
+
+    fig,axes=plt.subplots(1,3,figsize=(15,6),squeeze=False)
+    labels=YKEYS[:7]+('largest_size',)
+    for ax,f in zip(axes[0],families):
+        matrix=np.asarray([[pearson(s['arrays']['L2'],s['arrays'][key]) or 0
+                            for s in f['segments']] for key in labels])
+        im=ax.imshow(matrix,vmin=-1,vmax=1,cmap='RdBu_r',aspect='auto')
+        ax.set_yticks(range(len(labels)),labels);ax.set_xticks(range(3),['8–24M','24–56M','56–88M'])
+        ax.set_title(f'r{f["replica"]:03d}; descriptive correlation with L2')
+        for r in range(len(labels)):
+            for c in range(3):ax.text(c,r,f'{matrix[r,c]:.2f}',ha='center',va='center',fontsize=8)
+    fig.colorbar(im,ax=axes[0].tolist(),shrink=.7,label='Pearson r; no causality or significance test')
+    fig.subplots_adjust(left=.15,right=.85,wspace=.9,bottom=.15)
+    fig.savefig(folder/'segment_correlations.png',dpi=150);plt.close(fig)
+    sensitivity=list(csv.DictReader((out/'BLOCK_SENSITIVITY.csv').open()))
+    fig,axes=plt.subplots(1,2,figsize=(11,4))
+    for ax,key in zip(axes,('L2','mean_rg2')):
+        for f,color in zip(families,colors):
+            selected=[r for r in sensitivity if int(r['replica'])==f['replica'] and
+                      r['segment_start']=='56000000' and r['observable']==key]
+            ax.plot([int(r['block_steps'])/1e6 for r in selected],
+                    [float(r['block_sem']) for r in selected],'o-',color=color,label=f'r{f["replica"]:03d}')
+        ax.set_xlabel('Block length / 1M steps; 56–88M segment only')
+        ax.set_ylabel(key+' descriptive block SEM');ax.legend();ax.grid(alpha=.2)
+    fig.tight_layout();fig.savefig(folder/'block_sensitivity.png',dpi=150);plt.close(fig)
+
+
+if __name__ == '__main__':
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--work',type=Path,required=True)
+    p.add_argument('--output',type=Path,required=True);a=p.parse_args();summarize(a.work,a.output)

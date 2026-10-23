@@ -1,0 +1,107 @@
+"""Cross-check real replay conservation, censoring, partitions and independently saved ledgers."""
+import argparse
+from collections import defaultdict
+import csv
+import json
+from pathlib import Path
+import unittest
+
+p=argparse.ArgumentParser();p.add_argument('--work',type=Path,required=True);p.add_argument('--summary',type=Path,required=True)
+a=p.parse_args()
+
+
+class DataTests(unittest.TestCase):
+    def test_nine_segments_and_no_cross_restart_origins(self):
+        paths=sorted(a.work.glob('EA10_R*.log'));self.assertEqual(len(paths),3)
+        frames=0
+        for path in paths:
+            r=json.loads(path.read_text())
+            self.assertEqual([(s['start'],s['end']) for s in r['segments']],
+                             [(8000000,24000000),(24000000,56000000),(56000000,88000000)])
+            for s in r['segments']:
+                ledger=s['ledger'];frames+=len(s['rows'])
+                for e in ledger['episodes']+ledger['population_episodes']:
+                    self.assertGreaterEqual(e['start'],s['start']);self.assertLessEqual(e['end'],s['end'])
+                    self.assertEqual(e['duration'],e['end']-e['start'])
+                    if e['left_censored']:self.assertEqual(e['start'],s['start'])
+                    if e['right_censored']:self.assertEqual(e['end'],s['end'])
+                for e in ledger['recurrences']:
+                    self.assertGreaterEqual(e['gap'],0);self.assertLessEqual(e['gap'],e['step']-s['start'])
+        self.assertEqual(frames,240009)
+
+    def test_recurrence_absence_risk_and_terminal_censoring(self):
+        absence=list(csv.DictReader((a.summary/'ABSENCE_EPISODES.csv').open()))
+        for path in a.work.glob('EA10_R*.log'):
+            data=json.loads(path.read_text())
+            for segment in data['segments']:
+                rows=[r for r in absence if int(r['replica'])==data['replica']
+                      and int(r['segment_start'])==segment['start']]
+                observed=[r for r in rows if r['right_censored']=='False']
+                expected=segment['ledger']['recurrences']
+                actual=sorted((r['triangle'],int(r['end']),int(r['gap'])) for r in observed)
+                self.assertEqual(actual,sorted((str(e['triangle']),e['step'],e['gap']) for e in expected))
+                deaths=sum(not e['right_censored'] for e in segment['ledger']['episodes'])
+                self.assertEqual(len(rows),deaths)
+                for r in rows:
+                    self.assertEqual(int(r['gap']),int(r['end'])-int(r['start']))
+                    self.assertGreaterEqual(int(r['start']),segment['start'])
+                    self.assertLessEqual(int(r['end']),segment['end'])
+                    if r['right_censored']=='True':self.assertEqual(int(r['end']),segment['end'])
+
+    def test_identity_population_and_exposure_conservation(self):
+        for path in a.work.glob('EA10_R*.log'):
+            r=json.loads(path.read_text())
+            for s in r['segments']:
+                ledger=s['ledger']
+                change=sum(len(e['gained'])-len(e['lost']) for e in ledger['events'])
+                self.assertEqual(change,len(ledger['final_triangles'])-len(ledger['initial_triangles']))
+                self.assertEqual(sum(e['duration'] for e in ledger['episodes']),ledger['triangle_steps'])
+                self.assertEqual(sum(ledger['concentration']['all']['star_triangle_steps'].values()),
+                                 3*ledger['triangle_steps'])
+                for q in (35,40,45):
+                    duration=sum(e['duration'] for e in ledger['population_episodes'] if e['threshold']==q)
+                    self.assertEqual(duration,ledger['concentration'][f'high{q}']['steps'])
+
+    def test_graph_metric_bounds_and_previous_exact_final_triangles(self):
+        original=json.loads(Path('examples/KG_Assoc/reviews/e2_ea_48m_88m_joint_20261022/TRIANGLE_IDENTITIES.log').read_text())
+        expected={int(r['label'][-3:]):r for r in original if r['label'].startswith('EA10')}
+        for path in a.work.glob('EA10_R*.log'):
+            data=json.loads(path.read_text())
+            self.assertEqual(data['segments'][-1]['ledger']['final_triangles'],expected[data['replica']]['final_triangles'])
+            for s in data['segments']:
+                for r in s['rows']:
+                    self.assertTrue(0<=r['mean_local_clustering']<=1)
+                    self.assertTrue(0<=r['transitivity']<=1)
+                    self.assertLessEqual(r['triangle_participant_stars'],3*r['L2'])
+                    self.assertLessEqual(r['max_triangles_on_star'],6)
+                    self.assertEqual(sum(r['component_sizes']),1000)
+
+    def test_pmf_normalization_and_unpooled_dynamical_windows(self):
+        groups=defaultdict(float)
+        for r in csv.DictReader((a.summary/'WINDOW_PMF.csv').open()):
+            groups[(r['replica'],r['segment_start'],r['start'],r['width'])]+=float(r['fraction'])
+        for value in groups.values():self.assertAlmostEqual(value,1,places=12)
+        for filename in ('IAT.csv','BLOCK_SENSITIVITY.csv'):
+            for r in csv.DictReader((a.summary/filename).open()):
+                self.assertIn((int(r['segment_start']),int(r['segment_end'])),
+                              ((8000000,24000000),(24000000,56000000),(56000000,88000000)))
+
+    def test_pooled_static_counts_and_components_conserve_stars(self):
+        for r in csv.DictReader((a.summary/'CONDITIONALS.csv').open()):
+            counts=json.loads(r['component_size_counts'])
+            self.assertEqual(sum(int(k)*v for k,v in counts.items()),1000*int(r['n']))
+        rows=list(csv.DictReader((a.summary/'CONDITIONALS.csv').open()))
+        for replica in ('1','2','3'):
+            for q in ('35','40','45'):
+                n=sum(int(r['n']) for r in rows if r['replica']==replica and r['start']=='8000000'
+                      and r['end']=='88000000' and r['threshold']==q)
+                self.assertEqual(n,80000)
+
+    def test_covariance_decomposition_identity(self):
+        for r in csv.DictReader((a.summary/'CORRELATIONS.csv').open()):
+            self.assertAlmostEqual(float(r['within_covariance'])+float(r['between_covariance']),
+                                   float(r['total_covariance']),places=10)
+
+
+result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(DataTests))
+raise SystemExit(not result.wasSuccessful())

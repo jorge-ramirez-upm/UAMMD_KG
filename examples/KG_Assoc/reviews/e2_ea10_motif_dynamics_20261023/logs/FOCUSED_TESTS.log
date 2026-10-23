@@ -1,0 +1,15 @@
+test_KM_tied_death_and_censor_order (__main__.MotifTests) ... ok
+test_corrupt_historical_git_hash_rejected (__main__.MotifTests) ... ok
+test_covariance_decomposition_and_constant_correlation (__main__.MotifTests) ... ok
+test_fresh_segment_resets_lifetime_origins_but_not_seen_identity_set (__main__.MotifTests) ... ok
+test_high_regime_sweep_grouping_and_censoring (__main__.MotifTests) ... ok
+test_incident_lifetime_recurrence_and_exact_exposure (__main__.MotifTests) ... ok
+test_parallel_association_and_intra_bond_do_not_change_L2 (__main__.MotifTests) ... ok
+test_prevalent_unknown_age_is_excluded_from_incident_KM (__main__.MotifTests) ... ok
+test_same_sweep_zero_duration_is_not_positive_gap_return (__main__.MotifTests) ... ok
+test_shared_triangles_local_clustering_and_participation (__main__.MotifTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.004s
+
+OK

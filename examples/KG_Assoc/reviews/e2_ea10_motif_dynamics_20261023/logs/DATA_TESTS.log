@@ -1,0 +1,12 @@
+test_covariance_decomposition_identity (__main__.DataTests) ... ok
+test_graph_metric_bounds_and_previous_exact_final_triangles (__main__.DataTests) ... ok
+test_identity_population_and_exposure_conservation (__main__.DataTests) ... ok
+test_nine_segments_and_no_cross_restart_origins (__main__.DataTests) ... ok
+test_pmf_normalization_and_unpooled_dynamical_windows (__main__.DataTests) ... ok
+test_pooled_static_counts_and_components_conserve_stars (__main__.DataTests) ... ok
+test_recurrence_absence_risk_and_terminal_censoring (__main__.DataTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 7.225s
+
+OK

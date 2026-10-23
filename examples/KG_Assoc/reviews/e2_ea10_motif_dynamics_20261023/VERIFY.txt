@@ -1,0 +1,63 @@
+"""Read-only authentication; contains no launcher or simulation entry point."""
+import csv
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tarfile
+
+ROOT=Path.cwd();HERE=Path(__file__).resolve().parent
+START='54bf76d1596bdb40472c9455b6f47c2d90a75131'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def check(mapping):
+    for path,digest in mapping.items():assert sha(Path(path).read_bytes())==digest,path
+def load(name):return json.loads((HERE/name).read_text())
+check(load('INTEGRITY.sha256'));check(load('PRESERVED.sha256'))
+check(load('INPUTS.sha256'));check(load('PROVENANCE.sha256'))
+metadata=load('PROVENANCE.sha256')
+with tarfile.open(HERE/'PROVENANCE.tar.gz') as archive:
+    assert len(archive.getmembers())==len(metadata)
+    for member in archive:
+        path=ROOT/member.name
+        assert member.isfile() and '..' not in Path(member.name).parts and not Path(member.name).is_absolute()
+        assert sha(archive.extractfile(member).read())==metadata[str(path)]
+frames=0
+for name,digest in load('ANALYSIS.sha256').items():
+    raw=gzip.decompress((HERE/'analysis'/(name+'.gz')).read_bytes());assert sha(raw)==digest
+    data=json.loads(raw);check(data['input_sha256']);assert data['GPU_steps']==0
+    assert [(s['start'],s['end']) for s in data['segments']]==[(8000000,24000000),(24000000,56000000),(56000000,88000000)]
+    for segment in data['segments']:
+        frames+=len(segment['rows']);receipt=json.loads(Path(segment['receipt']).read_text())
+        assert sha(Path(segment['receipt']).read_bytes())==segment['receipt_sha256']
+        assert receipt['status']=='validated' and receipt['plan_sha256']==segment['plan_sha256']
+        assert receipt['end_step']==segment['end']
+        assert receipt['validation']['oracle_sweeps']==(segment['end']-segment['start'])//100
+        assert receipt['validation']['initial_device_readback']['status']=='valid'
+        check(receipt['output_sha256'])
+assert frames==240009
+identities=load('IDENTITIES.log');assert len(identities)==9
+for identity in identities:
+    for commit in (identity['source_git'],identity['build_git']):
+        subprocess.run(['git','merge-base','--is-ancestor',commit,'HEAD'],check=True)
+    check(identity['executable_sha256'])
+endpoints=list(csv.DictReader((HERE/'ENDPOINTS.csv').open()));assert len(endpoints)==3
+for row in endpoints:
+    assert row['system']=='F04_N010_RP080_EE08_EA10' and int(row['end_step'])==88000000
+    check({row[key]:row[key+'_sha256'] for key in ('restart','sidecar','receipt')})
+inventory=list(csv.DictReader((HERE/'ACCEPTANCE_INVENTORY.csv').open()));assert len(inventory)==14
+systems=set()
+for row in inventory:
+    check({row['record']:row['sha256']});record=json.loads(Path(row['record']).read_text())
+    assert record['status']=='accepted_with_qualification' and record['permitted_use']=='production_initial_state'
+    assert record['permitted_systems']==[row['system']];systems.add(row['system'])
+assert len(systems)==14 and 'F04_N010_RP080_EE08_EA10' not in systems
+assert len(list(Path(inventory[0]['record']).parent.glob('*.json')))==14
+# Scoped review must not alter any older tracked file, including physics and validators.
+changed=subprocess.check_output(['git','diff','--name-only',START,'--'],text=True).splitlines()
+assert all(Path(path).is_relative_to(HERE.relative_to(ROOT)) for path in changed),changed
+print('PASS',len(load('PRESERVED.sha256')),'historical bindings; fourteen qualified systems; Ea10 unaccepted')
+print('PASS nine authenticated segments,',frames,'graph frames, original approvals, source/build ancestry and exact endpoints')
+print('PASS zero new GPU/MD work; changes confined to this scientific dossier')
+print('HEAD',subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())

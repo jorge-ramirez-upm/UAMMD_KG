@@ -1,0 +1,111 @@
+"""CPU regressions for censoring, exposure, recurrence, clustering and segment separation."""
+import json
+from pathlib import Path
+import runpy
+import sys
+import unittest
+import numpy as np
+
+folder=Path(__file__).resolve().parent
+core=runpy.run_path(str(folder/'ANALYZE.txt'))
+stats=runpy.run_path(str(folder/'SUMMARIZE.txt'))
+Tracker,km=core['Tracker'],core['kaplan_meier']
+
+
+def graph_fixture(edges):
+    mapping,pairs={},[]
+    for i,(a,b) in enumerate(edges):
+        mapping[2*i+1]=a;mapping[2*i+2]=b;pairs.append((2*i+1,2*i+2))
+    return pairs,dict(stars=sorted(set(mapping.values())),atom_to_star=mapping)
+
+
+class MotifTests(unittest.TestCase):
+    def simple(self):
+        pairs,system=graph_fixture([(1,2),(2,3)])
+        system['atom_to_star'].update({5:1,6:3,7:1,8:3})
+        return pairs,system
+
+    def test_incident_lifetime_recurrence_and_exact_exposure(self):
+        pairs,system=self.simple();t=Tracker(pairs,system,0,100)
+        for step,kind in ((10,'C'),(20,'B'),(30,'C')):
+            t.integrate(step);t.apply((step,kind,(5,6)));t.after_sweep(step)
+        result=t.finish()
+        self.assertEqual([e['duration'] for e in result['episodes']],[10,70])
+        self.assertEqual([e['right_censored'] for e in result['episodes']],[False,True])
+        self.assertEqual(result['recurrences'][0]['gap'],10)
+        self.assertEqual(result['triangle_steps'],80)
+        self.assertEqual(sum(result['concentration']['all']['star_triangle_steps'].values()),240)
+
+    def test_parallel_association_and_intra_bond_do_not_change_L2(self):
+        pairs,system=self.simple();system['atom_to_star'].update({9:1,10:1})
+        t=Tracker(pairs,system,0,100)
+        for step,kind,pair in ((10,'C',(5,6)),(20,'C',(7,8)),(30,'B',(5,6)),(40,'C',(9,10))):
+            t.integrate(step);t.apply((step,kind,pair));t.after_sweep(step)
+        r=t.finish();self.assertEqual(len(r['events']),1)
+        self.assertEqual(r['triangle_steps'],90)
+
+    def test_same_sweep_zero_duration_is_not_positive_gap_return(self):
+        pairs,system=self.simple();t=Tracker(pairs,system,0,100);t.integrate(10)
+        for kind in ('C','B','C'):t.apply((10,kind,(5,6)))
+        t.after_sweep(10);r=t.finish()
+        self.assertEqual([e['duration'] for e in r['episodes']],[0,90])
+        self.assertEqual(r['recurrences'][0]['gap'],0)
+
+    def test_prevalent_unknown_age_is_excluded_from_incident_KM(self):
+        pairs,system=self.simple();t=Tracker(pairs+[(5,6)],system,0,100);r=t.finish()
+        self.assertTrue(r['episodes'][0]['left_censored'])
+        self.assertEqual(r['incident_lifetimes']['incident'],0)
+        self.assertIsNone(r['incident_lifetimes']['quantiles']['0.5'])
+
+    def test_KM_tied_death_and_censor_order(self):
+        episodes=[dict(duration=t,right_censored=c,left_censored=False) for t,c in ((1,False),(1,True),(2,False))]
+        r=km(episodes)
+        self.assertAlmostEqual(r['curve'][0]['survival'],2/3)
+        self.assertEqual(r['curve'][1]['at_risk'],1)
+        self.assertEqual(r['quantiles']['0.5'],2)
+
+    def test_fresh_segment_resets_lifetime_origins_but_not_seen_identity_set(self):
+        pairs,system=self.simple();first=Tracker(pairs,system,0,100)
+        first.integrate(10);first.apply((10,'C',(5,6)));first.after_sweep(10);first.finish()
+        second=Tracker(pairs+[(5,6)],system,100,200,first.edge_history,first.triangle_history)
+        r=second.finish();self.assertEqual(r['episodes'][0]['start'],100)
+        self.assertEqual(r['episodes'][0]['duration'],100)
+        self.assertTrue(r['episodes'][0]['left_censored']);self.assertEqual(r['incident_lifetimes']['incident'],0)
+
+    def test_high_regime_sweep_grouping_and_censoring(self):
+        edges=[edge for j in range(36) for edge in ((3*j+1,3*j+2),(3*j+2,3*j+3),(3*j+1,3*j+3))]
+        pairs,system=graph_fixture(edges);t=Tracker(pairs,system,0,50)
+        for step,kind,pair in ((10,'B',pairs[0]),(20,'B',pairs[3]),(30,'C',pairs[0])):
+            t.integrate(step);t.apply((step,kind,pair));t.after_sweep(step)
+        r=t.finish();e=[e for e in r['population_episodes'] if e['threshold']==35]
+        self.assertEqual([(v['start'],v['end']) for v in e],[(0,20),(30,50)])
+        self.assertTrue(e[0]['left_censored']);self.assertTrue(e[1]['right_censored'])
+        self.assertEqual(r['concentration']['high35']['steps'],40)
+
+    def test_shared_triangles_local_clustering_and_participation(self):
+        pairs,system=graph_fixture([(1,3),(2,3),(1,4),(2,4)])
+        system['atom_to_star'].update({9:1,10:2});t=Tracker(pairs,system,0,100)
+        t.integrate(10);t.apply((10,'C',(9,10)));t.after_sweep(10)
+        row={key:0 for key in core['METRICS']};row.update(step=10,L2=2,largest_size=4,components=1)
+        r=t.sample(row)
+        self.assertEqual(r['triangle_participant_stars'],4)
+        self.assertEqual(r['max_triangles_on_star'],2)
+        self.assertAlmostEqual(r['mean_local_clustering'],5/6)
+        self.assertAlmostEqual(r['transitivity'],.75)
+        self.assertEqual(r['shared_triangle_edge_pairs'],1)
+
+    def test_covariance_decomposition_and_constant_correlation(self):
+        x=np.array([1.,2.,5.,6.]);y=2*x
+        r=stats['covariance_parts'](x,y,4)
+        self.assertAlmostEqual(r['within_covariance']+r['between_covariance'],r['total_covariance'])
+        self.assertAlmostEqual(r['correlation'],1);self.assertAlmostEqual(r['within_correlation'],1)
+        self.assertIsNone(stats['pearson'](x,np.ones(4)))
+
+    def test_corrupt_historical_git_hash_rejected(self):
+        source=str(Path('AGENTS.md').resolve())
+        with self.assertRaises(AssertionError):core['authenticate_git']({source:'corrupt'},'54bf76d1596bdb40472c9455b6f47c2d90a75131')
+
+
+if __name__=='__main__':
+    result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(MotifTests))
+    raise SystemExit(not result.wasSuccessful())

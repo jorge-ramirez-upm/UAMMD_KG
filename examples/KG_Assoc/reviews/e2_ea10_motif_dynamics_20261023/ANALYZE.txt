@@ -1,0 +1,278 @@
+"""Authenticate and replay triangle identities in three independent MD segments per family."""
+import argparse
+from collections import Counter, defaultdict
+import hashlib
+import itertools
+import json
+import math
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+import tarfile
+import numpy as np
+
+ASSOC = Path('examples/KG_Assoc').resolve()
+sys.path.insert(0,str(ASSOC/'campaign'))
+import kg_assoc_e2 as e2
+REVIEWS = ASSOC/'reviews'
+PREVIOUS = ('e2_ea_transfer_24m_joint_20261018','e2_ea_extensions_joint_20261021',
+            'e2_ea_48m_88m_joint_20261022')
+base = runpy.run_path(str(REVIEWS/PREVIOUS[-1]/'MOTIF_DRIVER.txt'))
+Triangles = base['Triangles']
+partition = runpy.run_path(str(REVIEWS/PREVIOUS[0]/'ANALYSIS_DRIVER.txt'))['partition']
+THRESHOLDS = (35,40,45)
+METRICS = ('L1','intra','inter','bonds','mean_degree','mean_rg2','mean_center_terminal_r2',
+           'largest_size','components','isolated_stars','satellite_stars')
+
+
+def kaplan_meier(episodes):
+    """Incident episodes only; deaths precede censor removals at tied durations."""
+    incident = [e for e in episodes if not e['left_censored']]
+    times = sorted({e['duration'] for e in incident})
+    risk, survival = len(incident),1.0
+    curve = []
+    for t in times:
+        deaths = sum(e['duration']==t and not e['right_censored'] for e in incident)
+        censored = sum(e['duration']==t and e['right_censored'] for e in incident)
+        before = risk
+        survival *= 1-deaths/risk
+        curve.append(dict(duration=t,at_risk=before,deaths=deaths,censored=censored,survival=survival))
+        risk -= deaths+censored
+    quantiles = {str(p):next((r['duration'] for r in curve if r['survival']<=1-p),None)
+                 for p in (.5,.75,.9)}
+    return dict(incident=len(incident),left_boundary_unknown_age=len(episodes)-len(incident),
+                right_censored=sum(e['right_censored'] for e in incident),quantiles=quantiles,curve=curve)
+
+
+
+class Tracker:
+    def __init__(self,pairs,system,start,end,history_edges=None,history_triangles=None):
+        self.graph = Triangles(pairs,system['atom_to_star'])
+        self.system,self.start,self.end = system,start,end
+        for star in system['stars']:self.graph.neighbors.setdefault(star,set())
+        self.opened = {t:(start,True) for t in self.graph.active}
+        self.episodes,self.recurrences,self.events = [],[],[]
+        self.last_end = {}
+        self.population_episodes = []
+        self.high_open = {q:(start,True) if len(self.graph.active)>=q else None for q in THRESHOLDS}
+        self.cursor = start
+        self.star_exposure = {name:Counter() for name in ('all','low30','high35','high40','high45')}
+        self.regime_steps = Counter()
+        self.edge_seen = set(self.graph.edges)
+        # Only identity-ever-seen sets cross segments; no duration, gap or risk origin does.
+        self.edge_history = history_edges if history_edges is not None else set(self.edge_seen)
+        self.triangle_history = history_triangles if history_triangles is not None else self.graph.active.copy()
+        self.edge_version = -1
+        self.cache = {}
+
+    def integrate(self,to):
+        assert self.cursor<=to<=self.end
+        duration = to-self.cursor
+        count = len(self.graph.active)
+        names = ['all']+(['low30'] if count<=30 else [])
+        names += [f'high{q}' for q in THRESHOLDS if count>=q]
+        participation = Counter(star for t in self.graph.active for star in t)
+        for name in names:
+            self.regime_steps[name] += duration
+            for star,n in participation.items():self.star_exposure[name][star] += n*duration
+        self.cursor = to
+
+    def apply(self,event):
+        step,kind,pair = event
+        before = self.graph.active.copy()
+        a,b = sorted(self.system['atom_to_star'][atom] for atom in pair)
+        closing_return = (a,b) in self.edge_seen
+        previously_seen = self.graph.seen.copy()
+        previously_seen_history = self.triangle_history.copy()
+        closing_return_history = (a,b) in self.edge_history
+        self.graph.apply(step,kind,pair)
+        gained,lost = self.graph.active-before,before-self.graph.active
+        for triangle in lost:
+            began,left = self.opened.pop(triangle)
+            self.episodes.append(dict(triangle=triangle,start=began,end=step,duration=step-began,
+                                      left_censored=left,right_censored=False))
+            self.last_end[triangle] = step
+        for triangle in gained:
+            assert triangle not in self.opened
+            self.opened[triangle] = (step,False)
+            if triangle in self.last_end:
+                self.recurrences.append(dict(triangle=triangle,step=step,gap=step-self.last_end[triangle]))
+        if gained or lost:
+            self.events.append(dict(step=step,kind=kind,closing_edge=(a,b),gained=sorted(gained),
+                lost=sorted(lost),returning_closing_edge=closing_return,
+                returning_triangles=len(gained&previously_seen),
+                closing_edge_seen_since8M=closing_return_history,
+                returning_triangles_since8M=len(gained&previously_seen_history)))
+        if kind=='C' and a!=b:
+            self.edge_seen.add((a,b));self.edge_history.add((a,b))
+        self.triangle_history.update(gained)
+
+    def after_sweep(self,step):
+        for q in THRESHOLDS:
+            high = len(self.graph.active)>=q
+            opened = self.high_open[q]
+            if opened is not None and not high:
+                self.population_episodes.append(dict(threshold=q,start=opened[0],end=step,
+                    duration=step-opened[0],left_censored=opened[1],right_censored=False))
+                self.high_open[q] = None
+            elif opened is None and high:self.high_open[q] = (step,False)
+
+    def sample(self,row):
+        graph = self.graph
+        assert len(graph.active)==row['L2']
+        if self.edge_version != len(graph.transitions):
+            self.edge_version = len(graph.transitions)
+            participation = Counter(star for triangle in graph.active for star in triangle)
+            components,_ = partition(graph.neighbors)
+            sizes = [len(c) for c in components]
+            total = 3*len(graph.active)
+            wedges = sum(len(ns)*(len(ns)-1)//2 for ns in graph.neighbors.values())
+            local = sum(n/(len(graph.neighbors[s])*(len(graph.neighbors[s])-1)/2)
+                        for s,n in participation.items())/len(self.system['stars'])
+            eligible = sum(len(ns)>=2 for ns in graph.neighbors.values())
+            triangle_edges = Counter(tuple(sorted(edge)) for t in graph.active
+                                     for edge in itertools.combinations(t,2))
+            self.cache = dict(triangle_participant_stars=len(participation),
+                max_triangles_on_star=max(participation.values(),default=0),
+                participation_top5_share=sum(sorted(participation.values(),reverse=True)[:5])/total if total else 0,
+                participation_hhi=sum(n*n for n in participation.values())/total**2 if total else 0,
+                mean_local_clustering=local,
+                eligible_local_clustering=local*len(self.system['stars'])/eligible if eligible else 0,
+                transitivity=3*len(graph.active)/wedges if wedges else 0,
+                shared_triangle_edge_pairs=sum(n*(n-1)//2 for n in triangle_edges.values()),
+                component_sizes=sizes)
+        assert self.cache['component_sizes'][0]==row['largest_size']
+        assert len(self.cache['component_sizes'])==row['components']
+        return dict(step=int(row['step']),L2=row['L2'],**{key:row[key] for key in METRICS},**self.cache)
+
+    def finish(self):
+        self.integrate(self.end)
+        for triangle,(began,left) in self.opened.items():
+            self.episodes.append(dict(triangle=triangle,start=began,end=self.end,duration=self.end-began,
+                                      left_censored=left,right_censored=True))
+        for q,opened in self.high_open.items():
+            if opened is not None:self.population_episodes.append(dict(threshold=q,start=opened[0],end=self.end,
+                duration=self.end-opened[0],left_censored=opened[1],right_censored=True))
+        triangle_steps = sum(e['duration'] for e in self.episodes)
+        assert 3*triangle_steps==sum(self.star_exposure['all'].values())
+        assert self.regime_steps['all']==self.end-self.start
+        concentration = {}
+        for name,counts in self.star_exposure.items():
+            total = sum(counts.values())
+            concentration[name] = dict(steps=self.regime_steps[name],participating_stars=len(counts),
+                top_shares={str(k):sum(n for _,n in counts.most_common(k))/total if total else None
+                            for k in (1,5,10,20)},star_triangle_steps=dict(counts),
+                top20=counts.most_common(20))
+        return dict(triangle_steps=triangle_steps,episodes=self.episodes,recurrences=self.recurrences,
+            events=self.events,population_episodes=self.population_episodes,concentration=concentration,
+            incident_lifetimes=kaplan_meier(self.episodes),
+            high_regime_survival={str(q):kaplan_meier([e for e in self.population_episodes if e['threshold']==q])
+                                  for q in THRESHOLDS},
+            continuously_surviving_initial_triangles=sorted(self.graph.surviving),
+            initial_triangles=sorted(self.graph.initial),final_triangles=sorted(self.graph.active),
+            unique_triangle_identities=len(self.graph.seen))
+
+
+_git_cache = set()
+def authenticate_git(mapping,commit):
+    key = (commit,hashlib.sha256(json.dumps(mapping,sort_keys=True).encode()).hexdigest())
+    if key in _git_cache:return
+    names = sorted(mapping)
+    queries = [commit+':'+str(Path(p).relative_to(Path.cwd())) for p in names]
+    payload = subprocess.check_output(['git','cat-file','--batch'],input=('\n'.join(queries)+'\n').encode())
+    position = 0
+    for path in names:
+        boundary = payload.index(b'\n',position)
+        header = payload[position:boundary].split()
+        assert len(header)==3 and header[1]==b'blob',path
+        size = int(header[2]);begin = boundary+1
+        assert hashlib.sha256(payload[begin:begin+size]).hexdigest()==mapping[path],path
+        position = begin+size+1
+    assert position==len(payload)
+    _git_cache.add(key)
+
+
+def archived(review,label,inputs):
+    folder = REVIEWS/review
+    e2.check_hashes(e2.campaign.load_json(folder/'INTEGRITY.sha256'))
+    inputs.update(e2.hash_files([folder/'INTEGRITY.sha256',folder/'ANALYSIS.sha256',folder/'replay'/(label+'.tar.gz')]))
+    hashes = {Path(k).name:v for k,v in e2.campaign.load_json(folder/'ANALYSIS.sha256').items()}
+    result = {}
+    with tarfile.open(folder/'replay'/(label+'.tar.gz')) as archive:
+        for suffix in ('SUMMARY','TIMESERIES'):
+            name = label+'_'+suffix+'.log'
+            raw = archive.extractfile(name).read()
+            assert hashlib.sha256(raw).hexdigest()==hashes[name]
+            result[suffix] = json.loads(raw)
+    return result
+
+
+def analyze(replica,output):
+    label = f'EA10_R{replica:03d}'
+    inputs = {}
+    archives = [archived(review,label,inputs) for review in PREVIOUS]
+    origin_plan = e2.campaign.load_json(archives[1]['SUMMARY']['entry']['lineage']['parent_plan'])
+    entries = [origin_plan['histories'][replica-1]]+[a['SUMMARY']['entry'] for a in archives[1:]]
+    segments = []
+    previous_final = None
+    history_edges = history_triangles = None
+    for archive,entry,(start,end) in zip(archives,entries,((8000000,24000000),(24000000,56000000),(56000000,88000000))):
+        summary,rows = archive['SUMMARY'],archive['TIMESERIES']
+        assert rows[0]['step']==start and rows[-1]['step']==end
+        assert entry['start_step']==start and entry['end_step']==end
+        attempt = Path(entry['output_prefix']).parents[1]
+        plan_path = attempt/'plan.json';plan = e2.campaign.load_json(plan_path)
+        assert plan['histories'][replica-1]==entry and plan['system']['system_id']=='F04_N010_RP080_EE08_EA10'
+        expected_plan = summary.get('plan_sha256') or summary['job']['plan_sha256']
+        assert e2.campaign.sha256(plan_path)==expected_plan
+        authenticate_git(plan['source_sha256'],plan['git_sha'])
+        authenticate_git(plan['build']['source_sha256'],plan['build']['git_sha'])
+        e2.check_hashes(plan['executable_sha256']);e2.check_hashes(plan['build']['build_log_sha256'])
+        receipt_path = Path(entry['output_prefix']).parent/'complete.json'
+        receipt = e2.campaign.load_json(receipt_path)
+        assert receipt['status']=='validated' and receipt['end_step']==end
+        assert receipt['validation']==summary['validation']
+        assert receipt['plan_sha256']==e2.campaign.sha256(plan_path)
+        assert receipt['validation']['initial_device_readback']['status']=='valid'
+        assert receipt['validation']['oracle_sweeps']==(end-start)//100
+        e2.check_hashes(receipt['output_sha256']);inputs.update(receipt['output_sha256'])
+        inputs.update(e2.hash_files([receipt_path,plan_path,Path(entry['command'][0]).parent/'manifest.json']))
+        for name in ('approval','execution_approval','source_authorization','preparation_source_authorization',
+                     'recovery_source_authorization','recovery_source_authorization_v2'):
+            value = summary.get('job',{}).get(name)
+            if value and Path(value).is_file():inputs.update(e2.hash_files([Path(value)]))
+        for source in plan.get('reservation_sha256',{}):inputs.update(e2.hash_files([Path(source)]))
+        if previous_final is not None:
+            for key in ('L1','L2','bonds','intra','inter','mean_degree'):
+                assert previous_final[key]==rows[0][key]
+        previous_final = rows[-1]
+        system,initial = e2.validation.read_parent(entry)
+        _,events = e2.validation.analysis.dynamics.read_events(entry['output_prefix']+'.events',system)
+        tracker = Tracker(initial['pairs'],system,start,end,history_edges,history_triangles)
+        index = 0;enriched = []
+        for row in rows:
+            while index<len(events) and events[index][0]<=row['step']:
+                step = events[index][0];tracker.integrate(step)
+                while index<len(events) and events[index][0]==step:
+                    tracker.apply(events[index]);index += 1
+                tracker.after_sweep(step)
+            enriched.append(tracker.sample(row))
+        assert index==len(events)
+        ledger = tracker.finish()
+        history_edges,history_triangles = tracker.edge_history,tracker.triangle_history
+        assert len(ledger['final_triangles'])==rows[-1]['L2']
+        segments.append(dict(start=start,end=end,rows=enriched,ledger=ledger,
+            receipt=str(receipt_path),receipt_sha256=e2.campaign.sha256(receipt_path),
+            plan_sha256=e2.campaign.sha256(plan_path),entry=entry))
+        print('PASS',label,start,end,'frames',len(rows),'triangles',len(ledger['final_triangles']),flush=True)
+    e2.exclusive_json(output/(label+'.log'),dict(replica=replica,segments=segments,input_sha256=inputs,
+                                               GPU_steps=0,statistical_preparation_family=replica))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--replica',type=int,choices=(1,2,3),required=True)
+    parser.add_argument('--output',type=Path,required=True)
+    args = parser.parse_args();args.output.mkdir(parents=True,exist_ok=True)
+    analyze(args.replica,args.output)
