@@ -1,0 +1,122 @@
+"""Read-only compatibility policy resolver. No launch or activation interface."""
+import hashlib
+import json
+from pathlib import Path
+import runpy
+import subprocess
+
+D = Path(__file__).resolve().parent
+REPO = D.parents[3]
+START = 'cb025ec6d734bc077dc485ae229cd7b77d6bc2e3'
+CAMPAIGN = 'assoc15_uninterrupted100m_20261023_v1'
+OUTCOME = 'accepted_with_additional_certification_limitations'
+CERTIFICATIONS = {
+    'production_initial_GPU_state_comparison': 'not_performed',
+    'production_runtime_independent_candidate_oracle': 'not_performed',
+}
+GATES = [
+    'exact_accepted_parent_authentication', 'source_build_executable_approval_seed_output_bindings',
+    'chemical_event_replay_and_counter_conservation', 'numerical_and_bond_geometry_integrity',
+    'six_channel_stress_reconstruction', 'complete_lag_count_and_output_validation',
+    'immutable_execution_journals', 'independent_completion_validation',
+    'stop_on_failure', 'non_destructive_recovery',
+]
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def load(path):
+    return json.loads(Path(path).read_text())
+
+
+def check_files(bindings):
+    require(bool(bindings), 'empty evidence bindings')
+    for path, expected in bindings.items():
+        require(sha(path) == expected, 'changed or missing bound evidence: ' + path)
+
+
+def check_policy(record):
+    require(record['schema'] == 'production_compatibility_decision_v1', 'unknown schema')
+    require(record['campaign'] == CAMPAIGN and record['outcome'] == OUTCOME, 'wrong decision scope')
+    require(record['certifications'] == CERTIFICATIONS, 'certifications must remain not_performed')
+    require(record['additional_certifications_required_before_activation'] is False,
+            'wrong additional certification decision')
+    require(record['mandatory_validation'] == dict.fromkeys(GATES, True), 'mandatory gates changed')
+    require(record['registry_activation_authorized'] is False and
+            record['production_execution_authorized'] is False, 'decision cannot authorize execution')
+    require(record['future_source_changes_authorized'] is False, 'no future source whitelist')
+    require(record['historical_hold_preserved'] is True, 'historical hold must remain intact')
+    require(record['Ea10_scientific_exception_retained'] is True, 'Ea10 exception required')
+    require(record['source_commit'] == START, 'wrong reviewed source ancestry')
+    require(record['scope'] == {'systems': 15, 'production_histories': 45,
+                              'steps_per_history': 100000000, 'compatibility_histories': 15,
+                              'compatibility_steps_per_history': 100000}, 'scope changed')
+
+
+def check_publication(index):
+    relative = index.resolve().relative_to(REPO)
+    published = subprocess.check_output(['git', 'show', 'HEAD:' + str(relative)], cwd=REPO)
+    require(published == index.read_bytes(), 'decision publication differs from committed HEAD')
+    publication = load(index)
+    check_files(publication['sha256'])
+    require(publication['record'] in publication['sha256'], 'unbound decision record')
+    return publication
+
+
+def resolve():
+    # Reuse the prior review's Git-only subprocess guard: no native probe or GPU can run.
+    previous = D.parent / 'production_gpu_compatibility_closure_20261023'
+    runtime = runpy.run_path(str(previous / 'REVALIDATE.txt'))
+    runtime['guard_git_only']()
+    publication = check_publication(D / 'PUBLICATION.log')
+    record = load(publication['record'])
+    check_policy(record)
+    check_files(record['evidence_sha256'])
+    bindings = load(D / 'PRESERVED.sha256')
+    check_files(bindings)
+    subprocess.run(['git', 'merge-base', '--is-ancestor', record['source_commit'], 'HEAD'],
+                   cwd=REPO, check=True)
+    G = runtime['G']
+    require(record['source_sha256'] == G['e2'].sources(), 'exact live source map differs')
+    authority, histories = G['load_authority'](G['INDEX'])
+    for history in histories:
+        require(G['A']['status'](history, authority) == 'validated_complete', 'completion changed')
+        receipt = load(Path(history['output_prefix']).parent / 'validated.json')
+        replay = load(previous / 'replay' / (history['system'] + '_r%03d.log' % history['replica']))
+        require(receipt['numerical'] == replay['numerical'], 'independent replay differs')
+        check_files(replay['replayed_output_sha256'])
+    plan = load(G['P']['PLAN'])
+    require(plan['registry_activated'] is False and plan['GPU_execution_authorized'] is False,
+            'production preparation authority changed')
+    require(len(plan['histories']) == 45, 'production scope changed')
+    for history in plan['histories']:
+        require({p.name for p in Path(history['output_prefix']).parent.iterdir()} ==
+                {'run.json', 'preparation_approval.json'}, 'production artifacts or approvals appeared')
+    acceptance = list((G['ROOT'] / 'banks/e2_acceptance').glob('*.json'))
+    require(len(acceptance) == 15, 'acceptance inventory changed')
+    allowed = 'examples/KG_Assoc/reviews/production_compatibility_decision_20261023/'
+    changed = subprocess.check_output(['git', 'diff', '--name-only', START, 'HEAD'],
+                                      cwd=REPO, text=True).splitlines()
+    require(all(path.startswith(allowed) for path in changed), 'changes outside decision dossier')
+    return dict(outcome=OUTCOME, decision=publication['record'],
+                decision_sha256=publication['sha256'][publication['record']],
+                certifications=CERTIFICATIONS, mandatory_validation='unchanged_and_required',
+                qualified_acceptances=15, unchanged_production_preparations=45,
+                authenticated_compatibility_completions=len(histories),
+                preserved_bindings=len(bindings), registry_activated=False,
+                production_execution_authorized=False, GPU_MD_steps_executed=0)
+
+
+if __name__ == '__main__':
+    print(json.dumps(resolve(), indent=2, sort_keys=True))

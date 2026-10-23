@@ -1,0 +1,96 @@
+"""One-time CPU-only publication; exclusive creation, never edits historical evidence."""
+import json
+import os
+from pathlib import Path
+import runpy
+import subprocess
+
+D = Path(__file__).resolve().parent
+V = runpy.run_path(str(D / 'VERIFY.txt'))
+REPO = V['REPO']
+assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == V['START']
+P = runpy.run_path(str(D.parent / 'production_100m_preparation_20261023/PREPARE.txt'))
+previous = D.parent / 'production_gpu_compatibility_closure_20261023'
+identity = 'assoc15_compatibility_additional_certification_decision_20261023_v1'
+record_path = P['ROOT'] / 'banks/production_compatibility_decisions' / (identity + '.json')
+assert not record_path.exists(), 'immutable decision already exists; use VERIFY.txt'
+assert not (D / 'PUBLICATION.log').exists(), 'publication already exists'
+
+
+def exclusive(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    with path.open('xb') as stream:
+        stream.write(data)
+    return data
+
+
+# Preserve prior authenticated hashes; never refresh an old digest from altered bytes.
+protected = {}
+for name in ('PRESERVED.sha256', 'COMPLETED_OUTPUTS.sha256', 'ARCHIVED_INPUTS.sha256',
+             'INTEGRITY.sha256', 'source/SOURCE_INPUTS.sha256'):
+    for path, digest in V['load'](previous / name).items():
+        assert path not in protected or protected[path] == digest
+        protected[path] = digest
+for name in subprocess.check_output(['git', 'ls-files'], text=True).splitlines():
+    path = str((REPO / name).resolve())
+    if Path(path).is_dir():
+        continue  # Git submodules are commit entries, not byte-addressable files.
+    digest = V['sha'](path)
+    assert path not in protected or protected[path] == digest
+    protected[path] = digest
+V['check_files'](protected)
+exclusive(D / 'PRESERVED.sha256', protected)
+plan = V['load'](P['PLAN'])
+compat = P['ROOT'] / 'banks/production_gpu_validation/assoc15_production_100k_compatibility_20261023_v1'
+compat_plan = V['load'](compat / 'plan.json')
+initial_states = [{key: history[key] for key in
+                   ('system_id', 'replica', 'active_e2', 'parent', 'md_seed',
+                    'effective_md_seed', 'chemistry_seed', 'output_prefix', 'start_step', 'end_step')}
+                  for history in plan['histories']]
+evidence_paths = [P['PLAN'], P['REGISTRY'], P['RESERVATION'], P['FOLDER'] / 'prepared.json',
+                  compat / 'plan.json', compat / 'authority_v3.json',
+                  previous / 'INTEGRITY.sha256', previous / 'COMPLETED_OUTPUTS.sha256',
+                  D / 'USER_APPROVAL.md', D / 'VERIFY.txt', D / 'TEST_DECISION.txt',
+                  D / 'PUBLISH.txt', D / 'PRESERVED.sha256']
+completions = []
+for history in compat_plan['histories']:
+    directory = Path(history['output_prefix']).parent
+    receipts = [directory / name for name in
+                ('validated.json', 'validated_binding.json', 'native_finished.json', 'started.json')]
+    evidence_paths.extend(receipts)
+    completions.append({'system': history['system'], 'replica': history['replica'],
+                        'output_prefix': history['output_prefix'],
+                        'receipt_sha256': {str(path): V['sha'](path) for path in receipts}})
+record = dict(schema='production_compatibility_decision_v1', identity=identity,
+              campaign=V['CAMPAIGN'], outcome=V['OUTCOME'], source_commit=V['START'],
+              approval_reference='Explicit user conversation milestone: Publish the approved production compatibility decision',
+              approval_date='2026-10-23',
+              certifications=V['CERTIFICATIONS'],
+              additional_certifications_required_before_activation=False,
+              mandatory_validation=dict.fromkeys(V['GATES'], True),
+              registry_activation_authorized=False, production_execution_authorized=False,
+              future_source_changes_authorized=False, historical_hold_preserved=True,
+              Ea10_scientific_exception_retained=True,
+              scope=dict(systems=15, production_histories=45, steps_per_history=100000000,
+                         compatibility_histories=15, compatibility_steps_per_history=100000),
+              initial_states=initial_states, compatibility_completions=completions,
+              source_sha256=P['e2'].sources(),
+              native_build=plan['build'],
+              evidence_sha256={str(path): V['sha'](path) for path in evidence_paths},
+              limitations=[
+                  'Exact initial production GPU coordinates, velocities, IDs, types and partners were not independently read back and compared.',
+                  'No independent production-runtime candidate oracle compared candidate sets or rounding behavior during the short tests.',
+                  'One family per condition was tested (Ea10 r003, otherwise r001); not all 45 production starts or long trajectories.',
+                  'Ea10 r003 retains unresolved late triangle/conformation fluctuations; qualification proves neither equilibrium nor stationary production nor unbiased stress measurements.',
+                  'Future changes to sources, executable, initial states, seeds or campaign plans require separately authenticated compatibility review; this is not a general waiver.',
+              ])
+V['check_policy'](record)
+exclusive(record_path, record)
+exclusive(D / 'DECISION_RECORD.log', record)
+publication = dict(record=str(record_path),
+                   sha256={str(record_path): V['sha'](record_path),
+                           str(D / 'DECISION_RECORD.log'): V['sha'](D / 'DECISION_RECORD.log')})
+exclusive(D / 'PUBLICATION.log', publication)
+print(json.dumps({'decision': str(record_path), 'sha256': V['sha'](record_path),
+                  'preserved_bindings': len(protected)}, indent=2))

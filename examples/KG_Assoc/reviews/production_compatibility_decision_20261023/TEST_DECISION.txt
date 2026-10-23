@@ -1,0 +1,109 @@
+"""Deterministic policy/publication tests; all mutations confined to temporary fixtures."""
+import copy
+import json
+from pathlib import Path
+import runpy
+import tempfile
+import unittest
+from unittest.mock import patch
+
+D = Path(__file__).resolve().parent
+V = runpy.run_path(str(D / 'VERIFY.txt'))
+
+
+class DecisionTests(unittest.TestCase):
+    def setUp(self):
+        self.record = json.loads((D / 'DECISION_RECORD.log').read_text())
+
+    def reject(self, key, value):
+        changed = copy.deepcopy(self.record)
+        changed[key] = value
+        with self.assertRaises((ValueError, KeyError)):
+            V['check_policy'](changed)
+
+    def test_exact_policy(self):
+        V['check_policy'](self.record)
+
+    def test_different_campaign(self):
+        self.reject('campaign', 'different_campaign')
+
+    def test_full_certification_claim_rejected(self):
+        for key in V['CERTIFICATIONS']:
+            changed = dict(V['CERTIFICATIONS'])
+            changed[key] = 'PASS'
+            self.reject('certifications', changed)
+
+    def test_missing_certification_rejected(self):
+        self.reject('certifications', {})
+
+    def test_mandatory_gate_cannot_be_waived(self):
+        for gate in V['GATES']:
+            changed = dict.fromkeys(V['GATES'], True)
+            changed[gate] = False
+            self.reject('mandatory_validation', changed)
+
+    def test_activation_and_execution_rejected(self):
+        for key in ('registry_activation_authorized', 'production_execution_authorized'):
+            self.reject(key, True)
+
+    def test_future_source_whitelist_rejected(self):
+        self.reject('future_source_changes_authorized', True)
+
+    def test_historical_hold_and_Ea10_exception_preserved(self):
+        for key in ('historical_hold_preserved', 'Ea10_scientific_exception_retained'):
+            self.reject(key, False)
+
+    def test_scope_and_ancestry_identity(self):
+        self.reject('source_commit', '0' * 40)
+        self.reject('scope', dict(self.record['scope'], production_histories=46))
+
+    def test_missing_policy_rejected(self):
+        for key in self.record:
+            if key in ('schema', 'mandatory_validation', 'certifications', 'scope'):
+                changed = copy.deepcopy(self.record)
+                del changed[key]
+                with self.assertRaises(KeyError):
+                    V['check_policy'](changed)
+
+    def test_changed_evidence_rejected_without_rewriting_original(self):
+        # Each role is protected by the same exact byte-hash gate in resolve().
+        for role in ('plan', 'parent', 'seed_reservation', 'source', 'executable',
+                     'receipt', 'source_authorization', 'Ea10_qualification'):
+            with tempfile.TemporaryDirectory() as folder:
+                original = Path(folder) / role
+                original.write_bytes(b'authenticated original')
+                digest = V['sha'](original)
+                V['check_files']({str(original): digest})
+                corrupt = Path(folder) / ('corrupt_' + role)
+                corrupt.write_bytes(b'altered')
+                with self.assertRaises(ValueError):
+                    V['check_files']({str(corrupt): digest})
+                with self.assertRaises(FileNotFoundError):
+                    V['check_files']({str(Path(folder) / 'missing'): digest})
+                self.assertEqual(original.read_bytes(), b'authenticated original')
+
+    def test_empty_evidence_rejected(self):
+        with self.assertRaises(ValueError):
+            V['check_files']({})
+
+    def test_publication_must_match_git_and_pin_record(self):
+        with tempfile.TemporaryDirectory(dir=D) as folder:
+            record = Path(folder) / 'record.log'
+            record.write_text('{}')
+            index = Path(folder) / 'index.log'
+            body = {'record': str(record), 'sha256': {str(record): V['sha'](record)}}
+            index.write_text(json.dumps(body))
+            with patch('subprocess.check_output', return_value=index.read_bytes()):
+                V['check_publication'](index)
+            with patch('subprocess.check_output', return_value=b'forged publication'):
+                with self.assertRaises(ValueError):
+                    V['check_publication'](index)
+            body['sha256'] = {str(index): '0' * 64}
+            index.write_text(json.dumps(body))
+            with patch('subprocess.check_output', return_value=index.read_bytes()):
+                with self.assertRaises(ValueError):
+                    V['check_publication'](index)
+
+
+if __name__ == '__main__':
+    unittest.main()
