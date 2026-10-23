@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "qualified_acceptances": 15,
+  "preserved_bindings": 5476,
+  "completed_file_bindings": 240,
+  "independently_revalidated_histories": 15,
+  "unchanged_dormant_production_preparations": 45,
+  "GPU_steps_executed_by_review": 0,
+  "waiver_published": false,
+  "compatibility_hold_removed": false,
+  "production_registry_activated": false,
+  "production_execution_approvals_created": 0
+}
