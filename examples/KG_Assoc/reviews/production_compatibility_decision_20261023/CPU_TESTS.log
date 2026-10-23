@@ -1,0 +1,18 @@
+test_activation_and_execution_rejected (__main__.DecisionTests) ... ok
+test_changed_evidence_rejected_without_rewriting_original (__main__.DecisionTests) ... ok
+test_different_campaign (__main__.DecisionTests) ... ok
+test_empty_evidence_rejected (__main__.DecisionTests) ... ok
+test_exact_policy (__main__.DecisionTests) ... ok
+test_full_certification_claim_rejected (__main__.DecisionTests) ... ok
+test_future_source_whitelist_rejected (__main__.DecisionTests) ... ok
+test_historical_hold_and_Ea10_exception_preserved (__main__.DecisionTests) ... ok
+test_mandatory_gate_cannot_be_waived (__main__.DecisionTests) ... ok
+test_missing_certification_rejected (__main__.DecisionTests) ... ok
+test_missing_policy_rejected (__main__.DecisionTests) ... ok
+test_publication_must_match_git_and_pin_record (__main__.DecisionTests) ... ok
+test_scope_and_ancestry_identity (__main__.DecisionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.050s
+
+OK

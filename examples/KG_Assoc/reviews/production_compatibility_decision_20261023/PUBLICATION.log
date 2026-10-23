@@ -1,0 +1,7 @@
+{
+  "record": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_compatibility_decisions/assoc15_compatibility_additional_certification_decision_20261023_v1.json",
+  "sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/production_compatibility_decisions/assoc15_compatibility_additional_certification_decision_20261023_v1.json": "f7e8a98bcc8a0b94d65a714b4daea394e6c2cb1892d8aa4eb6ec07faf4913516",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_compatibility_decision_20261023/DECISION_RECORD.log": "f7e8a98bcc8a0b94d65a714b4daea394e6c2cb1892d8aa4eb6ec07faf4913516"
+  }
+}
