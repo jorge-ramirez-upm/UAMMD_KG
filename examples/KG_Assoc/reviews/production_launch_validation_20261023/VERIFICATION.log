@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "qualified_acceptances": 15,
+  "protected_bindings": 5171,
+  "dormant_production_histories": 45,
+  "bounded_validation_histories": 15,
+  "maximum_GPU_steps_authorized": 1500000,
+  "GPU_steps_executed_by_assistant": 0,
+  "native_output_files": 0,
+  "production_execution_approvals": 0,
+  "production_registry_activated": false,
+  "identical_pre_post_source_authentication": true,
+  "source_authorization_sha256": "279cf4c2bc007865cd492597f322f80bfff80ec556b2e8acae21d7aaea223cf3"
+}
