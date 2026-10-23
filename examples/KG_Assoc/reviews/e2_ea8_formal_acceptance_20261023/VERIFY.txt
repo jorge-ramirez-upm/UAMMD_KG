@@ -1,0 +1,61 @@
+"""Read-only audit of fourteen formal acceptances, source authority and preserved evidence."""
+import csv
+from pathlib import Path
+import runpy
+
+folder = Path(__file__).resolve().parent
+helper = runpy.run_path(str(folder/'AUTHENTICATE.txt'))
+e2 = helper['e2']
+import kg_assoc_e2_registry as registry
+rows,attempt,plan = helper['authenticate']()
+e2.check_hashes(e2.campaign.load_json(folder/'INTEGRITY.sha256'))
+registration = e2.campaign.load_json(folder/'REGISTRATION.log')
+record_path = Path(registration['acceptance'])
+assert e2.campaign.sha256(record_path) == registration['sha256']
+assert record_path.read_bytes() == (folder/'ACCEPTANCE_RECORD.log').read_bytes()
+record = e2.campaign.load_json(record_path)
+assert record['permitted_systems'] == [helper['SID']]
+assert record['permitted_use'] == 'production_initial_state'
+assert record['status'] == 'accepted_with_qualification'
+assert registration['exact_endpoints'] == rows
+assert registration['registry_selected'] is False and registration['registry_activated'] is False
+assert registration['Ea10_accepted'] is False and registration['GPU_steps_executed'] == 0
+accepted = list(csv.DictReader((folder/'ACCEPTED_ENDPOINTS.csv').open()))
+for row, printed, history in zip(rows,accepted,record['histories']):
+    assert row == printed
+    assert history['prefix']+'.restart.lammpsdat' == row['restart'] and history['end_step'] == 48000000
+    assert history['sha256'][row['restart']] == row['restart_sha256']
+    assert history['sha256'][row['sidecar']] == row['sidecar_sha256']
+    checked = e2.campaign.load_json(folder/f"REVALIDATED_r{int(row['replica']):03d}.log")
+    assert checked['exact_endpoint'] == row and checked['MD_steps_executed_by_this_check'] == 0
+    assert checked['validation'] == e2.campaign.load_json(row['receipt'])['validation']
+    assert checked['validation']['oracle_sweeps'] == 80000
+    assert checked['validation']['initial_device_readback']['particles'] == 43563
+prior = e2.campaign.load_json(folder/'PRIOR_ACCEPTANCES.log')
+assert len(prior) == 13
+for old in prior:
+    e2.check_hashes({old['path']:old['sha256']})
+paths = sorted(record_path.parent.glob('*.json'))
+assert len(paths) == 14
+inventory = list(csv.DictReader((folder/'ACCEPTANCE_INVENTORY.csv').open()))
+assert len(inventory) == 14
+systems = set()
+for path,row in zip(paths,inventory):
+    assert str(path) == row['record'] and e2.campaign.sha256(path) == row['sha256']
+    accepted_record = e2.campaign.load_json(path)
+    assert accepted_record['status'] == 'accepted_with_qualification'
+    assert len(accepted_record['permitted_systems']) == 1
+    sid = accepted_record['permitted_systems'][0]
+    assert sid == row['system'] and sid not in systems
+    systems.add(sid)
+    registry.exclusive_validate(accepted_record,[e2.system_by_id(sid)])
+assert 'F04_N010_RP080_EE08_EA10' not in systems
+assert helper['SID'] in systems
+assert not e2.subprocess.check_output(['git','diff',helper['START'],'--','src','examples/KG',
+    'examples/KG_Assoc/kg_assoc_stars.cu','examples/KG_Assoc/kg_assoc_kinetics.cuh',
+    'examples/KG_Assoc/campaign/kg_assoc_e2_validate.py'],text=True)
+print('PASS',len(e2.campaign.load_json(folder/'PRESERVED.sha256')),'unchanged protected bindings;')
+print('13 original records unchanged; 14 unique qualified associating systems; Ea10 absent;')
+print('three exact Ea8 48M endpoints, strict replays and historical r001 recovery authenticated;')
+print('zero GPU/MD, registry activation or production work; HEAD',e2.campaign.git_sha())
+print('ACCEPTANCE',record_path,registration['sha256'])

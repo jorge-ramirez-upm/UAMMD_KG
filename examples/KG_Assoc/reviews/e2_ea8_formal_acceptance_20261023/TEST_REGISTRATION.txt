@@ -55,6 +55,23 @@ class RegistrationTests(unittest.TestCase):
                     self.assertRaises(ValueError):
                 registry.exclusive_validate(self.record,[self.system])
 
+    def test_matching_ea10_reviewed_extension_still_cannot_be_accepted(self):
+        import csv
+        row = next(r for r in csv.DictReader((helper['REVIEW']/'ENDPOINTS.csv').open())
+                   if r['system'] == 'F04_N010_RP080_EE08_EA10')
+        source_path = Path(row['restart']).parents[1]/'plan.json'
+        source = e2.campaign.load_json(source_path)
+        bad = copy.deepcopy(self.record)
+        bad.update(source_plan=str(source_path),source_plan_sha256=e2.campaign.sha256(source_path),
+                   permitted_systems=[source['system']['system_id']])
+        bad['histories'] = [dict(replica=h['replica'],prefix=h['output_prefix'],end_step=h['end_step'],
+            chemistry_seed=h['chemistry_seed'],physics=h['physics'],lineage=h['lineage'],
+            sha256=e2.hash_files([Path(h['output_prefix']+suffix) for suffix in e2.validation.OUTPUTS]+
+                                [Path(h['output_prefix']).parent/'complete.json',source_path]))
+                           for h in source['histories']]
+        with self.assertRaisesRegex(ValueError,'only the qualified Ea8 48M'):
+            registry.exclusive_validate(bad,[e2.system_by_id(source['system']['system_id'])])
+
     def test_wrong_scope_unqualified_and_endpoint_substitution_reject(self):
         for key,value in [('permitted_use','production'),('permitted_systems',['F04_N010_RP080_EE08_EA10']),
                           ('qualification','')]:

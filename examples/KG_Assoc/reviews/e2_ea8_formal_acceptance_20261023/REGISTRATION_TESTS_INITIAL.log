@@ -1,0 +1,30 @@
+test_exact_reviewed_candidate_uses_established_schema (__main__.RegistrationTests) ... ERROR
+test_historical_recovery_and_ordinary_child_remain_distinct (__main__.RegistrationTests) ... ok
+test_missing_or_corrupt_bound_evidence_reject (__main__.RegistrationTests) ... ok
+test_prior_thirteen_immutable_and_ea10_absent (__main__.RegistrationTests) ... ok
+test_published_record_bytes_scope_and_no_replacement (__main__.RegistrationTests) ... skipped 'post-publication only'
+test_unknown_legacy_extension_ea10_and_wrong_ranges_reject (__main__.RegistrationTests) ... ok
+test_wrong_scope_unqualified_and_endpoint_substitution_reject (__main__.RegistrationTests) ... ok
+
+======================================================================
+ERROR: test_exact_reviewed_candidate_uses_established_schema (__main__.RegistrationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/TEST_REGISTRATION.txt", line 41, in test_exact_reviewed_candidate_uses_established_schema
+    registry.exclusive_validate(self.record,[self.system])
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2_registry.py", line 112, in exclusive_validate
+    extension.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2_next_extension.py", line 236, in check_plan
+    record, manifest = check_build(build)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2_next_extension.py", line 194, in check_build
+    record, manifest = e2.check_build(build)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2.py", line 182, in check_build
+    require(record['schema_version'] == 1 and record['status'] == 'built' and ancestor and
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_c1_e2_pilot.py", line 39, in require
+    raise ValueError(message)
+ValueError: build evidence differs from current committed scientific sources/history
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.752s
+
+FAILED (errors=1, skipped=1)
