@@ -1,0 +1,66 @@
+"""Deterministic exact-scope acceptance tests, without GPU execution."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+from unittest import mock
+h=runpy.run_path(str(Path(__file__).with_name('AUTHENTICATE.txt')))
+e2=h['e2'];import kg_assoc_e2_registry as registry
+D=h['D']
+class Tests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import csv
+        cls.rows=list(csv.DictReader((D/'ACCEPTED_ENDPOINTS.csv').open()))
+        cls.path=Path(cls.rows[0]['restart']).parents[1]/'plan.json'
+        cls.plan=e2.campaign.load_json(cls.path);cls.system=e2.system_by_id(h['SID'])
+        cls.record=dict(schema_version=1,stage='E2_acceptance',bank_id=e2.campaign.e2_bank_id(cls.system),
+            provenance_kind='E2_G1_segment',status='accepted_with_qualification',reviewer='CPU fixture',
+            reviewed_at='CPU fixture',evidence=str(D/'ASSESSMENT.md'),evidence_sha256=e2.campaign.sha256(D/'ASSESSMENT.md'),
+            source_plan=str(cls.path),source_plan_sha256=e2.campaign.sha256(cls.path),
+            permitted_systems=[h['SID']],permitted_use='production_initial_state',
+            qualification=(D/'QUALIFICATION.txt').read_text(),numerical_qualification='invariance unproven',
+            publisher_git_sha=e2.campaign.git_sha(),histories=[dict(replica=x['replica'],prefix=x['output_prefix'],
+                end_step=x['end_step'],chemistry_seed=x['chemistry_seed'],physics=x['physics'],lineage=x['lineage'],
+                sha256=e2.hash_files([Path(x['output_prefix']+s) for s in e2.validation.OUTPUTS]+
+                                    [Path(x['output_prefix']).parent/'complete.json',cls.path])) for x in cls.plan['histories']])
+    def reject(self,record):
+        with self.assertRaises(ValueError):registry.exclusive_validate(record,[self.system])
+    def test_explicit_exact_exception_validates(self):registry.exclusive_validate(self.record,[self.system])
+    def test_exception_cannot_be_omitted(self):
+        x=copy.deepcopy(self.record);x['qualification']='equilibrium unproven';self.reject(x)
+    def test_wrong_use_system_and_unqualified_status(self):
+        for k,v in [('permitted_use','production'),('permitted_systems',['F04_N010_RP080_EE08_EA08']),('status','accepted')]:
+            with self.subTest(k=k):x=copy.deepcopy(self.record);x[k]=v;self.reject(x)
+    def test_substituted_endpoint_seed_and_lineage(self):
+        for k,v in [('end_step',88000001),('chemistry_seed',1),('lineage',{}),('prefix','/tmp/unrelated')]:
+            with self.subTest(k=k):x=copy.deepcopy(self.record);x['histories'][0][k]=v;self.reject(x)
+    def test_missing_corrupt_receipt_restart_and_sidecar(self):
+        for key in ('receipt','restart','sidecar'):
+            x=copy.deepcopy(self.record);x['histories'][0]['sha256'][self.rows[0][key]]='corrupt';self.reject(x)
+        x=copy.deepcopy(self.record);del x['histories'][0]['sha256'][self.rows[0]['receipt']];self.reject(x)
+    def test_incomplete_history_rejected(self):
+        original=e2.campaign.load_json;target=self.rows[0]['receipt']
+        def load(path):
+            value=original(path)
+            return dict(value,status='incomplete') if str(path)==target else value
+        with mock.patch.object(e2.campaign,'load_json',side_effect=load):self.reject(self.record)
+    def test_plan_ranges_extra_history_and_wrong_mode_rejected(self):
+        original=e2.campaign.load_json
+        for key,value in [('steps',32000001),('lineage_mode','unknown'),('reference_control',True)]:
+            plan=dict(self.plan,**{key:value})
+            def load(path):return plan if str(path)==str(self.path) else original(path)
+            with self.subTest(key=key),mock.patch.object(e2.campaign,'load_json',side_effect=load):self.reject(self.record)
+    def test_three_exact_families_required(self):
+        x=copy.deepcopy(self.record);x['histories']=x['histories'][:2];self.reject(x)
+    def test_prior_acceptances_and_reviews_unchanged(self):
+        e2.check_hashes(e2.campaign.load_json(D/'PRESERVED.sha256'))
+    def test_registrar_is_administrative_but_execution_source_gate_remains(self):
+        key=str(e2.HERE/'kg_assoc_e2_registry.py')
+        self.assertNotIn(key,e2.scientific_source_hashes({key:'admin'}))
+        with mock.patch.object(e2,'clean_tree'),self.assertRaises(ValueError):e2.live_code(self.plan,{})
+    def test_historical_acceptance_cannot_be_overwritten(self):
+        path=next((h['ROOT']/'banks/e2_acceptance').glob('*.json'))
+        with self.assertRaisesRegex(ValueError,'new acceptance filename'):
+            registry.accept(h['ROOT'],path,None,'fixture',D/'ASSESSMENT.md',[h['SID']],'qualified')
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,49 @@
+"""Authenticate the user-excepted exact Ea10 triplet; grants no execution authority."""
+import csv
+import hashlib
+from pathlib import Path
+import subprocess
+import sys
+sys.path.insert(0,'examples/KG_Assoc/campaign')
+import kg_assoc_e2 as e2
+D=Path(__file__).resolve().parent
+ROOT=e2.HERE.parent/'kg_assoc_100m'
+REVIEW=D.parent/'e2_ea_48m_88m_joint_20261022'
+SID='F04_N010_RP080_EE08_EA10'
+START='75d169da8a54fc49032c8c41c22156a6d0e6c432'
+
+def authenticate():
+    auth=e2.campaign.load_json(D/'CPU_SOURCE_AUTHORIZATION.log')
+    assert auth['purpose']=='CPU_acceptance_registration_only' and auth['GPU_execution_authorized'] is False
+    assert auth['starting_sha']==START and e2.sources()==auth['current_source_sha256']
+    for path,digest in auth['starting_source_sha256'].items():
+        raw=subprocess.check_output(['git','show',START+':'+str(Path(path).relative_to(Path.cwd()))])
+        assert hashlib.sha256(raw).hexdigest()==digest,path
+    changed={p for p in auth['current_source_sha256'] if auth['current_source_sha256'][p]!=auth['starting_source_sha256'][p]}
+    assert changed=={str(e2.HERE/'kg_assoc_e2_registry.py')}
+    subprocess.run(['git','merge-base','--is-ancestor',START,'HEAD'],check=True)
+    e2.check_hashes(e2.campaign.load_json(D/'PRESERVED.sha256'))
+    for review in (REVIEW,D.parent/'e2_ea10_motif_dynamics_20261023'):
+        e2.check_hashes(e2.campaign.load_json(review/'INTEGRITY.sha256'))
+    rows=[r for r in csv.DictReader((REVIEW/'ENDPOINTS.csv').open()) if r['system']==SID]
+    assert [int(r['replica']) for r in rows]==[1,2,3]
+    attempt=Path(rows[0]['restart']).parents[1]
+    plan=e2.check_plan(ROOT,attempt,live=False)
+    assert e2.campaign.sha256(attempt/'plan.json')=='827db432d0abc3f660a16bd6746c9089c47b2daeaf39a73ec5a75906985fae06'
+    subprocess.run(['git','merge-base','--is-ancestor',plan['git_sha'],START],check=True)
+    for row,entry in zip(rows,plan['histories']):
+        assert entry['start_step']==56000000 and entry['end_step']==int(row['end_step'])==88000000
+        assert entry['output_prefix']+'.restart.lammpsdat'==row['restart']
+        e2.check_hashes({row[k]:row[k+'_sha256'] for k in ('restart','sidecar','receipt')})
+        for key in ('chemistry_seed','md_seed','effective_md_seed'):assert entry[key]==int(row[key])
+        approval=attempt/f"approval_r{entry['replica']:03d}_execution.json"
+        source=attempt/f"approval_r{entry['replica']:03d}_execution_sources.json"
+        approved=e2.scoped_launch_approval(approval,attempt,'e2_derived_extension',plan,None,[entry['replica']])
+        assert approved['GPU_execution_authorized'] is True
+        assert e2.extension_source_authorization(source,plan,approval)['source_sha256_overrides']=={}
+        receipt=e2.campaign.load_json(row['receipt']);e2.check_hashes(receipt['output_sha256'])
+        started=e2.campaign.load_json(Path(row['receipt']).with_name('started.json'))
+        assert started['command']==entry['command'] and started['plan_sha256']==row['plan_sha256']
+        assert started['approval_sha256']==e2.campaign.sha256(approval)
+        assert started['source_authorization_sha256']==e2.hash_files([source])
+    return rows,attempt,plan

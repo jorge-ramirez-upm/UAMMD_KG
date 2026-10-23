@@ -103,12 +103,22 @@ def exclusive_validate(record, systems):
                     transfer.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
                 else:
                     import kg_assoc_e2_next_extension as extension
-                    require(source['lineage_mode'] == extension.MODE and
-                            source['system']['system_id'] == 'F04_N010_RP080_EE08_EA08' and
-                            source['steps'] == 8000000 and
-                            all(h['start_step'] == 40000000 and h['end_step'] == 48000000
-                                for h in source['histories']),
-                            'only the qualified Ea8 48M reviewed extension may be accepted')
+                    ea8 = (source['system']['system_id'] == 'F04_N010_RP080_EE08_EA08' and
+                           source['steps'] == 8000000 and
+                           all(h['start_step'] == 40000000 and h['end_step'] == 48000000
+                               for h in source['histories']))
+                    # The user accepts this exact triplet despite the unchanged scientific hold.
+                    ea10 = (source['system']['system_id'] == 'F04_N010_RP080_EE08_EA10' and
+                            record['source_plan_sha256'] ==
+                            '827db432d0abc3f660a16bd6746c9089c47b2daeaf39a73ec5a75906985fae06' and
+                            source['steps'] == 32000000 and
+                            all(h['start_step'] == 56000000 and h['end_step'] == 88000000
+                                for h in source['histories']) and
+                            'User-approved scientific exception: unresolved Ea10 r003 '
+                            'triangle/conformation regime.' in record['qualification'])
+                    require(source['lineage_mode'] == extension.MODE and (ea8 or ea10),
+                            'only the qualified Ea8 48M or explicitly excepted exact Ea10 88M '
+                            'reviewed extension may be accepted')
                     extension.check_plan(Path(source['dataset_root']), Path(source['attempt']), source)
             else:
                 require('lineage' not in entry, 'unexpected acceptance lineage')
