@@ -149,3 +149,5 @@ Immutable formal record: `/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100
 SHA256: `f81d3e2f1d3a36cf4b2a7c09596f939e7adf62bc72c0ca103eeba73bbccdcc05`.
 
 Final CPU tests: **10/10 registration tests passed** and **189/189 shared E2 regressions passed**. Three independent strict endpoint replays and the registrar triplet verification passed.
+
+Full post-registration audit passed: all fourteen records validated with the established acceptance schema, all 4,850 preserved bindings unchanged, original thirteen record hashes intact, Ea10 absent, and no activation or MD work. See VERIFICATION.log.

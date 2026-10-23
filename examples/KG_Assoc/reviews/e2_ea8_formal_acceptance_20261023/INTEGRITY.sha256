@@ -8,7 +8,7 @@
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/INITIAL_AUTHENTICATION.log": "a94684b59187a0687c43ea46fba305f5fa81346befd63f552d736e8c6c5c7415",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/PRESERVED.sha256": "132460ccfa0c53d10abb9988b8d017f559a5a6ecadb5905dc75babe482726a8e",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/PRIOR_ACCEPTANCES.log": "7f65f382fade363e0bf5b540763715cdfb993d8420d64dd938b3a5c2331cb4b9",
-  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/README.md": "2e1a0fcc011c9b6e13f07fd8181e1901699375ec8991b66b893710983f463722",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/README.md": "d1c00591cf085123a562fe83f6bdcd93043ca3dbc2315deb0b84460247079537",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/REGISTER.txt": "a519bb20e4e91bb3f1915b05fa828c5a506a06ebb99b57784e9af5a683c88cb3",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/REGISTER_OUTPUT.log": "914bee0c0f6d146532842ae39b2b171b00997822d0a8241b19c3db2523a4f3d6",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/REGISTRAR.patch": "05ff60580b9cbfdc1afedfe91a00eb8161a84e61bc1f717dd4c9f7f3698717a8",
@@ -22,6 +22,7 @@
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/REVALIDATED_r003.log": "59dcf3eb64079a101225ed62a9fea8b7a9e19d1240c8f47fd420169f7c36eab0",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/STARTING_SOURCES.log": "135efc67b70bc242ebbfd21e7b0d592946d0b5d519e130812fb3bc05cc67e59a",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/TEST_REGISTRATION.txt": "5ed21549daa33acbf912f0f0c1537a638ee5782f33bae2563199a1fa7279675f",
+  "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/VERIFICATION.log": "a1b0792d47f39318c1701b8bd7c6446d42de8bf49409fcf8449c76a7b15a13b5",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/VERIFY.txt": "26e1b48214510ed3d2639494f026a302af1b72454343d6dc13baa3adc999b4ed",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/kg_assoc_e2.py.BEFORE.txt": "48096c322c9796699d4cd119246ab2f9673ceb4784a4470c797cf5b119ecf4fd",
   "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/e2_ea8_formal_acceptance_20261023/kg_assoc_e2_registry.py.BEFORE.txt": "d351e62feb10063b791c4439bce2acbbfccea4a35feed35ff56f41d745595723"

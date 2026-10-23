@@ -1,0 +1,5 @@
+PASS 4850 unchanged protected bindings;
+13 original records unchanged; 14 unique qualified associating systems; Ea10 absent;
+three exact Ea8 48M endpoints, strict replays and historical r001 recovery authenticated;
+zero GPU/MD, registry activation or production work; HEAD 009ecc9b185351766149d097c1c5eaf99dfd15de
+ACCEPTANCE /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA08_48M_qualified_20261023_v1.json f81d3e2f1d3a36cf4b2a7c09596f939e7adf62bc72c0ca103eeba73bbccdcc05
