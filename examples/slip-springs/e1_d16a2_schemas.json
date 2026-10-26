@@ -1,0 +1,421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:uammd-kg:e1:d16a2:results:v1",
+  "description": "D1.6A.2 records only. No original D1.6A result is reinterpreted. Runtime authenticators additionally enforce cross-file invariants.",
+  "anyOf": [
+    {
+      "$ref": "#/$defs/inference"
+    },
+    {
+      "$ref": "#/$defs/assessment"
+    },
+    {
+      "$ref": "#/$defs/selection"
+    },
+    {
+      "$ref": "#/$defs/worker_result"
+    },
+    {
+      "$ref": "#/$defs/completion"
+    },
+    {
+      "$ref": "#/$defs/approval"
+    }
+  ],
+  "$defs": {
+    "inference": {
+      "type": "object",
+      "required": [
+        "schema",
+        "names",
+        "estimate",
+        "delta_se",
+        "jackknife_se",
+        "interval",
+        "half_width",
+        "count",
+        "batches",
+        "confidence_allocation"
+      ],
+      "properties": {
+        "schema": {
+          "const": "e1-d16a2-reference-v1"
+        },
+        "names": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimate": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "type": "number"
+          }
+        },
+        "delta_se": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "type": "number"
+          }
+        },
+        "jackknife_se": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "type": "number"
+          }
+        },
+        "half_width": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "type": "number"
+          }
+        },
+        "interval": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1024
+        },
+        "batches": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "confidence_allocation": {
+          "type": "object"
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "required": [
+        "schema",
+        "status",
+        "moments_status",
+        "cdf_status",
+        "moments_accepted",
+        "cdf_precision_pass",
+        "consistency_status",
+        "observables",
+        "final_assessment_performed"
+      ],
+      "properties": {
+        "schema": {
+          "const": "e1-d16a2-reference-v1"
+        },
+        "status": {
+          "enum": [
+            "MOMENTS_PRECISION_RESOLVED_NOMINAL",
+            "MOMENTS_PRECISION_UNRESOLVED",
+            "NUMERICAL_CONSISTENCY_FAILED",
+            "RESOURCE_FAILED",
+            "AUTHENTICATION_FAILED",
+            "EXECUTION_FAILED"
+          ]
+        },
+        "moments_status": {
+          "enum": [
+            "MOMENTS_PRECISION_RESOLVED_NOMINAL",
+            "MOMENTS_PRECISION_UNRESOLVED"
+          ]
+        },
+        "cdf_status": {
+          "enum": [
+            "CDF_PRECISION_RESOLVED_NOMINAL",
+            "CDF_PRECISION_UNRESOLVED"
+          ]
+        },
+        "moments_accepted": {
+          "type": "boolean"
+        },
+        "cdf_precision_pass": {
+          "type": "boolean"
+        },
+        "final_assessment_performed": {
+          "type": "boolean"
+        },
+        "consistency_status": {
+          "enum": [
+            "CONSISTENT_NOMINAL",
+            "NUMERICAL_CONSISTENCY_FAILED",
+            "NOT_ASSESSED"
+          ]
+        },
+        "observables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/observable"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "final_assessment_performed": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "observables": {
+                "minItems": 25,
+                "maxItems": 25
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "observables": {
+                "maxItems": 0
+              },
+              "moments_accepted": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "observable": {
+      "type": "object",
+      "required": [
+        "name",
+        "family",
+        "estimate",
+        "standard_error",
+        "batch_jackknife_standard_error",
+        "simultaneous_interval",
+        "half_width",
+        "required_precision_threshold",
+        "precision_decision"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "M",
+            "C"
+          ]
+        },
+        "estimate": {
+          "type": "number"
+        },
+        "standard_error": {
+          "type": "number"
+        },
+        "batch_jackknife_standard_error": {
+          "type": "number"
+        },
+        "half_width": {
+          "type": "number"
+        },
+        "simultaneous_interval": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "required_precision_threshold": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "precision_decision": {
+          "enum": [
+            "PASS",
+            "UNRESOLVED",
+            "ANALYTICAL_MEAN_DIAGNOSTIC"
+          ]
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "required": [
+        "schema",
+        "selected_count",
+        "selection_family",
+        "pilot_SE_multiplier",
+        "predictions"
+      ],
+      "properties": {
+        "schema": {
+          "const": "e1-d16a2-reference-v1"
+        },
+        "selected_count": {
+          "enum": [
+            null,
+            16384,
+            32768,
+            65536,
+            131072,
+            262144,
+            524288
+          ]
+        },
+        "selection_family": {
+          "const": "M_ONLY"
+        },
+        "pilot_SE_multiplier": {
+          "const": 2
+        },
+        "predictions": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6
+        }
+      }
+    },
+    "worker_result": {
+      "type": "object",
+      "required": [
+        "schema",
+        "status",
+        "moments_status",
+        "cdf_status",
+        "moments_accepted",
+        "actual_counts",
+        "selected_final_count",
+        "config",
+        "quantiles"
+      ],
+      "properties": {
+        "schema": {
+          "const": "e1-d16a2-worker-result-v1"
+        },
+        "status": {
+          "enum": [
+            "MOMENTS_PRECISION_RESOLVED_NOMINAL",
+            "MOMENTS_PRECISION_UNRESOLVED",
+            "NUMERICAL_CONSISTENCY_FAILED",
+            "RESOURCE_FAILED",
+            "AUTHENTICATION_FAILED",
+            "EXECUTION_FAILED"
+          ]
+        },
+        "moments_status": {
+          "enum": [
+            "MOMENTS_PRECISION_RESOLVED_NOMINAL",
+            "MOMENTS_PRECISION_UNRESOLVED"
+          ]
+        },
+        "cdf_status": {
+          "enum": [
+            "CDF_PRECISION_RESOLVED_NOMINAL",
+            "CDF_PRECISION_UNRESOLVED"
+          ]
+        },
+        "moments_accepted": {
+          "type": "boolean"
+        },
+        "actual_counts": {
+          "type": "object"
+        }
+      }
+    },
+    "completion": {
+      "type": "object",
+      "required": [
+        "schema",
+        "status",
+        "moments_status",
+        "cdf_status",
+        "error",
+        "files",
+        "supervised_wall_seconds",
+        "peak_host_rss_bytes"
+      ],
+      "properties": {
+        "schema": {
+          "const": "e1-d16a2-completion-v1"
+        },
+        "status": {
+          "enum": [
+            "MOMENTS_PRECISION_RESOLVED_NOMINAL",
+            "MOMENTS_PRECISION_UNRESOLVED",
+            "NUMERICAL_CONSISTENCY_FAILED",
+            "RESOURCE_FAILED",
+            "AUTHENTICATION_FAILED",
+            "EXECUTION_FAILED"
+          ]
+        },
+        "moments_status": {
+          "enum": [
+            "MOMENTS_PRECISION_RESOLVED_NOMINAL",
+            "MOMENTS_PRECISION_UNRESOLVED",
+            "NOT_ASSESSED"
+          ]
+        },
+        "cdf_status": {
+          "enum": [
+            "CDF_PRECISION_RESOLVED_NOMINAL",
+            "CDF_PRECISION_UNRESOLVED",
+            "NOT_ASSESSED"
+          ]
+        },
+        "files": {
+          "type": "object"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": [
+        "schema",
+        "execution_authorized",
+        "review_reference",
+        "root",
+        "readiness",
+        "configuration",
+        "environment",
+        "numerical",
+        "session",
+        "seed_audit",
+        "limits",
+        "kappas"
+      ],
+      "properties": {
+        "schema": {
+          "const": "e1-d16a2-reference-approval-v1"
+        },
+        "execution_authorized": {
+          "type": "boolean"
+        },
+        "review_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

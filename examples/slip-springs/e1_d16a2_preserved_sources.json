@@ -1,0 +1,14 @@
+{
+  "e1_d16a_local.py": "b512e9a868faf5ab0801cd2f18b590345c6618716b1f02cf2827094b99cb0afe",
+  "e1_d16a_sampling.py": "e4d0f36d65a22d41754d2c2dcce2cc690dd3a9c0e5045cbcc32c186aee96ce41",
+  "e1_d16a_reference.py": "843bff00044dd72fbcad748031145e60e486ad59d393580465986f703ec80b1f",
+  "tests/test_e1_d16a_local.py": "1140b6090966e1da7d6754b98c3ba93cbdfbdb1dd98738ee891c9ee42b081581",
+  "tests/test_e1_d16a_reference.py": "24b7fa60d93fc60aa7ab57f086ccf20d1de035c3dfb08ccc2cf9d7de630ca89b",
+  "E1_STAGE_D16A_LOCAL_EXECUTION_HANDOFF.md": "b83e3779cb351b2e05ffa932225a3aae48d5b03c4c9aa8eeaa5e082a8695be6f",
+  "E1_STAGE_D16A_IMPLEMENTATION_REPORT.md": "1ba7a9897c35fc1a9cb33a6296348c3b00fe3beef752d3431ddc671b41334a63",
+  "E1_STAGE_D16_REFERENCE_MOMENTS_V1.md": "fc610e1bd3badd2a42d3a7aaaaa075882b1d1241bfeba2ecd4cb054883501f73",
+  "E1_STAGE_D16_SCIENTIFIC_DESIGN_V1.md": "64e0c0d09472d93bf89ad66e53ecb912b4b74640dbaa448377f5d7ba308bfde1",
+  "E1_STAGE_D16_RESOURCE_PLAN_V1.md": "85ebe1d9c8a345d7be1687dbc45f5618418afff1a9cb89d0e00256e5489f24c1",
+  "semiflexible_reference.py": "a293806e16c4dcb58188ae680d852a487d5f3b95920222a2bb72b4aee8c17967",
+  "e1_d15_local.py": "fdf22cfb71c11bbcd8f2765a610a1c00614dfd46b272a4dd21a4c1010242a32c"
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "e1-d16a2-reference-v1",
+  "purpose": "independent CPU backbone reference ONLY",
+  "N": 32,
+  "b0": 1,
+  "kb": 30,
+  "kBT": 1,
+  "kappas": [
+    0,
+    10
+  ],
+  "dtype": "float64",
+  "generator": "NumPy PCG64",
+  "seed_namespace": 721612000,
+  "excluded_seed_namespaces": [
+    721610000
+  ],
+  "seed_entropy": "[721612000,kappa,phase,batch_index]",
+  "phase_ids": {
+    "calibration": 1,
+    "sizing_pilot": 2,
+    "final_reference": 3
+  },
+  "batch_size": 512,
+  "calibration_count": 65536,
+  "pilot_count": 8192,
+  "final_grid": [
+    16384,
+    32768,
+    65536,
+    131072,
+    262144,
+    524288
+  ],
+  "maximum_draws_per_kappa": 598016,
+  "alpha": 0.05,
+  "M_alpha": 0.025,
+  "C_alpha": 0.025,
+  "M_family_size_across_kappas": 14,
+  "C_family_size_across_kappas": 36,
+  "pilot_SE_multiplier": 2,
+  "selection_family": "M_ONLY",
+  "relative_half_width": 0.05,
+  "cdf_half_width": 0.005,
+  "quantile_probabilities": [
+    0.01,
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95,
+    0.99
+  ],
+  "sampler_sha256": "a293806e16c4dcb58188ae680d852a487d5f3b95920222a2bb72b4aee8c17967",
+  "limits": {
+    "batch_seconds": 30,
+    "stiffness_seconds": 1200,
+    "rss_bytes": 1073741824,
+    "output_bytes": 16777216
+  },
+  "no_resume": true,
+  "no_automatic_retry": true,
+  "GPU_campaign_authorized": false,
+  "prior_evidence_policy": "immutable; no old sampling data used in any phase or estimate"
+}
