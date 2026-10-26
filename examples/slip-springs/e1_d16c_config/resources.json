@@ -1,0 +1,31 @@
+{
+  "GPU_authorized": false,
+  "audit": {
+    "min_free_disk_bytes": 2147483648,
+    "output_bytes": 536870912,
+    "rss_bytes": 4294967296,
+    "seconds": 3600
+  },
+  "existing": {
+    "min_free_disk_bytes": 2147483648,
+    "output_bytes": 201326592,
+    "rss_bytes": 4294967296,
+    "seconds": 1800
+  },
+  "json_decompressed_max_chars": 1610612736,
+  "metadata_max_bytes": 16777216,
+  "payload_max_bytes": 67108864,
+  "return": {
+    "min_free_disk_bytes": 2147483648,
+    "output_bytes": 201326592,
+    "rss_bytes": 4294967296,
+    "seconds": 900
+  },
+  "schema": "e1-d16c-resource-contract-v1",
+  "tests": {
+    "min_free_disk_bytes": 1073741824,
+    "output_bytes": 67108864,
+    "rss_bytes": 1073741824,
+    "seconds": 120
+  }
+}

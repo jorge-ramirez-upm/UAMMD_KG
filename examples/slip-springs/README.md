@@ -333,6 +333,12 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D1.6C has a separate [read-only repair and audit guide](E1_STAGE_D16C_OPERATOR_GUIDE.md).
+It returns the saved D1.6B analysis intact and gates secondary diagnostics behind
+independent review. Do not rerun the original D1.6B `results` command for this repair.
+No D1.6C test, repackaging, build or analysis was executed in Codex.
+
+
 D1.6B T100 exploratory preparation has a separate
 [local readiness/execution/results guide](E1_STAGE_D16B_OPERATOR_GUIDE.md).
 Use `/home/jramirez/UAMMD_KG-slip-springs-dev`; its new candidate manifest grants

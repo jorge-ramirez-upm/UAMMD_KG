@@ -1,0 +1,88 @@
+{
+  "acf_metrics": [
+    "re2",
+    "rg2",
+    "spatial_var_re2",
+    "connector_e2",
+    "A_joint",
+    "B_joint",
+    "population_variance"
+  ],
+  "acf_segments": [
+    [
+      "0",
+      "100"
+    ],
+    [
+      "50",
+      "100"
+    ]
+  ],
+  "connector_CDF_probabilities": [
+    0.01,
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95,
+    0.99
+  ],
+  "multiplicity_qualification": "Same-data post-selection: neither pointwise nor nominal Bonferroni sensitivity establishes controlled post-selection FWER.",
+  "no_new_campaign": true,
+  "no_replica_exclusion": true,
+  "nominal_multiplicity_sensitivity_size": 6,
+  "occupancy_strata": [
+    [
+      1,
+      5
+    ],
+    [
+      6,
+      9
+    ],
+    [
+      10,
+      33
+    ]
+  ],
+  "post_selection_exploratory": true,
+  "primary_contrasts": [
+    "A_late_spatial_variance_minus_exact",
+    "A_spatial_variance_late_minus_early",
+    "B_connector_e2_late_minus_early",
+    "B_fixed_weight_connector_late_minus_early",
+    "C_A_joint_coarse_minus_fine_late",
+    "C_A_joint_change_contrast"
+  ],
+  "schema": "e1-d16c-secondary-audit-v1",
+  "scientific_acceptance": null,
+  "trajectory_alpha": 0.025,
+  "windows": {
+    "early": [
+      "0",
+      "10"
+    ],
+    "early_wide": [
+      "0",
+      "20"
+    ],
+    "late": [
+      "90",
+      "100"
+    ],
+    "late_wide": [
+      "80",
+      "100"
+    ],
+    "middle": [
+      "40",
+      "50"
+    ],
+    "middle_wide": [
+      "40",
+      "60"
+    ]
+  }
+}

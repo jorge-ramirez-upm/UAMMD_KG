@@ -1,0 +1,91 @@
+{
+  "analysis": "analysis-1793017379881834465/analysis.json.gz",
+  "analysis_identity": {
+    "bytes": 28386811,
+    "sha256": "04570c0ccb3b06df0f9be265a2bde602f1c2dcce59c474af963ca8634a17652f"
+  },
+  "completion_sha256": "afde6f5e10d41cc02b6b1ebcc91a8ac03dc806044aa3d60d797831caf4056b68",
+  "files": {
+    "analysis-1793017379881834465/analysis-result.json": {
+      "bytes": 1662,
+      "sha256": "5ca6e56c8adecbe1848d5a2d76450d6f66af05eed20c7e79073bd06e5c92713c"
+    },
+    "analysis-1793017379881834465/process.json": {
+      "bytes": 111,
+      "sha256": "491ec8668d4ac39c289c3fe2d6947d44c62c308a44e6d6f73729278fefad2fba"
+    },
+    "approval-template.json": {
+      "bytes": 1847,
+      "sha256": "dc00b29cc3fd62e6fceef141000c4048c32063db258dedb42dad5bad598c7036"
+    },
+    "campaign/approval.json": {
+      "bytes": 2096,
+      "sha256": "84e4ab401159d93e0a55020ba85498c907f9a2cc1c70cbb23a2f5f5633936b64"
+    },
+    "campaign/build.json": {
+      "bytes": 400031,
+      "sha256": "2ca6541ffd7c5bc205a207ee0f465276e7a357c8c8783d6d466963e557a5f6a8"
+    },
+    "campaign/campaign.json": {
+      "bytes": 7620,
+      "sha256": "3f9e9199497588127dfae129d3262f7daf60ec22aeefc301094094b545dcd39a"
+    },
+    "campaign/campaign_complete.json": {
+      "bytes": 1923,
+      "sha256": "afde6f5e10d41cc02b6b1ebcc91a8ac03dc806044aa3d60d797831caf4056b68"
+    },
+    "campaign/manifest.json": {
+      "bytes": 34494,
+      "sha256": "d43e9c9f5d414ed1423f311c818b529ca129b2948b2296de2a2b1158ccab56a1"
+    },
+    "campaign/status.json": {
+      "bytes": 503,
+      "sha256": "ba662f4b2eef694b5056917162a2df8d055233a1563cedf2f8fc099f325f38ff"
+    },
+    "candidate-manifest.json": {
+      "bytes": 34494,
+      "sha256": "d43e9c9f5d414ed1423f311c818b529ca129b2948b2296de2a2b1158ccab56a1"
+    },
+    "environment.json": {
+      "bytes": 214436,
+      "sha256": "0834db4ef1de766dcac51575135510a885183ffadc32e21377a9f954a7f7ef46"
+    },
+    "execution-result.json": {
+      "bytes": 256,
+      "sha256": "695df4d34f970cb8c322b3193eb049dab18acb677d66e2a361b9994e9f414cec"
+    },
+    "launch.json": {
+      "bytes": 458,
+      "sha256": "17dbc71b9d67cb83d52b1cee7ea93ec707652e9a1ba69042bcff4159abf053e4"
+    },
+    "preflight.json": {
+      "bytes": 2255,
+      "sha256": "a039b07f817205f54b6fc6615680f08e8e2ce48280123891d69c989b3166912e"
+    },
+    "readiness.json": {
+      "bytes": 9280,
+      "sha256": "56848a2cd81a25bc70b8670b92e9a553c2df84bdb35a2534354daedca29b4abd"
+    },
+    "references.json": {
+      "bytes": 158238,
+      "sha256": "9e3157cbe3b520cf814aba2657d11be7a1ae2910c5e3df2f380b55680448c282"
+    },
+    "resource-amendment.json": {
+      "bytes": 1092,
+      "sha256": "640455213269a1c680e8c1468cfbef7a34a8f3500b5e6fe0fef3cbca1af42987"
+    },
+    "results-1793017379881834465.json": {
+      "bytes": 1696,
+      "sha256": "a98274071f64ee367e73d4996a67406db2fd4e8b76324ff76ce562c6bf68a373"
+    },
+    "session.json": {
+      "bytes": 5137,
+      "sha256": "f8de155f59f122677411bc6c0ae7786bae5dad83268cb8748c79078e2637bc82"
+    }
+  },
+  "recorded_result": "results-1793017379881834465.json",
+  "review_basis": "User D1.6C instruction and recorded original metadata; local full authentication remains required.",
+  "root": "/home/jramirez/UAMMD_KG-evidence/d16b/d16b-readiness-vjzdjbjn",
+  "schema": "e1-d16c-original-evidence-lock-v1",
+  "source_commit": "0f46ad6781cf48d6945b055b864b67f63b17e325"
+}
