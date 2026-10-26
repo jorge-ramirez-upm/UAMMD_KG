@@ -442,3 +442,48 @@ may fluctuate. Preserve accepted disabled paths, backbone kernels, RNG domains,
 stress prohibition, source-hash safeguards and serial event scheduling. No
 independent constraint release, deformation, stress/rheology observables, long
 campaign or terminal/timestep/ergodicity acceptance is authorized.
+
+## Persistent workspace and filesystem policy — mandatory
+
+This project is developed on Linux systems that may be rebooted or shut down for maintenance or power interruptions.
+
+**Never use `/tmp`, `/var/tmp`, or another automatically cleaned temporary directory for any persistent project resource.**
+
+This prohibition includes:
+
+- Git clones and development worktrees.
+- Source-code modifications intended to be committed.
+- Build directories and build artifacts needed across sessions.
+- Scientific tests and test fixtures that must be retained.
+- Simulation runs and scientific evidence.
+- Checkpoints, approval records, manifests and execution logs.
+- Virtual environments and persistent dependency installations.
+- Scripts or data required by later development stages.
+
+Use these persistent locations:
+
+- Main Git checkout: `/home/jramirez/UAMMD_KG`
+- Development worktree: `/home/jramirez/UAMMD_KG-slip-springs-dev`
+- Scientific evidence: `/home/jramirez/UAMMD_KG-evidence/`
+
+Create further persistent worktrees, if necessary, under `/home/jramirez/`, never under `/tmp`.
+
+Temporary directories may be used only for genuinely disposable intermediate files whose loss would not affect reproducibility, source recovery, tests, approvals, or subsequent work.
+
+If a tool defaults to `/tmp` for persistent project work, explicitly override the default.
+
+Before creating a worktree or evidence directory, verify its location and intended lifetime.
+
+Never assume a directory under `/tmp` survives a reboot.
+
+Do not relocate, delete or overwrite scientific evidence without explicit user approval.
+
+### Execution responsibility
+
+Codex may inspect code, implement changes, prepare tests and scripts, write documentation, and commit/push authorized source changes.
+
+**Codex must not execute builds, tests, benchmarks, numerical-reference sampling, GPU simulations, or scientific analysis jobs unless the user explicitly authorizes that particular execution.**
+
+The user performs scientific computations locally and returns authenticated evidence for independent review.
+
+Keep all slip-spring project modifications inside `examples/slip-springs/`, except for an explicitly authorized repository-level `AGENTS.md` update.
