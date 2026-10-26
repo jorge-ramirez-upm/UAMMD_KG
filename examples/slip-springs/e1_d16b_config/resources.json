@@ -1,0 +1,29 @@
+{
+  "analysis_limits": {
+    "output_bytes": 268435456,
+    "rss_bytes": 4294967296,
+    "seconds": 7200
+  },
+  "execution_authorized": false,
+  "initial_disk_policy": "maintain disk floor plus two whole cohort quotas before launch (18 GiB)",
+  "limits": {
+    "aggregate_output_bytes": 4294967296,
+    "aggregate_seconds": 14400,
+    "max_host_rss_bytes": 2147483648,
+    "min_available_host_bytes": 8589934592,
+    "min_free_disk_bytes": 10737418240,
+    "min_free_gpu_bytes": 4294967296,
+    "per_run_output_bytes": 268435456,
+    "per_run_seconds": 600
+  },
+  "original_validators": "unchanged; this is an independently versioned contract, no D1.5 approval carries over",
+  "per_run_scope": "600 seconds includes child and output authentication; aggregate 14400 includes supervision, repeated source/environment/reference authentication and final cohort authentication",
+  "readiness_commands_seconds": {
+    "build": 480,
+    "performance_authentication": 900,
+    "reference_authentication": 600,
+    "tests": 120,
+    "tiny_gpu": 120
+  },
+  "schema": "e1-d16b-resource-amendment-v1"
+}

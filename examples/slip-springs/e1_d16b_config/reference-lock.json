@@ -1,0 +1,116 @@
+{
+  "files": {
+    "approval-template.json": {
+      "bytes": 1169,
+      "sha256": "8d8940b285d1fec5b136af8a2e8b1451d4acfe1c90c23f16ecc8ea5fc56d71a0"
+    },
+    "config.json": {
+      "bytes": 1430,
+      "sha256": "bfb3e82d794bb06507e7c070b563dc929efb72b7b2b8f951b100262a86c889da"
+    },
+    "environment.json": {
+      "bytes": 209593,
+      "sha256": "f2c0f65d5e121d5d58e73aac84a7fa5fbf3fe2239464ca99e2868a9cbdff3824"
+    },
+    "independent-decisions/d16a2-reference-approved.json": {
+      "bytes": 1414,
+      "sha256": "2446a82c58c81a80ea03dc4f326913efede9678be6b68b49bb7a8737179b5615"
+    },
+    "kappa-0/assessment.json": {
+      "bytes": 11887,
+      "sha256": "f5d6d072afd6db7ba68f6c73162c95c870728d2fcaf3ac673d505499608fb0b7"
+    },
+    "kappa-0/completion.json": {
+      "bytes": 3448,
+      "sha256": "b9b1a0e62aa97544ff6245b645d336ad81f83b2cd551b4296ab29c1ad9ad29ab"
+    },
+    "kappa-0/final-inference.json": {
+      "bytes": 40116,
+      "sha256": "561e0bd15a2e7d36d2809858dd79e1edcbb896c4f1471b752b572eefeb7c56f0"
+    },
+    "kappa-0/launch.json": {
+      "bytes": 764,
+      "sha256": "353dcc61420110aa7cbfd4c67dcd133472db42e11543544ad28d651e25bee19e"
+    },
+    "kappa-0/quantiles.json": {
+      "bytes": 4761,
+      "sha256": "e89bb0df262fcf9b1ad9bf0f023e0b3cb10fa7e01c42678344c561332ad0b20e"
+    },
+    "kappa-0/reviewed-approval.json": {
+      "bytes": 1414,
+      "sha256": "2446a82c58c81a80ea03dc4f326913efede9678be6b68b49bb7a8737179b5615"
+    },
+    "kappa-0/selection.json": {
+      "bytes": 2111,
+      "sha256": "da0744cabccef9cde83ba9ec4d70f39313c3b42456c3653ecfaa255ef04c3b5d"
+    },
+    "kappa-0/worker-result.json": {
+      "bytes": 964,
+      "sha256": "4ce6d6546e892ad6a45454f71add3c6c862005e4dd4cf54d71afc2d7ee00b7c9"
+    },
+    "kappa-10/assessment.json": {
+      "bytes": 11781,
+      "sha256": "bac5a259c080548ed96629d4aecba8687924ab67e8c80170430d67802296022f"
+    },
+    "kappa-10/completion.json": {
+      "bytes": 3442,
+      "sha256": "02191c8ce89669f87c38344d51bed5a21c7e489af75be8775d6fb5fe2137aa5c"
+    },
+    "kappa-10/final-inference.json": {
+      "bytes": 39424,
+      "sha256": "1277200d9718641fad04f8295de1c518d73a627cff293395570a1bf42890f97d"
+    },
+    "kappa-10/launch.json": {
+      "bytes": 766,
+      "sha256": "df77b8b4a3ef4f1ec5d55beb532ba930d4a602ebae125d5e74539e88cb215fe7"
+    },
+    "kappa-10/quantiles.json": {
+      "bytes": 4759,
+      "sha256": "fde59defd88a97fbf6cda33d3747f28c5d3ee110e3d7231c9cfd29049882600f"
+    },
+    "kappa-10/reviewed-approval.json": {
+      "bytes": 1414,
+      "sha256": "2446a82c58c81a80ea03dc4f326913efede9678be6b68b49bb7a8737179b5615"
+    },
+    "kappa-10/selection.json": {
+      "bytes": 2094,
+      "sha256": "e53976f941e8ccda86c381e593fb23cb0f51187dea22c0cec1fed5ae18822e81"
+    },
+    "kappa-10/worker-result.json": {
+      "bytes": 985,
+      "sha256": "bc18e06da74b73d6b4334eacb05181ddc15d22f3f1247366725434568cef9339"
+    },
+    "numerical.json": {
+      "bytes": 3950,
+      "sha256": "d5e8d647d498ebb73710b61de7edac46b1557b7bf9f3aea3fbe41bf83ed9c8ba"
+    },
+    "readiness.json": {
+      "bytes": 88,
+      "sha256": "9ee0eff60749f06e058b1b0aa8850c141751e8f753e8090151ec16935ed33abc"
+    },
+    "results-1793010382991170331.json": {
+      "bytes": 484,
+      "sha256": "dac3c9435f8569c88e206cb20f2efccc0eff451502fc1bbba4b48ccef192c2d5"
+    },
+    "returns/d16a2-results-return-20261026T102625782777Z.tar.gz": {
+      "bytes": 537973,
+      "sha256": "cf8c4e57ecdf40927c24deb4184f76d9af1716d67e6bd06efe55d74e85a5bd3b"
+    },
+    "returns/d16a2-results-return-20261026T102625782777Z.tar.gz.sha256": {
+      "bytes": 117,
+      "sha256": "77d0ba893b2edee7343bbdb7eb722f936a1442584819f89a018bec68c3f45aa7"
+    },
+    "seed-audit.json": {
+      "bytes": 298,
+      "sha256": "172cb99d8c2eb0096e35f0496bec57ae1dcf0152c6342c3221fb0efd682267ff"
+    },
+    "session.json": {
+      "bytes": 3620,
+      "sha256": "db3f657f984a5d80517673988a7a56288599f55d0dc51e2f446335f0b7ef6eb4"
+    }
+  },
+  "review_basis": "User Stage D1.6B instruction: both M families nominally accepted; stiff CDF precision unresolved; preparation pins require local full authentication.",
+  "root": "/home/jramirez/UAMMD_KG-evidence/d16a2/d16a2-readiness-n_c9fret",
+  "schema": "e1-d16b-reviewed-reference-lock-v1",
+  "source_commit": "e533e0412476c3e98875d9518afae42d75273928"
+}

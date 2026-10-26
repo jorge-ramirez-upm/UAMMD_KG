@@ -1,0 +1,62 @@
+{
+  "new_measurements": false,
+  "records": [
+    {
+      "approval_sha256": "2f3499e55e6e39a14b9c13519aa7cb75a653795632af82951323d792f148c646",
+      "campaign_root": "/home/jramirez/UAMMD_KG-evidence/d15/readiness-35puhn4y/benchmark-campaign",
+      "completion_sha256": "a55b694877e84decfa59d34598bc3bf6dfed3af61c4cb99ab34c3ea6fef57159",
+      "files": {
+        "benchmark-launch.json": {
+          "bytes": 399,
+          "sha256": "db0501cae85abdb00016a87c7b4cfbc38a81b10ca74b9f8e1061901f417a6d87"
+        },
+        "benchmark-result.json": {
+          "bytes": 207,
+          "sha256": "6643f4aa0ab34cc84968ce974c23974fe92186b1f06a0450675b6b431b540184"
+        },
+        "benchmark-summary-20261022T143913608820Z.json": {
+          "bytes": 37126,
+          "sha256": "9509353bc78c0d5c9f45f1b73e71de98935b94af504e577a90671a4c57b88b1c"
+        },
+        "benchmark-summary-20261022T143913608820Z.receipt.json": {
+          "bytes": 474,
+          "sha256": "f7b23a7f982b10cec77464b6e1974dbf3bd3c3e1114e9544481a76dfdefb082e"
+        }
+      },
+      "kind": "benchmark",
+      "manifest": "/home/jramirez/UAMMD_KG-evidence/d15/readiness-35puhn4y/preparation/examples/slip-springs/e1_d15_config/benchmark/manifest.json",
+      "manifest_sha256": "4c6805221db1ddf3d3ffaa6ae62f2f890150b6c967214be97642546941454dc9",
+      "report": "benchmark-summary-20261022T143913608820Z.json",
+      "session_root": "/home/jramirez/UAMMD_KG-evidence/d15/readiness-35puhn4y"
+    },
+    {
+      "approval_sha256": "02504cdc46db290c582d1298aa93a686b7b8bd025900b886091859de1b40d97e",
+      "campaign_root": "/home/jramirez/UAMMD_KG-evidence/d15/pilot-readiness-07m0opzd/pilot-campaign",
+      "completion_sha256": "0adc4422462290c8aa97ef7f67cb28284da85767db4a5283b510730295fd430d",
+      "files": {
+        "pilot-launch.json": {
+          "bytes": 401,
+          "sha256": "8b90aa4e53e8f9fba997e99c1f16bf139f634f6c5cf269a1d9ed3c17972c7f91"
+        },
+        "pilot-result.json": {
+          "bytes": 209,
+          "sha256": "5e3545b8afbb26d0c4c1bb1d0aa384751249425cbe7c99b638e027234b563fa0"
+        },
+        "pilot-summary-20261022T152928477645Z.json": {
+          "bytes": 37190,
+          "sha256": "1448d5e83d0d5f52f0b730ffadbdb3ad0ecfc1d433fe4ace85ddcbeea7c5fb83"
+        },
+        "pilot-summary-20261022T152928477645Z.receipt.json": {
+          "bytes": 476,
+          "sha256": "575c89b1741d88f81b8301e867a4a3c7ef2d971d7b8dc1d9432340abcbaa9e88"
+        }
+      },
+      "kind": "pilot",
+      "manifest": "/home/jramirez/UAMMD_KG-evidence/d15/pilot-readiness-07m0opzd/preparation/examples/slip-springs/e1_d15_config/pilot/manifest.json",
+      "manifest_sha256": "05f7f06141899d139b9e3fda3f740c92b0fe2b6894b280434ffe48b04c643c69",
+      "report": "pilot-summary-20261022T152928477645Z.json",
+      "session_root": "/home/jramirez/UAMMD_KG-evidence/d15/pilot-readiness-07m0opzd"
+    }
+  ],
+  "schema": "e1-d16b-performance-lock-v1"
+}

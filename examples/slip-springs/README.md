@@ -333,6 +333,12 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D1.6B T100 exploratory preparation has a separate
+[local readiness/execution/results guide](E1_STAGE_D16B_OPERATOR_GUIDE.md).
+Use `/home/jramirez/UAMMD_KG-slip-springs-dev`; its new candidate manifest grants
+no execution approval. Codex has not run its tests, builds or preflights.
+The accepted simulator and the existing build/example commands below are unchanged.
+
 For user-run Phase B execution, analysis and the exact files to return, follow
 [the manual host guide](E1_STAGE_D14_PHASE_B_OPERATOR_GUIDE.md). Its separate
 handoff helper does not run anything without an explicit subcommand. It was
