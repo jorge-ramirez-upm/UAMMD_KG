@@ -1,0 +1,29 @@
+"""Final CPU suite: reuse V2 tests with an in-dataset temporary dormant-registry fixture."""
+from pathlib import Path
+import runpy
+import tempfile
+import unittest
+import copy
+
+T = runpy.run_path(str(Path(__file__).with_name('TEST_ACTIVATION_V2.txt')))
+F, c = T['F'], T['c']
+
+
+class FinalTests(T['ActivationTests']):
+    def test_stale_approval_and_incompatible_registry_reject(self):
+        h = self.rows[0]
+        authority = copy.deepcopy(self.authority)
+        authority['approval_sha256'][h['approval']] = 'stale'
+        with self.assertRaises(ValueError):
+            F['A']['authenticate'](dict(h, approval_sha256=c.sha256(Path(h['approval']))), authority)
+        with tempfile.TemporaryDirectory() as name:
+            path = Path(name) / 'dormant.json'
+            path.write_text('{"schema_version":1,"stage":"E2_prepared_registry"}')
+            authority = dict(self.authority, dataset_root=name,
+                active_registry=str(path), active_registry_sha256=c.sha256(path))
+            with self.assertRaisesRegex(ValueError, 'bad active'):
+                F['A']['authenticate'](dict(h, approval_sha256=c.sha256(Path(h['approval']))), authority)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
