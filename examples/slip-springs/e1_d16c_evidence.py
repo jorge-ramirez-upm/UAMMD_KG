@@ -19,6 +19,20 @@ def verify_file(path,record):
     require(file_record(path)==record,'missing/corrupt evidence: '+str(path))
 
 
+def archived_manifest(root,expected_sha):
+    """Use the pinned preparation layout; archived campaign files stay untouched."""
+    import e1_d16b_local as original_control
+    import e1_d16b_spec as original_spec
+    _,project=original_control.checked(root)
+    path=project/'e1_d16b_config/manifest.json'
+    manifest=original_spec.validate_manifest(path,expected_sha)
+    verify_file(root/'campaign/manifest.json',file_record(path))
+    for name,record in manifest['schedules'].items():
+        verify_file(root/'campaign/config'/name,
+            {'bytes':len(original_spec.schedule_text(record['steps'])),'sha256':record['sha256']})
+    return path
+
+
 def verify_lock():
     lock=spec.original();root=Path(lock['root'])
     require(root==spec.durable(root),'original root moved')
@@ -50,7 +64,7 @@ def authenticate():
     session,_=original_control.checked(root)
     require(session['commit']==lock['source_commit'],'wrong archived scientific-analysis source')
     launch=load(root/'launch.json')
-    manifest,items=original_auth.authenticate_campaign(root/'campaign',root/'campaign/manifest.json',
+    manifest,items=original_auth.authenticate_campaign(root/'campaign',archived_manifest(root,session['manifest']['sha256']),
         session['manifest']['sha256'],launch['approval_sha256'],lock['completion_sha256'])
     require(len(items)==16,'incomplete original cohort')
     references=import_moments()

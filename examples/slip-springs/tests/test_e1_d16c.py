@@ -84,10 +84,12 @@ class EvidenceTests(unittest.TestCase):
             root=Path(tmp);session={'commit':'fixture','manifest':{'sha256':'fixture'}}
             with patch.object(evidence,'verify_lock',return_value=({'source_commit':'fixture','completion_sha256':'fixture'},root)), \
                     patch.object(old_control,'checked',return_value=(session,root)), \
+                    patch.object(evidence,'archived_manifest',return_value=root/'pinned/manifest.json'), \
                     patch.object(evidence,'load',return_value={'approval_sha256':'fixture'}), \
-                    patch.object(old_auth,'authenticate_campaign',return_value=({},[{}]*15)), \
+                    patch.object(old_auth,'authenticate_campaign',return_value=({},[{}]*15)) as campaign, \
                     patch.object(old_reference,'import_moments') as references:
                 with self.assertRaisesRegex(ValueError,'incomplete original cohort'):evidence.authenticate()
+                campaign.assert_called_once_with(root/'campaign',root/'pinned/manifest.json','fixture','fixture','fixture')
                 references.assert_not_called()
 
     def test_oversize_metadata_fails_without_truncating_the_payload(self):
@@ -173,6 +175,63 @@ class EvidenceTests(unittest.TestCase):
                 self.assertEqual(process.call_args.args[2]['CUDA_VISIBLE_DEVICES'],'')
         for path in ('/tmp/retained','/var/tmp/evidence'):
             with self.assertRaises(ValueError):spec.durable(path)
+
+
+class ArchivedManifestTests(unittest.TestCase):
+    def layout(self,root):
+        # Frozen configuration only: no approval, completion or scientific output.
+        source=spec.PROJECT/'e1_d16b_config'
+        project=root/'preparation/examples/slip-springs'
+        pinned=project/'e1_d16b_config';pinned.mkdir(parents=True)
+        archived=root/'campaign';(archived/'config').mkdir(parents=True)
+        manifest=spec.load(source/'manifest.json')
+        for name in ('manifest.json',*manifest['schedules']):
+            body=(source/name).read_bytes();(pinned/name).write_bytes(body)
+            (archived/('manifest.json' if name=='manifest.json' else 'config/'+name)).write_bytes(body)
+        (root/'other-evidence.txt').write_text('constructed immutable evidence sentinel')
+        return project,spec.digest(pinned/'manifest.json'),manifest
+
+    def test_archived_config_layout_and_pinned_validation_preserve_every_file(self):
+        import e1_d16b_local as old_control
+        import e1_d16b_spec as old_spec
+        with fixture() as tmp:
+            root=Path(tmp);project,sha,manifest=self.layout(root)
+            before=local.tree_records(root)
+            self.assertFalse((root/'campaign/dt0.0001.scalar.steps').exists())
+            with self.assertRaises(FileNotFoundError):old_spec.validate_manifest(root/'campaign/manifest.json',sha)
+            with patch.object(old_control,'checked',return_value=({},project)):
+                path=evidence.archived_manifest(root,sha)
+            self.assertEqual(path,project/'e1_d16b_config/manifest.json')
+            self.assertEqual(old_spec.validate_manifest(path,sha),manifest)
+            for name,record in manifest['schedules'].items():
+                archived=root/'campaign/config'/name
+                self.assertEqual(archived.read_bytes(),(path.parent/name).read_bytes())
+                self.assertEqual(spec.digest(archived),record['sha256'])
+            self.assertEqual(local.tree_records(root),before)
+
+    def test_every_archived_schedule_rejects_corruption_and_missing_files(self):
+        import e1_d16b_local as old_control
+        for name in spec.load(spec.PROJECT/'e1_d16b_config/manifest.json')['schedules']:
+            for missing in (False,True):
+                with self.subTest(schedule=name,missing=missing),fixture() as tmp:
+                    root=Path(tmp);project,sha,_=self.layout(root);path=root/'campaign/config'/name
+                    if missing:path.unlink()
+                    else:path.write_bytes(path.read_bytes()+b'1\n')
+                    before=local.tree_records(root)
+                    with patch.object(old_control,'checked',return_value=({},project)):
+                        with self.assertRaises((OSError,ValueError)):evidence.archived_manifest(root,sha)
+                    self.assertEqual(local.tree_records(root),before)
+
+    def test_modified_archived_or_pinned_manifest_is_rejected_without_writes(self):
+        import e1_d16b_local as old_control
+        for archived in (False,True):
+            with self.subTest(archived=archived),fixture() as tmp:
+                root=Path(tmp);project,sha,_=self.layout(root)
+                path=(root/'campaign' if archived else project/'e1_d16b_config')/'manifest.json'
+                path.write_bytes(path.read_bytes()+b'\n');before=local.tree_records(root)
+                with patch.object(old_control,'checked',return_value=({},project)):
+                    with self.assertRaises(ValueError):evidence.archived_manifest(root,sha)
+                self.assertEqual(local.tree_records(root),before)
 
 
 class ScientificFixtureTests(unittest.TestCase):

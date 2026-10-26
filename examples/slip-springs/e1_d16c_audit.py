@@ -13,7 +13,7 @@ import e1_d16c_spec as spec
 from e1_d1_pilot import require, load, encoded, file_record
 from e1_observer_check import Rows
 from e1_d14_phase_b_analysis import rates_between, time_key
-from e1_d16c_evidence import authenticate, analysis_metadata, verify_lock
+from e1_d16c_evidence import authenticate, analysis_metadata, verify_lock, archived_manifest
 from e1_d16b_analysis import canonical_population
 
 
@@ -387,7 +387,7 @@ def audit(output,authentication_path):
     require(authentication==load(authentication_path),'Stage A original authentication identity changed')
     lock,root=verify_lock();protocol=load(spec.CONFIG/'protocol.json')
     launch=load(root/'launch.json');session=load(root/'session.json')
-    manifest,items=old_auth.authenticate_campaign(root/'campaign',root/'campaign/manifest.json',session['manifest']['sha256'],
+    manifest,items=old_auth.authenticate_campaign(root/'campaign',archived_manifest(root,session['manifest']['sha256']),session['manifest']['sha256'],
         launch['approval_sha256'],lock['completion_sha256'])
     references=import_moments()
     replicas=[reduce_replica(item['root'],item['run'],references['cases'][str(item['run']['kappa'])],protocol) for item in items]
