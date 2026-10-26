@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_activation_20261026/DRIVER_V2.txt", line 176, in <module>
+    main()
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_activation_20261026/DRIVER_V2.txt", line 146, in main
+    authority, rows = load()
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_activation_20261026/DRIVER_V2.txt", line 116, in load
+    authority, rows = G['load_authority'](INDEX)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_launch_validation_20261023/DRIVER.txt", line 101, in load_authority
+    A['authenticate'](h, authority)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_launch_validation_20261023/ADAPTER.txt", line 87, in authenticate
+    return authenticated_sources(authority)
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/production_launch_validation_20261023/ADAPTER.txt", line 30, in authenticated_sources
+    e2.clean_tree()
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/campaign/kg_assoc_e2.py", line 85, in clean_tree
+    require(not subprocess.check_output(['git', 'status', '--porcelain'],
+  File "/home/jramirez/UAMMD_KG/examples/KG_Assoc/analysis/analyze_c1_e2_pilot.py", line 39, in require
+    raise ValueError(message)
+ValueError: commit source changes before preparing or launching MD

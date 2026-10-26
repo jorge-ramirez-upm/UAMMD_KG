@@ -29,7 +29,7 @@ Read-only preflight, status and complete preservation audit:
 ```bash
 timeout 600 python3 examples/KG_Assoc/reviews/production_activation_20261026/DRIVER_V2.txt --check
 timeout 600 python3 examples/KG_Assoc/reviews/production_activation_20261026/DRIVER_V2.txt --status
-timeout 600 python3 examples/KG_Assoc/reviews/production_activation_20261026/VERIFY.txt
+timeout 600 python3 examples/KG_Assoc/reviews/production_activation_20261026/VERIFY_FINAL.txt
 df -h /home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m
 ```
 
@@ -55,7 +55,7 @@ lag/count grid and Correlator6(40,16,2) every-step sampling remain unchanged.
 Monitor from another terminal with the read-only `--status` command above. Native
 progress is in each exact output directory's stdout.log/stderr.log; do not edit
 these files. Native-finished status is a hold until independent validation succeeds.
-After launch exits, repeat `--check`, `--status` and VERIFY.txt. Completion requires
+After launch exits, repeat `--check`, `--status` and VERIFY_FINAL.txt. Completion requires
 45 `validated_complete` or `recovered_complete` statuses and zero prepared histories.
 The verifier reauthenticates receipts, native journals and every output payload.
 

@@ -1,0 +1,35 @@
+"""Final focused CPU suite, permitting only the resolver's authenticated CPU-only probe."""
+from pathlib import Path
+import runpy
+import unittest
+
+D = Path(__file__).resolve().parent
+T = runpy.run_path(str(D / 'TEST_FINAL.txt'))
+F = T['F']
+B = runpy.run_path(str(D / 'CPU_GUARD.txt'))
+
+
+class CertifiedTests(T['FinalTests']):
+    def test_git_only_readonly_driver_check_and_status(self):
+        original = B['guard']()
+        try:
+            authority, rows = F['load']()
+            states, free = F['preflight'](authority, rows)
+            self.assertEqual(states, ['prepared'] * 45)
+            self.assertGreaterEqual(free, F['MINIMUM_FREE_BYTES'])
+        finally:
+            F['G']['subprocess'].Popen = original
+
+    def test_guard_forbids_production_and_arbitrary_native_commands(self):
+        original = B['guard']()
+        try:
+            for command in ([self.rows[0]['command'][0], '--readback-call-path-info'],
+                            self.rows[0]['command'], ['sh', '-c', 'true']):
+                with self.subTest(command=command), self.assertRaises(ValueError):
+                    F['G']['subprocess'].run(command)
+        finally:
+            F['G']['subprocess'].Popen = original
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

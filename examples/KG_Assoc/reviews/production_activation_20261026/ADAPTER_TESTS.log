@@ -1,0 +1,9 @@
+CPU fixture invocations on 2026-10-26; no GPU or MD execution.
+
+timeout 600 python3 examples/KG_Assoc/reviews/production_launch_validation_20261023/TEST_ADAPTER.txt -v
+17 tests; OK (0.089s).
+
+timeout 600 python3 examples/KG_Assoc/reviews/production_launch_validation_20261023/TEST_SOURCE_BOUNDARIES.txt -v
+4 tests; OK (0.019s).
+
+Actual tool outputs retained in the conversation. Original fixture implementations are byte-identical and included in the final source authority.
