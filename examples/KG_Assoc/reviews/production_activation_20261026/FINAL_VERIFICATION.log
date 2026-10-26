@@ -1,0 +1,19 @@
+{
+  "GPU_MD_steps_executed_by_assistant": 0,
+  "activation": "assoc15_uninterrupted100m_20261023_v1_activation_20261026_v1",
+  "active_registry_sha256": "642006206c338a9119977e75f8da4c8d7ccb47a08d5ec24a629bb8405ae2becc",
+  "certifications": {
+    "production_initial_GPU_state_comparison": "not_performed",
+    "production_runtime_independent_candidate_oracle": "not_performed"
+  },
+  "execution_approvals": 45,
+  "free_bytes": 792046927872,
+  "independently_validated": 0,
+  "planned_steps": 4500000000,
+  "prepared": 45,
+  "preserved_bindings": 5536,
+  "protected_directories_unchanged": true,
+  "qualified_acceptances": 15,
+  "status": "PASS",
+  "unchanged_native_sources": true
+}

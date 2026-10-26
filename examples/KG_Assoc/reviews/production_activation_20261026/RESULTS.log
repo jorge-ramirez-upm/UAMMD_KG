@@ -1,0 +1,14 @@
+{
+  "GPU_MD_steps_executed_by_assistant": 0,
+  "activation": "assoc15_uninterrupted100m_20261023_v1_activation_20261026_v1",
+  "broad_historical_E2_suite": "failed; 178 attempted, 4 failures, 27 errors including subtests, 1 skip; see E2_TESTS.log",
+  "execution_approvals": 45,
+  "final_activation_status": "active_user_run_only",
+  "final_driver": "DRIVER_V2.txt",
+  "final_publication": "PUBLICATION_V2.log",
+  "final_verifier": "VERIFY_FINAL.txt",
+  "focused_CPU_tests_passed": 42,
+  "protected_bindings": 5536,
+  "scientific_limitations": "Ea10 exception retained; both additional certifications not_performed",
+  "unstarted_histories": 45
+}

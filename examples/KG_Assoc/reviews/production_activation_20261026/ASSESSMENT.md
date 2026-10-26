@@ -96,6 +96,11 @@ window or native physics/RNG/integrator/chemistry change is introduced.
 
 ## CPU validation and preservation
 
+42 focused CPU tests pass: 13 production authorization/preservation tests, 17 adapter
+tests, four source-boundary tests and eight campaign tests. Final preflight and
+status authenticate all 45 approvals and report 45 prepared, zero started histories.
+The full audit passes all 5,536 preserved bindings.
+
 See CERTIFIED_CPU_TESTS.log, FINAL_CHECK.log, STATUS.log, FINAL_VERIFICATION.log and
 CAMPAIGN_TESTS.log for the final focused evidence. The original adapter's 17 CPU
 fixture tests and four source-boundary tests passed; ADAPTER_TESTS.log records
