@@ -1,0 +1,16 @@
+{
+  "GPU_execution_authorized": true,
+  "approved": true,
+  "end_step": 108000000,
+  "executable_sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_campaign_production": "5c396533482e08a48bd20fc27e6bb63bec790efecf843ae73cf01a52bf6265e5"
+  },
+  "history_sha256": "f5129c6d3d8a1e0f0b3d0b701477651583387735b9e7ac6997147e2a23b1eddc",
+  "maximum_additional_MD_steps": 100000000,
+  "plan_sha256": "e246df520f492a56ec541c3497818deec7e6a4e07938963a4d5c23e94243c554",
+  "purpose": "production_GPU_execution",
+  "replica": 2,
+  "schema_version": 1,
+  "start_step": 8000000,
+  "system": "F04_N040_RP080_EE08_EA04"
+}

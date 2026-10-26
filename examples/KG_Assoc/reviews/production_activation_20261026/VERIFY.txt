@@ -1,0 +1,26 @@
+"""Read-only publication and preservation audit; Git-only subprocess guard forbids MD."""
+import json
+from pathlib import Path
+import runpy
+import subprocess
+
+D = Path(__file__).resolve().parent
+F = runpy.run_path(str(D / 'DRIVER_V2.txt'))
+R = runpy.run_path(str(D.parent / 'production_gpu_compatibility_closure_20261023/REVALIDATE.txt'))
+R['guard_git_only']()
+F['e'].check_hashes(F['c'].load_json(D / 'PRESERVED.sha256'))
+if (D / 'INTEGRITY.sha256').exists():
+    F['e'].check_hashes(F['c'].load_json(D / 'INTEGRITY.sha256'))
+authority, rows = F['load']()
+states, free = F['preflight'](authority, rows)
+changed = subprocess.check_output(['git', 'diff', '--name-only', F['START'], 'HEAD'], text=True).splitlines()
+assert all(p.startswith('examples/KG_Assoc/reviews/production_activation_20261026/') for p in changed)
+print(json.dumps(dict(status='PASS', activation=F['c'].load_json(D / 'ACTIVATION.log')['identity'],
+    active_registry_sha256=authority['active_registry_sha256'],
+    execution_approvals=len(authority['approval_sha256']), qualified_acceptances=15,
+    planned_steps=4500000000, prepared=states.count('prepared'),
+    independently_validated=45-states.count('prepared'),
+    preserved_bindings=len(F['c'].load_json(D / 'PRESERVED.sha256')),
+    certifications=F['V']['CERTIFICATIONS'], unchanged_native_sources=True,
+    protected_directories_unchanged=True, free_bytes=free,
+    GPU_MD_steps_executed_by_assistant=0), indent=2, sort_keys=True))

@@ -1,0 +1,112 @@
+"""One-time CPU administrative publisher. Never launches a native executable."""
+import json
+from pathlib import Path
+import runpy
+import shutil
+import subprocess
+
+D = Path(__file__).resolve().parent
+F = runpy.run_path(str(D / 'DRIVER.txt'))
+e, c, P, A = F['e'], F['c'], F['P'], F['A']
+require = e.require
+
+
+def exclusive(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('x') as stream:
+        stream.write(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def publish():
+    require(c.git_sha() == F['START'], 'publication requires exact approved starting SHA')
+    require(not subprocess.check_output(['git', 'diff', '--name-only'], text=True).strip(),
+            'tracked modifications are forbidden')
+    decision_path, decision = F['decision_check']()
+    e.check_hashes(c.load_json(D / 'PRESERVED.sha256'))
+    e.check_hashes({str(P['PLAN']): F['PLAN_HASH'], str(P['REGISTRY']): F['REGISTRY_HASH']})
+    frozen = P['check']()
+    active = P['ROOT'] / 'banks/e2_registry' / (P['ID'] + '_active_20261026_v1.json')
+    targets = [active, D / 'ACTIVATION.log', D / 'ACTIVE_REGISTRY.log', D / 'EXECUTION_PLAN.log',
+               D / 'SOURCE_AUTHORIZATION.log', D / 'AUTHORITY.log', F['INDEX'], D / 'approvals']
+    require(not any(p.exists() for p in targets), 'publication exists; never overwrite or regenerate')
+    for h in frozen['histories']:
+        require({p.name for p in Path(h['output_prefix']).parent.iterdir()} ==
+                {'run.json', 'preparation_approval.json'}, 'production has started or unexpected files exist')
+    require(shutil.disk_usage(P['ROOT']).free >= F['MINIMUM_FREE_BYTES'], 'insufficient storage')
+    acceptances = sorted({Path(h['active_e2']['acceptance']) for h in frozen['histories']})
+    require(len(acceptances) == 15, 'exact 15 acceptances required')
+    for path in acceptances:
+        record = c.load_json(path)
+        A['registry'].exclusive_validate(record, [e.system_by_id(record['permitted_systems'][0])])
+    with P['run_e2'].workflow_lock(P['ROOT']):
+        # Established publisher and resolver retain the original family pairing and qualifications.
+        A['registry'].publish(P['ROOT'], active, acceptances)
+        with (D / 'ACTIVE_REGISTRY.log').open('xb') as stream:
+            stream.write(active.read_bytes())
+        bindings = [P['PLAN'], P['REGISTRY'], P['RESERVATION'], P['FOLDER'] / 'prepared.json',
+                    decision_path, active, D / 'ACTIVE_REGISTRY.log'] + acceptances
+        activation = dict(schema='production_administrative_activation_v1',
+            identity=P['ID'] + '_activation_20261026_v1', campaign=P['ID'],
+            approved_at='2026-10-26', git_sha=F['START'],
+            approval_reference='Explicit user milestone: Activate and authorize the 45-history uninterrupted 100M production campaign',
+            registry_activated=True, production_execution_authorized_for_user=True,
+            assistant_GPU_execution_authorized=False,
+            active_registry=str(active), active_registry_sha256=c.sha256(active),
+            frozen_plan_sha256=F['PLAN_HASH'], prepared_registry_sha256=F['REGISTRY_HASH'],
+            compatibility_decision=str(decision_path), compatibility_decision_sha256=F['DECISION_HASH'],
+            certifications=decision['certifications'], mandatory_validation=decision['mandatory_validation'],
+            Ea10_scientific_exception_retained=True, qualifications={
+                c.load_json(p)['permitted_systems'][0]: c.load_json(p)['qualification'] for p in acceptances},
+            scope=dict(systems=15, replicas_per_system=3, histories=45,
+                       steps_per_history=100000000, total_steps=4500000000),
+            build=frozen['build'], source_sha256=e.sources(),
+            intended_outputs=[h['output_prefix'] for h in frozen['histories']],
+            bindings_sha256=e.hash_files(bindings),
+            failure_policy='stop; preserve; no automatic retry, extension or replacement',
+            recovery_policy='CPU only; original native completion and independent validator required')
+        exclusive(D / 'ACTIVATION.log', activation)
+        histories = [F['make_history'](h, activation) for h in frozen['histories']]
+        execution_plan = D / 'EXECUTION_PLAN.log'
+        exclusive(execution_plan, dict(campaign=P['ID'], purpose='production_GPU_execution',
+            frozen_plan_sha256=F['PLAN_HASH'], histories=histories))
+        approvals = []
+        for h in histories:
+            path = Path(h['approval'])
+            exclusive(path, dict(schema_version=1, purpose='production_GPU_execution',
+                approved=True, GPU_execution_authorized=True, plan_sha256=c.sha256(execution_plan),
+                history_sha256=h['history_sha256'], system=h['system'], replica=h['replica'],
+                start_step=h['start_step'], end_step=h['end_step'],
+                maximum_additional_MD_steps=100000000, executable_sha256=h['executable_sha256']))
+            approvals.append(path)
+        # Preserve the exact native source map; enumerate every reused/new administrative code input.
+        old_source = c.load_json(Path(c.load_json(Path(c.load_json(F['G']['INDEX'])['authority']))[
+            'source_authorization']))
+        extra_paths = [Path(p) for p in old_source['adapter_sha256']]
+        extra_paths += [D / name for name in ('DRIVER.txt', 'PUBLISH.txt', 'TEST_ACTIVATION.txt')]
+        extra_paths += [V for V in (F['V']['D'] / 'VERIFY.txt',)]
+        # These immutable administrative bindings are rehashed by the adapter before AND after MD.
+        extra_paths += [decision_path, D / 'ACTIVATION.log', active,
+                        D / 'ACTIVE_REGISTRY.log', D / 'PRESERVED.sha256']
+        extra = e.hash_files(extra_paths)
+        source = D / 'SOURCE_AUTHORIZATION.log'
+        exclusive(source, dict(purpose='exact_production_sources_and_administrative_bindings',
+            git_sha=F['START'], plan_sha256=c.sha256(execution_plan),
+            approval_sha256=e.hash_files(approvals), adapter_sha256=extra,
+            source_sha256=dict(e.sources(), **extra), future_source_changes_authorized=False))
+        authority_path = D / 'AUTHORITY.log'
+        authority = dict(schema_version=1, purpose='production_GPU_execution', campaign=P['ID'],
+            dataset_root=str(P['ROOT']), plan=str(execution_plan), plan_sha256=c.sha256(execution_plan),
+            frozen_production_plan_sha256=F['PLAN_HASH'], approval_sha256=e.hash_files(approvals),
+            source_authorization=str(source), source_authorization_sha256=c.sha256(source),
+            active_registry=str(active), active_registry_sha256=c.sha256(active),
+            activation=str(D / 'ACTIVATION.log'), activation_sha256=c.sha256(D / 'ACTIVATION.log'),
+            compatibility_decision=str(decision_path), compatibility_decision_sha256=F['DECISION_HASH'],
+            user_approved_production_activation=True, assistant_GPU_execution_authorized=False)
+        exclusive(authority_path, authority)
+        paths = bindings + approvals + [source, authority_path, execution_plan, D / 'ACTIVATION.log']
+        exclusive(F['INDEX'], dict(authority=str(authority_path), sha256=e.hash_files(paths)))
+        print('PUBLISHED', activation['identity'], '45 approvals; zero GPU/MD steps')
+
+
+if __name__ == '__main__':
+    publish()

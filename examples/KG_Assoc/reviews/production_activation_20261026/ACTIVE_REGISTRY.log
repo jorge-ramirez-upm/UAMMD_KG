@@ -1,0 +1,68 @@
+{
+  "git_sha": "aeabb4df2c5b046ff0cfa6d442741ebe2db305d3",
+  "published_at": "2026-10-26T09:02:31.003680+00:00",
+  "schema_version": 1,
+  "stage": "E2_active_registry",
+  "systems": {
+    "F03_N010_RP080_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F03_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json",
+      "sha256": "3c7633e7b42341af66c34a5b29ed86d0ae8bd2176cb401a7f35920be3d5ec13c"
+    },
+    "F04_N010_RP020_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP020_EE08_EA04_6M_qualified_20261013_v1.json",
+      "sha256": "20f7ed7ae7fb3b659b52caa3850d3fad3e3041268f19269007288a49fc6bc0c6"
+    },
+    "F04_N010_RP040_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP040_EE08_EA04_8M_qualified_20261014_v1.json",
+      "sha256": "78ab743e1cd922b8835a6fb750be90e5afb51c2feab16dcaba32e2103a6a5d49"
+    },
+    "F04_N010_RP060_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP060_EE08_EA04_6M_qualified_20261015_v1.json",
+      "sha256": "487d34970243d2f85d74b092e715b48d95e5cc099c03ba251d9817335b443b09"
+    },
+    "F04_N010_RP080_EE04_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE04_EA04_2M_qualified_20261013_v1.json",
+      "sha256": "7f5cd4ba2ace52b0b8a62a54ffe63bebf62c1bf4a6d22bb330df97ce44e8bb6a"
+    },
+    "F04_N010_RP080_EE06_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE06_EA04_4M_qualified_20261014_v1.json",
+      "sha256": "55fbe03556fcc3cd184bffbc43603b27726863bd618a28a06da7f97b399c3319"
+    },
+    "F04_N010_RP080_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA04_8M_qualified_20261013_v1.json",
+      "sha256": "525a1834494d88c8f5eae919d87bdcaa6d372e875acd340d1be66b124165ef22"
+    },
+    "F04_N010_RP080_EE08_EA06": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA06_24M_qualified_20261018_v1.json",
+      "sha256": "042b8a8dffa15ceba46cd4989bae4fb91cf9331dffeedf67d04c675adbe7ebd6"
+    },
+    "F04_N010_RP080_EE08_EA08": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA08_48M_qualified_20261023_v1.json",
+      "sha256": "f81d3e2f1d3a36cf4b2a7c09596f939e7adf62bc72c0ca103eeba73bbccdcc05"
+    },
+    "F04_N010_RP080_EE08_EA10": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE08_EA10_88M_qualified_exception_20261023_v1.json",
+      "sha256": "f5252413534787c9313943209892ff4052166a6ace22c77783d0d042947a1f96"
+    },
+    "F04_N010_RP080_EE10_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE10_EA04_12M_qualified_20261015_v1.json",
+      "sha256": "9f8bd5598c8fc847fd11abc5217b0390055b7d8ace1764018e4fa3140c8c15aa"
+    },
+    "F04_N010_RP080_EE12_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N010_RP080_EE12_EA04_20M_qualified_20261016_v1.json",
+      "sha256": "bf8bb3144fc0dacd3047f86a87987df7100de0662a6d73ca9517a42804e11aac"
+    },
+    "F04_N020_RP080_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N020_RP080_EE08_EA04_6M_qualified_20261013_v1.json",
+      "sha256": "6ebb95dda283828342f7bd55fe2331e51e2a0477e70234e54e9631fd78bf7422"
+    },
+    "F04_N040_RP080_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F04_N040_RP080_EE08_EA04_8M_qualified_20261013_v1.json",
+      "sha256": "3d9f77c2c88219039e9abc4ef7e267b1ed71dd9cce17df4e7431f447bf4294f7"
+    },
+    "F06_N010_RP080_EE08_EA04": {
+      "acceptance": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_acceptance/F06_N010_RP080_EE08_EA04_6M_qualified_20261013_v1.json",
+      "sha256": "81179644b404b3ab5a492ad60bba0d3d23502d0f5d7da4d058552fa9a5e714c0"
+    }
+  }
+}

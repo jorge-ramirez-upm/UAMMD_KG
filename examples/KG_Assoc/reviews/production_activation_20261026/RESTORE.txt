@@ -1,0 +1,24 @@
+"""CPU-only installation of the published active registry; never overwrite differing bytes."""
+from pathlib import Path
+import json
+import hashlib
+import subprocess
+
+D = Path(__file__).resolve().parent
+repo = D.parents[3]
+for name in ('PUBLICATION.log', 'ACTIVE_REGISTRY.log', 'ACTIVATION.log'):
+    path = D / name
+    relative = path.relative_to(repo)
+    assert subprocess.check_output(['git', 'show', 'HEAD:' + str(relative)], cwd=repo) == path.read_bytes()
+activation = json.loads((D / 'ACTIVATION.log').read_text())
+data = (D / 'ACTIVE_REGISTRY.log').read_bytes()
+assert hashlib.sha256(data).hexdigest() == activation['active_registry_sha256']
+target = Path(activation['active_registry'])
+assert target.parent == repo / 'examples/KG_Assoc/kg_assoc_100m/banks/e2_registry'
+if target.exists():
+    assert target.read_bytes() == data, 'existing registry differs; preserve and investigate'
+else:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('xb') as stream:
+        stream.write(data)
+print('PASS exact published registry installed; zero GPU/MD steps')

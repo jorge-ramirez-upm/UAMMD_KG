@@ -1,0 +1,175 @@
+"""Exact 45-history user-run production authority; check/status never execute native code."""
+import argparse
+from pathlib import Path
+import runpy
+import shutil
+
+D = Path(__file__).resolve().parent
+OLD = D.parent / 'production_launch_validation_20261023'
+G = runpy.run_path(str(OLD / 'DRIVER.txt'))
+P, A, e, c = G['P'], G['A'], G['e2'], G['c']
+V = runpy.run_path(str(D.parent / 'production_compatibility_decision_20261023/VERIFY.txt'))
+INDEX = D / 'PUBLICATION.log'
+START = 'aeabb4df2c5b046ff0cfa6d442741ebe2db305d3'
+PLAN_HASH = 'b9a6101c14f3fca645463b605adde6daa978f9c5db3a7e2f2aa885b71711ed47'
+REGISTRY_HASH = '739477c443f01c6cdbe0f4f96e765a66cb64a224531235cf47984ea354b28dfd'
+DECISION_HASH = 'f7e8a98bcc8a0b94d65a714b4daea394e6c2cb1892d8aa4eb6ec07faf4913516'
+MINIMUM_FREE_BYTES = 384 * 1024**3
+require = e.require
+
+
+def decision_check():
+    publication = V['check_publication'](V['D'] / 'PUBLICATION.log')
+    path = Path(publication['record'])
+    require(c.sha256(path) == DECISION_HASH, 'wrong approved compatibility decision')
+    record = c.load_json(path)
+    V['check_policy'](record)
+    e.check_hashes(record['evidence_sha256'])
+    e.check_hashes(c.load_json(V['D'] / 'PRESERVED.sha256'))
+    require(record['source_sha256'] == e.sources(), 'decision source map differs')
+    return path, record
+
+
+def check_scope(authority, rows, frozen, activation, decision):
+    require(authority['campaign'] == P['ID'] and
+            authority['user_approved_production_activation'] is True and
+            authority['assistant_GPU_execution_authorized'] is False,
+            'production authorization scope differs')
+    require(len(rows) == 45 and len(authority['approval_sha256']) == 45 and
+            len({h['history_sha256'] for h in rows}) == 45,
+            'exactly 45 distinct execution approvals required')
+    require(authority['compatibility_decision_sha256'] == DECISION_HASH and
+            activation['compatibility_decision_sha256'] == DECISION_HASH,
+            'activation decision binding differs')
+    require(activation['frozen_plan_sha256'] == PLAN_HASH and
+            activation['prepared_registry_sha256'] == REGISTRY_HASH and
+            activation['source_sha256'] == decision['source_sha256'] and
+            activation['build'] == frozen['build'] and
+            activation['scope'] == dict(systems=15, replicas_per_system=3,
+                histories=45, steps_per_history=100000000, total_steps=4500000000),
+            'activation frozen campaign/build/source/scope differs')
+    active = c.load_json(Path(authority['active_registry']))
+    dormant = c.load_json(P['REGISTRY'])
+    require(active['systems'] == {sid: {k: ref[k] for k in ('acceptance', 'sha256')}
+            for sid, ref in dormant['systems'].items()}, 'active registry selection differs')
+    require(len(list((D / 'approvals').glob('*.log'))) == 45,
+            'unexpected approval inventory')
+    for h, original in zip(rows, frozen['histories']):
+        require((h['system'], h['replica']) == (original['system_id'], original['replica']),
+                'original three-family ordering differs')
+        expected = make_history(original, activation)
+        require({k: v for k, v in h.items() if k != 'approval_sha256'} == expected,
+                'exact frozen production history differs')
+        resolved = A['registry'].resolve(P['ROOT'], Path(authority['active_registry']),
+                                        e.system_by_id(h['system']), h['replica'])
+        require(all(resolved[k] == original['active_e2'][k] for k in
+                original['active_e2'] if k not in ('registry', 'registry_sha256')),
+                'accepted parent/family/qualification differs')
+
+
+def make_history(original, activation):
+    directory = Path(original['output_prefix']).parent
+    h = dict(system=original['system_id'], replica=original['replica'], steps=P['STEPS'],
+             start_step=original['start_step'], end_step=original['end_step'],
+             dataset_root=str(P['ROOT']), output_prefix=original['output_prefix'],
+             command=original['command'],
+             **{k: original[k] for k in ('md_seed', 'chemistry_seed', 'effective_md_seed',
+                'inherited_chemistry_seed', 'inherited_creations', 'inherited_breaks')},
+             parent_sha256=original['parent']['sha256'], accepted_parent=original['active_e2'],
+             run_sha256=e.hash_files([directory / 'run.json', directory / 'preparation_approval.json']),
+             executable_sha256=e.hash_files([Path(original['command'][0])]),
+             approval=str(D / 'approvals' / (original['system_id'] + '_r%03d.log' % original['replica'])),
+             frozen_plan_sha256=PLAN_HASH, prepared_registry_sha256=REGISTRY_HASH,
+             activation_sha256=c.sha256(D / 'ACTIVATION.log'),
+             active_registry_sha256=activation['active_registry_sha256'],
+             compatibility_decision_sha256=DECISION_HASH,
+             build=original_build(), source_sha256=activation['source_sha256'],
+             completion_validator=dict(adapter=str(OLD / 'ADAPTER.txt'),
+                 sha256=c.sha256(OLD / 'ADAPTER.txt'), function='numerical_validation',
+                 endpoint_function='kg_assoc_campaign.verify_run', independent=True),
+             uninterrupted=True, automatic_retry_authorized=False, extensions_authorized=False)
+    h['history_sha256'] = A['history_digest'](h)
+    return h
+
+
+def original_build():
+    return c.load_json(P['PLAN'])['build']
+
+
+def inventory(history, authority):
+    state = A['status'](history, authority)
+    directory = Path(history['output_prefix']).parent
+    allowed = {'run.json', 'preparation_approval.json'}
+    if state != 'prepared':
+        allowed.update(path.name for path in A['output_paths'](history))
+        allowed.update(('started.json', 'native_finished.json', 'validated.json',
+                        'failure.json', 'recovery.json', 'validated_binding.json'))
+    require(not directory.is_symlink() and all(p.is_file() and not p.is_symlink() and
+            p.name in allowed for p in directory.iterdir()), 'unexpected production output files')
+    return state
+
+
+def load():
+    decision_path, decision = decision_check()
+    e.check_hashes({str(P['PLAN']): PLAN_HASH, str(P['REGISTRY']): REGISTRY_HASH})
+    authority, rows = G['load_authority'](INDEX)
+    require(authority['purpose'] == 'production_GPU_execution', 'wrong authority purpose')
+    activation_path = Path(authority['activation'])
+    e.check_hashes({str(activation_path): authority['activation_sha256']})
+    activation = c.load_json(activation_path)
+    e.check_hashes(activation['bindings_sha256'])
+    check_scope(authority, rows, c.load_json(P['PLAN']), activation, decision)
+    return authority, rows
+
+
+def preflight(authority, rows, storage=True):
+    states = [inventory(h, authority) for h in rows]
+    require(all(s in ('prepared', 'validated_complete', 'recovered_complete') for s in states),
+            'partial/failed/native-complete history held; no automatic rerun')
+    free = shutil.disk_usage(P['ROOT']).free
+    if storage and 'prepared' in states:
+        require(free >= MINIMUM_FREE_BYTES, 'insufficient storage: require 384 GiB free')
+    return states, free
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument('--check', action='store_true')
+    action.add_argument('--status', action='store_true')
+    action.add_argument('--execute', action='store_true')
+    action.add_argument('--recover', metavar='SYSTEM')
+    parser.add_argument('--replica', type=int, choices=(1, 2, 3))
+    args = parser.parse_args()
+    require(args.recover is not None or args.replica is None, 'replica only for explicit recovery')
+    authority, rows = load()
+    if args.status:
+        for h in rows:
+            print(h['system'], 'r%03d' % h['replica'], inventory(h, authority), flush=True)
+    elif args.check:
+        states, free = preflight(authority, rows)
+        print('PASS active registry; 45 approvals; prepared=', states.count('prepared'),
+              'validated=', 45 - states.count('prepared'), 'free_bytes=', free,
+              '; certifications=not_performed; CPU only, no native launch')
+    else:
+        with P['run_e2'].workflow_lock(P['ROOT']):
+            # Reauthenticate everything after obtaining the exclusive workflow lock.
+            authority, rows = load()
+            if args.recover:
+                selected = [h for h in rows if h['system'] == args.recover and h['replica'] == args.replica]
+                require(len(selected) == 1, 'one exact system/replica required for CPU recovery')
+                inventory(selected[0], authority)
+                print(A['validate'](selected[0], authority, recovery=True))
+            else:
+                preflight(authority, rows)
+                for h in rows:
+                    require(shutil.disk_usage(P['ROOT']).free >= MINIMUM_FREE_BYTES,
+                            'insufficient remaining storage; stop before next history')
+                    inventory(h, authority)
+                    print('CHECK', h['system'], 'r%03d' % h['replica'], flush=True)
+                    print(A['execute'](h, authority), flush=True)
+                print('ALL 45 APPROVED 100M HISTORIES INDEPENDENTLY VALIDATED')
+
+
+if __name__ == '__main__':
+    main()

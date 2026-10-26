@@ -1,0 +1,9 @@
+{
+  "measured_compatibility_native_seconds": 669.8404,
+  "linear_45_history_native_seconds": 2009521.2000000002,
+  "linear_variable_bytes": 152761935000,
+  "fixed_reference_bytes": 467655039,
+  "minimum_free_bytes": 412316860416,
+  "publication_free_bytes": 792066273280,
+  "not_a_performance_or_capacity_guarantee": true
+}

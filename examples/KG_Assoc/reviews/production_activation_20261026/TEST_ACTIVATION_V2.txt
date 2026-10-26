@@ -1,0 +1,141 @@
+"""CPU-only authorization/preservation tests. Mutations are copies or temporary fixtures."""
+import copy
+from pathlib import Path
+import runpy
+import tempfile
+import unittest
+from unittest import mock
+
+D = Path(__file__).resolve().parent
+F = runpy.run_path(str(D / 'DRIVER_V2.txt'))
+e, c = F['e'], F['c']
+
+
+class ActivationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.authority = c.load_json(D / 'AUTHORITY.log')
+        cls.rows = c.load_json(D / 'EXECUTION_PLAN.log')['histories']
+        cls.frozen = c.load_json(F['P']['PLAN'])
+        cls.activation = c.load_json(D / 'ACTIVATION.log')
+        cls.decision = c.load_json(Path(cls.authority['compatibility_decision']))
+
+    def scope(self, authority=None, rows=None, activation=None, decision=None):
+        F['check_scope'](authority or self.authority, rows or self.rows, self.frozen,
+                         activation or self.activation, decision or self.decision)
+
+    def test_all_exact_histories_and_qualifications(self):
+        self.scope()
+
+    def test_changed_command_seed_effective_mapping_parent_output_and_validator_reject(self):
+        for key, value in [('command', ['unauthorized']), ('md_seed', 1),
+                           ('effective_md_seed', 1), ('accepted_parent', {}),
+                           ('output_prefix', '/wrong'), ('completion_validator', {})]:
+            rows = copy.deepcopy(self.rows)
+            rows[0][key] = value
+            rows[0]['history_sha256'] = F['A']['history_digest'](rows[0])
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.scope(rows=rows)
+
+    def test_200m_extension_extra_history_and_duplicate_family_reject(self):
+        for operation in ('200m', 'extra', 'duplicate', 'reorder'):
+            rows = copy.deepcopy(self.rows)
+            if operation == '200m':
+                rows[0]['steps'] = 200000000
+            elif operation == 'extra':
+                rows.append(copy.deepcopy(rows[0]))
+            elif operation == 'duplicate':
+                rows[1] = copy.deepcopy(rows[0])
+            else:
+                rows[0], rows[1] = rows[1], rows[0]
+            with self.subTest(operation=operation), self.assertRaises(ValueError):
+                self.scope(rows=rows)
+
+    def test_activation_decision_build_and_source_changes_reject(self):
+        for key, value in [('compatibility_decision_sha256', 'stale'), ('build', {}),
+                           ('source_sha256', {}), ('prepared_registry_sha256', 'wrong')]:
+            activation = copy.deepcopy(self.activation)
+            activation[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.scope(activation=activation)
+
+    def test_user_only_authorization_and_exact_approval_inventory(self):
+        for key, value in [('assistant_GPU_execution_authorized', True),
+                           ('user_approved_production_activation', False),
+                           ('approval_sha256', {}), ('campaign', 'other')]:
+            authority = copy.deepcopy(self.authority)
+            authority[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.scope(authority=authority)
+
+    def test_certification_flags_cannot_be_promoted(self):
+        decision = copy.deepcopy(self.decision)
+        decision['certifications']['production_initial_GPU_state_comparison'] = 'PASS'
+        with self.assertRaises(ValueError):
+            F['V']['check_policy'](decision)
+
+    def test_unknown_files_duplicate_attempts_and_symlinks_reject(self):
+        with tempfile.TemporaryDirectory() as name:
+            directory = Path(name)
+            (directory / 'run.json').write_text('{}')
+            (directory / 'preparation_approval.json').write_text('{}')
+            h = dict(output_prefix=str(directory / 'run'))
+            with mock.patch.dict(F['inventory'].__globals__['A'], status=lambda *args: 'prepared'):
+                self.assertEqual(F['inventory'](h, {}), 'prepared')
+                for extra in ('unexpected', 'attempt2', 'native_finished.json'):
+                    path = directory / extra
+                    path.write_text('preserve')
+                    with self.assertRaises(ValueError):
+                        F['inventory'](h, {})
+                    self.assertEqual(path.read_text(), 'preserve')
+                    path.unlink()
+                (directory / 'alias').symlink_to(directory / 'run.json')
+                with self.assertRaises(ValueError):
+                    F['inventory'](h, {})
+
+    def test_partial_failed_and_native_finished_block_entire_batch(self):
+        for state in ('interrupted_or_failed_hold', 'native_finished_pending_validation_hold',
+                      'unowned_output_hold'):
+            with mock.patch.dict(F['preflight'].__globals__, inventory=lambda *args: state):
+                with self.subTest(state=state), self.assertRaises(ValueError):
+                    F['preflight']({}, [self.rows[0]], storage=False)
+
+    def test_storage_gate(self):
+        with mock.patch.dict(F['preflight'].__globals__, inventory=lambda *args: 'prepared'), \
+                mock.patch.object(F['shutil'], 'disk_usage', return_value=mock.Mock(free=1)):
+            with self.assertRaisesRegex(ValueError, 'insufficient storage'):
+                F['preflight']({}, [self.rows[0]])
+
+    def test_stale_approval_and_incompatible_registry_reject(self):
+        h = self.rows[0]
+        authority = copy.deepcopy(self.authority)
+        authority['approval_sha256'][h['approval']] = 'stale'
+        with self.assertRaises(ValueError):
+            F['A']['authenticate'](dict(h, approval_sha256=c.sha256(Path(h['approval']))), authority)
+        with tempfile.TemporaryDirectory() as name:
+            path = Path(name) / 'dormant.json'
+            path.write_text('{"schema_version":1,"stage":"E2_prepared_registry"}')
+            authority = dict(self.authority, active_registry=str(path), active_registry_sha256=c.sha256(path))
+            with self.assertRaisesRegex(ValueError, 'bad active'):
+                F['A']['authenticate'](dict(h, approval_sha256=c.sha256(Path(h['approval']))), authority)
+
+    def test_preservation_and_unchanged_source_map(self):
+        e.check_hashes(c.load_json(D / 'PRESERVED.sha256'))
+        self.assertEqual(e.sources(), self.decision['source_sha256'])
+
+    def test_git_only_readonly_driver_check_and_status(self):
+        runtime = runpy.run_path(str(F['V']['D'].parent /
+            'production_gpu_compatibility_closure_20261023/REVALIDATE.txt'))
+        original = F['G']['subprocess'].Popen
+        try:
+            runtime['guard_git_only']()
+            authority, rows = F['load']()
+            states, free = F['preflight'](authority, rows)
+            self.assertEqual(states, ['prepared'] * 45)
+            self.assertGreaterEqual(free, F['MINIMUM_FREE_BYTES'])
+        finally:
+            F['G']['subprocess'].Popen = original
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

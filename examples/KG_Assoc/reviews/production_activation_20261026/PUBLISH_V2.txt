@@ -1,0 +1,28 @@
+"""Exclusive CPU source-authority refinement; original activation/approvals stay unchanged."""
+from pathlib import Path
+import runpy
+
+D = Path(__file__).resolve().parent
+F = runpy.run_path(str(D / 'DRIVER_V2.txt'))
+e, c = F['e'], F['c']
+assert c.git_sha() == F['START']
+old = c.load_json(D / 'PUBLICATION.log')
+e.check_hashes(old['sha256'])
+authority = c.load_json(Path(old['authority']))
+source = c.load_json(Path(authority['source_authorization']))
+e.check_hashes(source['source_sha256'])
+assert {k: v for k, v in source['source_sha256'].items()
+        if k not in source['adapter_sha256']} == e.sources()
+extra = dict(source['adapter_sha256'], **e.hash_files([D / name for name in
+    ('DRIVER_V2.txt', 'TEST_ACTIVATION_V2.txt', 'PUBLISH_V2.txt', 'VERIFY.txt', 'RESTORE.txt')]))
+source.update(adapter_sha256=extra, source_sha256=dict(e.sources(), **extra),
+    previous_source_authorization_sha256=e.hash_files([Path(authority['source_authorization'])]),
+    reason='Avoid redundant resolver replay for already authenticated pristine histories; all launch/post-run authentication unchanged')
+new_source = D / 'SOURCE_AUTHORIZATION_V2.log'
+e.exclusive_json(new_source, source)
+authority.update(source_authorization=str(new_source), source_authorization_sha256=c.sha256(new_source))
+new_authority = D / 'AUTHORITY_V2.log'
+e.exclusive_json(new_authority, authority)
+e.exclusive_json(F['INDEX'], dict(authority=str(new_authority), sha256=dict(old['sha256'],
+    **e.hash_files([D / 'PUBLICATION.log', new_source, new_authority]))))
+print('PUBLISHED V2 authority; original activation, 45 approvals, plans, seeds and outputs unchanged')
