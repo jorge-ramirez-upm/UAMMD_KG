@@ -333,6 +333,16 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D2A.2 adds optional [read-only dynamical acquisition](dynamical_observer.h);
+see [configuration, output, phase and local verification commands](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md).
+It is **disabled by default** (--dynamics 0), reuses synchronous coordinate
+readback and the unchanged CPU adapter, and adds no internal monomer MSDs.
+[CPU acquisition/export checks](tests/dynamical_observer_cpu.cpp),
+[allocation-failure checks](tests/dynamical_observer_allocation_failure.cpp) and
+[separately gated tiny trajectory-invariance checks](tests/dynamical_integration_tiny.py)
+are prepared and **unexecuted**. No builds, tests or GPU work ran in Codex.
+Independent review and separate authorization precede any tiny GPU run.
+
 D2A.1 adds a standalone [CPU dynamical observable adapter](dynamical_observables.h)
 and [implementation/usage and local verification commands](E1_STAGE_D2A1_IMPLEMENTATION_REPORT.md).
 It implements CM MSD, **absolute** MSDs for beads 0/8/16/24/32, symmetry reductions,

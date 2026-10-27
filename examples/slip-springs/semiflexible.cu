@@ -6,6 +6,7 @@
 #include "semiflexible_stress.cuh"
 #include "semiflexible_scalar_output.h"
 #include "e1_equilibrium_observer.h"
+#include "dynamical_observer.h"
 #include <thrust/device_vector.h>
 #include <array>
 #include <chrono>
@@ -33,6 +34,7 @@ struct Options {
   fs::path output,parameters,initial; bool forceOnly=false;
   fs::path equilibriumSteps,equilibriumSnapshots;
   stress3b::Settings stress;
+  dynamical_observer::Settings dynamics;
   std::string scalarOutput="full";
 };
 Counter integer(std::string s) {
@@ -52,6 +54,8 @@ Options parse(int argc,char** argv) {
       std::cout<<"semiflexible --output NEW_DIR [--springs N --chains C --dt H --steps S --sample STRIDE --seed K]\n"
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
         "[--equilibrium-steps INTEGER_STEP_FILE --equilibrium-snapshots INTEGER_STEP_FILE (optional, at most eight)]\n"
+        "[--dynamics 0|1 --dynamics-stride STEPS --dynamics-levels L --dynamics-slots P --dynamics-m M]\n"
+        "[--dynamics-output SUBDIR --dynamics-mib MiB --dynamics-replica ID (default seed); N32 only]\n"
         "[--slip-count Z --slip-ms2 A2 --hop-rate NU --end-renewal 0|1 (default 0; stress must be off)]\n"
         "[--stress-mode off|diagnostic|stream|every-step --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
         "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
@@ -64,6 +68,17 @@ Options parse(int argc,char** argv) {
     if(key=="--output") o.output=v;
     else if(key=="--equilibrium-steps") o.equilibriumSteps=v;
     else if(key=="--equilibrium-snapshots") o.equilibriumSnapshots=v;
+    else if(key=="--dynamics") {auto value=integer(v);if(value>1)throw std::runtime_error("dynamics must be 0 or 1");o.dynamics.enabled=value;}
+    else if(key=="--dynamics-stride")o.dynamics.stride=integer(v);
+    else if(key=="--dynamics-replica")o.dynamics.replica_id=integer(v);
+    else if(key=="--dynamics-output")o.dynamics.output=v;
+    else if(key=="--dynamics-levels"||key=="--dynamics-slots"||key=="--dynamics-m"||key=="--dynamics-mib") {
+      auto value=integer(v);if(value>65536)throw std::runtime_error("dynamics option out of range");
+      if(key=="--dynamics-levels")o.dynamics.correlation.levels=value;
+      else if(key=="--dynamics-slots")o.dynamics.correlation.slots=value;
+      else if(key=="--dynamics-m")o.dynamics.correlation.coarsening=value;
+      else o.dynamics.memory_mib=value;
+    }
     else if(key=="--parameters") o.parameters=v;
     else if(key=="--initial"||key=="--force-input") { o.initial=v;o.forceOnly=key=="--force-input"; }
     else if(key=="--stress-input") {o.initial=v;o.forceOnly=true;o.stress.mode="diagnostic";}
@@ -125,6 +140,7 @@ Options parse(int argc,char** argv) {
     auto snapshots=e1_observer::snapshotSteps(o.equilibriumSnapshots,o.steps);
     e1_observer::Schedule validated(o.equilibriumSteps,o.steps,snapshots);
   }
+  o.dynamics.validate(o.n,o.chains,o.steps,o.dt,o.forceOnly);
   return o;
 }
 std::ofstream outputFile(fs::path p) {
@@ -246,7 +262,8 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   size_t estimate=bytes*8+size_t(count)*1024+(o.slipCount?size_t(count)*(2*sizeof(real4)+sizeof(int)):0)
     +(mobile?2*(size_t(o.slipCount)*sizeof(slip_hopping::Spring)+size_t(count)*sizeof(int))+sizeof(slip_hopping::Statistics):0)+(canonical?sizeof(slip_renewal::Statistics):0);
   size_t observerEstimate=o.equilibriumSteps.empty()?0:e1_observer::Observer::estimatedBytes(o.chains,m)+size_t(o.slipCount)*sizeof(e1_observer::Slot)+size_t(count)*sizeof(int);
-  if(estimate+observerEstimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
+  const size_t dynamicsEstimate=o.dynamics.enabled?o.dynamics.estimated_bytes(o.chains):0;
+  if(estimate+observerEstimate+dynamicsEstimate+(o.scalarOutput=="compact"?scalar_output::Compact::estimatedBytes(o.chains):0)+(o.stress.enabled()?stress3b::Observer::estimatedBytes(o.stress,o.chains,p.active):0)>size_t(2)*1024*1024*1024) throw std::runtime_error("reference workspace exceeds 2 GiB budget");
   auto host=initialize(o,p),initial=host;
   // Independent CPU RNG domain, never consuming backbone initialization or Philox counters.
   const real springK=o.slipCount?fixed_slips::stiffness<real>(o.kbt,o.slipMs2):real(0);
@@ -360,6 +377,18 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   for(int c=0;c<o.chains;++c)for(int j=0;j<m;++j){auto v=initial[c*m+j];initialCm[c][0]+=double(v.x)/m;initialCm[c][1]+=double(v.y)/m;initialCm[c][2]+=double(v.z)/m;}
   std::unique_ptr<e1_observer::Observer> equilibrium;
   if(!o.equilibriumSteps.empty())equilibrium=std::make_unique<e1_observer::Observer>(out,o.equilibriumSteps,o.equilibriumSnapshots,o.chains,m,o.slipCount,o.steps,o.dt,canonical,o.sample);
+  std::unique_ptr<dynamical_observer::Observer> dynamical;
+  if(o.dynamics.enabled) {
+    dynamical_observer::Model model;
+    model.chains=o.chains;model.steps=o.steps;model.seed=o.seed;model.slip_count=o.slipCount;
+    model.dt=o.dt;model.kbt=o.kbt;model.zeta=o.zeta;model.slip_ms2=o.slipMs2;
+    model.hop_rate=o.hopRate;model.spring_k=double(springK);model.precision_bits=8*sizeof(real);
+    model.mobility_step=double(real(o.dt/o.zeta));model.noise=double(real(std::sqrt(2*o.kbt*o.dt/o.zeta)));
+    model.renewal_requested=o.endRenewal;model.renewal_active=canonical;model.supplied_initial=!o.initial.empty();
+    for(auto v:p.bonds){model.b0.push_back(double(v.x));model.kb.push_back(double(v.y));}
+    for(auto v:p.kappa)model.kappa.push_back(double(v));
+    dynamical=std::make_unique<dynamical_observer::Observer>(o.dynamics,std::move(model),out);
+  }
   auto observe=[&](Counter step,bool regular=true) {
     const bool eq=equilibrium&&equilibrium->due(step);
     auto eqStart=Clock::now();double observerOnlySeconds=0;
@@ -404,6 +433,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       equilibrium->begin(step,host,springHosts,slots,occupied,counters);
       observerOnlySeconds+=seconds(observerStart);
     }
+    if(dynamical&&dynamical->due(step))dynamical->observe(step,host,true,positionReadbackSeconds,bytes);
     // CPU observation reductions use double, from the stored precision.
     std::ostringstream rows,initialRows;rows<<std::setprecision(17);initialRows<<std::setprecision(17);
     bool serialize=regular&&(!compactScalar||compactScalar->selectedStep(step));
@@ -463,6 +493,12 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       updateTime+=event.end();
       if(stressObserver&&o.stress.everyStep())stressObserver->sample(current,step+1);
       if((step+1)%o.sample==0||(equilibrium&&equilibrium->due(step+1)))observe(step+1,(step+1)%o.sample==0);
+      else if(dynamical&&dynamical->due(step+1)) {
+        // Extra uniform acquisitions do not invoke legacy scalar/equilibrium/stress observers.
+        const auto readbackStart=Clock::now();
+        check(cudaMemcpy(host.data(),current,bytes,cudaMemcpyDeviceToHost),"dynamics position readback");
+        dynamical->observe(step+1,host,false,seconds(readbackStart),bytes);
+      }
     }
     // Validate final state even if it is not an observation frame.
     evaluate(o.steps);
@@ -523,6 +559,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
       <<",\"integration_timer_scope\":\"CUDA events: "<<(mobile?"hopping, invariants, ":"")<<"forces, update, diagnostic D2H and host launch/synchronization gaps; excludes observations and output\",\"observation_scope\":\"D2H full positions, CPU reductions and formatting; output writes separate\"}\n";
   meta.close();
   if(equilibrium)equilibrium->finish();
+  if(dynamical)dynamical->finish();
   // Main metadata/terminal telemetry excluded; v2 final time includes stress exports/metadata.
   std::cout<<"semiflexible N="<<o.n<<" chains="<<o.chains<<" beads="<<count<<" steps="<<(o.forceOnly?0:o.steps)
     <<" physical_time="<<(o.forceOnly?0:o.steps*o.dt)<<" updates/s="<<(updateTime>0?denominator/updateTime:0)<<" init_s="<<initializationTime<<" integration_s="<<updateTime<<" production_s="<<productionTime
