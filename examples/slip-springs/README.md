@@ -333,15 +333,40 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D2A.5 now prepares **variable-N acquisition for N32, N64 and N128; uncompiled
+and unverified**. Physical kernels, initialization, hopping, renewal and RNG are
+unchanged. The observer selects endpoints, quarters and center using actual N,
+and labels metadata/CSVs accordingly. See the
+[implementation and exact local verification commands](E1_STAGE_D2A5_IMPLEMENTATION_REPORT.md)
+and [resource/benchmark preparation](E1_STAGE_D2A5_RESOURCE_PLAN.md).
+Constrained M256 systems use Z2048/4096/8192, respectively. No longer-chain
+campaign is launched or accepted. Provisional R3 four-cell targets are N64/T10000
+and N128/T40000; terminal relaxation is not guaranteed. Checkpoint/restart is
+deferred by explicit user instruction; execution assumes uninterrupted runs.
+
+After review, the targeted double build and bounded checks use fresh paths:
+
+```bash
+D5_BUILD="$PWD/examples/slip-springs/build/d2a5-review-v1"
+mkdir "$D5_BUILD"
+make -C examples/slip-springs semiflexible PRECISION=double CUDA_HOME=/usr/local/cuda-13.0 NVCC=/usr/local/cuda-13.0/bin/nvcc CXX=/usr/bin/g++ CUDA_ARCH=sm_86 GPU_BUILD="$D5_BUILD/double"
+timeout --signal=TERM --kill-after=15s 600s python3 -B examples/slip-springs/tests/d2a5_variable_n.py --run-reviewed-bounded --binary "$D5_BUILD/double/semiflexible" --baseline-binary /home/jramirez/UAMMD_KG-d2a2-verification/build/current-double/semiflexible --output /home/jramirez/UAMMD_KG-evidence/d2a5/bounded-v1
+```
+
+These commands are unexecuted. The report also supplies required CPU/sanitizer,
+allocation and frozen GPU transition-fixture commands; run them before the driver.
+Any failure requires investigation. Existing accepted executables and historical
+campaigns retain their original source/binary identities.
+
 D2A.4's twelve-run T1000 campaign is **reported complete by the user; independent
 scientific authentication and interpretation remain pending**. The
 [offline R3 analysis handoff](E1_STAGE_D2A4_SCIENTIFIC_ANALYSIS.md) reuses the
 D2A.3 analysis, verifies original receipts/metadata/hash inventories first, then
 prepares four PNG/PDF figures, replica SE/slopes/reference/performance tables
 and a comparison with existing D2A.3 products. Nothing was reduced or plotted
-in Codex; no prior evidence or analysis products are overwritten. After review
-of actual results, D2A.5 will address N64 (constrained Z4096, M256, R3), with
-T2000 provisional. No longer-chain implementation is included here.
+in Codex; no prior evidence or analysis products are overwritten. The D2A.5
+implementation preparation above supersedes the earlier N64/T2000 proposal;
+review of actual D2A.4 results remains necessary for scientific campaign design.
 
 The historical [twelve-run preparation](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md)
 fixes three whole-run replicas per stiffness/occupancy cell. The

@@ -27,7 +27,7 @@ struct Settings {
   }
   void validate(int bonds,std::size_t chains,Counter steps,double dt,bool force_only=false)const {
     if(!enabled)return;
-    if(bonds!=32||!chains||force_only)throw std::invalid_argument("dynamics requires N32 and dynamical chains");
+    if(!dynamics::supported_bonds(bonds)||!chains||force_only)throw std::invalid_argument("dynamics requires N32/N64/N128 and dynamical chains");
     correlation.validate();
     if(!stride||!(dt>0&&std::isfinite(dt))||!std::isfinite(double(steps)*dt))
       throw std::invalid_argument("invalid dynamics clock");
@@ -47,22 +47,23 @@ struct Settings {
   }
 };
 
-// Read only x/y/z; all 33 beads contribute to CM.
-template<class Position> void acquire(const std::vector<Position>& positions,
+// Compile-time bead counts retain the N32 summation/division expression.
+template<unsigned Beads,class Position> void acquire_contour(const std::vector<Position>& positions,
                                      std::vector<dynamics::Observation>& frame) {
-  if(frame.empty()||frame.size()>std::numeric_limits<std::size_t>::max()/33||positions.size()!=frame.size()*33)
+  if(frame.empty()||frame.size()>std::numeric_limits<std::size_t>::max()/Beads||positions.size()!=frame.size()*Beads)
     throw std::invalid_argument("dynamics coordinate dimensions mismatch");
+  const auto selected=dynamics::selected_beads(Beads-1);
   for(std::size_t c=0;c<frame.size();++c) {
     auto& sample=frame[c];sample.chain_id=c;
-    const auto& first=positions[c*33];
+    const auto& first=positions[c*Beads];
     const dynamics::Vector origin{{double(first.x),double(first.y),double(first.z)}};
     dynamics::Vector offset{};
-    for(unsigned i=0;i<33;++i) {
-      const auto& r=positions[c*33+i];
+    for(unsigned i=0;i<Beads;++i) {
+      const auto& r=positions[c*Beads+i];
       const dynamics::Vector v{{double(r.x),double(r.y),double(r.z)}};
       for(unsigned d=0;d<3;++d) {
         if(!std::isfinite(v[d]))throw std::invalid_argument("nonfinite acquired position");
-        offset[d]+=(v[d]-origin[d])/33;
+        offset[d]+=(v[d]-origin[d])/Beads;
       }
     }
     for(unsigned d=0;d<3;++d) {
@@ -70,13 +71,25 @@ template<class Position> void acquire(const std::vector<Position>& positions,
       if(!std::isfinite(sample.positions[0][d]))throw std::invalid_argument("unrepresentable acquired CM");
     }
     for(unsigned j=0;j<5;++j) {
-      const auto& r=positions[c*33+dynamics::bead_indices[j]];
+      const auto& r=positions[c*Beads+selected[j]];
       sample.positions[j+1]={{double(r.x),double(r.y),double(r.z)}};
     }
   }
 }
 
+// No frame-wise recentering; all N+1 beads enter the CM and endpoints form Re.
+template<class Position> void acquire(const std::vector<Position>& positions,
+                                     std::vector<dynamics::Observation>& frame,int bonds=32) {
+  switch(bonds) {
+    case 32: return acquire_contour<33>(positions,frame);
+    case 64: return acquire_contour<65>(positions,frame);
+    case 128:return acquire_contour<129>(positions,frame);
+    default:throw std::invalid_argument("unsupported dynamics contour");
+  }
+}
+
 struct Model {
+  int bonds=32;
   std::size_t chains=0;
   Counter steps=0,seed=0,slip_count=0;
   double dt=0,kbt=0,zeta=0,slip_ms2=0,hop_rate=0,spring_k=0,mobility_step=0,noise=0;
@@ -84,8 +97,8 @@ struct Model {
   bool renewal_requested=false,renewal_active=false,supplied_initial=false;
   std::vector<double> b0,kb,kappa; // Actual stored coefficients, not just CLI defaults.
   void validate()const {
-    if(b0.size()!=32||kb.size()!=32||kappa.size()!=33||!(kbt>0&&zeta>0)||
-       (precision_bits!=32&&precision_bits!=64)||slip_count>chains*33)
+    if(!dynamics::supported_bonds(bonds)||b0.size()!=std::size_t(bonds)||kb.size()!=std::size_t(bonds)||kappa.size()!=std::size_t(bonds+1)||!(kbt>0&&zeta>0)||
+       (precision_bits!=32&&precision_bits!=64)||chains>std::numeric_limits<std::size_t>::max()/std::size_t(bonds+1)||slip_count>chains*std::size_t(bonds+1))
       throw std::invalid_argument("invalid dynamics model metadata");
     for(double x:{dt,kbt,zeta,slip_ms2,hop_rate,spring_k,mobility_step,noise})
       if(!std::isfinite(x))throw std::invalid_argument("nonfinite dynamics model metadata");
@@ -111,9 +124,9 @@ class Observer {
     std::ofstream f;f.exceptions(std::ios::badbit|std::ios::failbit);f.open(path);
     f<<std::setprecision(17);return f;
   }
-  static void header(std::ostream& out) {
+  void header(std::ostream& out)const {
     out<<"replica,chain,lag_samples,lag_steps,lag_time,origins_per_chain,decimation_samples,diffusion_phase_samples,orientation_block_samples,orientation_block_duration";
-    for(auto name:dynamics::quantity_names)out<<','<<name;
+    for(const auto& name:dynamics::quantity_names_for(model_.bonds))out<<','<<name;
     out<<'\n';
   }
   void row(std::ostream& out,std::optional<Counter> chain,const dynamics::Bin& b)const {
@@ -131,10 +144,10 @@ class Observer {
 public:
   Observer(Settings settings,Model model,const fs::path& run_output):settings_(std::move(settings)),model_(std::move(model)) {
     if(!settings_.enabled)throw std::invalid_argument("cannot construct disabled dynamics observer");
-    settings_.validate(32,model_.chains,model_.steps,model_.dt);model_.validate();
+    settings_.validate(model_.bonds,model_.chains,model_.steps,model_.dt);model_.validate();
     std::vector<Counter> ids(model_.chains);std::iota(ids.begin(),ids.end(),Counter(0));
     bank_=std::make_unique<dynamics::Replica>(settings_.replica_id.value_or(model_.seed),ids,
-      settings_.correlation,dynamics::Clock{0,settings_.stride,model_.dt},std::size_t(settings_.memory_mib)*1024*1024);
+      settings_.correlation,dynamics::Clock{0,settings_.stride,model_.dt},std::size_t(settings_.memory_mib)*1024*1024,model_.bonds);
     frame_.resize(model_.chains);
     directory_=run_output/settings_.output;
     if(!fs::create_directory(directory_))throw std::runtime_error("refusing to overwrite dynamics directory");
@@ -151,7 +164,7 @@ public:
       throw std::invalid_argument("invalid dynamics acquisition");
     auto& bytes=shared?shared_bytes_:extra_bytes_;
     if(readback_bytes>std::numeric_limits<Counter>::max()-bytes)throw std::overflow_error("dynamics transfer count overflow");
-    const auto start=Clock::now();acquire(positions,frame_);bank_->observe(step,frame_);
+    const auto start=Clock::now();acquire(positions,frame_,model_.bonds);bank_->observe(step,frame_);
     cpu_seconds_+=elapsed(start);
     if(shared){++shared_frames_;shared_readback_seconds_+=readback_seconds;}
     else {++extra_frames_;extra_readback_seconds_+=readback_seconds;}
@@ -170,7 +183,9 @@ public:
     auto text=[&](const char* key,const char* value){f<<",\""<<key<<"\":\""<<value<<'"';};
     f<<"{\"version\":1,\"complete\":true";
     number("replica",result.metadata.replica_id);number("chains",model_.chains);
-    number("N",32);number("beads_per_chain",33);f<<",\"selected_beads\":[0,8,16,24,32]";
+    number("N",model_.bonds);number("beads_per_chain",model_.bonds+1);
+    f<<",\"selected_beads\":[";const auto selected=dynamics::selected_beads(model_.bonds);
+    for(unsigned j=0;j<selected.size();++j)f<<(j?",":"")<<selected[j];f<<']';
     number("first_step",0);number("stride",settings_.stride);number("dt",model_.dt);
     number("integration_steps",model_.steps);number("frames",result.metadata.frames);number("last_step",*result.metadata.last_step);
     text("initial_phase","initialized state before first BD update, after initial force/state validation");

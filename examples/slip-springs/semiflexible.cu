@@ -55,7 +55,7 @@ Options parse(int argc,char** argv) {
         "[--b0 B --kb K --kappa A --kbt T --zeta Z --parameters FILE --initial FILE --force-input FILE]\n"
         "[--equilibrium-steps INTEGER_STEP_FILE --equilibrium-snapshots INTEGER_STEP_FILE (optional, at most eight)]\n"
         "[--dynamics 0|1 --dynamics-stride STEPS --dynamics-levels L --dynamics-slots P --dynamics-m M]\n"
-        "[--dynamics-output SUBDIR --dynamics-mib MiB --dynamics-replica ID (default seed); N32 only]\n"
+        "[--dynamics-output SUBDIR --dynamics-mib MiB --dynamics-replica ID (default seed); N32/N64/N128]\n"
         "[--slip-count Z --slip-ms2 A2 --hop-rate NU --end-renewal 0|1 (default 0; stress must be off)]\n"
         "[--stress-mode off|diagnostic|stream|every-step --stress-input FILE --stress-dump 0|1 --scalar-output full|compact]\n"
         "[--stress-batch FRAMES --cpu-workers N --corr-levels L --corr-slots P --corr-m M --correlator-mib MiB --chain-density NC]\n"
@@ -380,7 +380,7 @@ void simulate(const Options& o,const fs::path& out,const Parameters& p) {
   std::unique_ptr<dynamical_observer::Observer> dynamical;
   if(o.dynamics.enabled) {
     dynamical_observer::Model model;
-    model.chains=o.chains;model.steps=o.steps;model.seed=o.seed;model.slip_count=o.slipCount;
+    model.bonds=o.n;model.chains=o.chains;model.steps=o.steps;model.seed=o.seed;model.slip_count=o.slipCount;
     model.dt=o.dt;model.kbt=o.kbt;model.zeta=o.zeta;model.slip_ms2=o.slipMs2;
     model.hop_rate=o.hopRate;model.spring_k=double(springK);model.precision_bits=8*sizeof(real);
     model.mobility_step=double(real(o.dt/o.zeta));model.noise=double(real(std::sqrt(2*o.kbt*o.dt/o.zeta)));

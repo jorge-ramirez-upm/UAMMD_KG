@@ -1,5 +1,6 @@
 #pragma once
 #include "orientation_correlator.h"
+#include <string>
 #include <utility>
 
 // CPU only. KG owns all displacement/coarsening arithmetic; no simulator hooks.
@@ -8,12 +9,27 @@ using Vector=orientation::Vector;
 using Counter=orientation::Counter;
 using Parameters=orientation::Parameters;
 using Clock=orientation::Clock;
-inline constexpr std::array<int,5> bead_indices{{0,8,16,24,32}};
+inline constexpr std::array<int,5> bead_indices{{0,8,16,24,32}}; // Legacy N32 API.
+inline bool supported_bonds(int bonds) {return bonds==32||bonds==64||bonds==128;}
+inline std::array<int,5> selected_beads(int bonds) {
+  if(!supported_bonds(bonds))throw std::invalid_argument("dynamics requires N32, N64 or N128");
+  return {{0,bonds/4,bonds/2,3*bonds/4,bonds}};
+}
 enum Quantity { CM, Bead0, Bead8, Bead16, Bead24, Bead32,
                 Ends, Quarters, EndDifference, QuarterDifference, C1, C2, Quantities };
 inline constexpr std::array<const char*,Quantities> quantity_names{{
   "cm_msd","bead0_msd","bead8_msd","bead16_msd","bead24_msd","bead32_msd",
   "end_msd","quarter_msd","end_msd_difference","quarter_msd_difference","c1","c2"}};
+// Slot aliases retain the N32 names above without mislabeling longer-chain slots.
+inline constexpr Quantity QuarterLeft=Bead8, Center=Bead16, QuarterRight=Bead24, EndRight=Bead32;
+inline std::array<std::string,Quantities> quantity_names_for(int bonds) {
+  const auto selected=selected_beads(bonds);
+  std::array<std::string,Quantities> names;
+  for(unsigned q=0;q<Quantities;++q)names[q]=quantity_names[q];
+  for(unsigned j=0;j<5;++j)names[j+1]="bead"+std::to_string(selected[j])+"_msd";
+  return names;
+}
+
 
 class OwnedDiffusion final : private DiffusionCorrelator {
   template<class T> struct Pool {
@@ -82,7 +98,7 @@ public:
 
 struct Observation {
   Counter chain_id=0;
-  std::array<Vector,6> positions{}; // CM, bead 0,8,16,24,32; unwrapped.
+  std::array<Vector,6> positions{}; // CM, then selected_beads(N); unwrapped.
 };
 struct Support {
   Counter lag_samples,lag_steps,origins_per_chain,decimation_samples,diffusion_phase_samples;
@@ -107,6 +123,7 @@ struct Metadata {
   std::size_t chains;
   Counter frames;
   std::optional<Counter> last_step;
+  int bonds=32;
 };
 struct Result {Metadata metadata;std::vector<ChainResult> chains;std::vector<Bin> mean;};
 
@@ -121,6 +138,7 @@ class Replica {
     }
   };
   Counter id_,frames_=0;
+  int bonds_=32;
   Parameters cfg_;
   Clock clock_;
   std::vector<Counter> ids_;
@@ -147,7 +165,8 @@ public:
     return sizeof(Replica)+chains*per;
   }
   Replica(Counter replica_id,std::vector<Counter> chain_ids,Parameters cfg,Clock clock,
-          std::size_t budget=std::size_t(1)<<30):id_(replica_id),cfg_(cfg),clock_(clock),ids_(std::move(chain_ids)) {
+          std::size_t budget=std::size_t(1)<<30,int bonds=32):id_(replica_id),bonds_(bonds),cfg_(cfg),clock_(clock),ids_(std::move(chain_ids)) {
+    selected_beads(bonds_);
     cfg.validate();
     if(ids_.empty())throw std::invalid_argument("dynamics needs chains");
     auto sorted=ids_;std::sort(sorted.begin(),sorted.end());
@@ -199,7 +218,7 @@ public:
     ++frames_;
   }
   Result evaluate() {
-    Result out{{id_,cfg_,clock_,chains_.size(),frames_,frames_?std::optional<Counter>(step(frames_-1)):std::nullopt},{},{}};
+    Result out{{id_,cfg_,clock_,chains_.size(),frames_,frames_?std::optional<Counter>(step(frames_-1)):std::nullopt,bonds_},{},{}};
     for(std::size_t c=0;c<chains_.size();++c) {
       auto& chain=*chains_[c];auto angles=chain.orientation.evaluate();
       for(auto& owner:chain.msd) {
@@ -217,10 +236,10 @@ public:
             throw std::logic_error("dynamics lag/count mismatch");
           bin.values[q]=owner.value(i);
         }
-        bin.values[Ends]=(bin.values[Bead0]+bin.values[Bead32])/2;
-        bin.values[Quarters]=(bin.values[Bead8]+bin.values[Bead24])/2;
-        bin.values[EndDifference]=bin.values[Bead0]-bin.values[Bead32];
-        bin.values[QuarterDifference]=bin.values[Bead8]-bin.values[Bead24];
+        bin.values[Ends]=(bin.values[Bead0]+bin.values[EndRight])/2;
+        bin.values[Quarters]=(bin.values[QuarterLeft]+bin.values[QuarterRight])/2;
+        bin.values[EndDifference]=bin.values[Bead0]-bin.values[EndRight];
+        bin.values[QuarterDifference]=bin.values[QuarterLeft]-bin.values[QuarterRight];
         bin.values[C1]=a.c1.mean;bin.values[C2]=a.c2->mean;
         for(double value:bin.values)if(!std::isfinite(value))throw std::runtime_error("nonfinite dynamics result");
         if(c==0)out.mean.push_back(bin);
@@ -254,7 +273,7 @@ inline Ensemble summarize(const std::vector<Result>& replicas) {
     if(meta.parameters.levels!=m.parameters.levels || meta.parameters.slots!=m.parameters.slots ||
        meta.parameters.coarsening!=m.parameters.coarsening || meta.clock.first_step!=m.clock.first_step ||
        meta.clock.stride!=m.clock.stride || meta.clock.dt!=m.clock.dt || meta.chains!=m.chains ||
-       meta.frames!=m.frames || meta.last_step!=m.last_step || sample.mean.size()!=ref.mean.size())
+       meta.bonds!=m.bonds || meta.frames!=m.frames || meta.last_step!=m.last_step || sample.mean.size()!=ref.mean.size())
       throw std::invalid_argument("incompatible replica acquisition");
     out.replica_ids.push_back(meta.replica_id);
     for(std::size_t i=0;i<sample.mean.size();++i) {
