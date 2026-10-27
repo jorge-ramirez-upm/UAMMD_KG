@@ -1,12 +1,15 @@
 # Semiflexible-chain project status
 
-D2A.4 status, 27 October 2026: **LONG-DURATION DYNAMICS PREPARATION ONLY**.
-The user-selected N32/M256, dt0.0001/T1000 four-cell/R3 matrix is frozen in
-the [twelve-run handoff](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md), with
-[resource/support derivation](E1_STAGE_D2A4_RESOURCE_PLAN.md). All12 are serial
-without mandatory intermediate review between successes; safety failure stops
-the sequence. No run, test, build, reduction, benchmark or GPU operation was
-executed in Codex. Independent review precedes the user's explicit launch.
+D2A.4 status, 27 October 2026: **TWELVE-RUN COMPLETION REPORTED; SCIENTIFIC
+ANALYSIS PREPARED, NOT EXECUTED IN CODEX**. The user reports status
+completed_twelve_runs_not_scientific_acceptance, zero exits, wall13515.86144873 s,
+peak child RSS163524608 bytes and1620796912 bytes before final summary.
+Saved summary/provenance records were inspected; full hash authentication and
+reductions await the [offline R3 analysis command](E1_STAGE_D2A4_SCIENTIFIC_ANALYSIS.md).
+The [frozen campaign handoff](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md) and
+[resource/support derivation](E1_STAGE_D2A4_RESOURCE_PLAN.md) remain intact.
+No simulation, test, build, reduction, benchmark or GPU operation ran in Codex;
+no equilibrium or terminal-dynamics acceptance follows from execution success.
 The [future six-component rheology requirements](E1_FUTURE_SIX_COMPONENT_RHEOLOGY.md)
 are documentation only: D2A.4 stress stays off, and no physical G(t) of the
 implicit-host probe has been established.
@@ -30,10 +33,12 @@ D2A.3 execution update: the user reports eight successful runs, approximately
 907.24 s campaign wall time, 205.5 MB recorded evidence and peak child RSS
 149196800 bytes. Saved summary/provenance records were inspected read-only;
 full independent authentication and scientific reductions have not been run.
-The [scientific analysis preparation](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md)
-provides the user's offline authentication/analysis command. Physical conclusions,
-four figures and a next-study decision remain pending authenticated products
-and review. This is not scientific dynamics or equilibrium acceptance.
+The [original scientific analysis preparation](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md)
+provides its offline procedure. Prior local analysis-completion/authentication
+products are now available and will be reauthenticated for the D2A.4 comparison,
+without regeneration. Their source/integrity markers were inspected; no fresh
+scientific reduction or physical-result review ran in Codex. This is not
+scientific dynamics or equilibrium acceptance.
 
 D1.6 status, 27 October 2026: **SCIENTIFICALLY CLOSED WITH QUALIFICATIONS —
 EQUILIBRIUM PRESERVATION NOT CONFIRMED**. The
@@ -62,8 +67,9 @@ The present backbone uses an open chain with **N bonds and N+1 beads**, free end
 | E1 canonical slip-spring equilibrium and fixed attachments | Design frozen; Stages A/B accepted, Stage C hopping/renewal bounded checks passed | [EQUILIBRIUM_MODEL_E1.md](EQUILIBRIUM_MODEL_E1.md), [Stage A audit](E1_STAGE_A_AUDIT.md), [Stage B report](E1_STAGE_B_REPORT.md), [Stage C report](E1_STAGE_C_REPORT.md); no Brownian timestep acceptance or rheology validation |
 | E1 D1.6B–F scientific investigation | Scientifically closed with qualifications; equilibrium preservation not confirmed | [Scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md); completed exploratory cohort and theoretical audit, not an equilibrium-preservation acceptance pass |
 | D2A.1 CPU observables / D2A.2 read-only acquisition | Bounded technical acceptance on user-reported verification | [D2A.1 report](E1_STAGE_D2A1_IMPLEMENTATION_REPORT.md), [D2A.2 report](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md), [current acceptance scope](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md#d2a2-bounded-technical-closure); no terminal-dynamics or performance acceptance |
-| D2A.3 exploratory dynamical study | Eight-run completion reported by user; independent authentication and scientific interpretation pending | [Approved design](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md), [campaign preparation](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md), [offline analysis handoff](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md); analysis code unexecuted in Codex |
-| D2A.4 long-duration dynamics | Frozen twelve-run preparation; execution and regression checks unexecuted | [Campaign handoff](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md), [resource/lag support](E1_STAGE_D2A4_RESOURCE_PLAN.md); same accepted executable, stress disabled |
+| D2A.3 exploratory dynamical study | Prior local execution/analysis products available; comparison reauthentication prepared | [Original analysis handoff](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md), [D2A.4 comparison](E1_STAGE_D2A4_SCIENTIFIC_ANALYSIS.md); historical results preserved, no new reduction in Codex |
+| D2A.4 long-duration dynamics | Twelve-run completion reported; R3 analysis/authentication prepared, unexecuted | [Campaign handoff](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md), [offline analysis](E1_STAGE_D2A4_SCIENTIFIC_ANALYSIS.md); scientific interpretation pending, stress disabled |
+| D2A.5 longer chains | Subsequent milestone only, not implemented | After actual D2A.4 review: begin N64/M256, constrained Z4096, R3; T2000 provisional and subject to measured N32 relaxation |
 | Future E1 rheology | Six-component estimator and ordered correlation requirements recorded; not implemented | [Rheology design requirements](E1_FUTURE_SIX_COMPONENT_RHEOLOGY.md); Correlator6 reuse and mixed-class ordering inspected, physical response derivation outstanding |
 
 The D1.0–D1.4 paragraphs below are historical stage snapshots; their preparation-

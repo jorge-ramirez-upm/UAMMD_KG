@@ -333,15 +333,25 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
-D2A.4 prepares [twelve sequential T1000 dynamics runs](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md)
-with three whole-run replicas per stiffness/occupancy cell. The
+D2A.4's twelve-run T1000 campaign is **reported complete by the user; independent
+scientific authentication and interpretation remain pending**. The
+[offline R3 analysis handoff](E1_STAGE_D2A4_SCIENTIFIC_ANALYSIS.md) reuses the
+D2A.3 analysis, verifies original receipts/metadata/hash inventories first, then
+prepares four PNG/PDF figures, replica SE/slopes/reference/performance tables
+and a comparison with existing D2A.3 products. Nothing was reduced or plotted
+in Codex; no prior evidence or analysis products are overwritten. After review
+of actual results, D2A.5 will address N64 (constrained Z4096, M256, R3), with
+T2000 provisional. No longer-chain implementation is included here.
+
+The historical [twelve-run preparation](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md)
+fixes three whole-run replicas per stiffness/occupancy cell. The
 [frozen manifest](e1_d2a4_config/manifest.json), sparse schedules and small
 [entry point](e1_d2a4_run.py) reuse the parameterized D2A.3 execution/validation
 path. See the [resource and actual lag-support plan](E1_STAGE_D2A4_RESOURCE_PLAN.md):
 L15/P16/m2 exports through901.12 (one origin/chain); the proposed primary range
-ends at184.32. Preparation/checks remain **unexecuted**, awaiting independent
-review before local launch; there is no mandatory review between successful
-members, retry or automatic parameter reduction. Stress remains disabled.
+ends at184.32. Its earlier preparation statements do not supersede the user's
+reported execution; they do not direct a rerun of existing evidence. Stress
+remains disabled, with no automatic restart or parameter reduction.
 
 [Future rheology requirements](E1_FUTURE_SIX_COMPONENT_RHEOLOGY.md) record the
 selected three-shear/three-normal-difference contraction with exact1/5 and1/30
@@ -349,12 +359,13 @@ coefficients, four ordered backbone/virtual correlation classes and inspected
 Correlator6/cross-correlator reuse. No stress correlation or G(t) calculation
 is implemented; physical probe-response normalization remains a later derivation.
 
-D2A.3's eight-run campaign is **reported complete by the user; scientific
-authentication and interpretation are pending**. The
+D2A.3's eight-run campaign has prior local analysis-completion/authentication
+products. The D2A.4 comparison will recheck their hashes and unchanged inputs
+without regenerating them. The original
 [offline analysis preparation and one-command handoff](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md)
-will authenticate the raw hash/metadata closure before reducing replica curves,
-then generate four PNG/PDF figures and compact tables in a fresh external
-directory. No analysis, figure generation or new scientific conclusion ran in
+records its authentication/reduction procedure and original command. Existing
+outputs remain unchanged; a rerun would require a different fresh directory.
+No analysis, figure generation or new scientific conclusion ran in
 Codex. The original evidence, accepted model and D1.6 qualification are unchanged.
 
 D2A.3 has a [complete eight-run preparation record](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md),
