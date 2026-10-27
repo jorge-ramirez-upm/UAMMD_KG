@@ -333,6 +333,17 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D1.6D is a [preparation-only theoretical audit](E1_STAGE_D16D_THEORETICAL_AUDIT.md),
+with an [accepted-source trace](E1_STAGE_D16D_SOURCE_TRACE.md),
+[discrete-time analysis](E1_STAGE_D16D_DISCRETE_TIME_ANALYSIS.md),
+[scientific decision](E1_STAGE_D16D_SCIENTIFIC_DECISION.md) and
+[implementation/limitations report](E1_STAGE_D16D_IMPLEMENTATION_REPORT.md).
+Its [deterministic mathematical tests](tests/d16d_math_regression.py) are
+**unexecuted**. Independent review and separate authorization must precede any
+local verification or accepted-simulator changes. No D1.6D tests, builds,
+preflights, simulations, sampling, reference recalculations or analyses ran;
+the accepted simulator and commands below are unchanged.
+
 D1.6C has a separate [read-only repair and audit guide](E1_STAGE_D16C_OPERATOR_GUIDE.md).
 It returns the saved D1.6B analysis intact and gates secondary diagnostics behind
 independent review. Do not rerun the original D1.6B `results` command for this repair.
