@@ -1,5 +1,15 @@
 # Semiflexible-chain project status
 
+D1.6 status, 27 October 2026: **SCIENTIFICALLY CLOSED WITH QUALIFICATIONS —
+EQUILIBRIUM PRESERVATION NOT CONFIRMED**. The
+[scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md) consolidates D1.6B–F;
+it is not a passed equilibrium-preservation acceptance test. No implementation
+defect was identified in the inspected equilibrium initialization, hopping or
+renewal rules. Full-model stationary connector-bias sign and magnitude remain
+unestablished. Proceed toward dynamical characterization with the accepted
+simulator unchanged, retaining timestep sensitivity as an interpretation
+limitation; review and separate authorization precede the next milestone.
+
 This repository is a validated backbone for a future slip-spring model. Its long-term objective is to study semiflexible chains with dynamically introduced, moved, and removed slip-springs while retaining an independently testable polymer reference. Development-only E1 Stage A fixed-attachment harmonic slip-springs are implemented and independently audited; Stages B/C nearest-neighbor Metropolis hopping and end renewal are implemented with bounded detailed-balance and equilibrium verification. Slip-spring rheology and terminal dynamics remain unvalidated. See [the audit](E1_STAGE_A_AUDIT.md) and [Stage C report](E1_STAGE_C_REPORT.md).
 
 The present backbone uses an open chain with **N bonds and N+1 beads**, free ends, unwrapped coordinates, no excluded volume, no hydrodynamics, no periodic wrapping, and independent chains. The finite-rest-length Hamiltonian, exact equilibrium initializer, overdamped Euler–Maruyama update, GPU observations, configurational stress, and CPU reference tools are implemented under this directory. The original Gaussian Rouse path remains available and unchanged.
@@ -15,6 +25,11 @@ The present backbone uses an open chain with **N bonds and N+1 beads**, free end
 | Energy/distribution static diagnostics for Stage 4A.4 | Unresolved | Existing scalar outputs do not provide all required energy, angle, end-to-end, or full-contour distributions |
 | Terminal nonlinear relaxation | Unresolved | T=20 timestep studies are short-time comparisons, not terminal campaigns |
 | E1 canonical slip-spring equilibrium and fixed attachments | Design frozen; Stages A/B accepted, Stage C hopping/renewal bounded checks passed | [EQUILIBRIUM_MODEL_E1.md](EQUILIBRIUM_MODEL_E1.md), [Stage A audit](E1_STAGE_A_AUDIT.md), [Stage B report](E1_STAGE_B_REPORT.md), [Stage C report](E1_STAGE_C_REPORT.md); no Brownian timestep acceptance or rheology validation |
+| E1 D1.6B–F scientific investigation | Scientifically closed with qualifications; equilibrium preservation not confirmed | [Scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md); completed exploratory cohort and theoretical audit, not an equilibrium-preservation acceptance pass |
+
+The D1.0–D1.4 paragraphs below are historical stage snapshots; their preparation-
+time authorization/execution statements do not supersede the completed D1.6B
+cohort or the current D1.6 closure classification.
 
 E1 Stage D1.0's read-only equilibrium observer has bounded technical acceptance
 under the user's Stage D1.1 instruction. Stage D1.1 prepares a frozen proposed

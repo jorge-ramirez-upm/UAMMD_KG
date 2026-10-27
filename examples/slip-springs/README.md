@@ -333,6 +333,14 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D1.6 is **SCIENTIFICALLY CLOSED WITH QUALIFICATIONS — EQUILIBRIUM PRESERVATION
+NOT CONFIRMED**; see the [scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md).
+This is not a passed equilibrium-preservation acceptance test. The closure
+recommends dynamical characterization with the accepted simulator unchanged,
+retaining timestep sensitivity as an interpretation limitation. No next milestone
+begins before review and separate authorization. Historical D1.6B–F records below
+retain their original execution and evidentiary qualifications.
+
 D1.6F prepares the [invariant response](E1_STAGE_D16F_INVARIANT_RESPONSE.md),
 [sign analysis and bounds](E1_STAGE_D16F_SIGN_ANALYSIS.md),
 [Gaussian projections and solvable toys](E1_STAGE_D16F_REDUCED_MODELS.md),
