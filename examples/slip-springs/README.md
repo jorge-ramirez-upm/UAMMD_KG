@@ -337,20 +337,31 @@ D2A.2 adds optional [read-only dynamical acquisition](dynamical_observer.h);
 see [configuration, output, phase and local verification commands](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md).
 It is **disabled by default** (--dynamics 0), reuses synchronous coordinate
 readback and the unchanged CPU adapter, and adds no internal monomer MSDs.
-[CPU acquisition/export checks](tests/dynamical_observer_cpu.cpp),
-[allocation-failure checks](tests/dynamical_observer_allocation_failure.cpp) and
-[separately gated tiny trajectory-invariance checks](tests/dynamical_integration_tiny.py)
-are prepared and **unexecuted**. No builds, tests or GPU work ran in Codex.
-Independent review and separate authorization precede any tiny GPU run.
+**D2A.2 HAS BOUNDED TECHNICAL ACCEPTANCE**, according to user-reported CPU
+correctness, sanitizer and allocation-failure passes, the
+[corrected metadata regression](tests/dynamical_integration_metadata_regression.py)
+pass, and the double-precision [tiny GPU verifier](tests/dynamical_integration_tiny.py)
+pass. Enabled/disabled physical records agreed within the saved-output scope;
+deterministic dynamical correlation replay passed. All intermediate states were
+not compared. Long-time scientific dynamics, equilibrium preservation and
+performance acceptance are not established. Historical implementation reports
+retain their preparation-time execution statements; detailed user logs were
+not independently audited in this documentation milestone.
+
+The [D2A.3 exploratory design](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md) proposes
+four stiffness/occupancy cells, initially two independent replicas per cell,
+T=100 and dt=0.0001, with compact streaming correlations. These are proposals
+for independent review, **not execution authorization or a production-timestep
+selection**. No D2A.3 campaign, build, test or GPU operation ran here.
 
 D2A.1 adds a standalone [CPU dynamical observable adapter](dynamical_observables.h)
 and [implementation/usage and local verification commands](E1_STAGE_D2A1_IMPLEMENTATION_REPORT.md).
 It implements CM MSD, **absolute** MSDs for beads 0/8/16/24/32, symmetry reductions,
 C1/C2 and replica uncertainty; **no internal monomer MSDs**. The
 [prescribed-coordinate tests](tests/dynamical_cpu.cpp) and
-[allocation-failure tests](tests/dynamical_allocation_failure.cpp) are prepared,
-**not built or executed**. Independent review precedes user verification.
-No CUDA integration, scientific campaign or accepted-dynamics change is included.
+[allocation-failure tests](tests/dynamical_allocation_failure.cpp), including
+sanitizer checks, passed according to user reports. D2A.2 integrates this
+unchanged adapter; no scientific campaign or accepted-dynamics change is implied.
 
 D2A.0 is a documentation-only plan for [dynamical observables](E1_STAGE_D2A_OBSERVABLES.md),
 [KG/orientation correlator reuse](E1_STAGE_D2A_CORRELATOR_REUSE.md) and a

@@ -1,5 +1,16 @@
 # Semiflexible-chain project status
 
+D2A.2 status, 27 October 2026: **BOUNDED TECHNICAL ACCEPTANCE**, based on
+user-reported CPU correctness, sanitizer and allocation-failure passes, the
+corrected metadata regression pass, and the double-precision tiny GPU verifier
+pass. Enabled/disabled saved physical records agreed and dynamical correlation
+replay passed in the two tested configurations. This does not compare all
+intermediate states or establish long-time dynamics, equilibrium preservation
+or performance acceptance. See the [implementation/verification record](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md)
+and [acceptance scope and D2A.3 proposal](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md).
+The latter proposes eight exploratory runs across four cells; **review and
+separate execution authorization remain required**. No D2A.3 run has begun.
+
 D1.6 status, 27 October 2026: **SCIENTIFICALLY CLOSED WITH QUALIFICATIONS —
 EQUILIBRIUM PRESERVATION NOT CONFIRMED**. The
 [scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md) consolidates D1.6B–F;
@@ -26,6 +37,8 @@ The present backbone uses an open chain with **N bonds and N+1 beads**, free end
 | Terminal nonlinear relaxation | Unresolved | T=20 timestep studies are short-time comparisons, not terminal campaigns |
 | E1 canonical slip-spring equilibrium and fixed attachments | Design frozen; Stages A/B accepted, Stage C hopping/renewal bounded checks passed | [EQUILIBRIUM_MODEL_E1.md](EQUILIBRIUM_MODEL_E1.md), [Stage A audit](E1_STAGE_A_AUDIT.md), [Stage B report](E1_STAGE_B_REPORT.md), [Stage C report](E1_STAGE_C_REPORT.md); no Brownian timestep acceptance or rheology validation |
 | E1 D1.6B–F scientific investigation | Scientifically closed with qualifications; equilibrium preservation not confirmed | [Scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md); completed exploratory cohort and theoretical audit, not an equilibrium-preservation acceptance pass |
+| D2A.1 CPU observables / D2A.2 read-only acquisition | Bounded technical acceptance on user-reported verification | [D2A.1 report](E1_STAGE_D2A1_IMPLEMENTATION_REPORT.md), [D2A.2 report](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md), [current acceptance scope](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md#d2a2-bounded-technical-closure); no terminal-dynamics or performance acceptance |
+| D2A.3 exploratory dynamical study | Documentation-only proposal; execution not authorized | [Four-cell design and resource assumptions](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md); unchanged accepted model |
 
 The D1.0–D1.4 paragraphs below are historical stage snapshots; their preparation-
 time authorization/execution statements do not supersede the completed D1.6B
