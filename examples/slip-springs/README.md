@@ -333,6 +333,15 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D1.6E adds an [independent force-square derivation](E1_STAGE_D16E_FORCE_SQUARE_DERIVATION.md),
+[numerical verification preparation](E1_STAGE_D16E_NUMERICAL_VERIFICATION.md),
+[scientific decision](E1_STAGE_D16E_SCIENTIFIC_DECISION.md) and
+[implementation report](E1_STAGE_D16E_IMPLEMENTATION_REPORT.md).
+The [standalone quadrature and mathematical checks](tests/d16e_force_square.py)
+are **unexecuted**; supplied numerical values remain unverified. No D1.6E tests,
+symbolic programs, quadrature, builds, preflights or scientific computations ran.
+Independent review precedes user execution. Accepted simulator commands remain unchanged.
+
 D1.6D is a [preparation-only theoretical audit](E1_STAGE_D16D_THEORETICAL_AUDIT.md),
 with an [accepted-source trace](E1_STAGE_D16D_SOURCE_TRACE.md),
 [discrete-time analysis](E1_STAGE_D16D_DISCRETE_TIME_ANALYSIS.md),
