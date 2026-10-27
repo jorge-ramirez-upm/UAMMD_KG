@@ -333,6 +333,15 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D2A.1 adds a standalone [CPU dynamical observable adapter](dynamical_observables.h)
+and [implementation/usage and local verification commands](E1_STAGE_D2A1_IMPLEMENTATION_REPORT.md).
+It implements CM MSD, **absolute** MSDs for beads 0/8/16/24/32, symmetry reductions,
+C1/C2 and replica uncertainty; **no internal monomer MSDs**. The
+[prescribed-coordinate tests](tests/dynamical_cpu.cpp) and
+[allocation-failure tests](tests/dynamical_allocation_failure.cpp) are prepared,
+**not built or executed**. Independent review precedes user verification.
+No CUDA integration, scientific campaign or accepted-dynamics change is included.
+
 D2A.0 is a documentation-only plan for [dynamical observables](E1_STAGE_D2A_OBSERVABLES.md),
 [KG/orientation correlator reuse](E1_STAGE_D2A_CORRELATOR_REUSE.md) and a
 [minimal CPU-first implementation](E1_STAGE_D2A_IMPLEMENTATION_PLAN.md).
