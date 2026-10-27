@@ -333,6 +333,15 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D2A.0 is a documentation-only plan for [dynamical observables](E1_STAGE_D2A_OBSERVABLES.md),
+[KG/orientation correlator reuse](E1_STAGE_D2A_CORRELATOR_REUSE.md) and a
+[minimal CPU-first implementation](E1_STAGE_D2A_IMPLEMENTATION_PLAN.md).
+[D2B force-distribution ideas](E1_STAGE_D2B_FORCE_DISTRIBUTION_IDEAS.md) are
+recorded separately as future model changes. See the
+[planning report](E1_STAGE_D2A_IMPLEMENTATION_REPORT.md). No code, tests,
+analyses, builds or GPU work ran; independent review precedes implementation.
+The accepted dynamics and the D1.6 closure classification remain unchanged.
+
 D1.6 is **SCIENTIFICALLY CLOSED WITH QUALIFICATIONS — EQUILIBRIUM PRESERVATION
 NOT CONFIRMED**; see the [scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md).
 This is not a passed equilibrium-preservation acceptance test. The closure
