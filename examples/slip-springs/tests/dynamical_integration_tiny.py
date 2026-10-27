@@ -34,10 +34,18 @@ def load(path):
     return json.loads(path.read_text())
 
 
-def same_json(a, b, ignored):
+def same_json(a, b, ignored, *, timing_metadata_size=False):
     left, right = load(a), load(b)
     require(left.keys() == right.keys(), f'metadata schema mismatch: {a.name}')
     require(ignored <= left.keys(), f'expected timing fields absent: {a.name}')
+    if timing_metadata_size:
+        require(left['files'].keys() == right['files'].keys(),
+                f'file inventory mismatch: {a.name}')
+        require('metadata.json' in left['files'], 'main metadata absent from inventory')
+        # Its length includes variable timing text; same_physics checks its contents.
+        for document in (left, right):
+            document['files'] = {k: v for k, v in document['files'].items()
+                                 if k != 'metadata.json'}
     require({k: v for k, v in left.items() if k not in ignored} ==
             {k: v for k, v in right.items() if k not in ignored},
             f'physical/structural metadata mismatch: {a.name}')
@@ -54,7 +62,7 @@ def same_physics(a, b):
         if name == 'metadata.json':
             same_json(a / name, b / name, MAIN_TIMING)
         elif name == 'equilibrium_complete.json':
-            same_json(a / name, b / name, EQUILIBRIUM_TIMING)
+            same_json(a / name, b / name, EQUILIBRIUM_TIMING, timing_metadata_size=True)
         else:
             require((a / name).read_bytes() == (b / name).read_bytes(),
                     f'byte-identity mismatch: {name}')
