@@ -333,6 +333,16 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D1.6F prepares the [invariant response](E1_STAGE_D16F_INVARIANT_RESPONSE.md),
+[sign analysis and bounds](E1_STAGE_D16F_SIGN_ANALYSIS.md),
+[Gaussian projections and solvable toys](E1_STAGE_D16F_REDUCED_MODELS.md),
+[scientific decision](E1_STAGE_D16F_SCIENTIFIC_DECISION.md) and
+[implementation report](E1_STAGE_D16F_IMPLEMENTATION_REPORT.md).
+The full E1 stationary connector-bias sign remains unresolved.
+[Exact mathematical regression specifications](tests/d16f_math_regression.py)
+are **unexecuted**. No tests or scientific computations ran; no new campaign
+is designed or authorized. Stop for independent review before verification.
+
 D1.6E adds an [independent force-square derivation](E1_STAGE_D16E_FORCE_SQUARE_DERIVATION.md),
 [numerical verification preparation](E1_STAGE_D16E_NUMERICAL_VERIFICATION.md),
 [scientific decision](E1_STAGE_D16E_SCIENTIFIC_DECISION.md) and
