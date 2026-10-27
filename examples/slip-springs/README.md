@@ -333,6 +333,15 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D2A.3 now has a [complete eight-run preparation and one-command handoff](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md),
+with a [frozen manifest](e1_d2a3_config/manifest.json), sparse schedules and
+[serial resource-bounded runner](e1_d2a3_run.py). The user's chosen policy is
+all eight sequentially, without an intermediate confirmation after a successful
+first run. Failures stop the sequence; there is no retry/resume or automatic
+parameter reduction. Preparation is unexecuted and awaits independent review
+before the user launches it. Outputs stay outside Git; accepted dynamics and
+the D1.6 qualification are unchanged.
+
 D2A.2 adds optional [read-only dynamical acquisition](dynamical_observer.h);
 see [configuration, output, phase and local verification commands](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md).
 It is **disabled by default** (--dynamics 0), reuses synchronous coordinate
