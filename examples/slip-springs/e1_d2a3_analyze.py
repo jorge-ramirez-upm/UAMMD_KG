@@ -19,6 +19,7 @@ from e1_d2a3_run import MANIFEST_SHA, QUANTITIES, validate_output
 
 PROJECT = Path(__file__).resolve().parent
 PREPARATION_SHA = '5f9aa4daf35b4e4fd4df51b31bce34aa1aa09f68'
+LOCAL_VALIDATOR_SHA = '31e5d47b2b39dec0377c3455c30b487c37c8f2b1bba8e81bb0932e14e9c5f438'
 SUMMARY_SHA = '6e8e95a86318a60644ce5164dc0725a6ad62aad922d39fabb95174831e9ceabc'
 LAUNCH_SHA = 'a8fa886971e56c8025e97587e494c732ed273fdc2a250dbda32de2f0520aa8a2'
 DEFAULT_EVIDENCE = Path('/home/jramirez/UAMMD_KG-evidence/d2a3/exploratory-eight-v1')
@@ -125,7 +126,11 @@ def authenticate(root):
         require(before[f'provenance/{name}'] == record, f'provenance hash: {name}')
         if name.endswith('.py'):
             require((root / 'provenance' / name).read_bytes() == git_blob(name), f'tool identity: {name}')
-            require((PROJECT / name).read_bytes() == git_blob(name), f'local validation helper changed: {name}')
+            if name == 'e1_d2a3_run.py':
+                require(file_record(PROJECT / name)['sha256'] == LOCAL_VALIDATOR_SHA,
+                        'reviewed parameterized local validator changed')
+            else:
+                require((PROJECT / name).read_bytes() == git_blob(name), f'local validation helper changed: {name}')
     require(before['provenance/build-settings.json']['sha256'] == m['build_provenance']['sha256'],
             'build-settings identity')
     build = load(root / 'provenance/build-settings.json')

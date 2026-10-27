@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Prepared D2A.3 serial runner. Execution requires --execute-reviewed-eight.
+"""D2A.3 serial runner and shared D2A.4 campaign driver, preparation only.
 
+Direct execution retains --execute-reviewed-eight; D2A.4 uses its own wrapper.
 No simulation on import. Uses the existing Linux child supervisor unchanged.
 This validates acquisition completeness and resources, not scientific dynamics.
 """
@@ -59,10 +60,28 @@ def inventory(root):
             for p in sorted(root.rglob('*')) if p.is_file()}
 
 
-def curves(path, replica, chains):
-    # For F=10001, L11/P16/m2: deepest populated level 10 is not exported.
-    grid = [(ell, 1) for ell in range(16)] + [
-        (ell * 2**k, 2**k) for k in range(1, 10) for ell in range(8, 16)]
+def acquisition_expected(expected=None):
+    if expected is not None:
+        return expected
+    require(digest(CONFIG / 'manifest.json') == MANIFEST_SHA, 'D2A.3 default manifest changed')
+    return load(CONFIG / 'manifest.json')['expected']
+
+
+def exported_grid(expected):
+    """Mirror KG export support, including deepest-level omission and partial levels."""
+    frames, levels, slots, m = (expected[k] for k in ('dynamics_frames', 'levels', 'slots', 'm'))
+    require(frames > 0 and levels > 0 and slots >= m >= 2 and slots % m == 0, 'invalid grid')
+    deepest = 0
+    while deepest + 1 < levels and frames // m**(deepest + 1):
+        deepest += 1
+    return [(ell, 1) for ell in range(min(slots, frames))] + [
+        (ell * m**k, m**k) for k in range(1, deepest)
+        for ell in range(slots // m, min(slots, frames // m**k))]
+
+
+def curves(path, replica, chains, expected=None):
+    e = acquisition_expected(expected)
+    grid = exported_grid(e)
     expected = itertools.product(chains, grid)
     with path.open(newline='') as stream:
         reader = csv.DictReader(stream)
@@ -75,28 +94,35 @@ def curves(path, replica, chains):
                     f'correlation chain/row mismatch: {path}')
             require(all(v is not None and math.isfinite(float(v))
                         for k, v in row.items() if k != 'chain'), f'nonfinite correlation: {path}')
-            integers = {'replica': replica, 'lag_samples': lag, 'lag_steps': lag * 100,
-                        'origins_per_chain': 10001 // block - lag // block,
+            integers = {'replica': replica, 'lag_samples': lag, 'lag_steps': lag * e['stride'],
+                        'origins_per_chain': e['dynamics_frames'] // block - lag // block,
                         'decimation_samples': block, 'diffusion_phase_samples': block - 1,
                         'orientation_block_samples': block}
             require(all(int(row[k]) == v for k, v in integers.items()),
                     f'correlation clock/count support: {path}')
-            require(float(row['lag_time']) == (lag * 100) * 0.0001 and
-                    float(row['orientation_block_duration']) == (block * 100) * 0.0001,
+            require(float(row['lag_time']) == (lag * e['stride']) * e['dt'] and
+                    float(row['orientation_block_duration']) == (block * e['stride']) * e['dt'],
                     f'correlation lag time/block width: {path}')
             count += 1
     return count
 
 
-def validate_output(root, run):
+def validate_output(root, run, expected=None):
     """Completion/identity validation only; no curve fitting or scientific inference."""
+    e = acquisition_expected(expected)
+    steps, full = e['steps'], e['full_frames']
+    require(e['dynamics_frames'] == steps // e['stride'] + 1 and
+            e['scalar_frames'] == steps // e['scalar_stride'] + 1 and
+            e['shared_frames'] == e['scalar_frames'] and
+            e['extra_readbacks'] == e['dynamics_frames'] - e['shared_frames'], 'manifest clock counts')
+    require(len(exported_grid(e)) == e['exported_bins_per_chain'], 'manifest exported-bin count')
     z, kappa, seed = run['Z'], run['kappa'], run['seed']
     physical = PHYSICAL | (SPRINGS if z else set())
     require({p.name for p in root.iterdir()} == physical | {'dynamics'}, 'output inventory')
     require(all((root / name).is_file() for name in physical), 'missing physical file')
     complete = load(root / 'equilibrium_complete.json')
     require(complete.get('complete') is True, 'physical completion flag')
-    matches(complete, {'version': 1, 'complete': True, 'frames': 11}, 'physical completion')
+    matches(complete, {'version': 1, 'complete': True, 'frames': full}, 'physical completion')
     require(set(complete['files']) == physical - {'parameters.txt', 'equilibrium_complete.json'},
             'physical completion inventory')
     for name, size in complete['files'].items():
@@ -106,7 +132,7 @@ def validate_output(root, run):
     matches(main, {'model': 'finite-rest-length-Kratky-Porod', 'precision_bits': 64,
                    'timer_version': 1, 'springs': 32, 'chains': 256, 'beads_per_chain': 33,
                    'total_beads': 8448, 'dt': 0.0001, 'kbt': 1, 'zeta': 1,
-                   'steps': 1000000, 'production_time': 100, 'sample': 5000, 'seed': seed,
+                   'steps': steps, 'production_time': e['T'], 'sample': e['scalar_stride'], 'seed': seed,
                    'slip_count': z, 'slip_ms2': 5 if z else None, 'rng_domain': 3,
                    'slip_effective_stiffness': 0.6 if z else None,
                    'active_angles': 31 if kappa else 0,
@@ -116,13 +142,13 @@ def validate_output(root, run):
             [32] + [1, 30] * 32 + [0] + [kappa] * 31 + [0], 'physical parameters file')
     matches(load(root / 'equilibrium_schema.json'), {
         'version': 1, 'phase': 'initial before dynamics; otherwise after BD and complete jump batch',
-        'dt': 0.0001, 'legacy_sample_stride': 5000, 'steps': 1000000, 'chains': 256,
-        'beads_per_chain': 33, 'slip_count': z, 'canonical': bool(z), 'expected_frames': 11,
-        'snapshot_steps': [0, 1000000]}, 'equilibrium schema')
+        'dt': 0.0001, 'legacy_sample_stride': e['scalar_stride'], 'steps': steps, 'chains': 256,
+        'beads_per_chain': 33, 'slip_count': z, 'canonical': bool(z), 'expected_frames': full,
+        'snapshot_steps': [0, steps]}, 'equilibrium schema')
     if z:
         matches(load(root / 'hopping_metadata.json'),
                 {'version': 2, 'rate': 100, 'interval_bd_steps': 1, 'end_renewal': True,
-                 'batches': 1000000}, 'hopping identity')
+                 'batches': steps}, 'hopping identity')
     dynamics = root / 'dynamics'
     require({p.name for p in dynamics.iterdir()} ==
             {'metadata.json', 'chain_correlations.csv', 'replica_correlations.csv'},
@@ -132,12 +158,12 @@ def validate_output(root, run):
     matches(m, {'version': 1, 'complete': True, 'replica': run['replica_id'],
                 'N': 32, 'chains': 256, 'beads_per_chain': 33, 'precision_bits': 64,
                 'seed': seed, 'dt': 0.0001, 'kbt': 1, 'zeta': 1,
-                'selected_beads': [0, 8, 16, 24, 32], 'first_step': 0, 'stride': 100,
-                'integration_steps': 1000000, 'frames': 10001, 'last_step': 1000000,
-                'correlator_levels': 11, 'correlator_slots': 16, 'correlator_m': 2,
-                'memory_budget_bytes': 256 * 1024**2, 'shared_frames': 201,
-                'extra_readbacks': 9800, 'shared_readback_bytes': 201 * 270336,
-                'extra_readback_bytes': 9800 * 270336, 'deepest_populated_level_omitted': True,
+                'selected_beads': [0, 8, 16, 24, 32], 'first_step': 0, 'stride': e['stride'],
+                'integration_steps': steps, 'frames': e['dynamics_frames'], 'last_step': steps,
+                'correlator_levels': e['levels'], 'correlator_slots': e['slots'], 'correlator_m': e['m'],
+                'memory_budget_bytes': e['memory_mib'] * 1024**2, 'shared_frames': e['shared_frames'],
+                'extra_readbacks': e['extra_readbacks'], 'shared_readback_bytes': e['shared_frames'] * 270336,
+                'extra_readback_bytes': e['extra_readbacks'] * 270336, 'deepest_populated_level_omitted': True,
                 'incomplete_blocks_promoted': False, 'diffusion_point_width_samples': 1,
                 'independent_replicas': 1, 'standard_error': None,
                 'slip_count': z, 'slip_ms2': 5 if z else None,
@@ -153,15 +179,15 @@ def validate_output(root, run):
             'dynamical metadata')
     for key in ('effective_mobility_step', 'effective_noise'):
         require(m[key] == main[key], f'physical/dynamical {key} mismatch')
-    rows = {name: curves(dynamics / name, run['replica_id'], chains) for name, chains in (
+    rows = {name: curves(dynamics / name, run['replica_id'], chains, e) for name, chains in (
         ('chain_correlations.csv', map(str, range(256))), ('replica_correlations.csv', ['']))}
     # Sparse physical context: counts only, no new scientific interpretation.
-    expected_rows = {'initial.csv': 8448, 'final.csv': 8448, 'samples.csv': 201 * 256,
+    expected_rows = {'initial.csv': 8448, 'final.csv': 8448, 'samples.csv': e['scalar_frames'] * 256,
                      'initial_bonds.csv': 8192, 'bond_statistics.csv': 8192,
-                     'equilibrium_positions.csv': 2 * 8448,
-                     'equilibrium_attachments.csv': 2 * z, 'equilibrium_events.csv': 11,
-                     'equilibrium_sites.csv': 11 * 8448, 'equilibrium_connectors.csv': 11 * z,
-                     'equilibrium_chains.csv': 11 * 256, 'equilibrium_tangents.csv': 11 * 256,
+                     'equilibrium_positions.csv': e['snapshot_frames'] * 8448,
+                     'equilibrium_attachments.csv': e['snapshot_frames'] * z, 'equilibrium_events.csv': full,
+                     'equilibrium_sites.csv': full * 8448, 'equilibrium_connectors.csv': full * z,
+                     'equilibrium_chains.csv': full * 256, 'equilibrium_tangents.csv': full * 256,
                      'equilibrium_backbone.csv': 0}  # These full frames reuse scalar rows.
     if z:
         expected_rows.update({name: z for name in SPRINGS if name.endswith('.csv')})
@@ -208,12 +234,15 @@ def identities(manifest):
     require(not capture(['git', '-C', source['path'], 'status', '--porcelain']), 'dirty compiled source')
 
 
-def main():
+def campaign_main(config_source=CONFIG, manifest_sha=MANIFEST_SHA,
+                  execute_flag='--execute-reviewed-eight', cohort_name='eight', entry_point=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--execute-reviewed-eight', action='store_true', required=True)
+    parser.add_argument(execute_flag, action='store_true', required=True)
     parser.parse_args()
     start = time.monotonic()
-    overall_deadline = start + 7200
+    manifest = load(config_source / 'manifest.json')
+    require(digest(config_source / 'manifest.json') == manifest_sha, 'frozen manifest changed')
+    overall_deadline = start + manifest['limits']['aggregate_seconds']
     def interrupted(signum, frame):
         raise InterruptedError(f'signal {signum}: deadline or operator interruption')
     for sig in (signal.SIGALRM, signal.SIGTERM):
@@ -223,9 +252,7 @@ def main():
         require(remaining > 0, 'campaign/run deadline exceeded')
         signal.setitimer(signal.ITIMER_REAL, remaining)
     arm(overall_deadline)
-    manifest = load(CONFIG / 'manifest.json')
-    require(digest(CONFIG / 'manifest.json') == MANIFEST_SHA, 'frozen manifest changed')
-    require((CONFIG / 'manifest.sha256').read_text().split()[0] == MANIFEST_SHA, 'manifest sidecar')
+    require((config_source / 'manifest.sha256').read_text().split()[0] == manifest_sha, 'manifest sidecar')
     root = Path(manifest['output_root'])
     require(not root.exists() and not root.is_symlink(), 'refusing to overwrite/adopt campaign root')
     root.parent.mkdir(parents=True, exist_ok=True)
@@ -236,7 +263,7 @@ def main():
     with os.fdopen(fd, 'a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         root.mkdir()
-        summary = {'status': 'preparing', 'started_utc': utc(), 'manifest_sha256': MANIFEST_SHA,
+        summary = {'status': 'preparing', 'started_utc': utc(), 'manifest_sha256': manifest_sha,
                    'completed_runs': [], 'run_records': [], 'failed_run': None}
         directory = None
         try:
@@ -244,10 +271,10 @@ def main():
             config = root / 'config'
             config.mkdir()
             for name, expected in manifest['schedules'].items():
-                require(digest(CONFIG / name) == expected['sha256'], f'schedule changed: {name}')
-                shutil.copyfile(CONFIG / name, config / name)
-            shutil.copyfile(CONFIG / 'manifest.json', config / 'manifest.json')
-            shutil.copyfile(CONFIG / 'manifest.sha256', config / 'manifest.sha256')
+                require(digest(config_source / name) == expected['sha256'], f'schedule changed: {name}')
+                shutil.copyfile(config_source / name, config / name)
+            shutil.copyfile(config_source / 'manifest.json', config / 'manifest.json')
+            shutil.copyfile(config_source / 'manifest.sha256', config / 'manifest.sha256')
             for path in config.iterdir():
                 path.chmod(0o444)
             (root / 'runs').mkdir()
@@ -256,6 +283,8 @@ def main():
             # Preserve this runner and its imported supervisor/helper dependency closure.
             names = ['e1_d2a3_run.py', 'e1_d1_pilot_runner.py', 'e1_d1_pilot.py',
                      'e1_d1_pilot_auth.py', 'e1_observer_check.py']
+            if entry_point is not None:
+                names.append(Path(entry_point).name)
             for name in names:
                 shutil.copyfile(PROJECT / name, provenance / name)
             require(not capture(['git', '-C', PROJECT, 'status', '--porcelain']), 'dirty preparation checkout')
@@ -264,21 +293,21 @@ def main():
             env = environment(manifest['toolchain']['CUDA_HOME'], manifest['gpu_uuid'])
             atomic(provenance / 'launch.json', {
                 'preparation_sha': capture(['git', '-C', PROJECT, 'rev-parse', 'HEAD']),
-                'manifest_sha256': MANIFEST_SHA, 'executable': file_record(manifest['executable']['path']),
+                'manifest_sha256': manifest_sha, 'executable': file_record(manifest['executable']['path']),
                 'platform': platform.platform(), 'python': sys.version,
                 'cpu_affinity': sorted(os.sched_getaffinity(0)), 'child_environment': env,
                 'tool_files': inventory(provenance), 'config_files': inventory(config),
                 'limits': manifest['limits'],
-                'execution_choice': 'all eight sequentially without intermediate confirmation'})
+                'execution_choice': f'all {cohort_name} sequentially without intermediate confirmation'})
             limits = manifest['limits']
-            require(shutil.disk_usage(root).free >= limits['initial_free_disk_bytes'], 'initial 18 GiB disk allowance')
+            require(shutil.disk_usage(root).free >= limits['initial_free_disk_bytes'], 'initial disk allowance')
             for run in manifest['runs']:
                 directory = None
                 summary['failed_run'] = run['id']
                 run_start = time.monotonic()
                 arm(min(overall_deadline, run_start + limits['per_run_seconds']))
                 identities(manifest)
-                require(digest(config / 'manifest.json') == MANIFEST_SHA, 'copied manifest changed')
+                require(digest(config / 'manifest.json') == manifest_sha, 'copied manifest changed')
                 for name, expected in manifest['schedules'].items():
                     require(digest(config / name) == expected['sha256'], f'copied schedule changed: {name}')
                 directory = root / 'runs' / run['id']
@@ -294,7 +323,7 @@ def main():
                 process = run_process(run['argv'], directory, env, limits, root, start)
                 require(process['status'] == 'exited' and process['exit_code'] == 0,
                         f"{run['id']}: {process['status']}")
-                validation = validate_output(Path(run['output']), run)
+                validation = validate_output(Path(run['output']), run, manifest['expected'])
                 require(load(Path(run['output']) / 'metadata.json')['gpu'] == gpu['name'], 'executed GPU identity')
                 identities(manifest)
                 hashes = inventory(directory)
@@ -312,9 +341,9 @@ def main():
                 atomic(root / 'summary.json', summary)
                 require(tree_bytes(root) <= limits['aggregate_output_bytes'], 'campaign output cap')
                 arm(overall_deadline)
-                print(f"Completed {run['id']} ({len(summary['completed_runs'])}/8)", flush=True)
+                print(f"Completed {run['id']} ({len(summary['completed_runs'])}/{len(manifest['runs'])})", flush=True)
             summary['failed_run'] = None
-            summary['status'] = 'completed_eight_runs_not_scientific_acceptance'
+            summary['status'] = f'completed_{cohort_name}_runs_not_scientific_acceptance'
             summary['finished_utc'] = utc()
             summary['wall_seconds'] = time.monotonic() - start
             summary['max_child_rss_bytes'] = max(r['process']['max_rss_bytes'] for r in summary['run_records'])
@@ -346,6 +375,10 @@ def main():
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
     print(f'Campaign complete; resource summary: {root / "summary.json"}')
+
+
+def main():
+    campaign_main()
 
 
 if __name__ == '__main__':

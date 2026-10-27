@@ -333,6 +333,22 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+D2A.4 prepares [twelve sequential T1000 dynamics runs](E1_STAGE_D2A4_CAMPAIGN_PREPARATION.md)
+with three whole-run replicas per stiffness/occupancy cell. The
+[frozen manifest](e1_d2a4_config/manifest.json), sparse schedules and small
+[entry point](e1_d2a4_run.py) reuse the parameterized D2A.3 execution/validation
+path. See the [resource and actual lag-support plan](E1_STAGE_D2A4_RESOURCE_PLAN.md):
+L15/P16/m2 exports through901.12 (one origin/chain); the proposed primary range
+ends at184.32. Preparation/checks remain **unexecuted**, awaiting independent
+review before local launch; there is no mandatory review between successful
+members, retry or automatic parameter reduction. Stress remains disabled.
+
+[Future rheology requirements](E1_FUTURE_SIX_COMPONENT_RHEOLOGY.md) record the
+selected three-shear/three-normal-difference contraction with exact1/5 and1/30
+coefficients, four ordered backbone/virtual correlation classes and inspected
+Correlator6/cross-correlator reuse. No stress correlation or G(t) calculation
+is implemented; physical probe-response normalization remains a later derivation.
+
 D2A.3's eight-run campaign is **reported complete by the user; scientific
 authentication and interpretation are pending**. The
 [offline analysis preparation and one-command handoff](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md)
