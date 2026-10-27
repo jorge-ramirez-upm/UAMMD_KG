@@ -15,6 +15,15 @@ all eight serially without mandatory intermediate review after the first.
 **Independent preparation review precedes the user's explicit launch.**
 No D2A.3 run has begun in Codex.
 
+D2A.3 execution update: the user reports eight successful runs, approximately
+907.24 s campaign wall time, 205.5 MB recorded evidence and peak child RSS
+149196800 bytes. Saved summary/provenance records were inspected read-only;
+full independent authentication and scientific reductions have not been run.
+The [scientific analysis preparation](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md)
+provides the user's offline authentication/analysis command. Physical conclusions,
+four figures and a next-study decision remain pending authenticated products
+and review. This is not scientific dynamics or equilibrium acceptance.
+
 D1.6 status, 27 October 2026: **SCIENTIFICALLY CLOSED WITH QUALIFICATIONS —
 EQUILIBRIUM PRESERVATION NOT CONFIRMED**. The
 [scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md) consolidates D1.6B–F;
@@ -42,7 +51,7 @@ The present backbone uses an open chain with **N bonds and N+1 beads**, free end
 | E1 canonical slip-spring equilibrium and fixed attachments | Design frozen; Stages A/B accepted, Stage C hopping/renewal bounded checks passed | [EQUILIBRIUM_MODEL_E1.md](EQUILIBRIUM_MODEL_E1.md), [Stage A audit](E1_STAGE_A_AUDIT.md), [Stage B report](E1_STAGE_B_REPORT.md), [Stage C report](E1_STAGE_C_REPORT.md); no Brownian timestep acceptance or rheology validation |
 | E1 D1.6B–F scientific investigation | Scientifically closed with qualifications; equilibrium preservation not confirmed | [Scientific closure](E1_STAGE_D16_SCIENTIFIC_CLOSURE.md); completed exploratory cohort and theoretical audit, not an equilibrium-preservation acceptance pass |
 | D2A.1 CPU observables / D2A.2 read-only acquisition | Bounded technical acceptance on user-reported verification | [D2A.1 report](E1_STAGE_D2A1_IMPLEMENTATION_REPORT.md), [D2A.2 report](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md), [current acceptance scope](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md#d2a2-bounded-technical-closure); no terminal-dynamics or performance acceptance |
-| D2A.3 exploratory dynamical study | Complete eight-run preparation; runner and checks unexecuted | [Approved design](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md), [manifest/launch/resource handoff](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md); user launches all eight serially after review; unchanged accepted model |
+| D2A.3 exploratory dynamical study | Eight-run completion reported by user; independent authentication and scientific interpretation pending | [Approved design](E1_STAGE_D2A3_EXPLORATORY_DESIGN.md), [campaign preparation](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md), [offline analysis handoff](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md); analysis code unexecuted in Codex |
 
 The D1.0–D1.4 paragraphs below are historical stage snapshots; their preparation-
 time authorization/execution statements do not supersede the completed D1.6B

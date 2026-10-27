@@ -333,14 +333,22 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
-D2A.3 now has a [complete eight-run preparation and one-command handoff](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md),
+D2A.3's eight-run campaign is **reported complete by the user; scientific
+authentication and interpretation are pending**. The
+[offline analysis preparation and one-command handoff](E1_STAGE_D2A3_SCIENTIFIC_ANALYSIS.md)
+will authenticate the raw hash/metadata closure before reducing replica curves,
+then generate four PNG/PDF figures and compact tables in a fresh external
+directory. No analysis, figure generation or new scientific conclusion ran in
+Codex. The original evidence, accepted model and D1.6 qualification are unchanged.
+
+D2A.3 has a [complete eight-run preparation record](E1_STAGE_D2A3_CAMPAIGN_PREPARATION.md),
 with a [frozen manifest](e1_d2a3_config/manifest.json), sparse schedules and
 [serial resource-bounded runner](e1_d2a3_run.py). The user's chosen policy is
 all eight sequentially, without an intermediate confirmation after a successful
 first run. Failures stop the sequence; there is no retry/resume or automatic
-parameter reduction. Preparation is unexecuted and awaits independent review
-before the user launches it. Outputs stay outside Git; accepted dynamics and
-the D1.6 qualification are unchanged.
+parameter reduction. The user now reports successful execution; that historical
+handoff does not direct a rerun of existing evidence. Outputs stay outside Git;
+accepted dynamics and the D1.6 qualification are unchanged.
 
 D2A.2 adds optional [read-only dynamical acquisition](dynamical_observer.h);
 see [configuration, output, phase and local verification commands](E1_STAGE_D2A2_IMPLEMENTATION_REPORT.md).
