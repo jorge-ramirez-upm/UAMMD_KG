@@ -333,8 +333,10 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
-D2A.5 now prepares **variable-N acquisition for N32, N64 and N128; uncompiled
-and unverified**. Physical kernels, initialization, hopping, renewal and RNG are
+D2A.5 **variable-N acquisition for N32, N64 and N128 is verified per the user's
+28 October handoff**, with executable SHA256
+`54dc84a9aac35fd6574ce6e2890a6c8a0f545743fdc2bbd32bc0a70863dcf9ce`.
+Physical kernels, initialization, hopping, renewal and RNG are
 unchanged. The observer selects endpoints, quarters and center using actual N,
 and labels metadata/CSVs accordingly. See the
 [implementation and exact local verification commands](E1_STAGE_D2A5_IMPLEMENTATION_REPORT.md)
@@ -344,7 +346,19 @@ campaign is launched or accepted. Provisional R3 four-cell targets are N64/T1000
 and N128/T40000; terminal relaxation is not guaranteed. Checkpoint/restart is
 deferred by explicit user instruction; execution assumes uninterrupted runs.
 
-After review, the targeted double build and bounded checks use fresh paths:
+The [minimal sustained preflight](E1_STAGE_D2A5_SUSTAINED_PREFLIGHT.md) prepares
+two sequential 100000-step constrained kappa10 measurements at N64/N128, preserving
+dynamics stride 100 and sparse endpoints. It reuses the verified binary, with
+no build or correctness rerun. This new driver is unexecuted and awaits independent
+review. Exact local command after review:
+
+```bash
+timeout --signal=TERM --kill-after=15s 4000s python3 -B /home/jramirez/UAMMD_KG-slip-springs-dev/examples/slip-springs/e1_d2a5_preflight.py --execute-reviewed-preflight --output /home/jramirez/UAMMD_KG-evidence/d2a5/sustained-100k-v1
+```
+
+The earlier preparation's build/check commands below are historical instructions,
+not prerequisites for this timing probe. Preserve the existing verified build;
+any separately authorized rebuild needs a different fresh build/evidence path:
 
 ```bash
 D5_BUILD="$PWD/examples/slip-springs/build/d2a5-review-v1"

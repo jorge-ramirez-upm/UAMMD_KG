@@ -113,3 +113,10 @@ expose startup/finalization costs and new-length failures; longer bounded timing
 windows may later be needed to extrapolate steady throughput. No performance
 result is claimed and no benchmark was executed. Checkpoint/restart is deferred;
 production feasibility presently assumes uninterrupted execution.
+
+28 October follow-up: the [minimal sustained preflight](E1_STAGE_D2A5_SUSTAINED_PREFLIGHT.md)
+now prepares exactly N64/Z4096 and N128/Z8192 at kappa10, M256,100000 steps,
+stride100, with an explicit optional1000000-step invocation. It reuses the
+verified double binary and supervisor. See that handoff for fixed budgets,
+timer scopes, provenance limitations and the exact local command. Preparation
+only: no new measured throughput or memory results are available.
