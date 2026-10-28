@@ -333,6 +333,33 @@ No simulation expected to exceed10 minutes may run in Codex.
 
 ## Running the current simulator
 
+The **N64/N128 24-run long-duration campaign is prepared, unexecuted and awaiting
+independent review**. It retains the verified double binary, all four cells and
+three seeds/cell at each length, dynamics stride100, and sparse physical output.
+N64 uses T10000/L19; N128 uses T40000/L21. No checkpoint or restart is provided.
+See the [frozen design and identities](E1_STAGE_D2A5_PRODUCTION_PREPARATION.md),
+[resource limits and local commands](E1_STAGE_D2A5_PRODUCTION_OPERATOR_GUIDE.md),
+and [future analysis handoff](E1_STAGE_D2A5_PRODUCTION_ANALYSIS_HANDOFF.md).
+No new build, test, simulation, benchmark or reduction ran in this preparation.
+After independent review, proposed local verification from the repository root:
+
+```bash
+timeout --signal=TERM --kill-after=15s 120s python3 -B examples/slip-springs/tests/d2a5_campaign_regression.py
+timeout --signal=TERM --kill-after=15s 300s python3 -B examples/slip-springs/e1_d2a5_production.py --verify-preparation
+```
+
+Only after successful local verification and the user's explicit launch choice:
+
+```bash
+timeout --signal=TERM --kill-after=15s 12182400s python3 -u -B examples/slip-springs/e1_d2a5_production.py --execute-reviewed-24
+```
+
+The frozen fresh output root is
+`/home/jramirez/UAMMD_KG-evidence/d2a5/production-n64-n128-r3-v1`.
+N64/N128 per-run budgets are36 hours/10 days; aggregate140 days. The runner
+authenticates the existing bounded correctness and completed sustained preflight
+records. Historical compiler-invocation provenance remains incomplete and explicit.
+
 D2A.5 **variable-N acquisition for N32, N64 and N128 is verified per the user's
 28 October handoff**, with executable SHA256
 `54dc84a9aac35fd6574ce6e2890a6c8a0f545743fdc2bbd32bc0a70863dcf9ce`.
@@ -346,11 +373,12 @@ campaign is launched or accepted. Provisional R3 four-cell targets are N64/T1000
 and N128/T40000; terminal relaxation is not guaranteed. Checkpoint/restart is
 deferred by explicit user instruction; execution assumes uninterrupted runs.
 
-The [minimal sustained preflight](E1_STAGE_D2A5_SUSTAINED_PREFLIGHT.md) prepares
+The [minimal sustained preflight](E1_STAGE_D2A5_SUSTAINED_PREFLIGHT.md) prepared
 two sequential 100000-step constrained kappa10 measurements at N64/N128, preserving
 dynamics stride 100 and sparse endpoints. It reuses the verified binary, with
-no build or correctness rerun. This new driver is unexecuted and awaits independent
-review. Exact local command after review:
+no build or correctness rerun. The user's completed `sustained-100k-v1` evidence
+is now a pinned prerequisite for production. The original preflight command below
+is retained for reference; its existing output root must never be overwritten:
 
 ```bash
 timeout --signal=TERM --kill-after=15s 4000s python3 -B /home/jramirez/UAMMD_KG-slip-springs-dev/examples/slip-springs/e1_d2a5_preflight.py --execute-reviewed-preflight --output /home/jramirez/UAMMD_KG-evidence/d2a5/sustained-100k-v1

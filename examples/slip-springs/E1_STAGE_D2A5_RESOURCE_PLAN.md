@@ -120,3 +120,10 @@ stride100, with an explicit optional1000000-step invocation. It reuses the
 verified double binary and supervisor. See that handoff for fixed budgets,
 timer scopes, provenance limitations and the exact local command. Preparation
 only: no new measured throughput or memory results are available.
+
+The later [24-run preparation](E1_STAGE_D2A5_PRODUCTION_PREPARATION.md) now pins
+the user's completed `sustained-100k-v1` record and prepares the N64/N128 R3
+four-cell matrix. Exact L19/L21 grid/origin derivations, primary support,
+scalar/context schedules, serialization allowances and multi-day budgets are
+frozen in that handoff and its [operator guide](E1_STAGE_D2A5_PRODUCTION_OPERATOR_GUIDE.md).
+No production run or new performance measurement was executed in Codex.
