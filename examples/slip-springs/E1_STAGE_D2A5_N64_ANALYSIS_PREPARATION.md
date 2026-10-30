@@ -78,6 +78,7 @@ statuses at record edges, multi-tau boundaries, nonpositive MSD or weak support.
 residuals with block duration. Crossings are neither fits nor proof of relaxation.
 `terminal_windows.csv` retains every primary, same-level window with at least
 three interior supported slope stencils, per run for both MSDs. It includes
+the exact integer `end_lag_steps` from correlation support alongside `end_time`,
 slope ranges, effective D=g/(6t) ranges, interval duration ratio, origin counts
 and C1/C2 endpoint values. These are supported diagnostic intervals, with no
 automatic terminal verdict. Most same-level windows span less than a factor
@@ -106,6 +107,21 @@ scientific acceptance. There are no empirical numerical findings until execution
 
 ## Exact local commands after independent review
 
+The first local regression failed because the floating timestamp for exactly
+19,660,800 BD steps can be `1966.0800000000002`, above the decimal literal
+`1966.08`. The regression now checks `end_lag_steps <= 19660800` and at least
+32 origins; the primary-support criterion is unchanged and no tolerance is
+introduced. A dedicated synthetic check places the endpoint timestamp one
+representable float above 1966.08 and requires all 24 endpoint windows
+(four cells, two MSDs, three replicas) to remain accepted by exact integer lag.
+This preparation corrects a regression-test defect, with no simulation change.
+
+The regression accepts `--output`, defaulting to the original `regression/`
+location. The normalized destination must be strictly beneath
+`/home/jramirez/UAMMD_KG-evidence/d2a5-analysis/n64-v1`; symlink paths are
+rejected and existing destinations are never overwritten. Use the fresh
+`regression-v2/` destination below and preserve the original failed fixture.
+
 Use the existing Python environment with NumPy and Matplotlib. Both commands
 are CPU-only, run at low CPU/I/O priority, and cap common numerical thread pools
 at two threads. No GPU visibility setting, GPU query, simulator or build occurs.
@@ -119,7 +135,7 @@ the authentication fixture, while real streaming curve validation is exercised):
 
 ```bash
 cd /home/jramirez/UAMMD_KG-d2a5-analysis-dev
-nice -n 19 ionice -c 3 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2 MPLCONFIGDIR=/home/jramirez/UAMMD_KG-evidence/d2a5-analysis/n64-v1/matplotlib-cache python3 examples/slip-springs/tests/d2a5_n64_analysis_regression.py
+nice -n 19 ionice -c 3 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2 MPLCONFIGDIR=/home/jramirez/UAMMD_KG-evidence/d2a5-analysis/n64-v1/matplotlib-cache python3 examples/slip-springs/tests/d2a5_n64_analysis_regression.py --output /home/jramirez/UAMMD_KG-evidence/d2a5-analysis/n64-v1/regression-v2
 ```
 
 Scientific analysis (twelve N64 runs plus authenticated completed N32 inputs):
@@ -131,7 +147,8 @@ nice -n 19 ionice -c 3 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_
 
 All generated products, fixtures and Matplotlib caches remain beneath
 `/home/jramirez/UAMMD_KG-evidence/d2a5-analysis/n64-v1`:
-`regression/` for CPU checks and `analysis/` for scientific products. Both leaf
+`regression-v2/` for the proposed fresh CPU checks (`regression/` remains the
+default and retains the failed original attempt) and `analysis/` for scientific products. Both leaf
 directories must be absent before their respective commands run. Neither
 command overwrites an existing attempt; preserve failed attempts for review.
 These commands require local filesystem permissions to create that output root.
@@ -139,8 +156,10 @@ They are supplied for the user and have not been executed by Codex.
 
 ## Remaining review limits
 
-No syntax compilation, regression, scientific authentication or reduction has
-been run. Synthetic checks do not replace authentication of actual host evidence.
+Codex has run no syntax compilation, regression, scientific authentication or
+reduction, including during this correction. The user-reported first local
+regression failure is described above; the corrected checks remain unexecuted.
+Synthetic checks do not replace authentication of actual host evidence.
 Runtime and peak analysis memory are unmeasured. N32 authentication requires
 the recorded preparation Git objects to exist locally. Historical compiler
 provenance remains limited, and D1.6 equilibrium preservation remains qualified.

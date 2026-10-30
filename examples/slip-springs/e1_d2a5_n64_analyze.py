@@ -216,6 +216,7 @@ def numerical_tables(out, cells):
                     endpoint = ii[-1]
                     terminal.append(dict(cell=cell, run=d['runs'][r]['id'], quantity=q,
                         block_samples=int(block), start_time=d['time'][ii[0]], end_time=d['time'][endpoint],
+                        end_lag_steps=int(d['rows'][endpoint]['lag_steps']),
                         time_ratio=d['time'][endpoint]/d['time'][ii[0]], bins=len(ii),
                         slope_stencils=len(interior), min_origins=min(int(d['rows'][i]['origins_per_chain']) for i in ii),
                         slope_min=alpha[r, interior].min(), slope_max=alpha[r, interior].max(),

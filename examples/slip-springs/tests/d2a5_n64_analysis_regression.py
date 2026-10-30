@@ -3,6 +3,7 @@
 
 No checks run on import. Fixtures persist under the prescribed analysis root.
 """
+import argparse
 import csv
 import json
 from pathlib import Path
@@ -54,9 +55,20 @@ def synthetic_curves(path, run, n):
             writer.writerow(row)
 
 
+def regression_output(path):
+    output = a.regular_path(path.absolute()).resolve()
+    root = a.regular_path(a.OUTPUT).resolve()
+    a.require(output != root and output.is_relative_to(root), 'regression output must be beneath the analysis evidence root')
+    return output
+
+
 def main():
-    output = a.regular_path(a.OUTPUT / 'regression')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=a.OUTPUT / 'regression')
+    output = regression_output(parser.parse_args().output)
     output.mkdir(parents=True, exist_ok=False)
+    reject(lambda: regression_output(a.OUTPUT))
+    reject(lambda: regression_output(a.OUTPUT / '..' / 'outside-n64'))
     root = output / 'synthetic-campaign'
     manifest = a.load(a.CONFIG / 'manifest.json')
     runs = [r for r in manifest['runs'] if r['N'] == 64]
@@ -151,13 +163,25 @@ def main():
     cells = a.read_cells(root, manifest, runs)
     assert all(d['rows'][np.flatnonzero(np.array(d['regions']) != 'weak_tail')[-1]]['lag_samples'] == '196608'
                for d in cells.values())
+    # A rounded timestamp above the decimal endpoint must retain exact integer support.
+    for d in cells.values():
+        endpoint = next(i for i, row in enumerate(d['rows']) if int(row['lag_steps']) == 19660800)
+        d['time'][endpoint] = np.nextafter(1966.08, np.inf)
+        d['rows'][endpoint]['lag_time'] = str(d['time'][endpoint])
     tables = output / 'tables'
     tables.mkdir()
     windows, orientation = a.numerical_tables(tables, cells)
     assert windows and len(orientation) == 24
     assert all(np.isclose(w['slope_min'], 1) and np.isclose(w['slope_max'], 1) for w in windows)
     assert all(np.isclose(w['effective_D_min'], w['effective_D_max']) for w in windows)
-    assert all(w['min_origins'] >= 32 and w['end_time'] <= 1966.08 for w in windows)
+    assert all(
+        w['min_origins'] >= 32
+        and w['end_lag_steps'] <= 19660800
+        for w in windows
+    )
+    endpoint_windows = [w for w in windows if w['end_lag_steps'] == 19660800]
+    assert len(endpoint_windows) == 24
+    assert all(w['end_time'] > 1966.08 and w['min_origins'] >= 32 for w in endpoint_windows)
     with (tables / 'bare_com.csv').open(newline='') as stream:
         assert all(np.isclose(float(r['ratio_mean']), 1.02) for r in csv.DictReader(stream))
     assert all(w['quantity'] in ('cm_msd', 'bead32_msd') for w in windows)
