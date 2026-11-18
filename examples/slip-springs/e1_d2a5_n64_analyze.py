@@ -147,25 +147,26 @@ def authenticate(root):
         'compiler_provenance': manifest['compiler_provenance']}
 
 
-def read_cells(root, manifest, runs):
+def read_cells(root, manifest, runs, n=64):
+    quantities = ('cm_msd', f'bead{n//2}_msd', 'c1', 'c2')
     cells = {}
-    grid = manifest['supports']['64']['grid']
+    grid = manifest['supports'][str(n)]['grid']
     for cell in 'ABCD':
         selected = [r for r in runs if r['cell'] == cell]
         replicas = []
         for run in selected:
             with (root / 'runs' / run['id'] / 'output/dynamics/replica_correlations.csv').open(newline='') as stream:
                 reader = csv.DictReader(stream)
-                require(reader.fieldnames == curve_header(64), 'N64 column labels')
+                require(reader.fieldnames == curve_header(n), f'N{n} column labels')
                 replicas.append(list(reader))
         anchor = [[r[k] for k in SUPPORT] for r in replicas[0]]
-        require(len(anchor) == len(grid) == 143 and all(
+        require(len(anchor) == len(grid) == runs[0]['expected']['exported_bins_per_chain'] and all(
             [[r[k] for k in SUPPORT] for r in rows] == anchor for rows in replicas), 'replica support equality')
         for row, support in zip(replicas[0], grid):
             for key in ('lag_samples', 'lag_steps', 'origins_per_chain'):
                 require(row[key] == str(support[key]), f'frozen integer support: {key}')
             require(row['decimation_samples'] == str(support['block_samples']), 'frozen block support')
-        values = np.array([[[float(row[q]) for q in QUANTITIES] for row in rows] for rows in replicas])
+        values = np.array([[[float(row[q]) for q in quantities] for row in rows] for rows in replicas])
         require(np.isfinite(values).all() and (values[:, :, :2] >= 0).all(), 'finite/nonnegative MSD')
         regions = [('fine' if p['block_samples'] == 1 else 'coarse_primary') if p['primary']
                    else 'weak_tail' for p in grid]
@@ -175,7 +176,8 @@ def read_cells(root, manifest, runs):
     return cells
 
 
-def numerical_tables(out, cells):
+def numerical_tables(out, cells, n=64):
+    quantities = ('cm_msd', f'bead{n//2}_msd', 'c1', 'c2')
     curves, slopes, bare, orientation, terminal = [], [], [], [], []
     for cell, d in cells.items():
         mean, se = mean_se(d['values'])
@@ -183,18 +185,18 @@ def numerical_tables(out, cells):
         positive = d['time'] > 0
         for i, support in enumerate(d['rows']):
             row = dict(cell=cell, **{k: support[k] for k in SUPPORT}, region=d['regions'][i])
-            for j, q in enumerate(QUANTITIES):
+            for j, q in enumerate(quantities):
                 row.update({q + f'_r{r+1}': d['values'][r, i, j] for r in range(3)})
                 row.update({q + '_mean': mean[i, j], q + '_se_R3': se[i, j]})
             curves.append(row)
             if cell in 'AC' and positive[i]:
-                ratios = d['values'][:, i, 0] / (6 * d['time'][i] / 65)
+                ratios = d['values'][:, i, 0] / (6 * d['time'][i] / (n+1))
                 avg, error = mean_se(ratios)
                 bare.append(dict(cell=cell, lag_samples=int(support['lag_samples']), lag_time=d['time'][i],
-                                 region=d['regions'][i], reference=6*d['time'][i]/65,
+                                 region=d['regions'][i], reference=6*d['time'][i]/(n+1),
                                  **{f'ratio_r{r+1}': ratios[r] for r in range(3)},
                                  ratio_mean=avg, ratio_se_R3=error))
-        for j, q in enumerate(QUANTITIES[:2]):
+        for j, q in enumerate(quantities[:2]):
             alpha, reasons = local_slopes(d['time'], d['values'][:, :, j], d['blocks'], d['regions'])
             for i, statuses in enumerate(reasons):
                 valid = all(s == 'available_same_level_stencil' for s in statuses)
@@ -282,22 +284,25 @@ def compare_n32(out, cells, old_cells, old_manifest, runs):
     write_csv(out / 'comparison_n32_n64.csv', rows)
 
 
-def figures(out, cells):
+def figures(out, cells, n=64):
+    quantities = ('cm_msd', f'bead{n//2}_msd', 'c1', 'c2')
+    primary_end = max(d['time'][i] for d in cells.values() for i, r in enumerate(d['regions']) if r != 'weak_tail')
+    tail_end = max(d['time'][-1] for d in cells.values())
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
     omissions = []
-    for number, q in enumerate(QUANTITIES, 1):
+    for number, q in enumerate(quantities, 1):
         fig, ax = plt.subplots(figsize=(7.2, 5.2))
         ax.set_xscale('log')
         if q.endswith('msd'):
             ax.set_yscale('log')
         else:
             ax.axhline(0, color='.5', linewidth=.6)
-        ax.axvspan(1966.08, 9175.04, color='.92')
+        ax.axvspan(primary_end, tail_end, color='.92')
         for cell, d in cells.items():
-            y = d['values'][:, :, QUANTITIES.index(q)]
+            y = d['values'][:, :, quantities.index(q)]
             mean, _ = mean_se(y)
             weak = np.array([r == 'weak_tail' for r in d['regions']])
             for block in np.unique(d['blocks']):
@@ -313,25 +318,26 @@ def figures(out, cells):
                         ax.plot(d['time'][mask], yy, color=COLORS[cell], ls=('-', '--', '-.')[r], lw=.6, alpha=.4)
                     yy = np.ma.masked_less_equal(mean[mask], 0) if q.endswith('msd') else mean[mask]
                     ax.plot(d['time'][mask], yy, color=COLORS[cell], ls=':' if tail else '-', lw=1.7)
-        handles = [Line2D([], [], color=COLORS[c], label=f'{c}: kappa={10 if c in "CD" else 0}, Z={4096 if c in "BD" else 0}') for c in 'ABCD']
+        handles = [Line2D([], [], color=COLORS[c], label=f'{c}: kappa={10 if c in "CD" else 0}, Z={n*64 if c in "BD" else 0}') for c in 'ABCD']
         if q == 'cm_msd':
-            t = np.array([.01, 9175.04])
-            ax.plot(t, 6*t/65, color='black', ls='-.', lw=1)
-            handles.append(Line2D([], [], color='black', ls='-.', label='Bare reference 6t/65'))
+            t = np.array([.01, tail_end])
+            ax.plot(t, 6*t/(n+1), color='black', ls='-.', lw=1)
+            handles.append(Line2D([], [], color='black', ls='-.', label=f'Bare reference 6t/{n+1}'))
         ax.legend(handles=handles, frameon=False, fontsize=8)
-        ax.set(xlabel='Lag (model time)', ylabel=q, title=f'D2A.5 N64: {q}')
+        ax.set(xlabel='Lag (model time)', ylabel=q, title=f'D2A.5 N{n}: {q}')
         ax.grid(alpha=.15)
         fig.text(.12, .035, 'Thin solid/dashed/dash-dot: independent replicas; thick: equal-weight mean.\n'
                  'Gray/dotted: weak support. Segments stop at multi-tau boundaries.\n'
-                 'N=64 bonds (65 beads), M=256, T=10000; zero lag omitted; no confidence band.', fontsize=8)
+                 f'N={n} bonds ({n+1} beads), M=256, T={next(iter(cells.values()))["runs"][0].get("expected", {}).get("T", "unknown")}; '
+                 'zero lag omitted; no confidence band.', fontsize=8)
         fig.subplots_adjust(bottom=.23)
         for ext in ('png', 'pdf'):
             fig.savefig(out / f'figure_{number}_{q}.{ext}', dpi=300)
         plt.close(fig)
     write_json(out / 'plot_support.json', dict(zero_lag_omitted_from_log_x=True,
         nonpositive_msd_omissions=omissions, raw_values_preserved_in_curves=True,
-        multi_tau_levels_never_joined=True, primary_last_lag_samples=196608,
-        weak_tail_last_lag_samples=917504))
+        multi_tau_levels_never_joined=True, primary_last_lag_samples=int(round(primary_end/.01)),
+        weak_tail_last_lag_samples=int(round(tail_end/.01))))
     return matplotlib.__version__
 
 

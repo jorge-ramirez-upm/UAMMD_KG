@@ -36,7 +36,7 @@ def output_path(path):
     return resolved
 
 
-def frames(path, columns, count, steps, stride):
+def frames(path, columns, count, steps, stride, n=64):
     """Streaming, bounded by one observation frame; strict schema/order/clock."""
     with path.open(newline='') as stream:
         reader = csv.DictReader(stream)
@@ -50,14 +50,14 @@ def frames(path, columns, count, steps, stride):
                 require(row['step'] == str(step) and float(row['time']) == step*.0001, 'static clock')
                 label = 'spring' if 'spring' in columns and path.name == 'equilibrium_connectors.csv' else 'chain'
                 if path.name == 'equilibrium_sites.csv':
-                    require(int(row['chain']) == i//65 and int(row['bead']) == i%65, 'site order')
+                    require(int(row['chain']) == i//(n+1) and int(row['bead']) == i%(n+1), 'site order')
                 elif count > 1:
                     require(int(row[label]) == i, 'static label order')
             yield step*.0001, batch
         require(next(reader, None) is None, f'extra frame: {path}')
 
 
-def backbone(rows):
+def backbone(rows, n=64):
     a = {k: np.array([float(r[k]) for r in rows]) for k in
          ('re2', 'rg2', 'mean_r', 'mean_r2', 'tangent1', 'tangent2', 'tangent3', 'tangent4')}
     require(len(rows) == 256 and all(np.isfinite(v).all() for v in a.values()), '256 finite chains')
@@ -67,30 +67,32 @@ def backbone(rows):
     result.update(spatial_var_re2=float(x.var(ddof=1)), spatial_var_rg2=float(y.var(ddof=1)),
                   spatial_cov_re2_rg2=float(np.dot(x-x.mean(), y-y.mean())/255),
                   raw_re4=float(np.mean(x*x)), raw_rg4=float(np.mean(y*y)),
-                  stretch_energy=15*64*(result['mean_r2']-2*result['mean_r']+1))
+                  stretch_energy=15*n*(result['mean_r2']-2*result['mean_r']+1))
     return result
 
 
-def context(connectors, populations, sites, tangents):
+def context(connectors, populations, sites, tangents, n=64):
+    z_total = 64*n
+    sites_per_chain = n+1
     e = np.array([[float(r[k]) for k in ('ex', 'ey', 'ez')] for r in connectors])
     e2 = np.array([float(r['e2']) for r in connectors])
     z = np.array([int(r['z']) for r in populations])
-    require(len(e) == 4096 and z.shape == (256,) and z.sum() == 4096, 'canonical population')
+    require(len(e) == z_total and z.shape == (256,) and z.sum() == z_total, 'canonical population')
     require(np.allclose(np.sum(e*e, axis=1), e2, rtol=2e-12, atol=2e-12), 'connector norm')
-    require(np.all((z >= 0) & (z <= 65)), 'population bounds')
+    require(np.all((z >= 0) & (z <= sites_per_chain)), 'population bounds')
     result = dict(connector_e2=float(e2.mean()), connector_e4=float(np.mean(e2*e2)),
-                  population_mean=float(z.mean()), population_variance=float(np.mean((z-16)**2)),
+                  population_mean=float(z.mean()), population_variance=float(np.mean((z-z_total/256)**2)),
                   population_multiple=float(np.mean(z >= 2)))
     for i, axis in enumerate('xyz'):
         result['connector_mean_' + axis] = float(e[:, i].mean())
         result['connector_second_' + axis] = float(np.mean(e[:, i]**2))
         for j in range(i+1, 3):
             result['connector_cross_' + axis + 'xyz'[j]] = float(np.mean(e[:, i]*e[:, j]))
-    pmf = np.bincount(z, minlength=66)/256
-    for k in range(66):
+    pmf = np.bincount(z, minlength=sites_per_chain+1)/256
+    for k in range(n+2):
         result[f'population_pmf_{k}'] = float(pmf[k])
         result[f'population_cdf_{k}'] = float(pmf[:k+1].sum())
-    occupied = np.array([int(r['spring']) >= 0 for r in sites]).reshape(256, 65)
+    occupied = np.array([int(r['spring']) >= 0 for r in sites]).reshape(256, sites_per_chain)
     require(np.array_equal(occupied.sum(axis=1), z), 'site/population consistency')
     for k, value in enumerate(occupied.mean(axis=0)):
         result[f'occupancy_{k}'] = float(value)
@@ -101,28 +103,34 @@ def context(connectors, populations, sites, tangents):
 
 def read_run(root, run):
     directory = root / 'runs' / run['id'] / 'output'
-    steps = run['expected']['steps']
+    e, n = run['expected'], run['N']
+    steps = e['steps']
+    scalar_stride = e['scalar_stride']
+    full_stride = e['full_steps'][1]
+    require(e['full_steps'] == list(range(0, steps+1, full_stride)), 'uniform frozen E1 schedule')
+    hist_frames = e['scalar_frames'] - (steps//2 + scalar_stride-1)//scalar_stride
+    half_time, end_time = e['T']/2, e['T']
     with (directory / 'samples.csv').open(newline='') as stream:
         scalar_header = next(csv.reader(stream))
     require(scalar_header == 'step,time,chain,mean_r,mean_r2,re2,rg2,cm_msd,monomer_msd,min_length,tangent1,tangent2,tangent3,tangent4'.split(','), 'scalar schema')
-    scalar = [(time, backbone(rows)) for time, rows in frames(directory/'samples.csv', scalar_header, 256, steps, 100000)]
+    scalar = [(time, backbone(rows, n)) for time, rows in frames(directory/'samples.csv', scalar_header, 256, steps, scalar_stride, n)]
     headers = {
         'tangents': 'step,time,chain,tangent8,tangent16',
         'chains': 'step,time,chain,z,ex_sum,ey_sum,ez_sum,e2_sum',
         'connectors': 'step,time,spring,chain,bead,ex,ey,ez,e2',
         'sites': 'step,time,chain,bead,spring'}
-    counts = dict(tangents=256, chains=256, connectors=4096, sites=256*65)
+    counts = dict(tangents=256, chains=256, connectors=run['Z'], sites=256*(n+1))
     full = []
     if run['Z']:
-        readers = [frames(directory/f'equilibrium_{key}.csv', header.split(','), counts[key], steps, 10000000)
+        readers = [frames(directory/f'equilibrium_{key}.csv', header.split(','), counts[key], steps, full_stride, n)
                    for key, header in headers.items()]
         for joint in itertools.zip_longest(*readers):
             require(all(v is not None for v in joint) and len({v[0] for v in joint}) == 1, 'full grids')
             tangent, pop, con, site = [v[1] for v in joint]
-            full.append((joint[0][0], context(con, pop, site, tangent)))
+            full.append((joint[0][0], context(con, pop, site, tangent, n)))
     else:
         full = [(time, {k: float(np.mean([float(r[k]) for r in rows])) for k in ('tangent8', 'tangent16')})
-                for time, rows in frames(directory/'equilibrium_tangents.csv', headers['tangents'].split(','), 256, steps, 10000000)]
+                for time, rows in frames(directory/'equilibrium_tangents.csv', headers['tangents'].split(','), 256, steps, full_stride, n)]
     # Histograms are accumulated over regular observations in [T/2,T], not all time.
     with (directory/'bond_statistics.csv').open(newline='') as stream:
         reader = csv.DictReader(stream)
@@ -131,19 +139,19 @@ def read_run(root, run):
         means = np.zeros(2)
         count = 0
         for i, row in enumerate(reader):
-            require(int(row['chain']) == i//64 and int(row['bond']) == i%64 and int(row['frames']) == 501, 'histogram support')
+            require(int(row['chain']) == i//n and int(row['bond']) == i%n and int(row['frames']) == hist_frames, 'histogram support')
             values = np.array([int(row[f'bin{k}']) for k in range(33)])
-            require((values >= 0).all() and values.sum() == 501, 'histogram counts')
+            require((values >= 0).all() and values.sum() == hist_frames, 'histogram counts')
             bins += values
             means += [float(row['mean_r']), float(row['mean_r2'])]
             count += 1
-        require(count == 256*64 and np.isfinite(means).all(), 'histogram bond closure')
+        require(count == 256*n and np.isfinite(means).all(), 'histogram bond closure')
     meta = auth.load(directory/'metadata.json')
     histogram = dict(bins=bins.tolist(), probabilities=(bins/bins.sum()).tolist(),
                      mean_r=float(means[0]/count), mean_r2=float(means[1]/count),
-                     frames=501, start=5000, end=10000, histogram_max=meta['histogram_max'])
+                     frames=hist_frames, start=half_time, end=end_time, histogram_max=meta['histogram_max'])
     for k in ('mean_r', 'mean_r2'):
-        expected = np.mean([v[k] for time, v in scalar if time >= 5000])
+        expected = np.mean([v[k] for time, v in scalar if time >= half_time])
         require(math.isclose(histogram[k], expected, rel_tol=2e-11, abs_tol=2e-11), 'bond/scalar reduction agreement')
     events = []
     with (directory/'equilibrium_events.csv').open(newline='') as stream:
@@ -184,61 +192,62 @@ def contrast(a, b, alpha=.05):
                 loo=[float(np.delete(b, j).mean()-np.delete(a, i).mean()) for i in range(3) for j in range(3)])
 
 
-def window(series, key, name):
-    lo, hi = WINDOWS[name]
+def window(series, key, name, windows=WINDOWS):
+    lo, hi = windows[name]
     selected = [(time, row[key]) for time, row in series if lo <= time <= hi]
     require(bool(selected), f'unsupported window: {key}, {name}')
     return float(np.mean([v for _, v in selected])), len(selected), selected[0][0], selected[-1][0]
 
 
-def reference_targets(kappa, order):
-    """D1.6 reference formulas evaluated for N64; no sampling or N32 MC reuse."""
+def reference_targets(kappa, order, n=64):
+    """D1.6 reference formulas evaluated for the requested N; no sampling or N32 MC reuse."""
     mu1, mu2 = radial_moments(1, 30, order=order)
     c = langevin(kappa)
     def size(k):
         return k*mu2+2*mu1*mu1*sum((k-s)*c**s for s in range(1, k))
-    result = dict(mean_r=mu1, mean_r2=mu2, re2=size(64),
-                  rg2=sum((65-k)*size(k) for k in range(1, 65))/65**2)
+    result = dict(mean_r=mu1, mean_r2=mu2, re2=size(n),
+                  rg2=sum((n+1-k)*size(k) for k in range(1, n+1))/(n+1)**2)
     result.update({f'tangent{k}': c**k for k in (1, 2, 3, 4, 8, 16)})
-    result['stretch_energy'] = 15*64*(mu2-2*mu1+1)
+    result['stretch_energy'] = 15*n*(mu2-2*mu1+1)
     return {k: float(v) for k, v in result.items()}
 
 
-def references():
+def references(n=64):
     targets, refinement = {}, {}
     for cell in 'ABCD':
         kappa = 10 if cell in 'CD' else 0
-        low, high = reference_targets(kappa, 128), reference_targets(kappa, 256)
+        low, high = reference_targets(kappa, 128, n), reference_targets(kappa, 256, n)
         require(abs(low['mean_r']-high['mean_r']) < 1e-11 and
                 abs(low['mean_r2']-high['mean_r2']) < 1e-11, 'accepted radial refinement gate')
         targets[cell] = high
         refinement[cell] = {k: abs(high[k]-low[k]) for k in high}
-    law = canonical_population(chains=256, n=64, z=4096)
+    law = canonical_population(chains=256, n=n, z=64*n)
     for cell in 'BD':
         target = targets[cell]
-        target.update(connector_e2=5., connector_e4=125/3, population_mean=16.,
+        target.update(connector_e2=5., connector_e4=125/3, population_mean=n/4,
                       population_variance=law['variance'], population_multiple=1-sum(law['pmf'][:2]))
         for axis in 'xyz':
             target['connector_mean_'+axis] = 0.
             target['connector_second_'+axis] = 5/3
         for pair in ('xy', 'xz', 'yz'):
             target['connector_cross_'+pair] = 0.
-        for k in range(66):
+        for k in range(n+2):
             target[f'population_pmf_{k}'] = law['pmf'][k]
             target[f'population_cdf_{k}'] = sum(law['pmf'][:k+1])
-        for k in range(65):
+        for k in range(n+1):
             target[f'occupancy_{k}'] = law['site_probability']
     return dict(targets=targets, refinement=refinement, canonical_law=law,
                 qualification='Exact target laws evaluated in float64. Quadrature differences are engineering '
-                'sensitivity estimates, not certified error bounds. No N64 numerical-reference ensemble '
-                'authenticated; N32 D1.6 MC dimensions/variances/CDFs cannot be transferred to N64.')
+                'sensitivity estimates, not certified error bounds. No numerical-reference ensemble for this N '
+                'authenticated; N32 D1.6 MC dimensions/variances/CDFs cannot be transferred across N.')
 
 
 def bounded(key):
     return (0., 1.) if key.startswith(('occupancy_', 'population_pmf_', 'population_cdf_')) or key == 'population_multiple' else None
 
 
-def tables(out, runs, data, refs):
+def tables(out, runs, data, refs, windows=WINDOWS):
+    window_definitions = windows
     traces, windows, drifts, comparisons, histograms, events = [], [], [], [], [], []
     acfs = {}
     for run in runs:
@@ -247,21 +256,21 @@ def tables(out, runs, data, refs):
         acfs[identity] = {}
         for grid in ('scalar', 'full'):
             series = record[grid]
-            spacing = 10 if grid == 'scalar' else 1000
+            spacing = series[1][0]-series[0][0]
             for key in series[0][1]:
                 for time, values in series:
                     traces.append(dict(run=identity, cell=cell, grid=grid, time=time, quantity=key, value=values[key]))
-                for name in WINDOWS:
-                    value, count, first, last = window(series, key, name)
+                for name in window_definitions:
+                    value, count, first, last = window(series, key, name, window_definitions)
                     windows.append(dict(run=identity, cell=cell, grid=grid, quantity=key, window=name,
                                         value=value, frames=count, first_time=first, last_time=last, duration=last-first))
                 for left, right in (('initial', 'late'), ('early', 'middle'), ('middle', 'late'), ('early', 'late')):
                     drifts.append(dict(run=identity, cell=cell, grid=grid, quantity=key, contrast=f'{right}-{left}',
-                                       value=window(series, key, right)[0]-window(series, key, left)[0]))
+                                       value=window(series, key, right, window_definitions)[0]-window(series, key, left, window_definitions)[0]))
                 # Retain small, meaningful temporal family; no interpolation of full-grid data.
                 if key in PRIMARY or key in ('connector_e2', 'connector_e4', 'population_variance', 'tangent8', 'tangent16'):
                     acfs[identity][key] = {}
-                    for segment, start in (('post_initial', spacing), ('late_half', 5000)):
+                    for segment, start in (('post_initial', spacing), ('late_half', record['histogram']['start'])):
                         selected = [(tm, v[key]) for tm, v in series if tm >= start]
                         result = acf_diagnostic([str(tm) for tm, _ in selected], [v for _, v in selected],
                                                 str(spacing), refs['targets'][cell].get(key))
@@ -275,7 +284,7 @@ def tables(out, runs, data, refs):
             histograms.append(dict(run=identity, cell=cell, bin=k, probability=probability, count=h['bins'][k],
                                    lower=k*h['histogram_max']/32,
                                    upper=(k+1)*h['histogram_max']/32 if k < 32 else '',
-                                   start=5000, end=10000, frames=501))
+                                   start=h['start'], end=h['end'], frames=h['frames']))
         for event in record['events']:
             for key, count in event['counts'].items():
                 duration = event['end']-event['start']
@@ -287,7 +296,7 @@ def tables(out, runs, data, refs):
         prototype = [w for w in windows if w['run'] == selected_runs[0]]
         for row in prototype:
             key, grid, name = row['quantity'], row['grid'], row['window']
-            values = [window(data[r][grid], key, name)[0] for r in selected_runs]
+            values = [window(data[r][grid], key, name, window_definitions)[0] for r in selected_runs]
             s = stats(values, bounded=bounded(key))
             target = refs['targets'][cell].get(key)
             interval = s['interval']
@@ -308,8 +317,8 @@ def tables(out, runs, data, refs):
             # Only compare quantities supported in both bare and constrained records.
             common = data[left[0]][grid][0][1].keys() & data[right[0]][grid][0][1].keys()
             for key in sorted(common):
-                for name in WINDOWS:
-                    x, y = [[window(data[r][grid], key, name)[0] for r in group] for group in (left, right)]
+                for name in window_definitions:
+                    x, y = [[window(data[r][grid], key, name, window_definitions)[0] for r in group] for group in (left, right)]
                     primary = key in PRIMARY and name == 'late'
                     comparisons.append(dict(contrast=f'{b}-{a}', grid=grid, quantity=key, window=name,
                                             primary=primary, alpha=.005 if primary else .05,
@@ -328,7 +337,7 @@ def tables(out, runs, data, refs):
         for k in range(33):
             histogram_summaries.append(dict(cell=cell, bin=k, **stats(
                 [data[r]['histogram']['probabilities'][k] for r in ids], bounded=(0., 1.))))
-        for name, (lo, hi) in WINDOWS.items():
+        for name, (lo, hi) in window_definitions.items():
             if name == 'initial':
                 continue  # Rates at t=0 are undefined, not zero.
             for key in data[ids[0]]['events'][0]['counts']:
