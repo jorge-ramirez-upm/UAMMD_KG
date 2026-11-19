@@ -1,0 +1,173 @@
+{
+  "campaign": "nonassoc8_uninterrupted100m_20261119_v1",
+  "streams": [
+    {
+      "chemistry_seed": 10000045,
+      "effective_md_seed": 2008258673,
+      "md_seed": 10000045,
+      "replica": 1,
+      "system": "F03_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000046,
+      "effective_md_seed": 1983137907,
+      "md_seed": 10000046,
+      "replica": 2,
+      "system": "F03_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000047,
+      "effective_md_seed": 1991506037,
+      "md_seed": 10000047,
+      "replica": 3,
+      "system": "F03_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000048,
+      "effective_md_seed": 1966616761,
+      "md_seed": 10000048,
+      "replica": 1,
+      "system": "F04_N010_RP020_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000049,
+      "effective_md_seed": 1974984887,
+      "md_seed": 10000049,
+      "replica": 2,
+      "system": "F04_N010_RP020_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000050,
+      "effective_md_seed": 1949864117,
+      "md_seed": 10000050,
+      "replica": 3,
+      "system": "F04_N010_RP020_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000051,
+      "effective_md_seed": 1958232243,
+      "md_seed": 10000051,
+      "replica": 1,
+      "system": "F04_N010_RP040_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000052,
+      "effective_md_seed": 1933144249,
+      "md_seed": 10000052,
+      "replica": 2,
+      "system": "F04_N010_RP040_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000053,
+      "effective_md_seed": 1941512375,
+      "md_seed": 10000053,
+      "replica": 3,
+      "system": "F04_N010_RP040_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000054,
+      "effective_md_seed": 1916391605,
+      "md_seed": 10000054,
+      "replica": 1,
+      "system": "F04_N010_RP060_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000055,
+      "effective_md_seed": 1924759731,
+      "md_seed": 10000055,
+      "replica": 2,
+      "system": "F04_N010_RP060_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000056,
+      "effective_md_seed": 1899344055,
+      "md_seed": 10000056,
+      "replica": 3,
+      "system": "F04_N010_RP060_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000057,
+      "effective_md_seed": 1907712185,
+      "md_seed": 10000057,
+      "replica": 1,
+      "system": "F04_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000058,
+      "effective_md_seed": 1882591411,
+      "md_seed": 10000058,
+      "replica": 2,
+      "system": "F04_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000059,
+      "effective_md_seed": 1890959541,
+      "md_seed": 10000059,
+      "replica": 3,
+      "system": "F04_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000060,
+      "effective_md_seed": 1865871543,
+      "md_seed": 10000060,
+      "replica": 1,
+      "system": "F04_N020_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000061,
+      "effective_md_seed": 1874239673,
+      "md_seed": 10000061,
+      "replica": 2,
+      "system": "F04_N020_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000062,
+      "effective_md_seed": 1849118899,
+      "md_seed": 10000062,
+      "replica": 3,
+      "system": "F04_N020_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000063,
+      "effective_md_seed": 1857487029,
+      "md_seed": 10000063,
+      "replica": 1,
+      "system": "F04_N040_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000064,
+      "effective_md_seed": 1831540777,
+      "md_seed": 10000064,
+      "replica": 2,
+      "system": "F04_N040_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000065,
+      "effective_md_seed": 1839908903,
+      "md_seed": 10000065,
+      "replica": 3,
+      "system": "F04_N040_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000066,
+      "effective_md_seed": 1814788141,
+      "md_seed": 10000066,
+      "replica": 1,
+      "system": "F06_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000067,
+      "effective_md_seed": 1823156267,
+      "md_seed": 10000067,
+      "replica": 2,
+      "system": "F06_N010_RP080_NONASSOC"
+    },
+    {
+      "chemistry_seed": 10000068,
+      "effective_md_seed": 1798068273,
+      "md_seed": 10000068,
+      "replica": 3,
+      "system": "F06_N010_RP080_NONASSOC"
+    }
+  ]
+}

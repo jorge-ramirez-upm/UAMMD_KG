@@ -1,0 +1,16 @@
+{
+  "GPU_execution_authorized": false,
+  "acceptances": {
+    "F03_N010_RP080": "81ce4a287edcf89a68531bf78c71af85bc7af58f1c821fee4b983f343715f364",
+    "F04_N010_RP020": "938ae571fac5ec9a026dae0dcc645a2fec20e40b6d222c676b12f47aa5f11cde",
+    "F04_N010_RP040": "1e8c43a2d7650ed12e8d39505f0ea86e2c4e5b6502ac1c11f63b0a536d7afe4c",
+    "F04_N010_RP060": "f58f672d41473c7ecfbc4fadda966ba893ce49cde4d03edde86d772c32f22512",
+    "F04_N010_RP080": "5f07470050fac3eddf0f21c2241a43fb27c9c9b6def8f8d24e33f8f963d6e2fa",
+    "F04_N020_RP080": "65565cf42b727c6389cb824ca74355f1416c81af7428358cd40416b5aee64409",
+    "F04_N040_RP080": "3975d7e03c3cff0f0a488c65fb2bd623ed65e72a07c66cd5c27d8d3410ab60aa",
+    "F06_N010_RP080": "2c5a5b88aa3542b5bc1870741252d94ff4a75c56cf5492db6cc40810d4bf7f22"
+  },
+  "activated": false,
+  "campaign": "nonassoc8_uninterrupted100m_20261119_v1",
+  "status": "dormant"
+}

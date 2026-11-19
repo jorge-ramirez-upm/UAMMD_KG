@@ -1,0 +1,145 @@
+"""Authenticate the exact E1 evidence supporting the published initialization decision."""
+import csv
+from pathlib import Path
+import re
+import sys
+
+BASE = Path.cwd() / 'examples/KG_Assoc'
+ROOT = BASE / 'kg_assoc_100m'
+REVIEWS = BASE / 'reviews'
+sys.path.insert(0, str(BASE / 'campaign'))
+import kg_assoc_e1 as e1
+import kg_assoc_e2 as e2
+
+c = e2.campaign
+require = e2.require
+CLOSURE = REVIEWS / 'production_closure_20261119'
+AUDIT = ROOT / 'aggregate/e1/audit_20261010T154908Z_v1'
+REVIEW = ROOT / 'aggregate/e1/review_20261010T135200_586153Z'
+VERSION = 'e1_direct_nonassoc_initialization_20261119_v1'
+QUALIFICATIONS = {
+    'F03_N010_RP080': 'Small late Rg² separation and weak positive late slopes.',
+    'F04_N010_RP020': 'Late shape means show close agreement across families.',
+    'F04_N010_RP040': 'Late shape means show close agreement across families.',
+    'F04_N010_RP060': 'Weak late Rg² trends. r002 is the registered recovery.',
+    'F04_N010_RP080': 'Small late shape variation across families.',
+    'F04_N020_RP080': 'Early swelling and slow late fluctuations with opposite trend signs.',
+    'F04_N040_RP080': 'Early swelling, modest late effective sample counts, possible slower collective relaxation.',
+    'F06_N010_RP080': 'Late shape means show close agreement across families.',
+}
+
+
+def certify():
+    seal = c.load_json(CLOSURE / 'DOSSIER.sha256')
+    for path in ('production_closure_20261119/bindings.log',
+                 'production_closure_20261119/pairing.log',
+                 'nonassoc_readiness_20261119/e1.csv'):
+        e2.check_hashes({str(REVIEWS / path): seal[path]})
+    old = c.load_json(CLOSURE / 'bindings.log')
+    pinned = {}
+    def pin(path):
+        name = str(Path(path).resolve())
+        e2.check_hashes({name: old[name]})
+        pinned[name] = old[name]
+        return old[name]
+
+    pin(AUDIT / 'integrity_manifest.json')
+    for name in ('REPORT.md', 'results.json', 'replicas.csv', 'runtime_checks.json'):
+        pin(AUDIT / name)
+    pin(ROOT / 'banks/e1/active_states.json')
+    audit = c.load_json(AUDIT / 'results.json')
+    require(c.sha256(REVIEW / 'e1_summary.csv') == audit['provenance']['reference_summary_sha256'],
+            'reference review summary changed')
+    pinned.update(e2.hash_files([REVIEW / 'e1_summary.csv']))
+    with (AUDIT / 'replicas.csv').open() as stream:
+        metrics = {(r['geometry'], int(r['replica'])): r for r in csv.DictReader(stream)}
+    families = c.load_json(CLOSURE / 'pairing.log')
+    systems = {c.geometry_id(s): s for s in c.campaign_systems() if not s['associating']}
+    records = {}
+    for row in audit['replicas']:
+        geometry, replica = row['geometry'], row['replica']
+        system = systems[geometry]
+        bank = c.e1_bank_path(ROOT, geometry, replica)
+        state = bank / 'state.e1.lammpsdat'
+        command = bank / 'command.json'
+        provenance = row['provenance']
+        state_hash = pin(state)
+        pin(command)
+        require(pin(bank / 'diagnostics.tsv') == provenance['diagnostics_sha256'] and
+                str(bank) == row['bank'] and state_hash == provenance['state_sha256'],
+                'historical E1 bindings differ')
+        record = c.load_json(command)
+        require(record == provenance['command_record'] and record['exit_code'] == 0 and
+                record['status'] == 'finished', 'E1 command record differs')
+        argv = record['command']
+        initial = Path(argv[argv.index('--input') + 1])
+        input_hash = pin(initial)
+        require(input_hash == provenance['input_sha256'] and
+                record.get('input_sha256', input_hash) == input_hash, 'E1 input differs')
+        c.validate_geometry(initial, c.expected_geometry(system))
+        snapshot = e1.check_snapshot(state, system)
+        source, final = map(c.parse_lammps_data, (initial, state))
+        require(source['atoms'] == final['atoms'] and
+                {tuple(sorted(pair)) for pair in source['bonds']} ==
+                {tuple(sorted(pair)) for pair in final['bonds']}, 'E1 changed permanent topology')
+        with state.open() as stream:
+            header = stream.readline()
+        require('chemistry disabled' in header and
+                int(re.search(r'\bstep\s+(\d+)', header)[1]) == row['final_step'] and
+                int(re.search(r'\bseed=(\d+)', header)[1]) == row['seed'] == 12000 + replica,
+                'E1 endpoint or preparation seed differs')
+        pair = [r for r in families if r['replica'] == replica and
+                r['system'].startswith(geometry + '_EE')]
+        require(pair and all(r['e1'] == str(state) and r['e1_sha256'] == state_hash for r in pair),
+                'associating preparation-family pairing differs')
+        failure = record.get('previous_attempt')
+        if (geometry, replica) == ('F04_N010_RP060', 2):
+            require(bank == ROOT / 'banks/e1_retries/F04_N010_RP060/r002/attempt001' and
+                    Path(failure) == ROOT / 'banks/e1/F04_N010_RP060/r002',
+                    'registered retry differs')
+            for path in Path(failure).iterdir():
+                if path.is_file():
+                    pin(path)
+            require(c.load_json(Path(failure) / 'command.json')['exit_code'] == 1,
+                    'original failed attempt differs')
+        else:
+            require(failure is None, 'unexpected E1 retry')
+        original_review = REVIEW / f'{geometry}_r{replica:03d}.json'
+        review = c.load_json(original_review)
+        require(review['numerical_status'] == 'valid' and
+                review['snapshot']['sha256'] == state_hash and
+                review['diagnostics_sha256'] == provenance['diagnostics_sha256'],
+                'original numerical review differs')
+        pinned.update(e2.hash_files([original_review]))
+        acceptance = records.setdefault(geometry, dict(
+            identity=f'{VERSION}/{geometry}', system=system['system_id'],
+            use='nonassociating_production_initial_state', status='accepted_with_qualification',
+            qualification=QUALIFICATIONS[geometry],
+            shared_limits=['Initialization at GJF T=1, dt=0.01, friction=0.5 only.',
+                           'Nonlinear timestep accuracy and unmeasured slow modes remain unresolved.',
+                           'Historical missing input and executable hashes remain missing.'],
+            decision_evidence='README.md', review_date='2026-11-19', families=[]))
+        acceptance['families'].append(dict(
+            replica=replica, parent_kind='e1', state=str(state), state_sha256=state_hash,
+            preparation_seed=row['seed'], final_step=row['final_step'], snapshot=snapshot,
+            preparation_command=record, input_sha256_at_review=input_hash,
+            historical_input_hash_recorded='input_sha256' in record,
+            historical_executable_sha256=record.get('executable_sha256'),
+            numerical_review=str(original_review), registered_failed_attempt=failure,
+            paired_associating_systems=sorted(r['system'] for r in pair),
+            diagnostics=metrics[geometry, replica]))
+    require(set(records) == set(QUALIFICATIONS) and
+            all(sorted(f['replica'] for f in r['families']) == [1, 2, 3] for r in records.values())
+            and len({f['state_sha256'] for r in records.values() for f in r['families']}) == 24,
+            'exact eight distinct E1 triplets required')
+    return records, pinned
+
+
+if __name__ == '__main__':
+    records, bindings = certify()
+    dossier = Path(__file__).resolve().parent
+    require(all(c.load_json(dossier / 'acceptances' / (g + '.log')) == r
+                for g, r in records.items()) and
+            c.load_json(dossier / 'evidence.sha256') == bindings,
+            'published E1 qualification differs from reviewed evidence')
+    print('PASS: eight qualified triplets, 24 exact E1 families and retained evidence')

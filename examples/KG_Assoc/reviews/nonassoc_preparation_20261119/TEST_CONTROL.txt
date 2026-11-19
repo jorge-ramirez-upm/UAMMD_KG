@@ -1,0 +1,178 @@
+"""Deterministic control-path fixtures. No native process may be started."""
+from pathlib import Path
+import runpy
+from contextlib import nullcontext
+import subprocess
+import tempfile
+import unittest
+from unittest import mock
+
+M = runpy.run_path(str(Path(__file__).with_name('CONTROL.txt')))
+c = M['c']
+SYSTEM = 'F04_N010_RP060_NONASSOC'
+
+
+class ControlTest(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        self.prefix = str(self.root / 'run')
+        self.history = dict(system=SYSTEM, replica=2, steps=100000000, md_seed=123,
+                            dataset_root=str(self.root), output_prefix=self.prefix,
+                            accepted_parent=dict(state='/fixture/state.e1.lammpsdat'))
+        self.adapter = M['journal_adapter']()
+
+    def write(self, suffix, text):
+        Path(self.prefix + suffix).write_text(text)
+
+    def test_resolved_e1_only(self):
+        system = M['control'](SYSTEM)
+        bank = self.root / 'banks/e1_retries/F04_N010_RP060/r002/attempt001'
+        bank.mkdir(parents=True)
+        state = bank / 'state.e1.lammpsdat'
+        state.write_text('fixture')
+        c.write_json(self.root / 'banks/e1/active_states.json',
+                     {'F04_N010_RP060/r002': str(bank.relative_to(self.root))})
+        entry = dict(replica=2, parent_kind='e1', state=str(state), state_sha256=c.sha256(state))
+        record = dict(system=SYSTEM, status='accepted_with_qualification',
+                      use='nonassociating_production_initial_state',
+                      families=[dict(replica=1), entry, dict(replica=3)])
+        self.assertEqual(M['parent'](record, system, 2, self.root), entry)
+        for mutation in (dict(parent_kind='e2'), dict(state=str(bank / 'state.restart.lammpsdat')),
+                         dict(state_sha256='0'*64)):
+            record['families'][1] = dict(entry, **mutation)
+            with self.assertRaises(ValueError):
+                M['parent'](record, system, 2, self.root)
+
+    def smoke_fixture(self):
+        for path in self.adapter['output_paths'](self.history):
+            path.write_text('')
+        provenance = ('# input_file=/fixture/state.e1.lammpsdat T=1 dt=0.01 damping=2 K=30 R0=1.5 '
+                      'arms=4 narm=10 seed=123 production_seed=123 nu0=0 start_step=0 '
+                      'total_requested_steps=100000000\n')
+        self.write('.events', provenance)
+        self.write('.thermo.tsv', provenance +
+                   '# chemistry_sweeps=0 candidate_sticker_pairs=0 mean_candidate_sticker_pairs=0\n'
+                   '1000 10 1 1 1 1 1 0 1 0 0 0 4000 0 0\n')
+        self.write('.topology', 'FRAME 10000 100 0\n')
+        (self.root / 'stdout.log').write_text(
+            'chemistry_sweeps 0 mean_candidate_sticker_pairs 0 creations 0 breaks 0 '
+            'final_associating_bonds 0 final_intra_star_bonds 0 final_inter_star_bonds 0\n')
+        rows = [(j * .01, 100000000-j) for j in range(16)]
+        for level in range(1, 39):
+            count = 100000000 // 2**level
+            rows.extend((j * 2**level * .01, count-j) for j in range(8,16) if j < count)
+        self.write('.stress_correlator',
+                   '# stress_samples=100000000 step0_sampled=no stress_interval_steps=1 dt=0.01\n'
+                   '# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n' +
+                   ''.join(f'{lag} 1 1 1 1 1 1 0.7 {n}\n' for lag,n in rows))
+
+    def test_control_validator_reuses_stress_and_rejects_chemistry(self):
+        self.smoke_fixture()
+        parsed = dict(atoms={1:(1,1)}, bonds=[], bounds={})
+        validate = self.adapter['numerical_validation']
+        with mock.patch.object(c, 'verify_run', return_value=dict(status='valid')) as verify, \
+                mock.patch.object(M['e1'], 'check_snapshot'), \
+                mock.patch.object(c, 'parse_lammps_data', return_value=parsed):
+            self.assertEqual(validate(self.history)['lag_bins'], 195)
+            self.assertFalse(verify.call_args.args[1]['associating'])
+            self.assertEqual(verify.call_args.kwargs['expected_steps'], 100000000)
+            for suffix, suffix_text in (
+                ('.events','100 1 C 1 2 1 2\n'), ('.final_associations','1 2 1 2\n'),
+                ('.topology','FRAME 10000 100 1\n'),
+                ('.thermo.tsv','1000 10 1 1 1 1 1 0.5 1 0 0 0 4000 1 1\n')):
+                path = Path(self.prefix + suffix)
+                original = path.read_text()
+                path.write_text(original + suffix_text)
+                with self.assertRaises(ValueError):
+                    validate(self.history)
+                path.write_text(original)
+            path = Path(self.prefix + '.stress_correlator')
+            original = path.read_text()
+            for damaged in (original.replace(' 99999999\n',' 99999998\n'),
+                            original.replace(' 0.7 ', ' 0.8 ')):
+                path.write_text(damaged)
+                with self.assertRaises(ValueError):
+                    validate(self.history)
+
+    def test_receipt_authenticated_skip_and_changed_payload_rejected(self):
+        self.smoke_fixture()
+        h = dict(self.history, history_sha256='fixture')
+        g = self.adapter['status'].__globals__
+        receipt = dict(identity={'fixture': True}, status='independently_validated',
+                       numerical=dict(endpoint=dict(status='valid'), stress_samples=h['steps']),
+                       native_sha256={'journal': 'fixture'}, failure_sha256={},
+                       output_sha256=M['e2'].hash_files(self.adapter['output_paths'](h)))
+        path = self.root / 'validated.json'
+        self.adapter['immutable'](path, receipt)
+        self.adapter['immutable'](self.root / 'validated_binding.json',
+                                  dict(receipt=path.name, sha256=c.sha256(path)))
+        with mock.patch.dict(g, authenticate=lambda *_: None, identity=lambda *_: {'fixture': True},
+                             native_evidence=lambda *_: {'journal': 'fixture'}), \
+                mock.patch.object(g['e2'], 'clean_tree'), mock.patch.object(subprocess, 'Popen') as process:
+            self.assertEqual(self.adapter['execute'](h, {}), 'validated_complete')
+            self.write('.events', 'changed')
+            with self.assertRaises(ValueError):
+                self.adapter['execute'](h, {})
+            process.assert_not_called()
+
+    def test_launch_preflights_entire_batch_and_stops_on_failure(self):
+        namespace = M['launch'].__globals__
+        rows = [dict(system=SYSTEM, replica=i) for i in (1, 2, 3)]
+        status = mock.Mock(side_effect=['prepared', 'interrupted_or_failed_hold'])
+        execute = mock.Mock()
+        patches = dict(published_activation=lambda: {'plan_sha256': 'fixture'},
+                       execution_adapter=lambda: dict(status=status, execute=execute),
+                       pristine=mock.Mock())
+        with mock.patch.dict(namespace, patches), \
+                mock.patch.object(M['run_e2'], 'workflow_lock', return_value=nullcontext()), \
+                mock.patch.object(c, 'load_json', return_value=dict(histories=rows)):
+            with self.assertRaisesRegex(ValueError, 'preserve attempt'):
+                M['launch']()
+            execute.assert_not_called()
+            status.side_effect = None
+            status.return_value = 'prepared'
+            execute.side_effect = ValueError('native fixture failure')
+            with self.assertRaisesRegex(ValueError, 'native fixture failure'):
+                M['launch']()
+            execute.assert_called_once()
+
+    def test_exact_scope_and_seed_identity(self):
+        plan = c.load_json(M['D'] / 'plan.log')
+        records = {path.stem: c.load_json(path) for path in (M['Q'] / 'acceptances').glob('*.log')}
+        rows = plan['histories']
+        M['scope'](rows, records)
+        for changed in (rows[:-1], [dict(rows[0], effective_md_seed=-1), *rows[1:]],
+                        [dict(rows[0], replica=3), *rows[1:]]):
+            with self.assertRaises(ValueError):
+                M['scope'](changed, records)
+
+    def test_launch_refuses_dormancy_before_lock_or_process(self):
+        with mock.patch.object(subprocess, 'Popen') as process, \
+                mock.patch.object(M['run_e2'], 'workflow_lock') as lock:
+            with self.assertRaisesRegex(ValueError, 'separate published activation'):
+                M['launch']()
+            lock.assert_not_called()
+            process.assert_not_called()
+
+    def test_dormancy_and_immutable_run_record(self):
+        h = dict(self.history, history_sha256='fixture')
+        path = self.root / 'run.json'
+        self.adapter['immutable'](path, M['expected_run'](h, 'plan'))
+        M['pristine'](h, 'plan')
+        with self.assertRaises(ValueError):
+            self.adapter['immutable'](path, {})
+        self.assertEqual(c.load_json(path), M['expected_run'](h, 'plan'))
+        (self.root / 'started.json').write_text('{}')
+        with self.assertRaises(ValueError):
+            M['pristine'](h, 'plan')
+        with mock.patch.object(subprocess, 'Popen') as process, \
+                mock.patch.object(self.adapter['execute'].__globals__['e2'], 'clean_tree'):
+            with self.assertRaisesRegex(ValueError, 'separate published activation'):
+                self.adapter['execute'](h, {})
+            process.assert_not_called()
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

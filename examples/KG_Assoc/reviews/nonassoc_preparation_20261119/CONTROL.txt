@@ -1,0 +1,360 @@
+"""Dormant non-associating preparation, status and offline completion adapter."""
+import argparse
+from pathlib import Path
+import re
+import subprocess
+import runpy
+import sys
+from types import SimpleNamespace
+
+BASE = Path.cwd() / 'examples/KG_Assoc'
+REVIEWS = BASE / 'reviews'
+D = REVIEWS / 'nonassoc_preparation_20261119'
+Q = REVIEWS / 'e1_qualification_20261119'
+ROOT = BASE / 'kg_assoc_100m'
+ID = 'nonassoc8_uninterrupted100m_20261119_v1'
+RUNS = ROOT / 'production_preparations' / ID
+RESERVATION = ROOT / 'banks/production_seed_reservations' / (ID + '.json')
+STEPS = 100000000
+sys.path.insert(0, str(BASE / 'campaign'))
+import kg_assoc_e1 as e1
+import kg_assoc_e2 as e2
+import run_e2
+
+c = e2.campaign
+require = e2.require
+OLD = REVIEWS / 'production_100m_preparation_20261023'
+ADAPTER = REVIEWS / 'production_launch_validation_20261023/ADAPTER.txt'
+P = runpy.run_path(str(OLD / 'PREPARE.txt'))
+
+
+def control(system_id):
+    systems = [s for s in c.campaign_systems()
+               if not s['associating'] and s['system_id'] == system_id]
+    require(len(systems) == 1, 'expected a non-associating control system')
+    return systems[0]
+
+
+def parent(record, system, replica, root=ROOT):
+    geometry = c.geometry_id(system)
+    require(record['system'] == system['system_id'] and
+            record['status'] == 'accepted_with_qualification' and
+            record['use'] == 'nonassociating_production_initial_state',
+            'E1 acceptance scope differs')
+    families = record['families']
+    require([f['replica'] for f in families] == [1, 2, 3], 'E1 families differ')
+    state = c.e1_bank_path(root, geometry, replica) / 'state.e1.lammpsdat'
+    entry = families[replica - 1]
+    require(not state.is_symlink() and entry['parent_kind'] == 'e1' and entry['state'] == str(state),
+            'E1 state or registered lineage differs')
+    e2.check_hashes({str(state): entry['state_sha256']})
+    return entry
+
+
+def data_lines(path):
+    with Path(path).open() as stream:
+        for line in stream:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                yield line.split()
+
+
+def zero_chemistry(history):
+    prefix = history['output_prefix']
+    expected = dict(input_file=history['accepted_parent']['state'],
+                    seed=str(history['md_seed']), nu0='0', start_step='0',
+                    total_requested_steps=str(history['steps']))
+    for suffix in ('.thermo.tsv', '.events'):
+        with Path(prefix + suffix).open() as stream:
+            headers = [line for line in stream if line.startswith('#')]
+        metadata = dict(re.findall(r'\b(\w+)=([^\s]+)', ''.join(headers)))
+        require(all(metadata.get(k) == v for k, v in expected.items()) and
+                metadata.get('production_seed') == expected['seed'] and
+                metadata.get('T') == '1' and float(metadata['dt']) == .01 and
+                metadata.get('damping') == '2' and metadata.get('K') == '30' and
+                metadata.get('R0') == '1.5', 'control provenance differs')
+        system = control(history['system'])
+        require(metadata.get('arms') == str(system['f']) and
+                metadata.get('narm') == str(system['N']), 'native control geometry differs')
+        if suffix == '.thermo.tsv':
+            require(all(metadata.get(k) == '0' for k in
+                        ('chemistry_sweeps', 'candidate_sticker_pairs', 'mean_candidate_sticker_pairs')),
+                    'control ran chemistry or candidate searches')
+    for suffix in ('.events', '.final_associations'):
+        require(next(data_lines(prefix + suffix), None) is None, 'control contains reversible events or pairs')
+    for words in data_lines(prefix + '.topology'):
+        require(len(words) == 4 and words[0] == 'FRAME' and words[3] == '0',
+                'control topology contains reversible pairs')
+    for words in data_lines(prefix + '.thermo.tsv'):
+        require(float(words[7]) == 0 and all(int(words[i]) == 0 for i in (9,10,11,13,14)),
+                'control thermodynamics contains reversible interactions')
+    footer = Path(prefix).with_name('stdout.log').read_text()
+    for field in ('chemistry_sweeps', 'mean_candidate_sticker_pairs', 'creations', 'breaks',
+                  'final_associating_bonds', 'final_intra_star_bonds', 'final_inter_star_bonds'):
+        value = re.search(rf'\b{field} (\S+)', footer)
+        require(value is not None and float(value[1]) == 0, 'nonzero/missing native ' + field)
+    final = Path(prefix + '.final.lammpsdat')
+    e1.check_snapshot(final, control(history['system']))
+    initial, final = map(c.parse_lammps_data, (expected['input_file'], final))
+    require(all(initial[k] == final[k] for k in ('atoms','bonds','bounds')),
+            'control final identities, permanent topology or box differ')
+    return dict(chemistry_sweeps=0, creations=0, breaks=0, reversible_bonds=0)
+
+
+def journal_adapter(execution=False):
+    # run_path gives these functions a private namespace. The associating adapter
+    # remains untouched. A later published authority must supply execution auth.
+    adapter = runpy.run_path(str(ADAPTER))
+    adapter['numerical_validation'].__globals__.update(
+        e2=SimpleNamespace(HERE=e2.HERE, system_by_id=control,
+                           hash_files=e2.hash_files, check_hashes=e2.check_hashes,
+                           clean_tree=e2.clean_tree, sources=e2.sources,
+                           exclusive_json=e2.exclusive_json),
+        chemistry_trace=zero_chemistry,
+        authenticate=authenticate_execution if execution else execution_disabled)
+    return adapter
+
+
+def execution_disabled(history, authority):
+    raise ValueError('control execution requires a separate published activation and approval')
+
+
+
+def published_activation():
+    path = D / 'ACTIVATION.log'
+    require(path.is_file(), 'control execution requires a separate published activation and approval')
+    name = path.relative_to(c.REPOSITORY_ROOT)
+    require(subprocess.check_output(['git', 'show', f'HEAD:{name}']) == path.read_bytes(),
+            'control activation differs from committed authority')
+    authority = c.load_json(path)
+    require(authority['campaign'] == ID and authority['purpose'] == 'control_production_GPU_execution'
+            and authority['GPU_execution_authorized'] is True
+            and authority['activated'] is True, 'control execution authority is dormant or out of scope')
+    return authority
+
+
+def authenticate_execution(h, authority):
+    require(authority == published_activation(), 'execution authority changed')
+    plan_path = D / 'plan.log'
+    e2.check_hashes({str(plan_path): authority['plan_sha256'],
+                    str(D / 'dormant_registry.log'): authority['dormant_registry_sha256']})
+    plan = c.load_json(plan_path)
+    approved = {r['history_sha256']: r for r in plan['histories']}
+    require(h == approved.get(h['history_sha256']) and h['steps'] == STEPS
+            and h['start_step'] == 0 and h['end_step'] == STEPS,
+            'history differs from dormant preparation')
+    require(set(authority['approval_sha256']) == set(approved), 'approval scope differs')
+    approval_path = D / 'approvals' / f"{h['system']}_r{h['replica']:03d}.log"
+    e2.check_hashes({str(approval_path): authority['approval_sha256'][h['history_sha256']]})
+    require(c.load_json(approval_path) == dict(campaign=ID, plan_sha256=authority['plan_sha256'],
+            history_sha256=h['history_sha256'], steps=STEPS, GPU_execution_authorized=True),
+            'exact control execution approval differs')
+    system = control(h['system'])
+    acceptance = Q / 'acceptances' / (c.geometry_id(system) + '.log')
+    e2.check_hashes({str(acceptance): h['acceptance_sha256']})
+    require(parent(c.load_json(acceptance), system, h['replica']) == h['accepted_parent'],
+            'control execution parent differs')
+    e2.check_hashes(h['executable_sha256'])
+    e2.check_hashes(plan['source_sha256'])
+    require(all(plan['source_sha256'].get(k) == v for k, v in e2.sources().items()),
+            'runtime source map differs')
+    P['build_check'](plan['build'])
+    run = Path(h['output_prefix']).with_name('run.json')
+    require(run.resolve() == run and c.load_json(run) == expected_run(h, authority['plan_sha256']),
+            'prepared run binding changed')
+    e2.clean_tree()
+    return plan['source_sha256']
+
+
+def execution_adapter():
+    adapter = journal_adapter(execution=True)
+    original = adapter['native_evidence']
+    namespace = original.__globals__
+    # The reused journal schema stores a per-history approval and the
+    # authenticated preparation source map in precisely the original fields.
+    def identity(h, authority):
+        return dict(plan_sha256=authority['plan_sha256'], history_sha256=h['history_sha256'],
+                    system=h['system'], replica=h['replica'], steps=h['steps'],
+                    start_step=h['start_step'], end_step=h['end_step'], command=h['command'],
+                    approval_sha256=authority['approval_sha256'][h['history_sha256']],
+                    source_authorization_sha256=authority['plan_sha256'])
+
+    def native(h, authority):
+        authority = dict(authority, expected_sources=authenticate_execution(h, authority))
+        return original(h, authority)
+
+    namespace.update(identity=identity, authenticated_sources=lambda a: a['expected_sources'],
+                     native_evidence=native)
+    return adapter
+
+
+def launch():
+    authority = published_activation()
+    adapter = execution_adapter()
+    with run_e2.workflow_lock(ROOT):
+        plan = c.load_json(D / 'plan.log')
+        rows = plan['histories']
+        # Authenticate all work and refuse partial attempts before any launch.
+        for history in rows:
+            state = adapter['status'](history, authority)
+            if state == 'prepared':
+                pristine(history, authority['plan_sha256'])
+            else:
+                require(state in ('validated_complete', 'recovered_complete'),
+                        state + ': preserve attempt for separate review')
+        for history in rows:
+            print(adapter['execute'](history, authority), history['system'], history['replica'],
+                  flush=True)
+
+
+def seeds():
+    # This private run_path instance excludes only the control ledger itself.
+    used = P['used_streams']
+    used.__globals__['RESERVATION'] = RESERVATION
+    chemical, requested, effective = used()
+    # The original helper reads production reservations; add the separate
+    # compatibility ledger and explicitly recorded E1/legacy command streams.
+    for path in sorted((ROOT / 'banks/production_validation_seed_reservations').glob('*.json')):
+        for row in c.load_json(path)['streams']:
+            chemical.add(row['chemistry_seed'])
+            requested.add(row['md_seed'])
+            effective.add(row['effective_md_seed'])
+    for path in (ROOT / 'banks').rglob('command.json'):
+        record = c.load_json(path)
+        for key in ('seed', 'md_seed', 'e1_seed', 'chemistry_seed'):
+            if type(record.get(key)) is int:
+                requested.add(record[key])
+        argv = record.get('command', [])
+        for option in ('--seed', '--md-seed'):
+            if option in argv:
+                requested.add(int(argv[argv.index(option) + 1]))
+    requested.update((12001,12002,12003))
+    effective.update(e2.validation.effective_md_seed(s) for s in chemical | requested)
+    return chemical, requested, effective
+
+
+def build_plan(records, bindings, build, streams, registry_hash):
+    adapter = journal_adapter()
+    binary = next(Path(p) for p in build['preserved_executable_sha256']
+                  if Path(p).name == 'kg_assoc_campaign_production')
+    source = e2.sources()
+    source.update(e2.hash_files([ADAPTER, D / 'CONTROL.txt', Q / 'QUALIFY.txt', Q / 'README.md']))
+    histories = []
+    for row in streams:
+        system = control(row['system'])
+        replica = row['replica']
+        geometry = c.geometry_id(system)
+        record = records[geometry]
+        entry = parent(record, system, replica)
+        output = c.run_path(RUNS, system, replica).with_name('run')
+        command = c.production_command(RUNS, system, dict(
+            replica=replica, md_seed=row['md_seed'], parent_e1=entry['state']))
+        command[0] = str(binary)
+        history = dict(**row, dataset_root=str(RUNS), steps=STEPS, start_step=0,
+                       end_step=STEPS, command=command, output_prefix=str(output),
+                       registry_sha256=registry_hash, accepted_parent=entry,
+                       acceptance_identity=record['identity'],
+                       acceptance_sha256=c.sha256(Q / 'acceptances' / (geometry + '.log')),
+                       executable_sha256={str(binary): build['preserved_executable_sha256'][str(binary)]},
+                       cadence_steps=system['cadence_steps'], continuation=False,
+                       automatic_retry_authorized=False)
+        history['history_sha256'] = adapter['history_digest'](history)
+        histories.append(history)
+    return dict(campaign=ID, status='prepared_dormant', GPU_execution_authorized=False,
+                steps=STEPS, total_steps=len(histories)*STEPS, histories=histories,
+                build=build, source_sha256=source, e1_evidence_sha256=bindings)
+
+
+def registry(records):
+    return dict(campaign=ID, status='dormant', activated=False, GPU_execution_authorized=False,
+                acceptances={g: c.sha256(Q / 'acceptances' / (g + '.log')) for g in sorted(records)})
+
+
+def expected_run(h, plan_hash):
+    return dict(campaign=ID, status='prepared_dormant', plan_sha256=plan_hash,
+                history_sha256=h['history_sha256'], system=h['system'], replica=h['replica'],
+                parent_e1=h['accepted_parent']['state'], parent_e2=None,
+                GPU_execution_authorized=False)
+
+
+def pristine(h, plan_hash):
+    directory = Path(h['output_prefix']).parent
+    require(directory.resolve() == directory and {p.name for p in directory.iterdir()} == {'run.json'},
+            'unexpected files or journal in dormant history')
+    path = directory / 'run.json'
+    require(path.is_file() and not path.is_symlink() and c.load_json(path) == expected_run(h, plan_hash),
+            'dormant run identity changed')
+
+
+def scope(streams, records):
+    expected = [(r['system'], f['replica']) for _, r in sorted(records.items()) for f in r['families']]
+    require(len(expected) == 24 and [(r['system'], r['replica']) for r in streams] == expected,
+            'expected exact 24 preparation families')
+    requested = {r['md_seed'] for r in streams}
+    effective = {r['effective_md_seed'] for r in streams}
+    require(len(requested) == len(effective) == 24 and all(
+        r['chemistry_seed'] == r['md_seed'] and
+        e2.validation.effective_md_seed(r['md_seed']) == r['effective_md_seed']
+        for r in streams), 'seed reservation differs')
+
+
+def prepare_or_check(action):
+    records = {p.stem: c.load_json(p) for p in (Q / 'acceptances').glob('*.log')}
+    require(records and all(r['identity'] == 'e1_direct_nonassoc_initialization_20261119_v1/' + g
+                            for g, r in records.items()),
+            'missing or wrong E1 acceptance')
+    bindings = c.load_json(Q / 'evidence.sha256')
+    e2.check_hashes(bindings)
+    build = c.load_json(D / 'build.log')
+    P['build_check'](build)
+    require(re.search(r'-DKG_ASSOC_CAMPAIGN_STEPS=\S*?\b100000\b',
+                      build['compile_commands'][1]) is not None, 'preserved smoke duration differs')
+    registry_path = D / 'dormant_registry.log'
+    plan_path = D / 'plan.log'
+    reservation_path = D / 'reservation.log'
+    if action == 'prepare':
+        with run_e2.workflow_lock(ROOT):
+            require(not RUNS.exists() and all(not p.exists() for p in
+                    (registry_path, plan_path, reservation_path, RESERVATION)),
+                    'new immutable control preparation required')
+            identities = [(r['system'], f['replica']) for _, r in sorted(records.items())
+                          for f in r['families']]
+            streams = P['choose_streams'](identities, *seeds())
+            scope(streams, records)
+            e2.exclusive_json(registry_path, registry(records))
+            plan = build_plan(records, bindings, build, streams, c.sha256(registry_path))
+            reservation = dict(campaign=ID, streams=streams)
+            e2.exclusive_json(reservation_path, reservation)
+            e2.exclusive_json(RESERVATION, reservation)
+            e2.exclusive_json(plan_path, plan)
+            plan_hash = c.sha256(plan_path)
+            for h in plan['histories']:
+                path = Path(h['output_prefix']).with_name('run.json')
+                path.parent.mkdir(parents=True, exist_ok=False)
+                e2.exclusive_json(path, expected_run(h, plan_hash))
+    require(c.load_json(registry_path) == registry(records), 'dormant registry differs')
+    reservation = c.load_json(reservation_path)
+    require(reservation['campaign'] == ID and c.load_json(RESERVATION) == reservation,
+            'control reservation differs')
+    streams = reservation['streams']
+    scope(streams, records)
+    chemical, requested, effective = seeds()
+    require(all(r['md_seed'] not in chemical | requested | effective and
+                r['effective_md_seed'] not in effective for r in streams),
+            'control reservation collides with another known stream')
+    plan = build_plan(records, bindings, build, streams, c.sha256(registry_path))
+    require(c.load_json(plan_path) == plan, 'prepared plan differs')
+    plan_hash = c.sha256(plan_path)
+    for h in plan['histories']:
+        pristine(h, plan_hash)
+    print(f'PASS {ID}: {len(plan["histories"])} dormant histories, {STEPS} steps each, execution disabled')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', choices=('prepare', 'check', 'launch'))
+    action = parser.parse_args().action
+    if action == 'launch':
+        launch()
+    else:
+        prepare_or_check(action)
