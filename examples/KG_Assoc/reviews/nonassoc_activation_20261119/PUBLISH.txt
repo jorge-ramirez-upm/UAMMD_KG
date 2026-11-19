@@ -1,0 +1,86 @@
+"""CPU-only publication of the exact reviewed production approvals."""
+import csv
+from pathlib import Path
+import runpy
+import shlex
+import shutil
+import subprocess
+
+M = runpy.run_path(str(Path(__file__).with_name('DRIVER.txt')))
+D, C, c, e2, require = (M[k] for k in ('D','C','c','e2','require'))
+START = '3899a57fa22de3cc88af882bfbb0b2d5cab63640'
+WORK = Path('work/nonassoc_activation_20261119')
+
+
+def publish():
+    require(subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == START,
+            'wrong reviewed starting commit')
+    audit = (WORK / 'preservation.log').read_text()
+    for token in ('"status": "PASS"', '"validated_histories": 45', '"preserved_bindings": 5536',
+                  '"GPU_MD_steps": 0', '"final_file_signatures_unchanged": true'):
+        require(token in audit, 'full historical preservation gate did not pass')
+    require((WORK / 'e1.log').read_text().startswith('PASS: eight qualified triplets'),
+            'qualified E1 replay did not pass')
+    require((WORK / 'dormant.log').read_text().startswith('PASS nonassoc8_uninterrupted') and
+            (WORK / 'replay-final.log').read_text().startswith('PASS nine exact 100k completions'),
+            'dormant/compatibility replay did not pass')
+    require((WORK / 'cpu-tests.log').read_text().count('\nOK\n') == 4,
+            'required focused CPU suites did not pass')
+    preserved = {}
+    for relative in ('production_closure_20261119/bindings.log',
+                     'production_activation_20261026/PRESERVED.sha256',
+                     'e1_qualification_20261119/evidence.sha256'):
+        preserved.update(c.load_json(M['REVIEWS'] / relative))
+    cutoff = (WORK / 'preservation.log').stat().st_mtime_ns
+    require(all(max(p.stat().st_mtime_ns, p.stat().st_ctime_ns) <= cutoff
+                for p in map(Path, preserved)), 'prior preservation path changed after audit')
+    for name in ('preservation', 'e1', 'dormant', 'replay-final', 'cpu-tests'):
+        with (D / (name + '.log')).open('xb') as stream:
+            stream.write((WORK / (name + '.log')).read_bytes())
+    with C['run_e2'].workflow_lock(C['ROOT']):
+        require(not (C['D'] / 'ACTIVATION.log').exists() and
+                not (C['D'] / 'approvals').exists() and not (D / 'ACTIVATION.log').exists() and
+                not (D / 'approvals').exists(), 'production activation or approvals already exist')
+        C['prepare_or_check']('check')
+        require(shutil.disk_usage(C['RUNS']).free >= M['MIN_FREE'], 'insufficient disk margin')
+        e2.check_hashes(c.load_json(D / 'COMPATIBILITY.sha256'))
+        plan = c.load_json(M['PLAN'])
+        rows = M['exact_rows'](plan)
+        plan_hash = c.sha256(M['PLAN'])
+        run_paths = [Path(h['output_prefix']).with_name('run.json') for h in rows]
+        require(set(C['RUNS'].rglob('*.*')) == set(run_paths), 'unexpected prior production evidence')
+        proofs = e2.hash_files([
+            D / 'README.md', D / 'REVIEW.txt', D / 'TIMINGS.csv', D / 'COMPATIBILITY.sha256',
+            D / 'RESOURCES.csv', D / 'preservation.log', D / 'e1.log', D / 'dormant.log',
+            D / 'replay-final.log', C['D'] / 'dormant_registry.log', C['D'] / 'reservation.log',
+            C['RESERVATION'], M['R']['D'] / 'CONTINUE.txt',
+            M['REVIEWS'] / 'production_closure_20261119/production.csv'])
+        approvals = {}
+        for h in rows:
+            p = M['approval_path'](h)
+            e2.exclusive_json(p, M['approval'](h, plan_hash))
+            approvals[h['history_sha256']] = c.sha256(p)
+        authority = dict(activation=M['ACTIVATION'], campaign=M['ID'], purpose=M['PURPOSE'],
+                         activated=True, GPU_execution_authorized=True,
+                         assistant_GPU_execution_authorized=False,
+                         scope=dict(histories=24, steps_per_history=M['STEPS'],
+                                    total_steps=24*M['STEPS']),
+                         plan_sha256=plan_hash, approval_sha256=approvals,
+                         validator_sha256=c.sha256(D / 'DRIVER.txt'), release_sha256=proofs,
+                         run_sha256=e2.hash_files(run_paths))
+        for h in rows:
+            M['scope'](h, plan, authority)
+        with (D / 'APPROVAL_INDEX.csv').open('x',newline='') as stream:
+            writer = csv.writer(stream,lineterminator='\n')
+            writer.writerow(('system','replica','acceptance','seed','effective_seed',
+                             'history_sha256','approval_sha256','native_command'))
+            for h in rows:
+                writer.writerow((h['system'], h['replica'], h['acceptance_identity'], h['md_seed'],
+                                 h['effective_md_seed'], h['history_sha256'],
+                                 approvals[h['history_sha256']], shlex.join(h['command'])))
+        e2.exclusive_json(D / 'ACTIVATION.log', authority)
+    print('PASS 24 approvals created for exclusively user-run production; zero GPU or MD steps')
+
+
+if __name__ == '__main__':
+    publish()

@@ -1,0 +1,41 @@
+"""Derive resource estimates from authenticated control smoke and long associating data."""
+import csv
+import json
+from pathlib import Path
+import sys
+
+reviews = Path('examples/KG_Assoc/reviews')
+with (reviews / 'production_closure_20261119/production.csv').open() as stream:
+    long_runs = list(csv.DictReader(stream))
+with Path(sys.argv[1]).open() as stream:
+    smoke = list(csv.DictReader(stream))
+
+fields = ('geometry', 'control_100k_seconds', 'assoc_100m_mean_hours',
+          'control_linear_100m_hours', 'control_projected_100m_bytes')
+totals = [0, 0, 0]
+writer = csv.DictWriter(sys.stdout, fieldnames=fields, lineterminator='\n')
+writer.writeheader()
+for row in smoke:
+    if row['replica'] != '1':
+        continue
+    g = row['system'].removesuffix('_NONASSOC')
+    reference = [h for h in long_runs if h['system'] == g + '_EE08_EA04']
+    assert len(reference) == 3
+    control = [h for h in smoke if h['system'] == row['system']]
+    seconds = sum(float(h['wall_seconds']) for h in control) / len(control)
+    baseline = sum(float(h['measured_100m_wall_seconds']) for h in reference) / 3 / 3600
+    extrapolation = seconds * 1000 / 3600
+    # Long associating outputs establish shared 100M storage. Remove all
+    # reversible association output, then allow empty topology frame headers.
+    retained = sum(sum(n for name,n in json.loads(h['output_sizes']).items()
+                      if 'events' not in name and 'topology' not in name and
+                      'final_associations' not in name) for h in reference)
+    size = round(retained / 3 + 400000)
+    writer.writerow(dict(zip(fields, (g, f'{seconds:.4f}', f'{baseline:.3f}',
+                                      f'{extrapolation:.3f}', size))))
+    totals[0] += 3 * baseline
+    totals[1] += 3 * extrapolation
+    totals[2] += 3 * size
+writer.writerow(dict(geometry='TOTAL_24', assoc_100m_mean_hours=f'{totals[0]:.3f}',
+                     control_linear_100m_hours=f'{totals[1]:.3f}',
+                     control_projected_100m_bytes=totals[2]))

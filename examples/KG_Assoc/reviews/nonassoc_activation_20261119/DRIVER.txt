@@ -1,0 +1,200 @@
+"""User-run control production. Check authenticates outputs; status only reads journal markers."""
+import argparse
+from pathlib import Path
+import runpy
+import shutil
+
+REVIEWS = Path.cwd() / 'examples/KG_Assoc/reviews'
+D = REVIEWS / 'nonassoc_activation_20261119'
+R = runpy.run_path(str(REVIEWS / 'nonassoc_compatibility_repair_20261119/CONTINUE.txt'))
+O = R['OLD']
+C = O['C']
+c, e2, require = C['c'], C['e2'], C['require']
+ID = C['ID']
+ACTIVATION = ID + '_activation_20261119_v1'
+PURPOSE = 'control_production_GPU_execution'
+STEPS = 100000000
+MIN_FREE = 96 * 1024**3
+PLAN = C['D'] / 'plan.log'
+
+
+def approval_path(h):
+    return D / 'approvals' / f"{h['system']}_r{h['replica']:03d}.log"
+
+
+def approval(h, plan_sha):
+    return dict(activation=ACTIVATION, campaign=ID, purpose=PURPOSE, plan_sha256=plan_sha,
+                history_sha256=h['history_sha256'], system=h['system'], replica=h['replica'],
+                initial_step=0, maximum_additional_MD_steps=STEPS,
+                executable_sha256=h['executable_sha256'], GPU_execution_authorized=True,
+                assistant_GPU_execution_authorized=False)
+
+
+def published():
+    authority = O['committed'](D / 'ACTIVATION.log')
+    require(authority['activation'] == ACTIVATION and authority['campaign'] == ID and
+            authority['purpose'] == PURPOSE and authority['activated'] is True and
+            authority['GPU_execution_authorized'] is True and
+            authority['assistant_GPU_execution_authorized'] is False and
+            authority['scope'] == dict(histories=24, steps_per_history=STEPS, total_steps=24*STEPS),
+            'unauthorized production scope')
+    require(authority['validator_sha256'] == c.sha256(D / 'DRIVER.txt'),
+            'production validator differs from activation')
+    e2.check_hashes({str(PLAN): authority['plan_sha256']})
+    return authority, c.load_json(PLAN)
+
+
+def exact_rows(plan):
+    rows = plan['histories']
+    expected = {(s['system_id'], r) for s in c.campaign_systems()
+                if not s['associating'] for r in (1,2,3)}
+    require(plan['campaign'] == ID and plan['status'] == 'prepared_dormant' and
+            plan['GPU_execution_authorized'] is False and plan['steps'] == STEPS and
+            plan['total_steps'] == 24*STEPS and len(rows) == len(expected) == 24 and
+            {(h['system'], h['replica']) for h in rows} == expected and
+            len({h['history_sha256'] for h in rows}) == 24,
+            'requires exactly the original eight E1 triplets')
+    return rows
+
+
+def scope(h, plan, authority):
+    require(h['steps'] == h['end_step'] == STEPS and h['start_step'] == 0 and
+            h['dataset_root'] == str(C['RUNS']) and h['continuation'] is False and
+            h['automatic_retry_authorized'] is False, 'production duration or policy differs')
+    system = C['control'](h['system'])
+    replica = h['replica']
+    state = h['accepted_parent']['state']
+    binary = C['ROOT'] / 'builds/production_100m_preserved_20261023_v1/kg_assoc_campaign_production'
+    argv = c.production_command(C['RUNS'], system,
+                               dict(replica=replica, md_seed=h['md_seed'], parent_e1=state))
+    argv[0] = str(binary)
+    prefix = c.run_path(C['RUNS'], system, replica).with_name('run')
+    require(h['command'] == argv and h['output_prefix'] == str(prefix) and
+            h['executable_sha256'] == {str(binary): plan['build']['preserved_executable_sha256'][str(binary)]}
+            and h['effective_md_seed'] == e2.validation.effective_md_seed(h['md_seed']),
+            'production command, executable, output or stream differs')
+    path = C['Q'] / 'acceptances' / (c.geometry_id(system) + '.log')
+    e2.check_hashes({str(path): h['acceptance_sha256']})
+    record = c.load_json(path)
+    require(record['identity'] == h['acceptance_identity'] and
+            C['parent'](record, system, replica) == h['accepted_parent'], 'exact E1 parent differs')
+    path = approval_path(h)
+    e2.check_hashes({str(path): authority['approval_sha256'][h['history_sha256']]})
+    require(c.load_json(path) == approval(h, authority['plan_sha256']), 'approval terms differ')
+    run = prefix.with_name('run.json')
+    require(run.resolve() == run and c.load_json(run) == C['expected_run'](h, authority['plan_sha256']),
+            'prepared output binding differs')
+    e2.check_hashes({str(run): authority['run_sha256'][str(run)]})
+
+
+def journal_for(authority, plan):
+    journal = C['execution_adapter']()
+    namespace = journal['execute'].__globals__
+    exact = {h['history_sha256']: h for h in exact_rows(plan)}
+    require(set(authority['approval_sha256']) == set(exact) and len(authority['run_sha256']) == 24,
+            'approval or run inventory differs')
+
+    def authenticate(h, active):
+        require(active == authority and exact.get(h['history_sha256']) == h and
+                O['committed'](D / 'ACTIVATION.log') == authority, 'execution authority changed')
+        e2.clean_tree()
+        e2.check_hashes({str(PLAN): authority['plan_sha256']})
+        e2.check_hashes(authority['release_sha256'])
+        require(authority['validator_sha256'] == c.sha256(D / 'DRIVER.txt'),
+                'production validator changed')
+        current = e2.sources()
+        e2.check_hashes(plan['source_sha256'])
+        require(all(plan['source_sha256'].get(p) == sha for p, sha in current.items()),
+                'native source map differs')
+        C['P']['build_check'](plan['build'])
+        scope(h, plan, authority)
+        return {**plan['source_sha256'], **authority['release_sha256'],
+                str(D / 'DRIVER.txt'): authority['validator_sha256']}
+
+    # Reuse the control adapter's identity, immutable journals, and validation.
+    # Its original authentication is for the historical dormant dossier location.
+    original_identity = namespace['identity']
+
+    def identity(h, active):
+        return dict(original_identity(h, active), activation=ACTIVATION,
+                    activation_sha256=c.sha256(D / 'ACTIVATION.log'))
+
+    native = runpy.run_path(str(C['ADAPTER']))['native_evidence']
+    native.__globals__.update(identity=identity,
+                              authenticated_sources=lambda active: active['expected_sources'])
+
+    def native_evidence(h, active):
+        return native(h, dict(active, expected_sources=authenticate(h, active)))
+
+    namespace.update(authenticate=authenticate, identity=identity, native_evidence=native_evidence,
+                     chemistry_trace=R['zero_chemistry'])
+    return journal
+
+
+def inspect(h, authority, journal):
+    directory = Path(h['output_prefix']).parent
+    require(directory.resolve() == directory, 'production directory redirected')
+    allowed = O['JOURNALS'] | {p.name for p in journal['output_paths'](h)} | {'run.complete.json.tmp'}
+    names = {p.name for p in directory.iterdir()}
+    require(names <= allowed and all(p.is_file() and not p.is_symlink() and
+            p.stat().st_nlink == 1 for p in directory.iterdir()), 'unexpected production evidence')
+    state = journal['status'](h, authority)
+    require(state in ('prepared', 'validated_complete'), state + ': production held')
+    if state == 'prepared':
+        require(names == {'run.json'}, 'production output directory is not pristine')
+    else:
+        expected = {p.name for p in journal['output_paths'](h)} | {
+            'run.json', 'started.json', 'native_finished.json', 'validated.json', 'validated_binding.json'}
+        require(names == expected, 'completed production inventory differs')
+        receipt = c.load_json(directory / 'validated.json')
+        require(receipt['numerical']['lag_bins'] == 195 and
+                receipt['numerical']['chemistry_trace'] == dict(
+                    chemistry_sweeps=0, creations=0, breaks=0, reversible_bonds=0),
+                'completed production numerical contract differs')
+    return state
+
+
+def monitor(rows):
+    for h in rows:
+        path = Path(h['output_prefix']).parent
+        state = next((label for name, label in (
+            ('failure.json', 'failure_hold'), ('validated_binding.json', 'receipt_present'),
+            ('native_finished.json', 'native_finished'), ('started.json', 'started'))
+            if (path / name).exists()), 'prepared' if (path / 'run.json').is_file() else 'missing')
+        print(h['system'], f"r{h['replica']:03d}", state)
+    print('Journal markers only. Use --check for independent authentication.')
+
+
+def batch(execute, authority, plan):
+    rows = exact_rows(plan)
+    journal = journal_for(authority, plan)
+    e2.check_hashes(authority['release_sha256'])
+    e2.check_hashes(c.load_json(D / 'COMPATIBILITY.sha256'))
+    states = [inspect(h, authority, journal) for h in rows]
+    pending = 'prepared' in states
+    if pending:
+        require(shutil.disk_usage(C['RUNS']).free >= MIN_FREE, 'need at least 96 GiB free')
+    for h, state in zip(rows, states):
+        if execute:
+            state = inspect(h, authority, journal)
+            if state == 'prepared':
+                require(shutil.disk_usage(C['RUNS']).free >= MIN_FREE, 'need at least 96 GiB free')
+                state = journal['execute'](h, authority)
+        print(h['system'], h['replica'], state, flush=True)
+    print('PASS exact 24-history production scope')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    for mode in ('check', 'status', 'execute'):
+        modes.add_argument('--' + mode, action='store_const', const=mode, dest='mode')
+    mode = parser.parse_args().mode
+    authority, plan = published()
+    if mode == 'status':
+        monitor(exact_rows(plan))
+    elif mode == 'check':
+        batch(False, authority, plan)
+    else:
+        with C['run_e2'].workflow_lock(C['ROOT']):
+            batch(True, authority, plan)

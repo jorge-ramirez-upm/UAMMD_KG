@@ -1,0 +1,12 @@
+"""Reproduce the original full CPU-only preservation audit in this review scope."""
+from pathlib import Path
+
+path = Path('examples/KG_Assoc/reviews/production_closure_20261119/AUTHENTICATE.txt')
+source = path.read_text()
+old = "'nonassoc_readiness_20261119'))"
+if source.count(old) != 1:
+    raise ValueError('unexpected original closure verifier')
+source = source.replace(old, "'nonassoc_readiness_20261119', 'e1_qualification_20261119', "
+                        "'nonassoc_preparation_20261119', 'nonassoc_compatibility_20261119', "
+                        "'nonassoc_compatibility_repair_20261119', 'nonassoc_activation_20261119'))")
+exec(compile(source, str(path), 'exec'))

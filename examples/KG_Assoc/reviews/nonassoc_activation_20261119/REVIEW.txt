@@ -1,0 +1,82 @@
+"""Read-only authentication and independent numerical replay of the nine smoke runs."""
+import csv
+from pathlib import Path
+import re
+import runpy
+import sys
+
+REVIEWS = Path.cwd() / 'examples/KG_Assoc/reviews'
+R = runpy.run_path(str(REVIEWS / 'nonassoc_compatibility_repair_20261119/CONTINUE.txt'))
+O = R['OLD']
+c, e2, require = R['c'], R['e2'], R['require']
+
+
+def review():
+    journal = R['repaired_adapter']()
+    authority, histories = O['load'](journal)
+    release = O['committed'](R['D'] / 'RELEASE.log')
+    require(release['original_authority_sha256'] == R['AUTHORITY'], 'repair authority differs')
+    e2.check_hashes(release['sha256'])
+    first = c.load_json(R['D'] / 'RECONCILIATION.log')
+    require(R['make_reconciliation']() == first, 'original defect reconciliation differs')
+    rows = []
+    bindings = e2.hash_files([O['D'] / name for name in ('AUTHORITY.log', 'SOURCE.log', 'PLAN.log',
+                             'RESERVATION.log')] + [R['D'] / name for name in
+                            ('CONTINUE.txt', 'RELEASE.log', 'RECONCILIATION.log')])
+    bindings.update(authority['approval_sha256'])
+    bindings.update(e2.hash_files([O['RESERVATION']]))
+    expected_dirs = {Path(h['output_prefix']).parent for h in histories}
+    seen_dirs = {p.parent for p in O['RUNS'].rglob('*') if p.is_file()}
+    require(expected_dirs == seen_dirs, 'unexpected compatibility output directory')
+    for i, h in enumerate(histories):
+        directory = Path(h['output_prefix']).parent
+        state = O['inspect'](h, authority, journal)
+        expect = 'native_finished_pending_validation_hold' if i == 0 else 'validated_complete'
+        require(state == expect, 'compatibility journal status differs')
+        receipt = first if i == 0 else c.load_json(directory / 'validated.json')
+        allowed = {'run.json','started.json','native_finished.json'}
+        allowed |= {p.name for p in journal['output_paths'](h)}
+        allowed |= {'failure.json'} if i == 0 else {'validated.json','validated_binding.json'}
+        require({p.name for p in directory.iterdir()} == allowed,
+                'unexpected or duplicate compatibility evidence')
+        native = journal['native_evidence'](h, authority)
+        output = e2.hash_files(journal['output_paths'](h))
+        require(native == receipt['native_sha256'] and output == receipt['output_sha256'] and
+                receipt['identity'] == journal['identity'](h, authority), 'receipt evidence differs')
+        numerical = journal['numerical_validation'].__globals__['numerical_validation'](h)
+        require(numerical == receipt['numerical'] and numerical['lag_bins'] == 116 and
+                numerical['stress_samples'] == 100000 and numerical['endpoint']['event_count'] == 0,
+                'independent numerical replay differs')
+        current = e2.hash_files(directory.iterdir())
+        require(all(current[p] == sha for p, sha in {**native, **output}.items()),
+                'native payload changed during replay')
+        bindings.update(current)
+        text = (directory / 'stdout.log').read_text()
+        match = re.search(r'^S1 total_timesteps 100000 wall_seconds (\S+) '
+                          r'particle_timesteps_per_second (\S+) ', text, re.M)
+        require(match is not None, 'missing measured timing')
+        wall, throughput = map(float, match.groups())
+        atoms = c.expected_geometry(O['C']['control'](h['system']))['total_beads']
+        require(wall > 0 and abs(wall*throughput/(100000*atoms)-1) < .0001,
+                'inconsistent native timing')
+        warnings = [line for line in (directory / 'stderr.log').read_text().splitlines()
+                    if re.search(r'warning|error', line, re.I)]
+        size = sum(Path(p).stat().st_size for p in output)
+        rows.append(dict(system=h['system'], replica=h['replica'], atoms=atoms,
+                         wall_seconds=wall, particle_steps_per_second=throughput,
+                         output_bytes=size, status='reconciled_complete' if i == 0 else state,
+                         warnings=' | '.join(warnings)))
+    return rows, bindings
+
+
+if __name__ == '__main__':
+    output = Path(sys.argv[1])
+    require(not output.exists(), 'use new review directory')
+    rows, bindings = review()
+    output.mkdir(parents=True)
+    with (output / 'TIMINGS.csv').open('x', newline='') as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator='\n')
+        writer.writeheader()
+        writer.writerows(rows)
+    e2.exclusive_json(output / 'COMPATIBILITY.sha256', bindings)
+    print('PASS nine exact 100k completions, eight ordinary receipts and one original reconciliation')

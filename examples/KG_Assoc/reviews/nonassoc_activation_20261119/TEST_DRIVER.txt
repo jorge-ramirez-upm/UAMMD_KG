@@ -1,0 +1,98 @@
+"""CPU fixtures for the production activation and fail-stop driver."""
+import copy
+from pathlib import Path
+import runpy
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import Mock, patch
+
+M = runpy.run_path(str(Path(__file__).with_name('DRIVER.txt')))
+g = M['batch'].__globals__
+c = M['c']
+
+
+class ActivationTest(unittest.TestCase):
+    def setUp(self):
+        self.plan = c.load_json(M['PLAN'])
+        self.rows = M['exact_rows'](self.plan)
+
+    def test_exact_production_set(self):
+        for mutate in (
+                lambda p: p['histories'].pop(),
+                lambda p: p['histories'].__setitem__(1, p['histories'][0]),
+                lambda p: p.update(steps=100000),
+                lambda p: p.update(GPU_execution_authorized=True)):
+            plan = copy.deepcopy(self.plan)
+            mutate(plan)
+            with self.assertRaises(ValueError):
+                M['exact_rows'](plan)
+
+    def test_sealed_scope_rejects_smoke_and_mutations(self):
+        h = self.rows[0]
+        for patch_values in (dict(steps=100000), dict(end_step=200000000),
+                             dict(output_prefix='/elsewhere/run'), dict(effective_md_seed=0),
+                             dict(command=['kg_assoc_campaign_production_smoke']),
+                             dict(continuation=True), dict(automatic_retry_authorized=True)):
+            with self.subTest(patch_values=patch_values), self.assertRaises(ValueError):
+                M['scope'](dict(h, **patch_values), self.plan, {})
+        with self.assertRaisesRegex(ValueError, 'approval terms differ'):
+            temp = tempfile.TemporaryDirectory()
+            self.addCleanup(temp.cleanup)
+            path = Path(temp.name) / 'approval.log'
+            path.write_text('{}')
+            authority = dict(approval_sha256={h['history_sha256']: c.sha256(path)}, plan_sha256='x')
+            with patch.dict(g, approval_path=lambda _: path):
+                M['scope'](h, self.plan, authority)
+
+    def test_read_only_and_completed_skip(self):
+        execute = Mock(return_value='validated_complete')
+        journal = dict(execute=execute)
+        inspect = Mock(side_effect=lambda h,*_: 'validated_complete' if h == self.rows[0] else 'prepared')
+        with patch.dict(g, journal_for=lambda *_: journal, inspect=inspect, exact_rows=lambda _: self.rows), \
+                patch.object(M['e2'], 'check_hashes'), \
+                patch.object(c, 'load_json', return_value={}), \
+                patch.object(M['shutil'], 'disk_usage', return_value=SimpleNamespace(free=M['MIN_FREE'])):
+            M['batch'](False, {'release_sha256': {}}, self.plan)
+            execute.assert_not_called()
+            M['batch'](True, {'release_sha256': {}}, self.plan)
+        self.assertEqual(execute.call_count, 23)
+        self.assertNotIn(self.rows[0], [call.args[0] for call in execute.call_args_list])
+
+    def test_batch_holds_on_failure_and_disk(self):
+        execute = Mock(side_effect=ValueError('native fixture failure'))
+        inspect = Mock(return_value='prepared')
+        journal = dict(execute=execute)
+        authority = {'release_sha256': {}}
+        with patch.dict(g, journal_for=lambda *_: journal, inspect=inspect, exact_rows=lambda _: self.rows), \
+                patch.object(M['e2'], 'check_hashes'), \
+                patch.object(c, 'load_json', return_value={}), \
+                patch.object(M['shutil'], 'disk_usage', return_value=SimpleNamespace(free=0)) as disk:
+            with self.assertRaisesRegex(ValueError, '96 GiB'):
+                M['batch'](True, authority, self.plan)
+            execute.assert_not_called()
+            disk.return_value.free = M['MIN_FREE']
+            inspect.side_effect = ['prepared'] * 23 + [ValueError('late history held')]
+            with self.assertRaisesRegex(ValueError, 'late history held'):
+                M['batch'](True, authority, self.plan)
+            execute.assert_not_called()
+            inspect.side_effect = None
+            with self.assertRaisesRegex(ValueError, 'native fixture failure'):
+                M['batch'](True, authority, self.plan)
+            execute.assert_called_once()
+
+    def test_corrected_numerical_path_and_authority_rejection(self):
+        plan_hash = c.sha256(M['PLAN'])
+        authority = dict(plan_sha256=plan_hash, run_sha256={str(i): '' for i in range(24)},
+                         approval_sha256={h['history_sha256']: '' for h in self.rows})
+        journal = M['journal_for'](authority, self.plan)
+        namespace = journal['execute'].__globals__
+        self.assertIs(namespace['chemistry_trace'], M['R']['zero_chemistry'])
+        with self.assertRaisesRegex(ValueError, 'authority changed'):
+            namespace['authenticate'](self.rows[0], {})
+        with self.assertRaisesRegex(ValueError, 'authority changed'):
+            namespace['authenticate'](dict(self.rows[0], steps=100000), authority)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
