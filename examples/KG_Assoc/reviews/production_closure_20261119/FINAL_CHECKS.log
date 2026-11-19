@@ -4,3 +4,4 @@ MD/GPU steps: 0
 PASS: all six verifier/test scripts parse
 Resumed final checks: dossier/inventory integrity and all three fixture suites PASS.
 Fixture clock-granularity failures and correction preserved in RESUMPTION_CHECKS.log.
+Publication formatting: CSV CRLF endings normalized to LF; all parsed rows unchanged. Exporter LF fixture PASS.
