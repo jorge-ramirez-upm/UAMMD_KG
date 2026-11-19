@@ -1,0 +1,27 @@
+{
+  "schema": "e1-d17-stage-a-candidate-v1",
+  "execution_authorized": false,
+  "stage_b_authorized": false,
+  "source_sha": "0dea651b58171a72206774bcebb2f4c74960069b",
+  "historical_build_sha256": "2ca6541ffd7c5bc205a207ee0f465276e7a357c8c8783d6d466963e557a5f6a8",
+  "executable": {"bytes": 2709792, "sha256": "cdfc04f4c943843fd4ad6cdcab1c1267ad0bb012abfce4fdd3be78b64cc6032f"},
+  "gpu_uuid": "GPU-83d1eede-bd03-c365-6f3a-b6d6e2be6274",
+  "physical": {"N": 32, "M": 256, "kappa": 10, "kb": 30, "b0": 1, "kbt": 1, "zeta": 1, "A2": 5, "nu_hop": 100, "m": 1, "precision_bits": 64},
+  "T": "100",
+  "scalar_spacing": "0.5",
+  "full_spacing": "2",
+  "cells": [
+    {"id": "bare-coarse", "Z": 0, "dt": "0.00025", "seeds": [741719101, 741719102, 741719103, 741719104]},
+    {"id": "bare-middle", "Z": 0, "dt": "0.0001", "seeds": [741719201, 741719202, 741719203, 741719204]},
+    {"id": "bare-fine", "Z": 0, "dt": "0.00005", "seeds": [741719301, 741719302, 741719303, 741719304]},
+    {"id": "e1-coarse", "Z": 2048, "dt": "0.00025", "seeds": [741719401, 741719402, 741719403, 741719404]},
+    {"id": "e1-middle", "Z": 2048, "dt": "0.0001", "seeds": [741719501, 741719502, 741719503, 741719504]},
+    {"id": "e1-fine", "Z": 2048, "dt": "0.00005", "seeds": [741719601, 741719602, 741719603, 741719604]}
+  ],
+  "windows": {"initial": [0, 0], "early": [0.5, 10], "middle": [40, 60], "late": [80, 100]},
+  "primary": ["connector_e2", "re2", "rg2", "mean_r2", "tangent1"],
+  "planning_sensitivity": {"connector_e2": {"absolute": 0.01}, "re2": {"relative": 0.005}, "rg2": {"relative": 0.005}, "mean_r2": {"relative": 0.001}, "tangent1": {"absolute": 0.001}},
+  "equivalence_margins": null,
+  "primary_late_target_family": 27,
+  "limits": {"per_run_seconds": 900, "aggregate_seconds": 21600, "max_host_rss_bytes": 2147483648, "per_run_output_bytes": 134217728, "aggregate_output_bytes": 4294967296, "min_free_disk_bytes": 10737418240, "min_available_host_bytes": 8589934592, "min_free_gpu_bytes": 4294967296}
+}

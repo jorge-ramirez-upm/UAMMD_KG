@@ -27,9 +27,17 @@ with unresolved temporal support. D1.6 closes without preservation acceptance.
 The saved D2A.5 N64 static review reports broad conformational compatibility,
 including a D-C Re² interval roughly [-520,595], and unresolved stiff connector
 drift; those are quoted unauthenticated saved report values, not new reductions.
-Only n64-v1 was present in the inspected d2a5-statics root. N128 static results
-were not located or authenticated; their review remains an explicit readiness
-prerequisite. Neither chain-length comparison supplies a timestep convergence test.
+The N128 review is now located at
+`/home/jramirez/UAMMD_KG-evidence/d2a5-analysis/n128-v1/analysis/SCIENTIFIC_REVIEW.md`.
+Its stiff D-C Re² nominal interval is approximately [-607,448], and the stiff
+Rg² interval approximately [-73,58]; mean bond² and tangent1 differences are
+also compatible within broad available uncertainty. Both saved reviews retain
+EQUILIBRIUM PRESERVATION NOT CONFIRMED. These are read-only saved findings,
+not newly authenticated measurements: neither result inventory nor scientific
+reducers were rerun in this preparation. Neither chain-length comparison
+supplies a timestep convergence test. D1.6D/E/F numerical regression specifications
+were recorded as unexecuted in their decisions; analytical identities and toy
+models must not be described as full E1 numerical verification.
 
 ## Candidate Stage A and Stage B gate
 
@@ -37,7 +45,8 @@ prerequisite. Neither chain-length comparison supplies a timestep convergence te
 dt=.00025,.0001,.00005; four new independent seeds/cell. All use kb30,
 b0=kBT=zeta=1, A2=5 (effective stiffness .6), nu100, m1, renewal on for Z>0,
 stress off, full scalar output, double precision, accepted exact initialization.
-Seed allocation is a proposal requiring collision audit against historical ledgers.
+The candidate seed lists are frozen in `e1_d17_manifest.json`; allocation remains
+a proposal until the prepared collision audit and independent review succeed.
 No matching seed numbers or paired timestep estimates are used.
 
 T100 is deliberately a precision pilot, not a claim of sufficient equilibration.
@@ -45,7 +54,7 @@ Steps/run:400000,1000000,2000000; total27.2 million steps across 24 runs.
 Scalar cadence .5 (201 frames); complete E1 cadence2 (51 frames); snapshots only
 0 and100. This matches regular D1.6B acquisition, but omits its five supplemental
 early full frames and intermediate audit snapshots at .01 and50. New seeds,
-bare controls, third dt and executable provenance are further differences.
+bare controls, third dt and new execution records are further differences.
 No dynamics correlator or dense coordinate trajectory is needed.
 
 Stage B is a design shell only: same six cells, new seeds, R and T selected
@@ -106,45 +115,39 @@ insufficient precision and practical equivalence are distinct conclusions.
 
 At aggregate throughput v steps/s, GPU time estimate is27.2e6/v seconds:
 7.56 hours at1000 steps/s,45.3 minutes at10000 steps/s. These are illustrative
-scenarios, not measured predictions. Separate initialization, CPU observation,
-GPU integration and total wall telemetry, retaining original timer definitions.
-Reserve24 hours as a proposed pilot wall cap pending authenticated host timings.
+scenarios, not measured predictions. Saved D1.6B stiff constrained run receipts
+report roughly100.6 s at .00025 and159.1 s at .0001, T100. A linear cost scenario
+in BD step count gives about257 s at .00005; using constrained cost as a proxy
+for both arms gives roughly69 minutes for24 members, before new validation and
+provenance overhead. This is an unauthenticated planning extrapolation from
+saved receipts, not a benchmark, a performance bound or a measured fine-dt cost.
+Budget1–2 hours as an indicative host-specific scenario. The proposed hard caps
+are900 s per child-plus-validation stage and21600 s (6 hours) for the whole
+command. A slow host that needs longer must stop for a revised resource review.
+Separate initialization, integration, observations, output and process wall
+telemetry, retaining original timer scopes; observation/output time is not GPU
+arithmetic time. No command extends physical T beyond100.
 Per constrained run:51456 scalar rows,104448 connector rows,430848 site rows,
 13056 chain and tangent rows each,16896 position rows for two snapshots plus
 attachments/endpoints/bonds/events. Bare runs omit connector/attachment rows.
-Text-width-dependent disk planning allowance:128 MiB/run,3 GiB total, plus
-provenance/logs and headroom; stop at limits rather than thinning output.
+The older D1.6B conservative CSV envelope115,192,412 bytes/run is an upper
+planning proxy: the proposed schedules have fewer full frames and snapshots;
+bare controls omit spring files. Use128 MiB/run and4 GiB aggregate (3 GiB for
+24 run quotas plus shared provenance/receipts). Maintain10 GiB free disk and
+initially18 GiB free (floor plus two aggregate quotas); no automatic backup is
+made. Host RSS cap2 GiB, prelaunch available host/cgroup memory8 GiB, prelaunch
+GPU-free floor4 GiB. Those floors are not measured peak allocations. Analytical
+device arrays are about1.2 MiB before CUDA context/allocator overhead; no
+correlators or long coordinate arrays are allocated. Stop at limits rather than
+thinning output. Resource limits remain proposals requiring review.
 Do not request execution until executable/source proof, seed audit, readiness,
-resource feasibility and the completed N128 review have been independently checked.
+resource feasibility and the saved N64/N128 evidence qualifications have been reviewed.
 
-## Implementation status and proposed commands
+## Review and execution boundary
 
-This commit freezes the candidate physical matrix and scientific design. The
-existing D1.6B runner cannot safely launch it unchanged: its authentication,
-row counts, schedule and inference hard-code the older cohort. The existing N64
-analyzer also hard-codes N64. Neither may be repurposed by changing its frozen
-manifest. A new lightweight wrapper still needs implementation and review for
-this matrix, binding an explicitly selected independent executable copy and its
-build/source proof, immutable schedules/parameters, child exit status, complete
-output receipt closure and full cohort analysis. Production executable identity
-must not be inferred from a no-op build or system nvcc.
-
-No executable is selected or copied in this preparation. Consequently no safe
-pilot execution command or executable regression suite is supplied yet. Proposed
-future CLI contract (NOT IMPLEMENTED; do not execute):
-
-    python3 e1_d17_host.py prepare --executable <independent-copy> --build-proof <proof> --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v1
-    python3 tests/d17_regression.py --output /home/jramirez/UAMMD_KG-evidence/d17/regression-v1
-    python3 e1_d17_host.py run --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v1 --approval <reviewed-approval> --approval-sha256 <trusted-sha>
-    nice -n 19 ionice -c 3 env OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 python3 e1_d17_analyze.py --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v1
-
-Required regression cases: rational schedules across all dt; distinct seeds and
-historical collision checks; fixed physical rate; truncated/missing/nonfinite
-frames; receipt/source/executable mutations; output symlinks/path escapes;
-R4/LOO and unpaired uncertainty; unresolved ACF; reference error propagation;
-rejection of partial cohorts, unauthorized execution and Stage B requests.
-
-DELIVERY LIMITATION: protocol preparation is complete; runner, executable
-manifest, analysis implementation and regression specifications are outstanding.
-This is not an execution-ready pilot packet. Stop for independent design review;
-no scientific acceptance or Stage B authorization follows.
+The [implementation and operator handoff](E1_STAGE_D17_HANDOFF.md) gives the
+frozen executable/build identities, authentication scope, seed-audit limits,
+synthetic checks, exact local commands and remaining integration questions.
+All implementation and scientific verification remain unexecuted in Codex.
+Stop for independent review before any execution. Stage B requires a separate
+pilot-based design, frozen manifest and authorization; it has no launch path here.
