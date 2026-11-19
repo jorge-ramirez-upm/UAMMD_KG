@@ -54,6 +54,19 @@ def command(run, root):
     argv = old_command(run, root/'provenance/semiflexible', root/'runs'/run['id']/'output', root/'config')
     # Bare controls use the accepted disabled path; no zero-Z renewal request.
     argv[argv.index('--end-renewal')+1] = '1' if run['Z'] else '0'
+    return simulator_command(argv, root)
+
+
+def simulator_command(argv, root):
+    """The historical loader applies only to an explicit simulator argv."""
+    path = root/'provenance/runtime.json'
+    if not path.exists():
+        return argv  # Original packet / synthetic fixtures.
+    runtime = load(path)
+    require(runtime['mode'] in ('strict', 'historical-isolated', 'current-reviewed'), 'unknown runtime mode')
+    if runtime['mode'] == 'historical-isolated':
+        return [str(root/'provenance/glibc/ld-linux-x86-64.so.2'), '--inhibit-cache',
+                '--library-path', runtime['library_path'], *argv]
     return argv
 
 
@@ -86,7 +99,7 @@ def frames(path, columns, count, steps, dt):
         require(next(reader, None) is None, 'extra frame: '+str(path))
 
 
-def seed_audit(manifest, roots, excluded):
+def seed_audit(manifest, roots, excluded, unused_preparation=None):
     """Scan metadata/text only; no CSVs, binaries, compressed payloads or source copies."""
     import os
     planned = {s for c in manifest['cells'] for s in c['seeds']}
@@ -97,7 +110,8 @@ def seed_audit(manifest, roots, excluded):
         require(root.is_dir(), 'missing seed audit root')
         for directory, children, names in os.walk(root, followlinks=False):
             children[:] = sorted(c for c in children if c not in ('.git', 'build', 'source', 'preparation', '__pycache__')
-                and not c.startswith('regression') and not Path(directory, c).is_relative_to(excluded))
+                and not c.startswith('regression') and not Path(directory, c).is_relative_to(excluded)
+                and (unused_preparation is None or not Path(directory, c).is_relative_to(unused_preparation)))
             for name in sorted(names):
                 path = Path(directory, name)
                 if path.suffix not in ('.json', '.jsonl', '.py', '.md', '.txt') or \
@@ -114,5 +128,6 @@ def seed_audit(manifest, roots, excluded):
                 records[str(path)] = file_record(path)
     require(not matches, 'planned seed collision: '+str(matches))
     return dict(status='NO_MATCHES_IN_DECLARED_SCOPE', planned=sorted(planned), files=records,
+        reviewed_unused_preparation=str(unused_preparation) if unused_preparation else None,
         excluded_directories=['.git', 'build', 'source', 'preparation', 'regression*', str(excluded)],
         scope='Available JSON/JSONL/Python/Markdown/text metadata only; no guarantee about inaccessible or compressed external use.')

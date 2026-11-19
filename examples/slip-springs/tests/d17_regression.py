@@ -157,11 +157,61 @@ def inference_checks(out, manifest):
     assert len(list(target.glob('*.png'))) == 5
 
 
+def runtime_checks(out):
+    original, recovered = out/'original-libs', out/'recovered-libs'
+    original.mkdir()
+    recovered.mkdir()
+    for name in sorted(host.GLIBC | {'libgcc_s.so.1'}):
+        (original/name).write_text('synthetic '+name)
+        if name in host.GLIBC:
+            (recovered/name).write_bytes((original/name).read_bytes())
+    cuda = out/'libcudart.so'
+    cuda.write_text('synthetic CUDA')
+    build = dict(linker_libraries={str(p):spec.file_record(p) for p in original.iterdir()},
+                 runtime_library=dict(path=str(cuda),file=spec.file_record(cuda)),cuda_home=str(out/'cuda'))
+    root = out/'isolated'
+    (root/'provenance').mkdir(parents=True)
+    host.prepare_runtime(root,build,glibc=recovered)
+    host.check_runtime(root,build)
+    argv = [str(root/'provenance/semiflexible'),'--help']
+    wrapped = spec.simulator_command(argv,root)
+    assert wrapped[1:3] == ['--inhibit-cache','--library-path'] and wrapped[-2:] == argv
+    assert wrapped[0] == str(root/'provenance/glibc/ld-linux-x86-64.so.2')
+    assert 'glibc' not in host.supervisor.environment().get('LD_LIBRARY_PATH','')
+    library = root/'provenance/glibc/libc.so.6'
+    library.chmod(0o600)
+    library.write_text('changed')
+    reject(lambda:host.check_runtime(root,build))
+    # A current-runtime change is accepted only by a separately hashed explicit review.
+    (original/'libc.so.6').write_text('current libc')
+    review = out/'fallback-review.json'
+    failure = out/'smoke-failure.log'
+    failure.write_text('synthetic historical incompatibility')
+    host.write(review,dict(schema='d17-current-runtime-review-v1',historical_execution_compatible=False,
+        independent_review_reference='SYNTHETIC ONLY', incompatibility_record=dict(path=str(failure),file=spec.file_record(failure)),
+        libraries={str(p):spec.file_record(p) for p in original.iterdir() if p.name in host.GLIBC}))
+    fallback = out/'fallback'
+    (fallback/'provenance').mkdir(parents=True)
+    reject(lambda:host.prepare_runtime(fallback,build,review_path=review,review_sha='0'*64))
+    host.prepare_runtime(fallback,build,review_path=review,review_sha=spec.digest(review))
+    host.check_runtime(fallback,build)
+    assert spec.simulator_command(argv,fallback) == argv
+    (original/'libgcc_s.so.1').write_text('unreviewed non-glibc change')
+    reject(lambda:host.check_runtime(fallback,build))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
-    out = spec.output_path(parser.parse_args().output)
+    parser.add_argument('--runtime-only',action='store_true')
+    args = parser.parse_args()
+    out = spec.output_path(args.output)
     out.mkdir(parents=True,exist_ok=False)
+    if args.runtime_only:
+        runtime_checks(out)
+        host.write(out/'PASS.json',dict(status='SYNTHETIC_RUNTIME_CHECKS_ONLY_NO_SIMULATOR_EXECUTION'))
+        print(out)
+        return
     reject(lambda:spec.output_path(spec.BASE))
     reject(lambda:spec.output_path(spec.BASE/'..'/'outside'))
     (out/'link').symlink_to(out,target_is_directory=True)
@@ -188,6 +238,7 @@ def main():
     reject(lambda:spec.seed_audit(manifest,[audit],out/'excluded'))
     csv_fixture(out)
     approval_and_cohort(out,manifest)
+    runtime_checks(out)
     inference_checks(out,manifest)
     host.write(out/'PASS.json',dict(status='SYNTHETIC_CPU_CHECKS_PASSED_NOT_SCIENTIFIC_ACCEPTANCE',
         scope='Real schedule/frame/statistical/approval/receipt logic; physical validator and historical build closure mocked in cohort checks. No GPU calls.'))

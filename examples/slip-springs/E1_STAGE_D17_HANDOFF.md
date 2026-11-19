@@ -4,6 +4,84 @@ Read the [scientific protocol](E1_STAGE_D17_PROTOCOL.md) before interpreting
 this packet. No build, test, benchmark, preparation job, pilot or analysis was
 executed in Codex. All commands below require independent review first.
 
+## Runtime compatibility amendment
+
+Continue from `a786f257bae5ab3dfd702a0e6697d5e8e4849522`. The operator reports
+Ubuntu glibc changed from 2.35-0ubuntu3.15 to 2.35-0ubuntu3.18. The failed
+`pilot-v1` and original D1.6B build proof remain unchanged. New preparation uses
+`pilot-v2`; the scientific matrix, simulator bytes and physical algorithm remain
+unchanged. Exact reconstruction of the historical OS and bitwise trajectory
+equivalence are not requirements for the controlled timestep experiment.
+
+`prepare --historical-glibc DIR` authenticates and copies only these files from
+the recovered directory against the original build proof:
+
+| File | Original SHA256 |
+|---|---|
+| ld-linux-x86-64.so.2 | 41daf7836f7fce21a40ca63a00c5caf21b05a35a76ccc075d86f1716212cdf01 |
+| libc.so.6 | b2cf6c33b74d2f22543b7a469a75b538911e690f769d0b238843a49465b83793 |
+| libm.so.6 | 3dd5511ae94785c9f921429b0f2b2f7aabb461b6f0e6de6dfdbef15f24bdfee6 |
+
+The simulator argv is prefixed with the archived loader, `--inhibit-cache` and
+an explicit `--library-path` pointing first to the three-file archive, then CUDA
+and the ordinary system library directory. The original checks remain for all
+other linked libraries and CUDA. `provenance/runtime.json` records actual paths,
+sizes and hashes; readiness/approval and run receipts bind the amended command.
+The historical directory is never exported through LD_LIBRARY_PATH or LD_PRELOAD.
+Python, preparation, analysis, `nvidia-smi` and CUDA probes keep the host runtime.
+This does not freeze the driver or all dynamically loaded CUDA dependencies;
+the smoke checks practical compatibility of this limited isolation.
+
+After preparation, perform exactly one lightweight ten-step constrained smoke:
+
+```bash
+env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
+  nice -n 19 ionice -c 3 \
+  python3 examples/slip-springs/e1_d17_host.py smoke \
+  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v2 \
+  --output /home/jramirez/UAMMD_KG-evidence/d17/runtime-smoke-v2
+```
+
+Use an idle GPU. This uses N32/M2/Z16, kappa10, dt=.0001, ten BD steps, seed
+741719901, the archived executable and the same loader prefix. It records argv,
+runtime identity, stdout/stderr, process exit and initialization metadata under
+d17, with a 60-second supervisor cap. PASS.json indicates runtime smoke success
+only; no new validation campaign or bitwise replay is introduced. Retain failure
+logs unchanged if it fails; do not automatically proceed to a pilot.
+
+If isolated execution proves incompatible, a separately reviewed current-runtime
+fallback is allowed for the same simulator bytes. Preserve the failed packet and
+smoke. Review a JSON record under d17 containing:
+
+```json
+{
+  "schema": "d17-current-runtime-review-v1",
+  "historical_execution_compatible": false,
+  "independent_review_reference": "REVIEW_REFERENCE",
+  "unused_historical_preparation": {"path": "/home/jramirez/UAMMD_KG-evidence/d17/pilot-v2", "manifest": {"bytes": 0, "sha256": "ACTUAL_MANIFEST_SHA256"}},
+  "incompatibility_record": {"path": "ABSOLUTE_SAVED_FAILURE_LOG", "file": {"bytes": 0, "sha256": "ACTUAL_SHA256"}},
+  "libraries": {"/usr/lib/x86_64-linux-gnu/libc.so.6": {"bytes": 0, "sha256": "ACTUAL_CURRENT_SHA256"}}
+}
+```
+
+`libraries` must contain all three original absolute glibc paths, each with its
+actual current size/hash (the one-entry example is abbreviated).
+`unused_historical_preparation` explicitly permits
+seed reuse from that unchanged historical packet only if no execution-attempt
+record exists; it is excluded from the new seed audit, not deleted. Omit this
+field if no prior prepared packet exists. A previously launched pilot cannot be
+reused this way. Retain the review file's digest independently.
+Prepare a fresh reviewed fallback root such as
+`pilot-v2-current`, using the same prepare command below but replacing
+`--historical-glibc ...` with `--current-runtime-review REVIEW_FILE` and
+`--current-runtime-review-sha256 TRUSTED_REVIEW_SHA256`. The tool archives the
+review and incompatibility log and accepts only those three explicitly recorded
+changes. It never rewrites the old build proof or silently falls back. Run the
+same single smoke procedure against that root and a fresh output, then obtain
+the normal packet-specific Stage-A approval. No full historical OS reconstruction
+or trajectory-equivalence campaign is required. The original physical matrix
+and Stage-B gate remain unchanged.
+
 The original draft is preserved in Git history at starting commit
 `da1b720da5b8e59352f8db13e249c0b289f4f3e1`. This completion adds:
 
@@ -101,17 +179,18 @@ No command below has been executed in Codex. Review the committed code and
 candidate sensitivities/resources first. Use fresh durable roots; existing roots
 are refused and are never deleted by the tools. No command launches Stage B.
 
-CPU-only synthetic verification (no historical evidence or GPU access):
+CPU-only amendment verification (synthetic libraries; no historical evidence or GPU access):
 
 ```bash
 cd /home/jramirez/UAMMD_KG-d2a5-analysis-dev
 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
   nice -n 19 ionice -c 3 timeout 600s \
-  python3 examples/slip-springs/tests/d17_regression.py \
-  --output /home/jramirez/UAMMD_KG-evidence/d17/regression-v1
+  python3 examples/slip-springs/tests/d17_regression.py --runtime-only \
+  --output /home/jramirez/UAMMD_KG-evidence/d17/regression-runtime-v2
 ```
 
-The suite specifies exact grids/row counts and physical rates, seed collision
+Omit `--runtime-only` only if separately running the full original suite is desired.
+The full suite specifies exact grids/row counts and physical rates, seed collision
 rejection on synthetic metadata, malformed/truncated/nonfinite frames, source/
 build-input digest rejection, path/symlink/overwrite guards, R4/LOO/Welch and
 zero-dispersion handling, analytical-reference construction, unresolved ACFs,
@@ -126,10 +205,11 @@ CPU preparation of a fresh pilot packet using the archived D1.6B binary:
 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
   nice -n 19 ionice -c 3 \
   python3 examples/slip-springs/e1_d17_host.py prepare \
-  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v1 \
+  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v2 \
   --executable /home/jramirez/UAMMD_KG-evidence/d16b/d16b-readiness-vjzdjbjn/campaign/provenance/semiflexible \
   --build-proof /home/jramirez/UAMMD_KG-evidence/d16b/d16b-readiness-vjzdjbjn/campaign/build.json \
-  --build-proof-sha256 2ca6541ffd7c5bc205a207ee0f465276e7a357c8c8783d6d466963e557a5f6a8
+  --build-proof-sha256 2ca6541ffd7c5bc205a207ee0f465276e7a357c8c8783d6d466963e557a5f6a8 \
+  --historical-glibc "$HOME/d17-historical-glibc/extracted/lib/x86_64-linux-gnu"
 ```
 
 Return `manifest.json`, `readiness.json`, `seed-audit.json`,
@@ -145,21 +225,21 @@ Stage-A command after that approval, substituting the approved file digest:
 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
   nice -n 19 ionice -c 3 \
   python3 examples/slip-springs/e1_d17_host.py run \
-  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v1 \
+  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v2 \
   --approval /home/jramirez/UAMMD_KG-evidence/d17/reviewed-approval.json \
   --approval-sha256 TRUSTED_APPROVAL_SHA256 --execute-reviewed-stage-a
 ```
 
-After numerical completion, retain `sha256sum` of pilot-v1/complete.json
+After numerical completion, retain `sha256sum` of pilot-v2/complete.json
 independently. CPU-only analysis, substituting that completion digest:
 
 ```bash
 env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
   nice -n 19 ionice -c 3 \
   python3 examples/slip-springs/e1_d17_analyze.py \
-  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v1 \
+  --root /home/jramirez/UAMMD_KG-evidence/d17/pilot-v2 \
   --completion-sha256 TRUSTED_COMPLETION_SHA256 \
-  --output /home/jramirez/UAMMD_KG-evidence/d17/analysis-v1
+  --output /home/jramirez/UAMMD_KG-evidence/d17/analysis-v2
 ```
 
 The analysis root is disjoint from the campaign. Provenance and final output

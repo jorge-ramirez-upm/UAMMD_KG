@@ -96,8 +96,78 @@ def check_build(proof, sha, executable, manifest):
     return build
 
 
-def prepare(root, executable, proof, proof_sha):
+GLIBC = {'ld-linux-x86-64.so.2', 'libc.so.6', 'libm.so.6'}
+
+
+def prepare_runtime(root, build, glibc=None, review_path=None, review_sha=None):
+    require(not (glibc and review_path), 'choose isolated historical runtime or reviewed current runtime')
+    originals = build['linker_libraries']
+    historical = {Path(p).name: r for p,r in originals.items() if Path(p).name in GLIBC}
+    require(set(historical) == GLIBC, 'three glibc identities required in original proof')
+    mode, review = 'strict', None
+    if glibc:
+        mode = 'historical-isolated'
+        target = root/'provenance/glibc'
+        target.mkdir()
+        for name in sorted(GLIBC):
+            source = spec.regular_path(Path(glibc).expanduser().absolute()/name)
+            require(file_record(source) == historical[name], 'historical glibc identity: '+name)
+            shutil.copyfile(source, target/name)
+            (target/name).chmod(0o500 if name.startswith('ld-') else 0o400)
+    if review_path:
+        mode = 'current-reviewed'
+        review_path = spec.output_path(review_path)
+        require(digest(review_path) == review_sha, 'trusted fallback review SHA256 required')
+        review = load(review_path)
+        current = {p:file_record(spec.regular_path(Path(p))) for p in originals if Path(p).name in GLIBC}
+        require(review['schema'] == 'd17-current-runtime-review-v1' and
+            review['historical_execution_compatible'] is False and
+            isinstance(review['independent_review_reference'], str) and review['independent_review_reference'].strip() and
+            review['libraries'] == current, 'review must explicitly bind the current glibc identities')
+        failure = spec.output_path(review['incompatibility_record']['path'])
+        require(file_record(failure) == review['incompatibility_record']['file'], 'historical incompatibility record changed')
+        shutil.copyfile(review_path, root/'provenance/current-runtime-review.json')
+        shutil.copyfile(failure, root/'provenance/historical-incompatibility.log')
+    libraries = {}
+    for path, original in originals.items():
+        name = Path(path).name
+        actual = root/'provenance/glibc'/name if glibc and name in GLIBC else spec.regular_path(Path(path))
+        record = file_record(actual)
+        expected = review['libraries'][path] if review and name in GLIBC else original
+        require(record == expected, 'linked library changed without reviewed amendment: '+path)
+        libraries[path] = dict(path=str(actual), file=record)
+    runtime = dict(mode=mode, libraries=libraries)
+    if glibc:
+        runtime['library_path'] = ':'.join(map(str, (root/'provenance/glibc',
+            Path(build['runtime_library']['path']).parent, Path(build['cuda_home'])/'lib64',
+            Path('/usr/lib/x86_64-linux-gnu'))))
+    write(root/'provenance/runtime.json', runtime)
+    unused = review.get('unused_historical_preparation') if review else None
+    if unused:
+        packet = spec.output_path(unused['path'])
+        require(not (packet/'execution-attempt.json').exists() and
+                file_record(packet/'manifest.json') == unused['manifest'], 'prior packet must be unchanged and never launched')
+        require(load(packet/'provenance/runtime.json')['mode'] == 'historical-isolated', 'expected unused historical packet')
+        return packet
+
+
+def check_runtime(root, build):
+    path = root/'provenance/runtime.json'
+    if not path.exists():
+        return  # Original packets retain their existing frozen provenance.
+    runtime = load(path)
+    require(set(runtime['libraries']) == set(build['linker_libraries']), 'runtime library closure')
+    for original, item in runtime['libraries'].items():
+        require(file_record(spec.regular_path(Path(item['path']))) == item['file'], 'runtime library changed')
+        if runtime['mode'] != 'current-reviewed' or Path(original).name not in GLIBC:
+            require(item['file'] == build['linker_libraries'][original], 'unreviewed historical identity change')
+    # Even the reviewed fallback changes only glibc, never the CUDA runtime.
+    require(file_record(spec.regular_path(Path(build['runtime_library']['path']))) == build['runtime_library']['file'], 'CUDA runtime changed')
+
+
+def prepare(root, executable, proof, proof_sha, glibc=None, review=None, review_sha=None):
     root = spec.output_path(root)
+    require(root.name != 'pilot-v1', 'preserve failed pilot-v1; use fresh pilot-v2')
     manifest = spec.candidate()
     # Only the archived D1.6 binary is read; no production checkout traversal or no-op build.
     for path in (executable, proof):
@@ -129,8 +199,7 @@ def prepare(root, executable, proof, proof_sha):
             shutil.copyfile(original,target)
         for name in ('runtime_library',):
             require(file_record(spec.regular_path(Path(build[name]['path']))) == build[name]['file'], 'runtime changed')
-        for path, record in build['linker_libraries'].items():
-            require(file_record(spec.regular_path(Path(path))) == record, 'linked library changed')
+        unused = prepare_runtime(root, build, glibc, review, review_sha)
         sources = spec.tool_records()
         for name in sources:
             target = root/'provenance/tools'/name
@@ -138,7 +207,7 @@ def prepare(root, executable, proof, proof_sha):
             shutil.copyfile(spec.PROJECT/name, target)
         for name, values in spec.schedules(manifest).items():
             (root/'config'/name).write_bytes(spec.schedule_text(values))
-        write(root/'seed-audit.json', spec.seed_audit(manifest, [spec.PROJECT, spec.EVIDENCE], root))
+        write(root/'seed-audit.json', spec.seed_audit(manifest, [spec.PROJECT, spec.EVIDENCE], root, unused))
         prepared = dict(candidate=manifest, runs=spec.runs(manifest), schedules=spec.schedules(manifest),
             source_files=sources, checkout_head=capture(['git','-C',spec.PROJECT,'rev-parse','HEAD']),
             executable=file_record(root/'provenance/semiflexible'), historical_build=file_record(proof),
@@ -165,9 +234,35 @@ def checked(root):
     require(file_record(root/'manifest.json') == readiness['manifest'], 'manifest changed since readiness')
     for name, record in readiness['input_inventory'].items():
         require(file_record(spec.regular_path(root/name)) == record, 'readiness input changed: '+name)
-    check_build(root/'provenance/historical-build.json', prepared['candidate']['historical_build_sha256'],
-                root/'provenance/semiflexible', prepared['candidate'])
+    build = check_build(root/'provenance/historical-build.json', prepared['candidate']['historical_build_sha256'],
+                        root/'provenance/semiflexible', prepared['candidate'])
+    check_runtime(root, build)
     return prepared
+
+
+def smoke(root, output):
+    """One ten-step constrained smoke, not a campaign or trajectory-equivalence test."""
+    root, output = spec.output_path(root), spec.output_path(output)
+    require(not output.is_relative_to(root) and not root.is_relative_to(output), 'smoke and pilot must be disjoint')
+    prepared = checked(root)
+    build = load(root/'provenance/historical-build.json')
+    output.mkdir(parents=True, exist_ok=False)
+    argv = spec.simulator_command([str(root/'provenance/semiflexible'), '--output', str(output/'output'),
+        '--springs', '32', '--chains', '2', '--kappa', '10', '--kb', '30', '--b0', '1', '--kbt', '1',
+        '--zeta', '1', '--dt', '0.0001', '--steps', '10', '--sample', '10', '--seed', '741719901',
+        '--slip-count', '16', '--slip-ms2', '5', '--hop-rate', '100', '--end-renewal', '1',
+        '--stress-mode', 'off', '--scalar-output', 'full'], root)
+    write(output/'launch.json', dict(argv=argv, runtime=file_record(root/'provenance/runtime.json')))
+    limits = dict(prepared['candidate']['limits'], per_run_seconds=60, aggregate_seconds=60,
+                  per_run_output_bytes=16*1024**2, aggregate_output_bytes=32*1024**2)
+    result = supervisor.run_process(argv, output, supervisor.environment(build['cuda_home'],
+        prepared['candidate']['gpu_uuid']), limits, output, time.monotonic())
+    require(result['status'] == 'exited' and result['exit_code'] == 0, 'smoke failed; retain logs for runtime review')
+    meta = load(output/'output/metadata.json')
+    require(meta['steps'] == 10 and meta['precision_bits'] == 64 and meta['slip_count'] == 16 and
+            meta['initialization_method'] == 'CPU-direct-equilibrium', 'smoke metadata')
+    check_runtime(root, build)
+    write(output/'PASS.json', dict(status='TEN_STEP_RUNTIME_SMOKE_ONLY', files=spec.snapshot(output)))
 
 
 def approval_template(root):
@@ -315,6 +410,13 @@ def main():
     p.add_argument('--executable', type=Path, required=True)
     p.add_argument('--build-proof', type=Path, required=True)
     p.add_argument('--build-proof-sha256', required=True)
+    runtime = p.add_mutually_exclusive_group()
+    runtime.add_argument('--historical-glibc', type=Path)
+    runtime.add_argument('--current-runtime-review', type=Path)
+    p.add_argument('--current-runtime-review-sha256')
+    p = sub.add_parser('smoke')
+    p.add_argument('--root', type=Path, required=True)
+    p.add_argument('--output', type=Path, required=True)
     p = sub.add_parser('run')
     p.add_argument('--root', type=Path, required=True)
     p.add_argument('--approval', type=Path, required=True)
@@ -322,7 +424,10 @@ def main():
     p.add_argument('--execute-reviewed-stage-a', action='store_true', required=True)
     args = parser.parse_args()
     if args.action == 'prepare':
-        prepare(args.root, args.executable, args.build_proof, args.build_proof_sha256)
+        prepare(args.root, args.executable, args.build_proof, args.build_proof_sha256,
+                args.historical_glibc, args.current_runtime_review, args.current_runtime_review_sha256)
+    elif args.action == 'smoke':
+        smoke(args.root, args.output)
     else:
         run(args.root, args.approval, args.approval_sha256, args.execute_reviewed_stage_a)
 
