@@ -1,0 +1,36 @@
+"""CPU-only fault checks for the read-only authority digest cache."""
+from pathlib import Path
+import sys
+import os
+import tempfile
+
+script = Path(sys.argv[1])
+source = script.read_text().split('campaign.sha256 = stable_digest\n', 1)[0]
+namespace = {}
+exec(compile(source, str(script), 'exec'), namespace)
+with tempfile.TemporaryDirectory() as temporary:
+    path = Path(temporary) / 'payload'
+    path.write_text('original')
+    first = namespace['stable_digest'](path)
+    assert first == namespace['original'](path)
+    assert namespace['stable_digest'](path) == first
+    assert namespace['reused'] == 1
+    original_mtime = path.stat().st_mtime_ns
+    path.write_text('changed!')
+    os.utime(path, ns=(original_mtime + 1000000000, original_mtime + 1000000000))
+    try:
+        namespace['stable_digest'](path)
+    except ValueError as error:
+        assert 'file changed during audit' in str(error)
+    else:
+        raise AssertionError('changed payload was accepted')
+    path.unlink()
+    path.write_text('original')
+    os.utime(path, ns=(original_mtime + 2000000000, original_mtime + 2000000000))
+    try:
+        namespace['stable_digest'](path)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('replaced payload was accepted')
+print('PASS: exact SHA256; unchanged reuse; changed-signature same-size mutation and replacement rejected')

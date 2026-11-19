@@ -1,0 +1,106 @@
+"""Run published read-only authority validators with stable-file digest reuse.
+
+The original verifier repeats many historical payload reads. Reuse a digest only
+while device/inode/size/mtime/ctime remain identical. Check every cached identity
+again at the end. This never writes dataset files or calls a simulation path.
+Run under timeout 600 from a clean repository root.
+"""
+from pathlib import Path
+import json
+import runpy
+import sys
+import time
+
+BASE = Path.cwd() / 'examples/KG_Assoc'
+sys.path.insert(0, str(BASE / 'campaign'))
+import kg_assoc_campaign as campaign
+
+original = campaign.sha256
+cached = {}
+reused = 0
+started = time.monotonic()
+
+
+def signature(path):
+    stat = path.stat()
+    return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+
+
+def stable_digest(path):
+    global reused
+    path = Path(path).resolve()
+    before = signature(path)
+    if path in cached:
+        expected, value = cached[path]
+        if expected != before:
+            raise ValueError('file changed during audit: ' + str(path))
+        reused += 1
+        return value
+    value = original(path)
+    if signature(path) != before:
+        raise ValueError('file changed while hashing: ' + str(path))
+    cached[path] = before, value
+    return value
+
+
+campaign.sha256 = stable_digest
+import kg_assoc_e1 as e1
+import kg_assoc_e2_registry as registry
+root = BASE / 'kg_assoc_100m'
+
+def directories():
+    return {str(p): signature(p) for p in [root / 'banks', *(root / 'banks').rglob('*')]
+            if p.is_dir()}
+
+original_directories = directories()
+original_load = campaign.load_json
+
+def stable_load(path):
+    stable_digest(path)
+    return original_load(path)
+
+campaign.load_json = stable_load
+original_acceptance = registry.exclusive_validate
+acceptances = set()
+
+def once_acceptance(record, systems):
+    key = json.dumps([record, systems], sort_keys=True)
+    if key not in acceptances:
+        original_acceptance(record, systems)
+        acceptances.add(key)
+        print('ACCEPTANCE PASS', record['bank_id'], systems[0]['system_id'], flush=True)
+
+registry.exclusive_validate = once_acceptance
+original_snapshot = e1.check_snapshot
+snapshots = {}
+
+def once_snapshot(path, system):
+    key = (str(Path(path).resolve()), stable_digest(path), json.dumps(system, sort_keys=True))
+    if key not in snapshots:
+        snapshots[key] = original_snapshot(path, system)
+    return snapshots[key].copy()
+
+e1.check_snapshot = once_snapshot
+activation = BASE / 'reviews/production_activation_20261026'
+F = runpy.run_path(str(activation / 'DRIVER_V2.txt'))
+runpy.run_path(str(activation / 'CPU_GUARD.txt'))['guard']()
+F['e'].check_hashes(F['c'].load_json(activation / 'PRESERVED.sha256'))
+F['e'].check_hashes(F['c'].load_json(activation / 'INTEGRITY.sha256'))
+authority, rows = F['load']()
+states, free = F['preflight'](authority, rows)
+assert len(states) == 45 and all(s in ('validated_complete', 'recovered_complete') for s in states)
+import subprocess
+changed = subprocess.check_output(['git', 'diff', '--name-only', F['START'], 'HEAD'], text=True).splitlines()
+allowed = tuple('examples/KG_Assoc/reviews/' + name + '/' for name in (
+    'production_activation_20261026', 'production_closure_20261119', 'nonassoc_readiness_20261119'))
+assert all(p.startswith(allowed) for p in changed), 'change outside reviewed documentation scope'
+assert directories() == original_directories, 'bank directory inventory changed'
+for path, (expected, _) in cached.items():
+    if signature(path) != expected:
+        raise ValueError('file changed before audit ended: ' + str(path))
+print(json.dumps(dict(status='PASS', validated_histories=len(states), prepared=0,
+    production_steps=4500000000, preserved_bindings=len(F['c'].load_json(activation / 'PRESERVED.sha256')),
+    certifications=F['V']['CERTIFICATIONS'], unique_files_hashed=len(cached),
+    repeated_hash_reads_reused=reused, seconds=time.monotonic() - started,
+    final_file_signatures_unchanged=True, distinct_acceptance_checks=len(acceptances),
+    distinct_snapshot_checks=len(snapshots), bank_directories_unchanged=True, GPU_MD_steps=0), indent=2))

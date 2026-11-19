@@ -1,0 +1,503 @@
+[
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F03_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "2ceeafa16038225388e3e925eb02df6f9a1d31774591a42d47bdae78c777ff8e",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F03_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F03_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "cf411efa8181415c80edfd292265ff674b64470416a667bacc03854a8a027377",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F03_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F03_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "2c476ce0d0ee6f75332992b55b7215efff444e9f05b6caba1f57b47082da8f0a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_9b51f865c4464eefb210188d802c0c5e/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F03_N010_RP080_EE08/equilibrate_bb4106da56cf4e7e888fb4ef8aa73e7c/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F03_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP020/r001/state.e1.lammpsdat",
+    "e1_sha256": "a37699e273d11d482e94ddb32df7e617679ebb502fca02ca5b009d70da972c24",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP020_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP020/r002/state.e1.lammpsdat",
+    "e1_sha256": "57907da71c1ff0acd4f9430dd9896aadafb7b01a318d288b04058d468218920e",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP020_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP020/r003/state.e1.lammpsdat",
+    "e1_sha256": "603ceb6b9cbf8591b737e3563af74cc8659d7560bdba5555ef747779dcc4ac8b",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_13a6951adf16448cb5365a8b28e28427/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_25125eea270c487a8279b5d6f6ca008c/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP020_EE08/equilibrate_9845cd937e6f4aca85f6828dc4d441ae/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP020_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP040/r001/state.e1.lammpsdat",
+    "e1_sha256": "4ce13546d99236211940e3a5fc74b21e05d856397be2b63b8bd9555911783846",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP040_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP040/r002/state.e1.lammpsdat",
+    "e1_sha256": "e4ade1bbb30ad968f53aad774836204929fcb445951dd2c90bb3b2b2d16749a9",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP040_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP040/r003/state.e1.lammpsdat",
+    "e1_sha256": "c965e8b18e8c1c98a2e82ed61a3b7c14b0bbb0ae9b363416dbed950dce6f2038",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_ea8bd8e305aa4edfa9871dc977213948/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP040_EE08/equilibrate_704163de5b044a3f8293eedd2e1c5304/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP040_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP060/r001/state.e1.lammpsdat",
+    "e1_sha256": "c5ae4ac78f91cd5c0f8a1b339872254a94ab058bc05cdecd09f4bffb7ffdee65",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP060_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1_retries/F04_N010_RP060/r002/attempt001/state.e1.lammpsdat",
+    "e1_sha256": "a0f0c654f729e81fb84d7ded27e3d57348d2596452e1a89390f002c7a11188cb",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP060_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP060/r003/state.e1.lammpsdat",
+    "e1_sha256": "f6bd91fd2186c33681e615d09d9ae21655bf7549d0caac5e2d05e2b9874397fd",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP060_EE08/equilibrate_92296b2a776e4d7191107126faf376bd/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP060_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE04_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE04_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE04/equilibrate_5a06db30dfba406bacb8937f39e14eea/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE04_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE06_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE06_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE06/equilibrate_c6051f0ca57140819c10ae01e63036b5/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE06_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r002/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r003/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r002/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA06_manual_1a4987239ea34803ace400f6a217d752/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r003/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE08_EA06"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r002/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_next_cfb25731e8b442f0b2019eb0b6699cb7/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA08_readback_v2_cc486e9d7f8f497d895af5c7860b5592/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA08_manual_20384196029447c0834295dcd939b444/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r003/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE08_EA08"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r001/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE08_EA10"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r002/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE08_EA10"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_next_85928c3ef15c4e06bab10493394a7e25/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/extension_F04_N010_RP080_EE08_EA10_readback_v2_e1d7ca8cc4944582a434d8d157393ebe/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE08/derived_F04_N010_RP080_EE08_EA10_manual_ca4d12ca38134f079965927bf7d0d738/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_extensions/C1_periodic_recovery_v1/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2/F04_N010_RP080_EE08/r003/command.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE08_EA10"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE10_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE10_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_18d492ee0f4b4a7d98ca32e39ce8f95a/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE10/equilibrate_fb8954dc860740d6b923759b2b21a703/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE10_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "7e6465c8859b565efcc6146b34a643339f9870b438115821c7dc99fe3b02f5fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N010_RP080_EE12_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "2a10ef9abe6de2f46d3167c5926beb6e1ea4ab85e933a797c08d2e54ee9b4c2a",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N010_RP080_EE12_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "ce4b32b716df594d351e9e24222d4b76a2966f153cb70d05e0b7d9cea1389296",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_553522b9ed9b4253a6b910d817ad65f8/plan.json",
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N010_RP080_EE12/equilibrate_9be4b5a8840d48b79b2bc5f9d714f9c0/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N010_RP080_EE12_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N020_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "3c4e809c3fa21882a15bdb13dfe6db02584273959bc712a8db79234f45fb66ac",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N020_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N020_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "eb95606f82cde104a75c65aaf96d17c966156564a704e6e8db4bfa86cbd037b7",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N020_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N020_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "2f9afcc9742da10f21128ce1c31b2cbdddd548ec70c24b7da429d0ef96bd397b",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N020_RP080_EE08/equilibrate_bdfe5dc30d87435899f6d2d21dc99fac/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N020_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N040_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "c9157c0a92acb6297ea438cd22066faa234258531f81d287a6b1a26205a7c8fc",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F04_N040_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N040_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "0815320d50fadd86b2c9cbff61e4570d4f9b08290e753d7e8d376ff73eb6d1e2",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F04_N040_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F04_N040_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "906fa83849883f9e2ab8dbf52cd0132200b4689cceebfed39aad4456dc1f82b2",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F04_N040_RP080_EE08/equilibrate_0a6a37a1e8264ceabbeead5362d8423d/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F04_N040_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F06_N010_RP080/r001/state.e1.lammpsdat",
+    "e1_sha256": "69614f0e0744c4b50ae9026396f6eebd75f3b823f064df43124a7ee6fc6c4ea4",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 1,
+    "system": "F06_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F06_N010_RP080/r002/state.e1.lammpsdat",
+    "e1_sha256": "e3959f17e05ea361fd35c6f31901491cbe4563dca5e9a5a5d2ddf9a155a7e142",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 2,
+    "system": "F06_N010_RP080_EE08_EA04"
+  },
+  {
+    "e1": "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e1/F06_N010_RP080/r003/state.e1.lammpsdat",
+    "e1_sha256": "6929139b13cd586ad990b2ae5d2972c0d6db196b6a461fdaef451a089a2a4336",
+    "lineage": [
+      "/home/jramirez/UAMMD_KG/examples/KG_Assoc/kg_assoc_100m/banks/e2_attempts/F06_N010_RP080_EE08/equilibrate_2092711490194045aa2036a7e00b4bd0/plan.json"
+    ],
+    "permanent_topology_box_ids_equal": true,
+    "replica": 3,
+    "system": "F06_N010_RP080_EE08_EA04"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "E1_formally_accepted_for_controls": 0,
+  "E1_numerically_valid": 24,
+  "E1_states_present": 24,
+  "GPU_MD_steps": 0,
+  "created_utc": "2026-11-18T22:50:32.478043+00:00",
+  "original_input_hash_unrecorded": 10,
+  "pairings": 45,
+  "payload_hash_authentication": "requires companion published VERIFY_FINAL PASS log",
+  "production_histories": 45,
+  "production_steps": 4500000000,
+  "scientific_output_bytes": 98992743616
+}

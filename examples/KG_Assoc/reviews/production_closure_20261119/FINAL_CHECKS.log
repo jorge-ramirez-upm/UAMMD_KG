@@ -1,0 +1,6 @@
+Full authority audit exit code: 0
+Complete audit runtime: 355.2899056500755 seconds
+MD/GPU steps: 0
+PASS: all six verifier/test scripts parse
+Resumed final checks: dossier/inventory integrity and all three fixture suites PASS.
+Fixture clock-granularity failures and correction preserved in RESUMPTION_CHECKS.log.

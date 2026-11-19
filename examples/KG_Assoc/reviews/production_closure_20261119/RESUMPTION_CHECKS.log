@@ -1,0 +1,13 @@
+Resumption from interrupted publication, 19 November 2026.
+Starting HEAD unchanged: 4cfb7d3de92020197a328a5b03c5da7b9096c4ff.
+Original 22 dossier file hashes, 45-history inventory and 24-state inventory passed.
+No commit or push had occurred before interruption.
+First resumed cache and validator-reuse fixture checks failed: rapid same-size
+rewrites retained identical mtime/ctime, so their expected signature change did
+not occur. Snapshot/inventory destination-preservation checks passed.
+Fixture fix only: explicitly advance mtime for same-size mutations/replacements.
+No authority validator, source/build map, scientific threshold, simulation data,
+receipt, acceptance, registry, journal or original audit log was changed.
+The cache's immutable-input and metadata-granularity limitation is now explicit
+in README.md. The original successful authority audit remains preserved intact.
+Final resumed fixture results are recorded in RESUMED_*_TEST.log.

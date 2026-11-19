@@ -1,0 +1,4 @@
+ACCEPTANCE PASS fixture fixture
+ACCEPTANCE PASS fixture different
+ACCEPTANCE PASS fixture fixture
+PASS: exact record/system cache keys; fresh snapshot result copies; file mutation and bank inventory changes detected

@@ -1,0 +1,25 @@
+"""CPU-only destination-preservation checks; no dataset outputs are created."""
+from pathlib import Path
+import runpy
+import sys
+import tempfile
+
+module = runpy.run_path(sys.argv[1])
+try:
+    module['collect'](module['ROOT'] / 'forbidden-review-output')
+except ValueError as error:
+    assert 'outside the dataset' in str(error)
+else:
+    raise AssertionError('dataset output destination was allowed')
+with tempfile.TemporaryDirectory() as temporary:
+    directory = Path(temporary)
+    sentinel = directory / 'sentinel'
+    sentinel.write_text('preserve me')
+    try:
+        module['collect'](directory)
+    except FileExistsError:
+        pass
+    else:
+        raise AssertionError('existing inventory destination was allowed')
+    assert sentinel.read_text() == 'preserve me'
+print('PASS: dataset output rejected; existing output rejected; sentinel unchanged')

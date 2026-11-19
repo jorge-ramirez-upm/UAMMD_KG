@@ -1,0 +1,2 @@
+PASS: 45 inventories and E1 lineages; 24 distinct valid E1 states; topology/box/parameter equality
+PASS: dataset output rejected; existing output rejected; sentinel unchanged

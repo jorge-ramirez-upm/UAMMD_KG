@@ -1,0 +1,260 @@
+"""Read-only dataset inventory; pair with the published CPU-guarded authority audit.
+
+Run from repository root with --output pointing to a new directory outside the dataset.
+No simulation executable is invoked. Existing files are never overwritten.
+"""
+import argparse
+import csv
+import hashlib
+import json
+from pathlib import Path
+import re
+import sys
+from datetime import datetime, timezone
+
+BASE = Path.cwd() / 'examples/KG_Assoc'
+ROOT = BASE / 'kg_assoc_100m'
+sys.path.insert(0, str(BASE / 'campaign'))
+sys.path.insert(0, str(BASE / 'analysis'))
+import kg_assoc_campaign as campaign
+import kg_assoc_e1 as e1
+import analyze_p42_rheology_pilot as rheology
+
+
+def read(path):
+    return json.loads(Path(path).read_text())
+
+
+def digest(path):
+    return campaign.sha256(Path(path))
+
+
+bindings = {}
+
+
+def pin(path, expected=None):
+    path = Path(path).resolve()
+    actual = digest(path)
+    if expected is not None and actual != expected:
+        raise ValueError('hash mismatch: ' + str(path))
+    bindings[str(path)] = actual
+    return actual
+
+
+def write_json(path, value):
+    with path.open('x') as stream:
+        json.dump(value, stream, indent=2, sort_keys=True)
+        stream.write('\n')
+
+
+def write_csv(path, rows):
+    with path.open('x') as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def ancestry(prefix, replica):
+    chain = []
+    seen = set()
+    while True:
+        if prefix in seen:
+            raise ValueError('lineage cycle')
+        seen.add(prefix)
+        directory = Path(prefix).parent
+        plan_path = directory.parent / 'plan.json'
+        if plan_path.exists():
+            plan = read(plan_path)
+            pin(plan_path)
+            chain.append(str(plan_path))
+            if 'histories' in plan:
+                history = next(h for h in plan['histories'] if h['replica'] == replica)
+                assert history['output_prefix'] == prefix
+                parent = history['parent']
+                # Authenticate the lineage records and E1 payloads; the published
+                # authority audit authenticates the accepted intermediate payloads.
+                for name, sha in parent['sha256'].items():
+                    if name.endswith(('plan.json', 'command.json', 'state.e1.lammpsdat')):
+                        pin(name, sha)
+                if parent['kind'] == 'e1':
+                    return parent['snapshot'], chain
+                prefix = parent['prefix']
+                continue
+            commands = plan['commands']
+            command = next(c for c in commands if c[c.index('--output') + 1] == prefix)
+        else:
+            record_path = directory / 'command.json'
+            record = read(record_path)
+            pin(record_path)
+            chain.append(str(record_path))
+            command = record['command']
+            if 'parent_e1' in record:
+                pin(record['parent_e1'], record['parent_e1_sha256'])
+        if '--input' in command:
+            return command[command.index('--input') + 1], chain
+        prefix = command[command.index('--restart-prefix') + 1]
+
+
+def collect(output):
+    output = output.resolve()
+    if output == ROOT or ROOT in output.parents:
+        raise ValueError('inventory output must be outside the dataset')
+    if output.exists():
+        raise FileExistsError('inventory output already exists: ' + str(output))
+    plan_path = BASE / 'reviews/production_activation_20261026/EXECUTION_PLAN.log'
+    plan = read(plan_path)
+    pin(plan_path)
+    rows = plan['histories']
+    assert len(rows) == 45
+    assert len({(h['system'], h['replica']) for h in rows}) == 45
+    approved_directories = {Path(h['output_prefix']).parent for h in rows}
+    observed = {p.parent for p in ROOT.glob('systems/*/production/**/run.complete.json')}
+    assert observed == approved_directories, 'unexpected/missing completed history'
+    assert {p.parent for p in ROOT.glob('systems/*/production/**/run.json')} == approved_directories
+    assert {p.parent for p in ROOT.glob('systems/*/production/**/started.json')} == approved_directories
+    assert not list(ROOT.glob('systems/*/production/**/failure.json')), 'failure requires forensic review'
+    production = []
+    pairing = []
+    for h in rows:
+        directory = Path(h['output_prefix']).parent
+        binding = read(directory / 'validated_binding.json')
+        pin(directory / 'validated_binding.json')
+        receipt_path = directory / binding['receipt']
+        pin(receipt_path, binding['sha256'])
+        receipt = read(receipt_path)
+        assert receipt['status'] == 'independently_validated'
+        assert receipt['identity']['history_sha256'] == h['history_sha256']
+        assert receipt['numerical']['endpoint']['status'] == 'valid'
+        complete = read(h['output_prefix'] + '.complete.json')
+        assert complete == dict(schema_version=1, production_steps=100000000,
+                               initial_absolute_step=h['start_step'],
+                               final_absolute_step=h['end_step'], status='complete')
+        footer = (directory / 'stdout.log').read_text()
+        wall_seconds = float(re.search(r'wall_seconds ([\d.e+]+)', footer)[1])
+        meta, stress = rheology.read_stress_correlator(h['output_prefix'] + '.stress_correlator')
+        expected = [(j * .01, 100000000 - j) for j in range(16)]
+        for level in range(1, 39):
+            count = 100000000 // 2**level
+            expected.extend((j * 2**level * .01, count - j) for j in range(8, 16) if count > j)
+        assert meta['stress_samples'] == 100000000 and meta['support_mode'] == 'exact_n_pairs'
+        assert len(stress) == len(expected) == receipt['numerical']['lag_bins']
+        assert all(abs(r['time'] - lag) < 1e-8 and r['n_pairs'] == n
+                   for r, (lag, n) in zip(stress, expected))
+        sizes = {}
+        for name, info in receipt['numerical']['endpoint']['files'].items():
+            path = directory / name
+            assert path.stat().st_size == info['size']
+            assert info['sha256'] == receipt['output_sha256'][str(path)]
+            sizes[name] = info['size']
+        # Preserve the authenticated output digest list without a second campaign
+        # payload read. VERIFY_FINAL independently rehashes these exact files.
+        bindings.update(receipt['output_sha256'])
+        system = next(s for s in campaign.campaign_systems() if s['system_id'] == h['system'])
+        qualification = h['accepted_parent']['qualification']
+        production.append(dict(system=h['system'], replica=h['replica'],
+            atom_count=campaign.expected_geometry(system)['total_beads'],
+            completed_steps=complete['production_steps'], start_step=h['start_step'],
+            end_step=h['end_step'], numerical_status='valid', receipt=str(receipt_path),
+            receipt_sha256=binding['sha256'], md_seed=h['md_seed'],
+            effective_md_seed=h['effective_md_seed'], chemistry_seed=h['chemistry_seed'],
+            history_sha256=h['history_sha256'], output_prefix=h['output_prefix'],
+            output_bytes=sum(sizes.values()), measured_100m_wall_seconds=wall_seconds, stress_samples=meta['stress_samples'],
+            lag_bins=len(stress), output_sizes=json.dumps(sizes, sort_keys=True),
+            chemistry=json.dumps(receipt['numerical']['chemistry_trace'], sort_keys=True),
+            qualification=qualification))
+        snapshot, chain = ancestry(h['accepted_parent']['prefix'], h['replica'])
+        geometry = campaign.geometry_id(system)
+        expected_snapshot = campaign.e1_bank_path(ROOT, geometry, h['replica']) / 'state.e1.lammpsdat'
+        assert Path(snapshot) == expected_snapshot
+        e1_data = campaign.parse_lammps_data(snapshot)
+        parent_data = campaign.parse_lammps_data(h['accepted_parent']['prefix'] + '.restart.lammpsdat')
+        assert all(e1_data[k] == parent_data[k] for k in ('atoms', 'bonds', 'bounds'))
+        pairing.append(dict(system=h['system'], replica=h['replica'], e1=str(expected_snapshot),
+                            e1_sha256=pin(snapshot), lineage=chain, permanent_topology_box_ids_equal=True))
+    audit = ROOT / 'aggregate/e1/audit_20261010T154908Z_v1'
+    manifest = read(audit / 'integrity_manifest.json')
+    pin(audit / 'integrity_manifest.json')
+    for name, sha in manifest['files_sha256'].items():
+        pin(audit / name, sha)
+    old = read(audit / 'results.json')
+    controls = []
+    for row in old['replicas']:
+        geometry, replica = row['geometry'], row['replica']
+        bank = campaign.e1_bank_path(ROOT, geometry, replica)
+        assert str(bank) == row['bank']
+        state = bank / 'state.e1.lammpsdat'
+        provenance = row['provenance']
+        state_hash = pin(state, provenance['state_sha256'])
+        pin(ROOT / 'banks/e1/active_states.json')
+        pin(bank / 'diagnostics.tsv', provenance['diagnostics_sha256'])
+        record = read(bank / 'command.json')
+        pin(bank / 'command.json')
+        assert record == provenance['command_record']
+        if record.get('previous_attempt'):
+            for historical in Path(record['previous_attempt']).iterdir():
+                if historical.is_file():
+                    pin(historical)
+        system = next(s for s in campaign.campaign_systems()
+                      if not s['associating'] and campaign.geometry_id(s) == geometry)
+        snapshot = e1.check_snapshot(state, system)
+        assert snapshot['sha256'] == state_hash
+        source = Path(record['command'][record['command'].index('--input') + 1])
+        pin(source, provenance['input_sha256'])
+        if 'input_sha256' in record:
+            assert record['input_sha256'] == digest(source)
+        with state.open() as stream:
+            header = stream.readline().strip()
+        assert int(re.search(r'\bstep\s+(\d+)', header)[1]) == row['final_step']
+        seed = int(re.search(r'\bseed=(\d+)', header)[1])
+        assert seed == row['seed'] == 12000 + replica
+        acceptance = ROOT / 'banks/e1' / geometry / 'validation.json'
+        if acceptance.exists():
+            raise ValueError('new formal acceptance requires separate review: ' + str(acceptance))
+        controls.append(dict(geometry=geometry, replica=replica, state=str(state),
+            state_sha256=state_hash, preparation_seed=seed, atoms=row['count'],
+            final_absolute_step=row['final_step'], state_header=header,
+            positions='finite; stable IDs', velocities='finite; all atoms',
+            numerical='valid; snapshot rechecked; diagnostics hash authenticated',
+            stage4_steps=8000000 if system['N'] == 40 else 2000000,
+            protocol=json.dumps(record['command']), source_sha=record['git_sha'],
+            preparation_executable_sha256=record.get('executable_sha256', 'not recorded'),
+            original_input_sha256=digest(source),
+            original_input_hash_recorded='input_sha256' in record,
+            formal_control_acceptance='absent; scientific review required',
+            rg2_late=row['existing_analyzer_summary']['mean_rg2']['second_mean'],
+            rg2_half_relative_difference=row['existing_analyzer_summary']['mean_rg2']['relative_difference'],
+            retry='registered attempt001; original failure retained' if 'e1_retries' in str(bank) else '',
+            qualification='nonlinear timestep accuracy unresolved; ' +
+                          ('N40 slow modes and modest effective samples' if system['N'] == 40 else
+                           'apparent stationarity; no proof all slow modes equilibrated')))
+    for control in campaign.campaign_systems():
+        if control['associating']:
+            continue
+        matches = [s for s in campaign.campaign_systems() if s['associating'] and
+                   campaign.geometry_id(s) == campaign.geometry_id(control)]
+        for associated in matches:
+            assert all(control[k] == associated[k] for k in
+                       ('f', 'N', 'rho_p', 'total_bead_density', 'number_of_stars',
+                        'temperature', 'dt', 'cadence_steps', 'production_steps'))
+    assert len(controls) == 24 and len({r['state_sha256'] for r in controls}) == 24
+    for geometry in {r['geometry'] for r in controls}:
+        assert {r['preparation_seed'] for r in controls if r['geometry'] == geometry} == {12001,12002,12003}
+    output.mkdir(parents=True, exist_ok=False)
+    write_csv(output / 'production.csv', production)
+    write_csv(output / 'e1.csv', controls)
+    write_json(output / 'pairing.log', pairing)
+    write_json(output / 'bindings.log', bindings)
+    write_json(output / 'summary.log', dict(created_utc=datetime.now(timezone.utc).isoformat(),
+        production_histories=len(production), production_steps=sum(r['completed_steps'] for r in production),
+        scientific_output_bytes=sum(r['output_bytes'] for r in production),
+        E1_states_present=24, E1_numerically_valid=24, E1_formally_accepted_for_controls=0,
+        original_input_hash_unrecorded=sum(not r['original_input_hash_recorded'] for r in controls),
+        pairings=len(pairing), GPU_MD_steps=0,
+        payload_hash_authentication='requires companion published VERIFY_FINAL PASS log'))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    collect(parser.parse_args().output)
+    print('PASS: 45 inventories and E1 lineages; 24 distinct valid E1 states; topology/box/parameter equality')

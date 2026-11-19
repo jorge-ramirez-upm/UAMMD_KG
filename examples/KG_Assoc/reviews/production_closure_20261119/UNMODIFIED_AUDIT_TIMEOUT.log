@@ -1,0 +1,10 @@
+Command: timeout 600 python3 examples/KG_Assoc/reviews/production_activation_20261026/VERIFY_FINAL.txt
+Exit code: 124
+Captured stdout/stderr: empty
+Result: TIMEOUT; no PASS claimed.
+No dataset record was changed.
+
+Digest-cache-only attempt: timeout 600 python3 kg_authenticate_cached.txt
+Exit code: 124
+Captured stdout/stderr: empty
+Result: TIMEOUT; no PASS claimed.

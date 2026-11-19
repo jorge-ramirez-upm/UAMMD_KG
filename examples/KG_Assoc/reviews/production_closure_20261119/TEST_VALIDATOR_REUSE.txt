@@ -1,0 +1,57 @@
+"""CPU fault checks for deterministic acceptance/snapshot reuse and dependencies."""
+from pathlib import Path
+import sys
+import os
+import tempfile
+
+source = Path(sys.argv[1]).read_text().split("runpy.run_path(str(BASE / 'reviews/production_activation_20261026/VERIFY_FINAL.txt'))", 1)[0]
+namespace = {}
+exec(compile(source, sys.argv[1], 'exec'), namespace)
+checks = []
+namespace['original_acceptance'] = lambda record, systems: checks.append((record.copy(), systems))
+record = dict(bank_id='fixture')
+systems = [dict(system_id='fixture')]
+namespace['once_acceptance'](record, systems)
+namespace['once_acceptance'](record, systems)
+assert len(checks) == 1
+namespace['once_acceptance'](record, [dict(system_id='different')])
+assert len(checks) == 2
+namespace['once_acceptance'](dict(record, qualification='changed'), systems)
+assert len(checks) == 3
+with tempfile.TemporaryDirectory() as temporary:
+    root = Path(temporary)
+    (root / 'banks').mkdir()
+    namespace['root'] = root
+    before = namespace['directories']()
+    (root / 'banks' / 'added').mkdir()
+    assert namespace['directories']() != before
+    payload = root / 'state'
+    payload.write_text('stable')
+    snapshots = []
+    namespace['original_snapshot'] = lambda path, system: snapshots.append(str(path)) or dict(valid=True)
+    result = namespace['once_snapshot'](payload, dict(f=4))
+    result['valid'] = False
+    assert namespace['once_snapshot'](payload, dict(f=4))['valid'] is True
+    assert len(snapshots) == 1
+    namespace['once_snapshot'](payload, dict(f=3))
+    assert len(snapshots) == 2
+    record_path = root / 'record.json'
+    record_path.write_text('{}')
+    assert namespace['stable_load'](record_path) == {}
+    record_path.write_text('{\"changed\":true}')
+    try:
+        namespace['stable_load'](record_path)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('changed JSON dependency accepted')
+    original_mtime = payload.stat().st_mtime_ns
+    payload.write_text('mutate')
+    os.utime(payload, ns=(original_mtime + 1000000000, original_mtime + 1000000000))
+    try:
+        namespace['once_snapshot'](payload, dict(f=4))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('mutated snapshot accepted')
+print('PASS: exact record/system cache keys; fresh snapshot result copies; file mutation and bank inventory changes detected')

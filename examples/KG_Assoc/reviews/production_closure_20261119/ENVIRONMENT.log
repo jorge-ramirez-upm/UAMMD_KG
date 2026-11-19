@@ -1,0 +1,24 @@
+{
+  "GPU_MD_steps": 0,
+  "changed_protected_files": [],
+  "current_executable_help": "kg_assoc_campaign_production (--input FILE --arms F --narm N --non-associating | --equilibrated-prefix PREFIX --Ea E --Ee E [--switch-ea-from E]) --output PREFIX --seed SEED [--validate-initial-state]",
+  "free_bytes": 692829757440,
+  "hostname": "titan",
+  "lammps_local_sha": "1c6faf70e94aef2389c208e8c80c60c084a96907",
+  "lammps_reference_sha256": {
+    "/home/jramirez/lammps/src/ASSOCIATING/fix_associating_kinetics.cpp": "8c81565fcbc12a32228712cefd819083602b2987cf54762899afd62f596917a4",
+    "/home/jramirez/lammps/src/ASSOCIATING/fix_associating_kinetics.h": "e8690683744d19e934cce62a130e7bd4a652e5f99727a95dd6bee462ad024af8",
+    "/home/jramirez/lammps/src/ASSOCIATING/pair_associating.cpp": "c24dd128694246acb59ed7968b1f883afc0b356fbd5275cba14997c68966ec3e",
+    "/home/jramirez/lammps/src/ASSOCIATING/pair_associating.h": "d21e03f6bb3d686513126cb2b248de155d0d84c93007e13d354365ababac6be1"
+  },
+  "process_survey": "PID namespace limited to tool processes; host-wide quiescence not established",
+  "production_journals": {
+    "failure": 0,
+    "native_finished": 45,
+    "recovery": 0,
+    "run": 45,
+    "started": 45,
+    "validated": 45
+  },
+  "starting_sha": "4cfb7d3de92020197a328a5b03c5da7b9096c4ff"
+}
