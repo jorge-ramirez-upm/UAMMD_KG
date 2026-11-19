@@ -1,0 +1,5 @@
+PREPARED nonassoc8_compat100k_20261119_v1: 9 tests, zero GPU or MD steps
+PASS nonassoc8_uninterrupted100m_20261119_v1: 24 dormant histories, 100000000 steps each, execution disabled
+PASS exact nine-history scope reconstructed from immutable run records.
+PASS all 6280 prior paths predate end of full production audit.
+PASS nine isolated run.json files and no validation outputs or execution journals.

@@ -1,0 +1,247 @@
+"""User-run, Git-authorized 9 x 100k control compatibility. CPU modes are read-only."""
+import argparse
+import math
+from pathlib import Path
+import runpy
+import shlex
+import shutil
+import struct
+import subprocess
+
+BASE = Path.cwd() / 'examples/KG_Assoc'
+REVIEWS = BASE / 'reviews'
+D = REVIEWS / 'nonassoc_compatibility_20261119'
+C = runpy.run_path(str(REVIEWS / 'nonassoc_preparation_20261119/CONTROL.txt'))
+c, e2, require = C['c'], C['e2'], C['require']
+ROOT = C['ROOT']
+START = 'c94f50f438ec2c6402b3fd69af5706661cc7e488'
+ID = 'nonassoc8_compat100k_20261119_v1'
+RUNS = ROOT / 'validation_outputs' / ID
+RESERVATION = ROOT / 'banks/production_validation_seed_reservations' / (ID + '.json')
+STEPS = 100000
+PURPOSE = 'bounded_production_compatibility'
+BUILD_PATH = C['D'] / 'build.log'
+BINARY = ROOT / 'builds/production_100m_preserved_20261023_v1/kg_assoc_campaign_production_smoke'
+EXTRAS = (D / 'DRIVER.txt', C['D'] / 'CONTROL.txt', C['ADAPTER'],
+          C['OLD'] / 'PREPARE.txt', BUILD_PATH)
+TARGETS = tuple((geometry + '_NONASSOC', replica) for geometry, replica in (
+    ('F03_N010_RP080', 1), ('F04_N010_RP020', 1), ('F04_N010_RP040', 1),
+    ('F04_N010_RP060', 1), ('F04_N010_RP080', 1), ('F04_N020_RP080', 1),
+    ('F04_N040_RP080', 1), ('F06_N010_RP080', 1), ('F04_N010_RP060', 2)))
+COMPLETE = ('validated_complete', 'recovered_complete')
+JOURNALS = {'run.json', 'started.json', 'native_finished.json', 'failure.json',
+            'validated.json', 'recovery.json', 'validated_binding.json'}
+
+
+def approval_path(system, replica):
+    return D / 'approvals' / f'{system}_r{replica:03d}.log'
+
+
+def smoke_build():
+    build = c.load_json(BUILD_PATH)
+    C['P']['build_check'](build)
+    smoke = build['compile_commands'][1]
+    require('-O3' in shlex.split(smoke) and
+            '-DKG_ASSOC_CAMPAIGN_STEPS="100000"' in shlex.split(smoke) and
+            smoke.endswith('-o kg_assoc_campaign_production_smoke -lz'),
+            'preserved build is not optimized 100k smoke')
+    return {str(BINARY): build['preserved_executable_sha256'][str(BINARY)]}
+
+
+def expected_history(system_id, replica, seed, executable):
+    system = C['control'](system_id)
+    acceptance = C['Q'] / 'acceptances' / (c.geometry_id(system) + '.log')
+    record = c.load_json(acceptance)
+    parent = C['parent'](record, system, replica)
+    directory = c.run_path(RUNS, system, replica).parent
+    prefix = directory / 'run'
+    argv = [str(BINARY), '--input', parent['state'], '--arms', str(system['f']),
+            '--narm', str(system['N']), '--seed', str(seed), '--non-associating',
+            '--output', str(prefix)]
+    run = dict(campaign=ID, system_id=system_id, replica=replica, md_seed=seed,
+               parent_e1=parent['state'], parent_e2=None, status='prepared',
+               purpose=PURPOSE, maximum_additional_MD_steps=STEPS)
+    history = dict(campaign=ID, system=system_id, replica=replica, steps=STEPS,
+                   start_step=0, end_step=STEPS, accepted_parent=dict(state=parent['state']),
+                   acceptance_identity=record['identity'],
+                   parent_sha256={str(acceptance): c.sha256(acceptance),
+                                  parent['state']: parent['state_sha256']},
+                   md_seed=seed, effective_md_seed=e2.validation.effective_md_seed(seed),
+                   dataset_root=str(RUNS), output_prefix=str(prefix), command=argv,
+                   approval=str(approval_path(system_id, replica)), executable_sha256=executable)
+    return history, run
+
+
+def committed(path):
+    require(path.is_file() and not path.is_symlink(), 'published artifact absent: ' + str(path))
+    name = path.relative_to(c.REPOSITORY_ROOT)
+    require(subprocess.check_output(['git', 'show', f'HEAD:{name}']) == path.read_bytes(),
+            'working authority differs from Git publication: ' + str(name))
+    return c.load_json(path)
+
+
+def load(journal):
+    authority = committed(D / 'AUTHORITY.log')
+    require(authority['campaign'] == ID and authority['purpose'] == PURPOSE and
+            authority['maximum_additional_MD_steps'] == 9 * STEPS and
+            authority['assistant_GPU_execution_authorized'] is False and
+            authority['GPU_execution_authorized'] is True and authority['production_activation'] is False,
+            'authorization exceeds bounded user-run scope')
+    plan = D / 'PLAN.log'
+    reservation = D / 'RESERVATION.log'
+    require(authority['source_authorization'] == str(D / 'SOURCE.log'), 'wrong source manifest')
+    e2.check_hashes(authority['production_reference_sha256'])
+    e2.check_hashes({str(plan): authority['plan_sha256'],
+                     str(reservation): authority['reservation_sha256'],
+                     str(RESERVATION): authority['reservation_sha256']})
+    histories = c.load_json(plan)
+    for h in histories:
+        require('approval_sha256' not in h, 'unexpected approval digest in plan')
+        h['approval_sha256'] = authority['approval_sha256'].get(h['approval'])
+    streams = c.load_json(reservation)
+    require(streams['campaign'] == ID, 'wrong reservation identity')
+    # A later validation reservation must also stay disjoint from these streams.
+    occupied = [row for path in RESERVATION.parent.glob('*.json') if path != RESERVATION
+                for row in c.load_json(path)['streams']]
+    used = {r[k] for r in occupied for k in ('md_seed', 'effective_md_seed', 'chemistry_seed')}
+    require(not any(r[k] in used for r in streams['streams'] for k in
+                    ('md_seed', 'effective_md_seed')), 'validation reservation collision')
+    validate_scope(histories, streams['streams'], authority, journal)
+    journal['authenticated_sources'](authority)
+    return authority, histories
+
+
+def validate_scope(histories, streams, authority, journal):
+    require([(h['system'], h['replica']) for h in histories] == list(TARGETS) and
+            [(r['system'], r['replica']) for r in streams] == list(TARGETS),
+            'wrong nine-test scope or order')
+    require(len({r['md_seed'] for r in streams}) == len({r['effective_md_seed'] for r in streams}) == 9,
+            'duplicate validation streams')
+    executable = smoke_build()
+    require(set(authority['approval_sha256']) ==
+            {str(approval_path(system, replica)) for system, replica in TARGETS},
+            'approval scope differs')
+    for history, row in zip(histories, streams):
+        expected, stub = expected_history(row['system'], row['replica'], row['md_seed'], executable)
+        stub_path = Path(expected['output_prefix']).with_name('run.json')
+        require(stub_path.resolve() == stub_path and c.load_json(stub_path) == stub,
+                'prepared run binding changed')
+        expected['run_sha256'] = e2.hash_files([stub_path])
+        expected['history_sha256'] = journal['history_digest'](expected)
+        expected['approval_sha256'] = authority['approval_sha256'][expected['approval']]
+        require(history == expected and row['effective_md_seed'] == expected['effective_md_seed']
+                and row['chemistry_seed'] == row['md_seed'], 'history differs from exact 100k contract')
+
+
+def bead_identity(history):
+    parent = c.parse_lammps_data(history['accepted_parent']['state'])
+    with Path(history['output_prefix'] + '.beads.bin').open('rb') as stream:
+        stream.seek(20)
+        count, bonds = struct.unpack('=QQ', stream.read(16))
+        require((count, bonds) == (len(parent['atoms']), len(parent['bonds'])),
+                'bead topology counts differ')
+        bounds = tuple(v for axis in 'xyz' for v in parent['bounds'][axis])
+        require(struct.unpack('=6d', stream.read(48)) == bounds, 'bead box differs')
+        ids = struct.iter_unpack('=iii', stream.read(12 * count))
+        require(all(row == (i, *parent['atoms'][i]) for i, row in enumerate(ids, 1)),
+                'bead stable identities differ')
+        edges = struct.iter_unpack('=ii', stream.read(8 * bonds))
+        require(list(edges) == [tuple(bond) for bond in parent['bonds']], 'bead permanent bonds differ')
+        stream.seek(20, 1)  # 100k has one frame. Existing validator checks marker, cadence and size.
+        xyz = struct.iter_unpack('=f', stream.read(12 * count))
+        require(all(math.isfinite(value) for (value,) in xyz), 'nonfinite bead frame')
+
+
+def run_with_timeout(command, **kwargs):
+    return subprocess.Popen(['/usr/bin/timeout', '--foreground', '--kill-after=10s', '600s',
+                             *command], **kwargs)
+
+
+def adapter():
+    journal = C['journal_adapter']()
+    namespace = journal['execute'].__globals__
+    original = runpy.run_path(str(C['ADAPTER']))
+    namespace['authenticate'] = original['authenticate']
+    namespace['subprocess'] = argparse.Namespace(
+        Popen=run_with_timeout, TimeoutExpired=subprocess.TimeoutExpired,
+        run=subprocess.run)
+    validate = journal['numerical_validation']
+
+    def numerical(history):
+        try:
+            result = validate(history)
+            bead_identity(history)
+        except (KeyError, IndexError, struct.error, EOFError) as error:
+            raise ValueError('malformed control output: ' + str(error)) from error
+        result['bead_identity'] = 'parent_matched'
+        result['certifications'] = dict(initial_GPU_readback='not_performed',
+                                        independent_force_stress_comparison='not_performed',
+                                        candidate_oracle='not_performed',
+                                        separately_measured_reversible_stress='not_available')
+        return result
+
+    namespace['numerical_validation'] = numerical
+    return journal
+
+
+def inspect(history, authority, journal):
+    directory = Path(history['output_prefix']).parent
+    allowed = JOURNALS | {p.name for p in journal['output_paths'](history)}
+    # The native atomic-write temporary file can remain after a failure.
+    allowed.add('run.complete.json.tmp')
+    require(directory.resolve() == directory, 'validation directory redirected')
+    for path in directory.iterdir():
+        require(path.name in allowed and path.is_file() and not path.is_symlink()
+                and path.stat().st_nlink == 1, 'unexpected validation file: ' + str(path))
+    state = journal['status'](history, authority)
+    if state == 'prepared':
+        require({p.name for p in directory.iterdir()} == {'run.json'}, 'unowned validation evidence')
+    return state
+
+
+def actions(action, selected=None):
+    journal = adapter()
+    if action in ('check', 'status'):
+        authority, histories = load(journal)
+        states = [inspect(h, authority, journal) for h in histories]
+        for h, state in zip(histories, states):
+            print(h['system'], f"r{h['replica']:03d}", state, flush=True)
+        if action == 'check':
+            require(all(s in COMPLETE + ('prepared',) for s in states), 'validation batch held')
+            require(shutil.disk_usage(RUNS).free >= 1024**3, 'need at least 1 GiB free')
+            require(Path('/usr/bin/timeout').is_file(), 'missing GNU timeout')
+            print(f'PASS {ID}: nine approved short tests, maximum {9*STEPS} MD steps')
+        return
+    with C['run_e2'].workflow_lock(ROOT):
+        authority, histories = load(journal)
+        if action == 'recover':
+            targets = [h for h in histories if f"{h['system']}_r{h['replica']:03d}" == selected]
+            require(len(targets) == 1, 'recovery requires an exact approved test identity')
+            h = targets[0]
+            require(inspect(h, authority, journal) in
+                    COMPLETE + ('native_finished_pending_validation_hold',),
+                    'requires genuine native completion and an administrative issue')
+            failure = Path(h['output_prefix']).with_name('failure.json')
+            if failure.exists():
+                require(c.load_json(failure)['identity'] == journal['identity'](h, authority),
+                        'failure journal identity differs')
+            print(journal['validate'](h, authority, recovery=True), selected)
+            return
+        states = [inspect(h, authority, journal) for h in histories]
+        require(all(s in COMPLETE + ('prepared',) for s in states), 'validation batch held')
+        for h in histories:
+            require(inspect(h, authority, journal) in COMPLETE + ('prepared',),
+                    'validation history changed after preflight')
+            require(shutil.disk_usage(RUNS).free >= 1024**3, 'need at least 1 GiB free')
+            print(journal['execute'](h, authority), h['system'], h['replica'], flush=True)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    for name in ('check', 'status', 'execute'):
+        modes.add_argument('--' + name, action='store_true')
+    modes.add_argument('--recover', metavar='SYSTEM_NONASSOC_rNNN')
+    args = parser.parse_args()
+    actions('check' if args.check else 'status' if args.status else
+            'execute' if args.execute else 'recover', args.recover)

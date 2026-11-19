@@ -1,0 +1,1 @@
+kg_assoc_campaign_production (--input FILE --arms F --narm N --non-associating | --equilibrated-prefix PREFIX --Ea E --Ee E [--switch-ea-from E]) --output PREFIX --seed SEED [--validate-initial-state]

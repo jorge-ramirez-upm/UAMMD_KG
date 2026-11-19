@@ -1,0 +1,107 @@
+"""One-time CPU publication of the approved nine-test scope on titan."""
+import csv
+import json
+from pathlib import Path
+import runpy
+import shlex
+import subprocess
+
+M = runpy.run_path(str(Path(__file__).with_name('DRIVER.txt')))
+D, c, e2, require = (M[k] for k in ('D', 'c', 'e2', 'require'))
+EVIDENCE = Path('work/nonassoc_compat_20261119')
+
+
+def prepare():
+    require(subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == M['START'],
+            'publication requires the reviewed starting commit')
+    audit = (EVIDENCE / 'production-audit.log').read_text()
+    require('"validated_histories": 45' in audit and '"status": "PASS"' in audit and
+            '"final_file_signatures_unchanged": true' in audit, 'production preservation audit missing')
+    require((EVIDENCE / 'e1-check.log').read_text().startswith('PASS: eight qualified triplets') and
+            (EVIDENCE / 'control-check.log').read_text().startswith('PASS nonassoc8_uninterrupted') and
+            '--non-associating' in (EVIDENCE / 'smoke-help.log').read_text(),
+            'E1, dormant plan or native CLI evidence missing')
+    for name in ('production-audit.log', 'e1-check.log', 'control-check.log', 'smoke-help.log', 'smoke-parser.log'):
+        with (D / name).open('xb') as out:
+            out.write((EVIDENCE / name).read_bytes())
+    require((EVIDENCE / 'smoke-parser.log').read_text().splitlines()[-1].startswith('PASS:'),
+            'bounded smoke CPU parser evidence missing')
+    control = M['C']
+    with control['run_e2'].workflow_lock(M['ROOT']):
+        reserve = M['RESERVATION']
+        require(not reserve.exists() and not M['RUNS'].exists()
+                and not (D / 'AUTHORITY.log').exists(), 'existing compatibility evidence is immutable')
+        chemical, requested, effective = control['seeds']()
+        for row in c.load_json(control['RESERVATION'])['streams']:
+            requested.add(row['md_seed'])
+            effective.add(row['effective_md_seed'])
+        occupied = chemical | requested | effective
+        seed = 22000000
+        streams = []
+        executable = M['smoke_build']()
+        journal = M['adapter']()
+        histories = []
+        for system, replica in M['TARGETS']:
+            while seed in occupied or e2.validation.effective_md_seed(seed) in occupied:
+                seed += 1
+            history, run = M['expected_history'](system, replica, seed, executable)
+            mapped = history['effective_md_seed']
+            occupied.update((seed, mapped))
+            streams.append(dict(system=system, replica=replica, md_seed=seed,
+                                chemistry_seed=seed, effective_md_seed=mapped))
+            path = Path(history['output_prefix']).with_name('run.json')
+            require(path.resolve() == path, 'redirected validation path')
+            path.parent.mkdir(parents=True, exist_ok=False)
+            e2.exclusive_json(path, run)
+            history['run_sha256'] = e2.hash_files([path])
+            history['history_sha256'] = journal['history_digest'](history)
+            histories.append(history)
+            seed += 1
+        reservation = dict(campaign=M['ID'], streams=streams)
+        e2.exclusive_json(reserve, reservation)
+        e2.exclusive_json(D / 'RESERVATION.log', reservation)
+        # Approval digests are added in the driver from the published authority.
+        plan = D / 'PLAN.log'
+        e2.exclusive_json(plan, histories)
+        plan_hash = c.sha256(plan)
+        approvals = {}
+        for h in histories:
+            path = Path(h['approval'])
+            e2.exclusive_json(path, dict(schema_version=1, purpose=M['PURPOSE'], approved=True,
+                GPU_execution_authorized=True, plan_sha256=plan_hash,
+                history_sha256=h['history_sha256'], system=h['system'], replica=h['replica'],
+                start_step=0, end_step=M['STEPS'], maximum_additional_MD_steps=M['STEPS'],
+                executable_sha256=executable))
+            approvals[str(path)] = c.sha256(path)
+        source = D / 'SOURCE.log'
+        extras = e2.hash_files(M['EXTRAS'])
+        e2.exclusive_json(source, dict(schema_version=1, git_sha=M['START'],
+                plan_sha256=plan_hash, approval_sha256=approvals, adapter_sha256=extras,
+                source_sha256={**e2.sources(), **extras}))
+        accepted = sorted((control['Q'] / 'acceptances').glob('*.log'))
+        require(len(accepted) == 8, 'E1 qualification inventory differs')
+        production_paths = [control['RESERVATION'], control['D'] / 'plan.log',
+                            control['D'] / 'dormant_registry.log']
+        production_paths.extend(p for p in control['RUNS'].rglob('run.json'))
+        require(len(production_paths) == 27, 'dormant production inventory differs')
+        authority = dict(campaign=M['ID'], purpose=M['PURPOSE'], maximum_additional_MD_steps=900000,
+                         GPU_execution_authorized=True, assistant_GPU_execution_authorized=False,
+                         production_activation=False, plan_sha256=plan_hash,
+                         reservation_sha256=c.sha256(reserve), approval_sha256=approvals,
+                         source_authorization=str(source), source_authorization_sha256=c.sha256(source),
+                         production_reference_sha256=e2.hash_files([*production_paths, *accepted]))
+        e2.exclusive_json(D / 'AUTHORITY.log', authority)
+        with (D / 'TEST_INDEX.csv').open('x', newline='') as out:
+            writer = csv.writer(out, lineterminator='\n')
+            writer.writerow(('test','acceptance','input','input_sha256','seed','effective_seed',
+                             'history_sha256','approval_sha256','native_command'))
+            for h in histories:
+                state = h['accepted_parent']['state']
+                writer.writerow((Path(h['approval']).stem, h['acceptance_identity'], state,
+                                 h['parent_sha256'][state], h['md_seed'], h['effective_md_seed'],
+                                 h['history_sha256'], approvals[h['approval']], shlex.join(h['command'])))
+        print(f'PREPARED {M["ID"]}: {len(histories)} tests, zero GPU or MD steps')
+
+
+if __name__ == '__main__':
+    prepare()

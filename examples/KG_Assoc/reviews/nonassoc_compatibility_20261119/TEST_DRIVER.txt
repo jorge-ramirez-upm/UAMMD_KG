@@ -1,0 +1,219 @@
+"""CPU fixtures for the bounded driver. No native process is started."""
+from contextlib import nullcontext
+from pathlib import Path
+import runpy
+import struct
+import tempfile
+import unittest
+from unittest.mock import Mock, patch
+
+M = runpy.run_path(str(Path(__file__).with_name('DRIVER.txt')))
+g = M['load'].__globals__
+
+
+class BoundedDriverTest(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.directory = Path(temporary.name)
+        self.journal = M['adapter']()
+        self.streams = []
+        self.histories = []
+        self.authority = dict(approval_sha256={})
+        executable = M['smoke_build']()
+        for i, (system, replica) in enumerate(M['TARGETS']):
+            seed = 22000000 + i
+            history, stub = M['expected_history'](system, replica, seed, executable)
+            self.streams.append(dict(system=system, replica=replica, md_seed=seed,
+                                     chemistry_seed=seed,
+                                     effective_md_seed=history['effective_md_seed']))
+            if not self.histories:
+                self.assertEqual(history['steps'], 100000)
+            with patch.dict(g, RUNS=self.directory):
+                history, stub = M['expected_history'](system, replica, seed, executable)
+            stub_path = Path(history['output_prefix']).with_name('run.json')
+            M['e2'].exclusive_json(stub_path, stub)
+            history['run_sha256'] = M['e2'].hash_files([stub_path])
+            history['history_sha256'] = self.journal['history_digest'](history)
+            history['approval_sha256'] = str(i)
+            self.authority['approval_sha256'][history['approval']] = str(i)
+            self.histories.append(history)
+
+    def test_exact_scope_and_forged_histories(self):
+        with patch.dict(g, RUNS=self.directory):
+            args = (self.streams, self.authority, self.journal)
+            M['validate_scope'](self.histories, *args)
+            h = self.histories[0]
+            for changed in (dict(steps=100000000), dict(md_seed=h['md_seed'] + 1),
+                            dict(effective_md_seed=0), dict(output_prefix='/production/run'),
+                            dict(command=['kg_assoc_campaign_production']),
+                            dict(acceptance_identity='E2'), dict(parent_sha256={}),
+                            dict(approval_sha256='forged')):
+                with self.subTest(changed=changed), self.assertRaises(ValueError):
+                    M['validate_scope']([dict(h, **changed), *self.histories[1:]], *args)
+            with self.assertRaises(ValueError):
+                M['validate_scope'](self.histories[:-1], *args)
+            with self.assertRaises(ValueError):
+                M['validate_scope'](self.histories, self.streams,
+                                    dict(approval_sha256={}), self.journal)
+            stub = Path(h['output_prefix']).with_name('run.json')
+            stub.write_text('{}')
+            with self.assertRaisesRegex(ValueError, 'run binding'):
+                M['validate_scope'](self.histories, *args)
+
+    def test_read_only_and_fail_stop(self):
+        inspect = Mock(return_value='prepared')
+        execute = Mock(side_effect=ValueError('failure fixture'))
+        lock = Mock(return_value=nullcontext())
+        journal = dict(execute=execute)
+        with patch.dict(g, adapter=lambda: journal, load=lambda _: ({}, self.histories),
+                        inspect=inspect, RUNS=self.directory), \
+                patch.object(M['C']['run_e2'], 'workflow_lock', lock):
+            M['actions']('status')
+            execute.assert_not_called()
+            lock.assert_not_called()
+            inspect.side_effect = ['prepared'] * 8 + ['interrupted_or_failed_hold']
+            with self.assertRaisesRegex(ValueError, 'batch held'):
+                M['actions']('execute')
+            execute.assert_not_called()
+            inspect.side_effect = None
+            with self.assertRaisesRegex(ValueError, 'failure fixture'):
+                M['actions']('execute')
+            execute.assert_called_once()
+
+    def test_strict_recovery_routes(self):
+        h = self.histories[0]
+        target = Path(h['approval']).stem
+        validate = Mock(return_value='recovered_complete')
+        execute = Mock()
+        inspect = Mock(return_value='interrupted_or_failed_hold')
+        journal = dict(validate=validate, execute=execute)
+        with patch.dict(g, adapter=lambda: journal, load=lambda _: ({}, self.histories),
+                        inspect=inspect), \
+                patch.object(M['C']['run_e2'], 'workflow_lock', return_value=nullcontext()):
+            for selected in (target, 'unapproved_r999'):
+                with self.assertRaises(ValueError):
+                    M['actions']('recover', selected)
+            inspect.return_value = 'native_finished_pending_validation_hold'
+            M['actions']('recover', target)
+            validate.assert_called_once_with(h, {}, recovery=True)
+            execute.assert_not_called()
+
+    def test_git_authority_requires_original_bytes(self):
+        path = self.directory / 'authority.log'
+        path.write_text('{}')
+        with patch.object(M['c'], 'REPOSITORY_ROOT', self.directory), \
+                patch.object(M['subprocess'], 'check_output', return_value=b'{ }'):
+            with self.assertRaisesRegex(ValueError, 'Git publication'):
+                M['committed'](path)
+
+    def test_unowned_and_linked_outputs_are_rejected(self):
+        h = self.histories[0]
+        directory = Path(h['output_prefix']).parent
+        journal = dict(status=lambda *_: 'prepared', output_paths=lambda _: [])
+        self.assertEqual(M['inspect'](h, {}, journal), 'prepared')
+        temp = directory / 'run.complete.json.tmp'
+        temp.write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'unowned'):
+            M['inspect'](h, {}, journal)
+        temp.unlink()
+        temp.symlink_to(directory / 'run.json')
+        with self.assertRaisesRegex(ValueError, 'unexpected validation file'):
+            M['inspect'](h, {}, journal)
+
+    def test_bead_identity_topology_and_finiteness(self):
+        h = self.histories[0]
+        path = Path(h['output_prefix'] + '.beads.bin')
+        bounds = dict(x=(0, 2), y=(0, 2), z=(0, 2))
+        parent = dict(atoms={1: (1, 2), 2: (1, 1)}, bonds=[(1, 2)], bounds=bounds)
+        header = b'\0' * 20 + struct.pack('=QQ6d', 2, 1, 0, 2, 0, 2, 0, 2)
+        atoms = struct.pack('=6i', 1, 1, 2, 2, 1, 1)
+        edge = struct.pack('=ii', 1, 2)
+        xyz = struct.pack('=6f', 0, 0, 0, 1, 1, 1)
+        with patch.object(M['c'], 'parse_lammps_data', return_value=parent):
+            path.write_bytes(header + atoms + edge + b'\0' * 20 + xyz)
+            M['bead_identity'](h)
+            for changed_atoms, changed_edge, changed_xyz in (
+                    (struct.pack('=6i', 1, 1, 1, 2, 1, 1), edge, xyz),
+                    (atoms, struct.pack('=ii', 1, 1), xyz),
+                    (atoms, edge, struct.pack('=6f', float('nan'), 0, 0, 1, 1, 1))):
+                path.write_bytes(header + changed_atoms + changed_edge + b'\0' * 20 + changed_xyz)
+                with self.assertRaises(ValueError):
+                    M['bead_identity'](h)
+
+    def test_complete_100k_numerical_contract(self):
+        h = self.histories[0]
+        prefix = h['output_prefix']
+        toy = dict(system_id=h['system'], associating=False, number_of_stars=1,
+                   f=2, N=1, rho_p=.375, total_bead_density=.375)
+        parent = self.directory / 'toy.lammpsdat'
+        h['accepted_parent'] = dict(state=str(parent))
+        parent.write_text(
+            'fixture\n3 atoms\n2 bonds\n0 2 xlo xhi\n0 2 ylo yhi\n0 2 zlo zhi\n'
+            'Atoms\n1 1 1 1 1 1\n2 1 2 0.2 1 1\n3 1 2 1.8 1 1\n'
+            'Velocities\n1 0 0 0\n2 0 0 0\n3 0 0 0\nBonds\n1 1 1 2\n2 1 1 3\n')
+        provenance = (f'# input_file={parent} arms=2 narm=1 T=1 dt=0.01 K=30 R0=1.5 damping=2 '
+                      f'seed={h["md_seed"]} production_seed={h["md_seed"]} nu0=0 '
+                      'start_step=0 total_requested_steps=100000\n')
+        steps = range(10000, 100001, 10000)
+        com = ('# step time molecule_id com_x com_y com_z\n# KG_COM_TRANSPORT 2\n'
+               '# convention native_continuous_plus_initial_backbone_offsets\n'
+               '# origin_kind independent_segment_no_concatenation\n# origin_id "fixture"\n'
+               '# origin_step 0\n# cadence_steps 10000\n# dt .01\n# unit_mass 1\n'
+               '# box_bounds 0 2 0 2 0 2\n# molecule_ids 1\n# END_KG_COM_TRANSPORT\n')
+        rows = [(j, 100000-j) for j in range(16)]
+        for level in range(1, 39):
+            n = 100000 // 2**level
+            rows.extend((j * 2**level, n-j) for j in range(8, 16) if j < n)
+        thermo = provenance + '# chemistry_sweeps=0 candidate_sticker_pairs=0 mean_candidate_sticker_pairs=0\n'
+        thermo += ''.join(f'{s} {s*.01} 1 1 1 1 1 0 1 0 0 0 2 0 0\n'
+                          for s in range(1000, 100001, 1000))
+        stress = '# stress_samples=100000 step0_sampled=no stress_interval_steps=1 dt=0.01\n'
+        stress += '# time Gxy Gxz Gyz GNxy GNxz GNyz G n_pairs\n'
+        stress += ''.join(f'{lag*.01} 1 1 1 1 1 1 0.7 {n}\n' for lag, n in rows)
+        files = {
+            '.thermo.tsv': thermo, '.events': provenance, '.final_associations': '# empty\n',
+            '.final.lammpsdat': parent.read_text(), '.stress_correlator': stress,
+            '.topology': ''.join(f'FRAME {s} {s*.01} 0\n' for s in steps),
+            '.com_trajectory': com + ''.join(f'{s} {s*.01} 1 1 1 1\n' for s in steps),
+            '.complete.json': '{"production_steps":100000,"initial_absolute_step":0,"final_absolute_step":100000}',
+        }
+        for suffix, text in files.items():
+            Path(prefix + suffix).write_text(text)
+        Path(prefix).with_name('stderr.log').write_text('')
+        Path(prefix).with_name('stdout.log').write_text(
+            'chemistry_sweeps 0 mean_candidate_sticker_pairs 0 creations 0 breaks 0 '
+            'final_associating_bonds 0 final_intra_star_bonds 0 final_inter_star_bonds 0\n')
+        Path(prefix + '.beads.bin').write_bytes(
+            b'KG_BEADS_BIN_V2\0' + struct.pack('=IQQ6d', 2, 3, 2, 0, 2, 0, 2, 0, 2) +
+            struct.pack('=9i', 1, 1, 1, 2, 1, 2, 3, 1, 2) + struct.pack('=4i', 1, 2, 1, 3) +
+            struct.pack('=Iqd9f', 0x4652414d, 100000, 1000, 1, 1, 1, .2, 1, 1, 1.8, 1, 1))
+        with patch.object(M['c'], 'campaign_systems', return_value=[toy]):
+            validate = self.journal['numerical_validation'].__globals__['numerical_validation']
+            result = validate(h)
+            self.assertEqual((result['stress_samples'], result['lag_bins']), (100000, 116))
+            self.assertEqual(result['endpoint']['event_count'], 0)
+            self.assertEqual(result['bead_identity'], 'parent_matched')
+            for suffix, invalid in (
+                    ('.thermo.tsv', thermo.replace('chemistry_sweeps=0', 'chemistry_sweeps=1')),
+                    ('.thermo.tsv', thermo.replace('1 1 0 1 0 0', '1 1 1 1 0 0')),
+                    ('.stress_correlator', stress.replace(' 100000\n', ' 99999\n')),
+                    ('.stress_correlator', stress.replace(' 0.7 ', ' 0.8 ')),
+                    ('.final.lammpsdat', parent.read_text().replace('2 0 0 0', '2 nan 0 0'))):
+                path = Path(prefix + suffix)
+                path.write_text(invalid)
+                with self.assertRaises(ValueError):
+                    validate(h)
+                path.write_text(files[suffix])
+
+    def test_timeout_preserves_exact_native_argv(self):
+        cmd = self.histories[0]['command']
+        with patch.object(M['subprocess'], 'Popen') as popen:
+            M['run_with_timeout'](cmd, start_new_session=True)
+            popen.assert_called_once_with(
+                ['/usr/bin/timeout', '--foreground', '--kill-after=10s', '600s', *cmd],
+                start_new_session=True)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
