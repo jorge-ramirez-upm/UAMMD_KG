@@ -1,0 +1,7 @@
+{
+  "original_authority_sha256": "3e75c60514c0b7939c02c64bfaad51940c9c8e566fe65d718837b2ed52d8689c",
+  "sha256": {
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/nonassoc_compatibility_repair_20261119/CONTINUE.txt": "bb606017475089178bcf0363ee358566ef5606ba2d353aaf006194cb28054b4c",
+    "/home/jramirez/UAMMD_KG/examples/KG_Assoc/reviews/nonassoc_compatibility_repair_20261119/RECONCILIATION.log": "7523ca02d6b47649c97de92bb60d2891ad7b51d89d7eaecc8d6f61426d2009f9"
+  }
+}

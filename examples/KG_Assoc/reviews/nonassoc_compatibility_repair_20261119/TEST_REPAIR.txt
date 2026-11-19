@@ -1,0 +1,110 @@
+"""CPU regression for campaign-mode chemistry and one-test reconciliation."""
+from contextlib import nullcontext
+from pathlib import Path
+import runpy
+import shutil
+import tempfile
+import unittest
+from unittest.mock import Mock, patch
+
+M = runpy.run_path(str(Path(__file__).with_name('CONTINUE.txt')))
+OLD, c = M['OLD'], M['c']
+
+
+class CampaignChemistryTest(unittest.TestCase):
+    def setUp(self):
+        work = tempfile.TemporaryDirectory()
+        self.addCleanup(work.cleanup)
+        directory = Path(work.name)
+        original = c.load_json(OLD['D'] / 'PLAN.log')[0]
+        self.history = dict(original, output_prefix=str(directory / 'run'))
+        self.prefix = self.history['output_prefix']
+        for suffix in ('.thermo.tsv', '.events', '.final_associations',
+                       '.topology', '.final.lammpsdat'):
+            shutil.copyfile(original['output_prefix'] + suffix, self.prefix + suffix)
+        self.stdout = directory / 'stdout.log'
+        shutil.copyfile(Path(original['output_prefix']).with_name('stdout.log'), self.stdout)
+
+    def test_original_omission_and_fixed_validator(self):
+        with self.assertRaisesRegex(ValueError, M['MESSAGE']):
+            OLD['C']['zero_chemistry'](self.history)
+        self.assertEqual(M['zero_chemistry'](self.history), dict(
+            chemistry_sweeps=0, creations=0, breaks=0, reversible_bonds=0))
+
+    def test_missing_nonzero_or_ambiguous_stdout_measurement_fails(self):
+        text = self.stdout.read_text()
+        for key in ('chemistry_sweeps', 'mean_candidate_sticker_pairs', 'creations',
+                    'breaks', 'final_associating_bonds', 'final_intra_star_bonds',
+                    'final_inter_star_bonds'):
+            for replacement in (f'{key} 1', '', f'{key} 0 {key} 0'):
+                with self.subTest(key=key, replacement=replacement):
+                    self.stdout.write_text(text.replace(f'{key} 0', replacement))
+                    with self.assertRaises(ValueError):
+                        M['zero_chemistry'](self.history)
+
+    def test_corrupt_events_topology_energy_or_optional_summary_fails(self):
+        for suffix, line in (
+                ('.events', '10 1 2 C\n'), ('.final_associations', '1 2\n'),
+                ('.topology', 'FRAME 100000 1000 1\n'),
+                ('.thermo.tsv', '# candidate_sticker_pairs=1\n'),
+                ('.thermo.tsv', '100000 1000 1 1 1 1 1 0.5 1 0 0 0 3000 0 0\n')):
+            path = Path(self.prefix + suffix)
+            original = path.read_text()
+            with self.subTest(suffix=suffix, line=line):
+                path.write_text(original + line)
+                with self.assertRaises(ValueError):
+                    M['zero_chemistry'](self.history)
+            path.write_text(original)
+
+    def test_exact_reconciliation_rejects_other_history(self):
+        with self.assertRaisesRegex(ValueError, 'outside the one-test reconciliation'):
+            M['original_evidence'](dict(self.history, history_sha256='different'), {}, {})
+
+    def test_unrelated_numerical_failure_cannot_reconcile(self):
+        original = OLD['adapter']()
+        namespace = original['numerical_validation'].__globals__
+        authority = c.load_json(OLD['D'] / 'AUTHORITY.log')
+        history = c.load_json(OLD['D'] / 'PLAN.log')[0]
+
+        def wrong_error(_):
+            raise ValueError('corrupt stress')
+
+        with patch.dict(M['make_reconciliation'].__globals__, original_evidence=lambda *args: {}), \
+                patch.dict(OLD, inspect=lambda *args: 'native_finished_pending_validation_hold',
+                           load=lambda _: (authority, [history]), adapter=lambda: original), \
+                patch.object(M['e2'], 'hash_files', return_value={}), \
+                patch.dict(namespace, numerical_validation=wrong_error):
+            with self.assertRaisesRegex(ValueError, 'unexpected original validation error'):
+                M['make_reconciliation']()
+
+
+    def test_ordinary_recovery_still_rejects_original_failure(self):
+        journal = M['repaired_adapter']()
+        authority, histories = OLD['load'](journal)
+        with patch.dict(journal['validate'].__globals__,
+                        immutable=Mock(side_effect=AssertionError('would write journal'))):
+            with self.assertRaisesRegex(ValueError, 'numerical/provenance/native failure'):
+                journal['validate'](histories[0], authority, recovery=True)
+
+    def test_batch_skips_only_reconciled_history(self):
+        repair = Path(__file__).resolve().parent
+        release = c.load_json(repair / 'RELEASE.log')
+        release['sha256'] = {str(repair / Path(name).name): sha
+                             for name, sha in release['sha256'].items()}
+        journal = M['repaired_adapter']()
+        committed = OLD['committed']
+        launch_stub = Mock(return_value='fixture_only')
+        journal['execute'] = launch_stub
+        with patch.dict(M['continuation'].__globals__, D=repair,
+                        repaired_adapter=lambda: journal), \
+                patch.dict(OLD, committed=lambda path: release if path.name == 'RELEASE.log' else committed(path)), \
+                patch.dict(OLD['actions'].__globals__), \
+                patch.object(OLD['C']['run_e2'], 'workflow_lock', return_value=nullcontext()):
+            M['continuation']()('execute')
+        self.assertEqual(launch_stub.call_count, 8)
+        self.assertNotIn(M['HISTORY'], [call.args[0]['history_sha256']
+                                       for call in launch_stub.call_args_list])
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

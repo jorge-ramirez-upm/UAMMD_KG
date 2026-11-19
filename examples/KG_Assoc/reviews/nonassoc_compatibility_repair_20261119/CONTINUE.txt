@@ -1,0 +1,182 @@
+"""Continue the original bounded batch using the Git-bound campaign-mode validator repair."""
+import argparse
+from pathlib import Path
+import re
+import runpy
+
+REVIEWS = Path.cwd() / 'examples/KG_Assoc/reviews'
+D = REVIEWS / 'nonassoc_compatibility_repair_20261119'
+OLD = runpy.run_path(str(REVIEWS / 'nonassoc_compatibility_20261119/DRIVER.txt'))
+c, e2, require = OLD['c'], OLD['e2'], OLD['require']
+control, data_lines, e1 = (OLD['C'][key] for key in ('control', 'data_lines', 'e1'))
+HISTORY = 'c3852468e6805f4b048c644b70dd9a98e77fb281b152fddb10acc4a67f780e53'
+FAILURE = 'af361ac3c99e5972869cfbb100f6fb648e8e3ea824c49ae7609fd42debd1a5fe'
+FINISHED = 'c90f3f27835c90206ee0bb76a7a86d193e39ac476992ad806989e37701d38036'
+AUTHORITY = '3e75c60514c0b7939c02c64bfaad51940c9c8e566fe65d718837b2ed52d8689c'
+MESSAGE = 'control ran chemistry or candidate searches'
+
+
+def zero_chemistry(history):
+    prefix = history['output_prefix']
+    expected = dict(input_file=history['accepted_parent']['state'],
+                    seed=str(history['md_seed']), nu0='0', start_step='0',
+                    total_requested_steps=str(history['steps']))
+    for suffix in ('.thermo.tsv', '.events'):
+        with Path(prefix + suffix).open() as stream:
+            headers = [line for line in stream if line.startswith('#')]
+        metadata = dict(re.findall(r'\b(\w+)=([^\s]+)', ''.join(headers)))
+        require(all(metadata.get(k) == v for k, v in expected.items()) and
+                metadata.get('production_seed') == expected['seed'] and
+                metadata.get('T') == '1' and float(metadata['dt']) == .01 and
+                metadata.get('damping') == '2' and metadata.get('K') == '30' and
+                metadata.get('R0') == '1.5', 'control provenance differs')
+        system = control(history['system'])
+        require(metadata.get('arms') == str(system['f']) and
+                metadata.get('narm') == str(system['N']), 'native control geometry differs')
+        if suffix == '.thermo.tsv':
+            # Campaign-mode thermo omits this non-campaign summary.
+            require(all(k not in metadata or float(metadata[k]) == 0 for k in
+                        ('chemistry_sweeps', 'candidate_sticker_pairs', 'mean_candidate_sticker_pairs')),
+                    'nonzero chemistry in thermodynamic summary')
+    for suffix in ('.events', '.final_associations'):
+        require(next(data_lines(prefix + suffix), None) is None, 'control contains reversible events or pairs')
+    for words in data_lines(prefix + '.topology'):
+        require(len(words) == 4 and words[0] == 'FRAME' and words[3] == '0',
+                'control topology contains reversible pairs')
+    for words in data_lines(prefix + '.thermo.tsv'):
+        require(float(words[7]) == 0 and all(int(words[i]) == 0 for i in (9,10,11,13,14)),
+                'control thermodynamics contains reversible interactions')
+    footer = Path(prefix).with_name('stdout.log').read_text().splitlines()
+    summaries = [line for line in footer if line.startswith('S1 total_timesteps ')]
+    require(len(summaries) == 1 and int(summaries[0].split()[2]) == history['steps'],
+            'missing or ambiguous native step/chemistry summary')
+    for field in ('chemistry_sweeps', 'mean_candidate_sticker_pairs', 'creations', 'breaks',
+                  'final_associating_bonds', 'final_intra_star_bonds', 'final_inter_star_bonds'):
+        values = re.findall(rf'\b{field} (\S+)', summaries[0])
+        require(len(values) == 1 and float(values[0]) == 0, 'nonzero/missing native ' + field)
+    final = Path(prefix + '.final.lammpsdat')
+    e1.check_snapshot(final, control(history['system']))
+    initial, final = map(c.parse_lammps_data, (expected['input_file'], final))
+    require(all(initial[k] == final[k] for k in ('atoms','bonds','bounds')),
+            'control final identities, permanent topology or box differ')
+    return dict(chemistry_sweeps=0, creations=0, breaks=0, reversible_bonds=0)
+
+
+def repaired_adapter():
+    journal = OLD['adapter']()
+    namespace = journal['execute'].__globals__
+    namespace['chemistry_trace'] = zero_chemistry
+    original = namespace['numerical_validation']
+
+    def numerical(history):
+        result = original(history)
+        result['campaign_chemistry_validator_sha256'] = c.sha256(Path(__file__))
+        return result
+
+    namespace['numerical_validation'] = numerical
+    return journal
+
+
+def original_evidence(h, authority, journal):
+    require(h['history_sha256'] == HISTORY and h['system'] == 'F03_N010_RP080_NONASSOC'
+            and h['replica'] == 1, 'test is outside the one-test reconciliation')
+    path = Path(h['output_prefix']).parent
+    failure = path / 'failure.json'
+    e2.check_hashes({str(failure): FAILURE, str(path / 'native_finished.json'): FINISHED})
+    identity = journal['identity'](h, authority)
+    require(c.load_json(failure) == dict(kind='numerical_validation_failure', error_type='ValueError',
+                                        message=MESSAGE, identity=identity),
+            'failure identity differs')
+    require(c.load_json(path / 'run.complete.json') == dict(
+            schema_version=1, status='complete', production_steps=100000,
+            initial_absolute_step=0, final_absolute_step=100000), 'atomic completion differs')
+    return journal['native_evidence'](h, authority)
+
+
+def make_reconciliation():
+    """CPU-only, read-only revalidation. Publication is a separate Git record."""
+    journal = repaired_adapter()
+    authority, histories = OLD['load'](journal)
+    require(c.sha256(OLD['D'] / 'AUTHORITY.log') == AUTHORITY, 'original authority differs')
+    h = histories[0]
+    require(OLD['inspect'](h, authority, journal) == 'native_finished_pending_validation_hold',
+            'expected original native-complete validation hold')
+    native = original_evidence(h, authority, journal)
+    output = e2.hash_files(journal['output_paths'](h))
+    # Prove the original exception on the same unmodified output.
+    try:
+        OLD['adapter']()['numerical_validation'].__globals__['numerical_validation'](h)
+    except ValueError as error:
+        require(str(error) == MESSAGE, 'unexpected original validation error')
+    else:
+        raise ValueError('original defect did not reproduce')
+    with Path(h['output_prefix'] + '.thermo.tsv').open() as stream:
+        headers = ''.join(line for line in stream if line.startswith('#'))
+    require(not any(re.search(rf'\b{key}=', headers) for key in
+                    ('chemistry_sweeps', 'candidate_sticker_pairs', 'mean_candidate_sticker_pairs')),
+            'thermo metadata differs from campaign omission')
+    numerical = journal['numerical_validation'].__globals__['numerical_validation'](h)
+    e2.check_hashes(output)
+    require(original_evidence(h, authority, journal) == native, 'native evidence changed')
+    return dict(schema_version=1, status='reconciled_original_validator_defect',
+                identity=journal['identity'](h, authority), original_authority_sha256=AUTHORITY,
+                failure_sha256=FAILURE, native_sha256=native, output_sha256=output,
+                numerical=numerical, GPU_MD_steps_executed_for_reconciliation=0)
+
+
+def continuation():
+    release = OLD['committed'](D / 'RELEASE.log')
+    require(release['original_authority_sha256'] == AUTHORITY and
+            c.sha256(OLD['D'] / 'AUTHORITY.log') == AUTHORITY, 'original authority differs')
+    require(set(release['sha256']) == {str(D / name) for name in
+                                     ('CONTINUE.txt', 'RECONCILIATION.log')},
+            'unexpected repair publication scope')
+    e2.check_hashes(release['sha256'])
+    receipt = c.load_json(D / 'RECONCILIATION.log')
+    journal = repaired_adapter()
+    original_execute = journal['execute']
+
+    def reconciled(h, authority):
+        require(OLD['inspect'](h, authority, journal) == 'native_finished_pending_validation_hold',
+                'original hold or output inventory differs')
+        native = original_evidence(h, authority, journal)
+        numerical = receipt['numerical']
+        require(receipt['status'] == 'reconciled_original_validator_defect' and
+                receipt['original_authority_sha256'] == AUTHORITY and
+                receipt['identity'] == journal['identity'](h, authority) and
+                receipt['failure_sha256'] == FAILURE and receipt['native_sha256'] == native and
+                numerical['endpoint']['status'] == 'valid' and numerical['stress_samples'] == 100000 and
+                numerical['campaign_chemistry_validator_sha256'] == c.sha256(D / 'CONTINUE.txt') and
+                set(receipt['output_sha256']) == {str(p) for p in journal['output_paths'](h)},
+                'reconciliation receipt binding differs')
+        e2.check_hashes(receipt['output_sha256'])
+        return 'reconciled_complete'
+
+    def inspect(h, authority, current):
+        if h['history_sha256'] == HISTORY:
+            return reconciled(h, authority)
+        return OLD['inspect'](h, authority, current)
+
+    def execute(h, authority):
+        if h['history_sha256'] == HISTORY:
+            return reconciled(h, authority)
+        return original_execute(h, authority)
+
+    journal['execute'] = execute
+    namespace = OLD['actions'].__globals__
+    namespace.update(adapter=lambda: journal, inspect=inspect,
+                     COMPLETE=OLD['COMPLETE'] + ('reconciled_complete',))
+    return OLD['actions']
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    for mode in ('check', 'status', 'execute'):
+        modes.add_argument('--' + mode, action='store_const', const=mode, dest='action')
+    modes.add_argument('--recover', metavar='SYSTEM_NONASSOC_rNNN')
+    args = parser.parse_args()
+    if args.recover:
+        require(args.recover != 'F03_N010_RP080_NONASSOC_r001',
+                'the exact original failure has its own immutable reconciliation')
+    continuation()(args.action or 'recover', args.recover)
